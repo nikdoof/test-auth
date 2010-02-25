@@ -1,11 +1,14 @@
 from django.conf.urls.defaults import *
-
-# Uncomment the next two lines to enable the admin:
 from django.contrib import admin
+
 admin.autodiscover()
+
+# Unregister unneeded interfaces
+from eve_proxy.models import CachedDocument
+admin.site.unregister(CachedDocument)
 
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
-    (r'^accounts/', include('registration.backends.default.urls')),
-    (r'^sso/', include('sso.urls')),
+    ('', include('registration.backends.default.urls')),
+    ('', include('sso.urls')),
 )

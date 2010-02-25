@@ -11,25 +11,26 @@ class CorporateOnlyService(Exception):
 
 ## Models
 
-class SSOUser(User):
+class SSOUser(models.Model):
     """ Extended SSO User Profile options """
 
     user = models.ForeignKey(User, unique=True, related_name='profile')
 
     default_service_passwd = models.CharField(max_length=200)
-    default_service_username = models.CharField(max_length=200)
+    default_service_username = models.CharField(max_length=200, blank=True)
     
-    website = models.CharField(max_length=200)
-    aim = models.CharField(max_length=64)
-    msn = models.CharField(max_length=200)
-    icq = models.CharField(max_length=15)
-    xmpp = models.CharField(max_length=200)
+    website = models.CharField(max_length=200, blank=True)
+    aim = models.CharField(max_length=64, blank=True)
+    msn = models.CharField(max_length=200, blank=True)
+    icq = models.CharField(max_length=15, blank=True)
+    xmpp = models.CharField(max_length=200, blank=True)
 
     def __str__(self):
-        return self.user
+        return self.user.__str__()
 
     @staticmethod
     def create_user_profile(sender, instance, created, **kwargs):   
+        print 'trigger', instance
         if created:   
             profile, created = SSOUser.objects.get_or_create(user=instance) 
 
