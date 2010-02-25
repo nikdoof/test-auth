@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 
-from sso.models import ServiceAccounts
+from sso.models import ServiceAccount
 
 def index(request):
     pass
