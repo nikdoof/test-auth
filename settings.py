@@ -84,3 +84,14 @@ INSTALLED_APPS = (
 )
 
 AUTH_PROFILE_MODULE = 'sso.UserProfile'
+
+### Jabber Service Settings
+
+# Vhost to add users to 
+JABBER_SERVER = 'dredd.it'
+
+# Group to add authed people to
+JABBER_GROUP = 'dreddit'
+
+# Use sudo?
+JABBER_SUDO = True

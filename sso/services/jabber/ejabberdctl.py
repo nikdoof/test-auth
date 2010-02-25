@@ -12,21 +12,27 @@ class CommandError():
 class eJabberdCtl():
     """ Python abstraction of ejabberdctl """
     
-    def __init__(self, ejctl='/usr/sbin/ejabberdctl'):
-        self.ejctl = ejctl
+    def __init__(self, sudo=False, ejctl='/usr/sbin/ejabberdctl'):
+        if sudo:
+            self.ejctl = ['sudo',ejctl]
+        else:
+            self.ejctl = [ejctl]
 
     def _execute(self, commandline):
         """ Execute a ejabberd command """
         
-        args = [self.ejctl]
+        args = []
+        args.extend(self.ejctl)
         args.extend(shlex.split(commandline))
+
+        print args
 
         try:
             proc = subprocess.Popen(args, stdout=subprocess.PIPE)
             proc.wait()
             out = proc.communicate()
             ret = proc.returncode
-            print "%d: %s" % (ret, out)
+            #print "%d: %s" % (ret, out)
         except OSError, e:
             raise CommandError('Error encountered during execution: %s' % e)
         if ret > 0:
@@ -184,11 +190,10 @@ class eJabberdCtl():
          """ Gets a list of users for a specific vhost """
 
          cmd = "vhost %s registered-users" % server
-
          try:
              out = self._execute(cmd)
          except CommandError, e:
-             return 0
+             return []
          else:
              return out[:-1].split('\n')
 
@@ -218,7 +223,7 @@ class eJabberdCtl():
              return True
 
 if __name__ == '__main__':
-    b = eJabberdCtl()
+    b = eJabberdCtl(sudo=True)
 
     print b.register('test88','dredd.it','bleh')
     print b.is_online('matalok', 'dredd.it')

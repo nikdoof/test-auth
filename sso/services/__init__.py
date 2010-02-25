@@ -1,4 +1,16 @@
 
+def get_api(api):
+    try:
+        mod = __import__(self.service.api)
+    except ImportError:
+        raise DoesNotExist('Error creating service')
+
+    for i in self.service.api.spit(".")[1:]:
+        mod = getattr(mod, i)
+
+    return getattr(mod, mod.ServiceClass)()
+
+
 class BaseService():
     """
     Base Service class, all service classes should inherit from this
