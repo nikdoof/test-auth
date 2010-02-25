@@ -25,6 +25,8 @@ class SSOUser(models.Model):
     icq = models.CharField(max_length=15, blank=True)
     xmpp = models.CharField(max_length=200, blank=True)
 
+    corp_user = models.BooleanField()
+
     def __str__(self):
         return self.user.__str__()
 
@@ -38,8 +40,8 @@ signals.post_save.connect(SSOUser.create_user_profile, sender=User)
 
 class Service(models.Model):
     name = models.CharField(max_length=200)
-    url = models.CharField(max_length=200)
-    active = models.BooleanField()
+    url = models.CharField(max_length=200, blank=True)
+    active = models.BooleanField(default=True)
     api = models.CharField(max_length=200)
 
     def __str__(self):
@@ -48,9 +50,9 @@ class Service(models.Model):
 class ServiceAccount(models.Model):
     user = models.ForeignKey(User, blank=False)
     service = models.ForeignKey(Service, blank=False)
-    username = models.CharField(max_length=200, blank=False)
+    username = models.CharField(max_length=200, blank=True)
     password = models.CharField(max_length=200, blank=False)
-    active = models.BooleanField()
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return "%s: %s (%s)" % (self.service.name, self.user.username, self.username)
