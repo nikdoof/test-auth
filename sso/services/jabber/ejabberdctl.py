@@ -23,9 +23,12 @@ class eJabberdCtl():
         
         args = []
         args.extend(self.ejctl)
-        args.extend(shlex.split(commandline))
+        args.extend(shlex.split(commandline.encode('ascii')))
 
-        print args
+        # Convert all arguments to ascii first
+        #args = map(lambda x: x.encode('ascii'), args) 
+
+        print 'Executing: %s' % " ".join(args)
 
         try:
             proc = subprocess.Popen(args, stdout=subprocess.PIPE)
@@ -61,7 +64,7 @@ class eJabberdCtl():
     def register(self, user, server, password):
          """ Adds a user to a vhost """
 
-         cmd = "register %s %s %s" % (user, server, password)
+         cmd = 'register %s %s %s' % (user, server, password)
 
          try:
              self._execute(cmd)

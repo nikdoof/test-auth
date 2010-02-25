@@ -78,12 +78,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'registration',
-    'eve_proxy',
-    'eve_api',
     'sso',
 )
 
-AUTH_PROFILE_MODULE = 'sso.UserProfile'
+AUTH_PROFILE_MODULE = 'sso.SSOUser'
 
 ### Jabber Service Settings
 

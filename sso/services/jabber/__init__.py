@@ -3,17 +3,19 @@ from sso.services.jabber.ejabberdctl import eJabberdCtl
 import settings
 
 class JabberService(BaseService):
+
+    corp_only = True
     
     def __init__(self):
         self.ejctl = eJabberdCtl(sudo=settings.JABBER_SUDO)
 
-    def add_user(username, password):
+    def add_user(self, username, password):
         """ Add user to service """
         return self.ejctl.register(username, settings.JABBER_SERVER, password)
 
     def set_corp(self, username):
         """ User is in corp, enable extra privs """
-        return self.ejctl.srg_user_add(username, settings.JABBER_SERVER, settings.JABBER_GROUP)
+        pass
 
     def delete_user(self, username):
         """ Delete a user """
@@ -25,7 +27,7 @@ class JabberService(BaseService):
 
     def enable_user(self, username):
         """ Enable a user """
-        
+        return self.ejctl.enable_user(settings.JABBER_SERVER, username, password)
 
     def check_user(self, username):
         """ Check if the username exists """
