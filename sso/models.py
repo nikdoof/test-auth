@@ -45,7 +45,8 @@ class Service(models.Model):
     api = models.CharField(max_length=200)
 
     def __str__(self):
-        return "%s: %s" % (self.name, self.api)
+        #return "%s: %s" % (self.name, self.api)
+        return self.name
 
 class ServiceAccount(models.Model):
     user = models.ForeignKey(User, blank=False)

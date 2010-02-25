@@ -46,12 +46,12 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = '/home/nikdoof/dev/corpsso/media'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -93,6 +93,10 @@ INSTALLED_APPS = (
 )
 
 AUTH_PROFILE_MODULE = 'sso.SSOUser'
+
+### EVE Corp Info
+
+EVE_CORP_ID = 1018389948
 
 ### Jabber Service Settings
 

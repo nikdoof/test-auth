@@ -12,6 +12,7 @@ if __name__ == "__main__":
 
 from django.conf import settings
 from eve_proxy.models import CachedDocument
+from eve_api.app_defines import *
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 
@@ -39,6 +40,7 @@ def import_eve_account(api_key, user_id):
     account.api_key = api_key
     account.api_user_id = user_id
     account.api_last_updated = datetime.now()
+    account.api_status = API_STATUS_OK
     account.save()
 
     for node in characters_node_children:

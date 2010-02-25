@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Your Profile{% endblock %}
+
+{% block content %}
+
+<h1>Your Profile</h1>
+
+<ul>
+<li><b>Username:</b> {{ user.username }}</li>
+<li><b>Corp Access?</b> {{ profile.corp_user }}</li>
+</ul>
+
+<h2>Service Accounts</h2>
+{% if srvaccounts %}
+<table border=1>
+<tr><th>Service</th><th>Username</th><th>Password</th><th>Active</th><th>Actions</th></tr>
+{% for acc in srvaccounts %}
+<tr><td>{{ acc.service }}</td>
+    <td>{{ acc.username }}</td>
+    <td>******</td>
+    <td>{{ acc.active }}</td>
+    <td><a href="/profile/del/service/{{ acc.id }}/">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+{% if profile.corp_user %}
+<a href="/profile/add/service">Add Service</a>
+{% endif %}
+
+<br/>
+
+<h2>Eve API Keys</h2>
+{% if eveaccounts %}
+<table border=1>
+<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Active</th><th>Actions</th></tr>
+{% for acc in eveaccounts %}
+<tr><td>{{ acc.api_user_id }}</td>
+    <td>{{ acc.api_key }}</td>
+    <td>{{ acc.description }}</td>
+    <td>{{ acc.api_status }}</td>
+    <td><a href="/profile/del/eveapi/{{ acc.api_user_id }}/">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+<a href="/profile/add/eveapi">Add a Eve API key</a>
+
+{% endblock %}
