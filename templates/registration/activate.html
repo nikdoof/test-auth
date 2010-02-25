@@ -1,0 +1,17 @@
+{% load i18n %}
+
+{% block Content %}
+{% if account %}
+    <p>{% with account.username as username %}
+    Thank you for registering!<br />
+    From now on, you can login with your username ({{ username }}).<br/>
+    <br/>
+    <a href="{% url dreddit.views.index %}">Back</a>
+    {% endwith %}
+    </p>
+{% else %}
+    <p>Either the link was invalid, or you didn't activate your account within {{ expiration_days }} days after the registration. Please register again.</p>
+{% endif %}
+
+{% endblock %}
+

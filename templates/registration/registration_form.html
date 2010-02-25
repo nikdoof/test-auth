@@ -1,0 +1,15 @@
+{% load i18n %}
+
+{% block Headline %}Create Account{% endblock %}
+
+{% block Content %}
+<h2>Create Account</h2>
+<p>Please fill in the following form.</p>
+
+<form method="post" action=".">
+    <table>
+      {{ form }}
+    </table>
+    <input type="submit" value="{% trans "Create Account" %}" />
+</form>
+{% endblock %}

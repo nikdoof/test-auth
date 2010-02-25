@@ -1,0 +1,32 @@
+{% load i18n %}
+{% block HeadTag %}
+<script type="text/javascript">
+	Ext.onReady( function(){
+		Ext.fly("id_username").focus();
+	} );
+</script>
+{% endblock %}
+
+{% block Content %}
+
+<h2>Login</h2>
+
+{% if form.errors %}
+<p>Username or password don't exist or are not correct. Please try again.</p>
+{% endif %}
+
+<form method="post" action=".">
+<table>
+<tr><td>{{ form.username.label_tag }}</td><td>{{ form.username }}</td></tr>
+<tr><td>{{ form.password.label_tag }}</td><td>{{ form.password }}</td></tr>
+</table>
+
+<input type="submit" value="login" />
+<input type="hidden" name="next" value="{{ next }}" />
+</form>
+<ul>
+  <li>No Login? You can <a href="{% url registration.views.register %}">sign up!</a></li>
+  <li>Forgot the password? You can <a href="{% url django.contrib.auth.views.password_reset %}">reset it!</a></li>
+</ul>
+{% endblock %}
+
