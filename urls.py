@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
+from django.contrib.auth.views import login
 import settings
 
 admin.autodiscover()
@@ -14,7 +15,7 @@ urlpatterns = patterns('',
     ('', include('sso.urls')),
 )
 
-if not settings.DEBUG:
+if settings.DEBUG:
     urlpatterns += patterns('',
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
+        (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
     )

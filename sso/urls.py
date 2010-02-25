@@ -3,6 +3,7 @@ from django.conf.urls.defaults import *
 from sso import views
 
 urlpatterns = patterns('',
+    ('^$', views.index),
     (r'^profile/$', views.profile),
     (r'^profile/add/eveapi', views.eveapi_add),
     (r'^profile/del/eveapi/$', views.eveapi_del),

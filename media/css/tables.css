@@ -15,7 +15,6 @@ table {
 }
 
 table,caption {
-	margin: 0 auto;
 	border-right: 1px solid #CCC;
 	border-left: 1px solid #CCC
 }
@@ -25,16 +24,24 @@ caption,th,td {
 	padding: 10px
 }
 
-caption,thead th,tfoot th,tfoot td {
-	background-color: #E63C1E;
+caption,thead th {
+	background-color: #858585;
 	color: #FFF;
 	font-weight: bold;
 	text-transform: uppercase
 }
 
+tfoot th,tfoot td {
+	background-color: #858585;
+	color: #FFF;
+        font-size: 1px;
+	font-weight: bold;
+	text-transform: uppercase
+}
+
 thead th {
-	background-color: #C30;
-	color: #FFB3A6;
+	background-color: #858585;
+	color: white;
 	text-align: center
 }
 
@@ -75,5 +82,10 @@ tbody td+td+td+td a {
 
 tbody td+td+td+td a:active,tbody td+td+td+td a:hover,tbody td+td+td+td a:focus,tbody td+td+td+td a:visited {
 	color: #E63C1E
+}
+
+body a:active, body a:hover, body a:focus, body a:visited {
+	color: #E63C1E;
+        text-decoration: none;
 }
 

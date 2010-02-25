@@ -14,7 +14,7 @@ from sso.forms import EveAPIForm, ServiceAccountForm
 import settings
 
 def index(request):
-    pass
+    return render_to_response('sso/index.html')
 
 @login_required
 def profile(request):

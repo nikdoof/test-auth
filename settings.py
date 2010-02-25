@@ -1,7 +1,6 @@
 import os
 
 # Django settings for login project.
-LIVE = False
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -12,7 +11,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-if LIVE:
+if not DEBUG:
     DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
     DATABASE_NAME = 'dreddit_sso'             # Or path to database file if using sqlite3.
     DATABASE_USER = 'dreddit_sso'             # Not used with sqlite3.
@@ -51,7 +50,7 @@ MEDIA_ROOT = '/home/nikdoof/dev/corpsso/media'
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/media/'
+MEDIA_URL = '/static/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -93,6 +92,8 @@ INSTALLED_APPS = (
 )
 
 AUTH_PROFILE_MODULE = 'sso.SSOUser'
+
+LOGIN_REDIRECT_URL = "/profile"
 
 ### EVE Corp Info
 
