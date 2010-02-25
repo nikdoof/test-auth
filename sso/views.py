@@ -1,11 +1,20 @@
-# Create your views here.
+from django.shortcuts import render_to_response
+from django.contrib.auth.decorators import login_required
 
+from sso.models import ServiceAccounts
 
 def index(request):
     pass
 
+@login_required
 def profile(request):
-    pass
+
+    user = request.user
+    profile = request.user.get_profile()
+    srvaccounts = ServiceAccounts.objects.get(user=request.user) 
+    
+    return render_to_response('sso/profile.html', locals())
+
 
 def service_add(request):
     pass
