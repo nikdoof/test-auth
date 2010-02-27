@@ -11,7 +11,7 @@ admin.site.unregister(CachedDocument)
 
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
-    ('', include('registration.backends.default.urls')),
+    ('', include('registration.urls')),
     ('', include('sso.urls')),
 )
 
