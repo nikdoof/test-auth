@@ -1,8 +1,10 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.contrib.auth.views import login
+import django_cron
 import settings
 
+django_cron.autodiscover()
 admin.autodiscover()
 
 # Unregister unneeded interfaces
