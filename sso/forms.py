@@ -1,11 +1,20 @@
 from django import forms
 
+from eve_api.models.api_player import EVEAccount
 from sso.models import ServiceAccount, Service
 
 class EveAPIForm(forms.Form):
-    user_id = forms.CharField(max_length=10)
-    api_key = forms.CharField(max_length=100)
+    user_id = forms.CharField(label = u'User ID', max_length=10)
+    api_key = forms.CharField(label = u'API Key', max_length=100)
     description = forms.CharField(max_length=100)
+
+    def clean(self):
+        try:
+            eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['user_id'])
+        except EVEAccount.DoesNotExist:
+            return self.cleaned_data
+        else:
+            raise forms.ValidationError("This API User ID is already registered")
 
 class ServiceUsernameField(forms.CharField):
     def clean(self, request, initial=None):
