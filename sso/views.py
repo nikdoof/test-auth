@@ -96,7 +96,6 @@ def service_add(request):
             acc.password = form.cleaned_data['password']
 
             acc.save()
-
             return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
     else:
         form = ServiceAccountForm() # An unbound form
