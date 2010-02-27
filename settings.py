@@ -45,7 +45,7 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '/home/nikdoof/dev/corpsso/media'
+MEDIA_ROOT = '/home/dreddit/www/login.dredd.it/login/media'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -86,6 +86,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'registration',
+    'django_cron',
     'eve_proxy',
     'eve_api',
     'mumble',
