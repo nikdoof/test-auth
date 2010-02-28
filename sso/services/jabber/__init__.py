@@ -3,9 +3,7 @@ from sso.services.jabber.ejabberdctl import eJabberdCtl
 import settings
 
 class JabberService(BaseService):
-
-    corp_only = True
-    
+  
     def __init__(self):
         self.ejctl = eJabberdCtl(sudo=settings.JABBER_SUDO)
 

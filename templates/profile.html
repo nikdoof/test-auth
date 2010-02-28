@@ -8,7 +8,6 @@
 
 <ul>
 <li><b>Username:</b> {{ user.username }}</li>
-<li><b>Corp Access?</b> {{ profile.corp_user }}</li>
 </ul>
 
 <h2>Service Accounts</h2>
@@ -31,11 +30,9 @@
 </table>
 {% endif %}
 
-{% if profile.corp_user %}
 <p>
 <a href="/profile/add/service">Add Service</a>
 </p>
-{% endif %}
 
 <br/>
 
