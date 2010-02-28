@@ -10,6 +10,9 @@ from services import get_api
 class CorporateOnlyService(Exception):
     pass
 
+class ExistingUser(Exception):
+    pass
+
 ## Models
 
 class SSOUser(models.Model):
@@ -84,6 +87,8 @@ class ServiceAccount(models.Model):
         if self.active:
             if not api.check_user(self.username):
                 api.add_user(self.username, self.password)
+            else:
+                raise ExistingUser('Username %s has already been took' % self.username)
         else:
             if api.check_user(self.username):
                 api.delete_user(self.username)
