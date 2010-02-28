@@ -80,10 +80,6 @@ class ServiceAccount(models.Model):
 
         api = get_api(self.service.api)
 
-        if api.corp_only:
-            if not self.user.get_profile().corp_user:
-                raise CorporateOnlyService()
-
         if self.active:
             if not api.check_user(self.username):
                 api.add_user(self.username, self.password)
@@ -92,9 +88,6 @@ class ServiceAccount(models.Model):
         else:
             if api.check_user(self.username):
                 api.delete_user(self.username)
-
-        if self.user.get_profile().corp_user:
-            api.set_corp(self.username)
 
         # All went OK, save to the DB
         return models.Model.save(self)
