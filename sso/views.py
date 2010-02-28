@@ -9,7 +9,7 @@ from eve_api.api_puller.accounts import import_eve_account
 from eve_api.models.api_player import EVEAccount
 
 from sso.models import ServiceAccount, SSOUser
-from sso.forms import EveAPIForm, ServiceAccountForm
+from sso.forms import EveAPIForm, UserServiceAccountForm
 
 import settings
 
@@ -52,12 +52,7 @@ def eveapi_add(request):
             acc.description = form.cleaned_data['description']
             acc.save()
 
-            for eacc in EVEAccount.objects.filter(user=request.user):
-                if acc.api_status == 1 and acc.in_corp(settings.EVE_CORP_ID):
-                    profile = request.user.get_profile()
-                    profile.corp_user = True
-                    profile.save()
-                    break
+            request.user.get_profile().update_access()
 
             return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
     else:
@@ -84,8 +79,10 @@ def eveapi_del(request, userid=0):
 
 @login_required
 def service_add(request):
+    clsform = UserServiceAccountForm(request.user)
+
     if request.method == 'POST': 
-        form = ServiceAccountForm(request.POST) 
+        form = clsform(request.POST) 
         if form.is_valid():
   
             acc = ServiceAccount()
@@ -98,7 +95,7 @@ def service_add(request):
             acc.save()
             return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
     else:
-        form = ServiceAccountForm() # An unbound form
+        form = clsform() # An unbound form
 
     return render_to_response('sso/serviceaccount.html', {
         'form': form,

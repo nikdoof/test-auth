@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import signals
-from django.contrib.auth.models import User, UserManager
+from django.contrib.auth.models import User, UserManager, Group
+from eve_api.models import EVEAccount
 
 from services import get_api
 
@@ -27,6 +28,15 @@ class SSOUser(models.Model):
 
     corp_user = models.BooleanField()
 
+    def update_access(self):
+        """ Steps through each Eve API registered to the user and updates their group 
+            access accordingly """
+        for eacc in EVEAccount.objects.filter(user=self.user):
+            for char in eacc.characters.all():
+                if char.corporation.group:
+                    self.user.groups.add(char.corporation.group)
+                
+
     def __str__(self):
         return self.user.__str__()
 
@@ -43,6 +53,7 @@ class Service(models.Model):
     url = models.CharField(max_length=200, blank=True)
     active = models.BooleanField(default=True)
     api = models.CharField(max_length=200)
+    groups = models.ForeignKey(Group)
 
     def __str__(self):
         #return "%s: %s" % (self.name, self.api)

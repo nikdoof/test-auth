@@ -17,8 +17,6 @@ class BaseService():
 
     """
 
-    corp_only = False
-
     def add_user(self, username, password):
         """ Add a user """
         pass

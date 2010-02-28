@@ -89,7 +89,7 @@ INSTALLED_APPS = (
     'django_cron',
     'eve_proxy',
     'eve_api',
-    'mumble',
+#    'mumble',
     'sso',
 )
 
@@ -99,7 +99,7 @@ LOGIN_REDIRECT_URL = "/profile"
 
 ### EVE Corp Info
 
-EVE_CORP_ID = 1018389948
+ALLOWED_CORPS = [1018389948]
 
 ### Jabber Service Settings
 

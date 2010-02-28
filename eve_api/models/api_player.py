@@ -2,7 +2,7 @@
 This module holds data from the EVE XML API.
 """
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from eve_proxy.models import CachedDocument
 from eve_api.managers import EVEPlayerCorporationManager, EVEPlayerAllianceManager, EVEPlayerCharacterManager
 from eve_api.app_defines import API_STATUS_CHOICES, API_STATUS_PENDING
@@ -137,7 +137,9 @@ class EVEPlayerCorporation(EVEAPIModel):
     logo_color1 = models.IntegerField(blank=True, null=True)
     logo_color2 = models.IntegerField(blank=True, null=True)
     logo_color3 = models.IntegerField(blank=True, null=True)
-    
+
+    group = models.ForeignKey(Group, blank=True, null=True)
+
     objects = EVEPlayerCorporationManager()
     
     class Meta:
