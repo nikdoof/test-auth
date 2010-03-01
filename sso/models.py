@@ -86,7 +86,7 @@ class ServiceAccount(models.Model):
         if not self.username:
             self.username = self.user.username
 
-        api = self.service.api_class()
+        api = self.service.api_class
 
         if self.active:
             if not api.check_user(self.username):
