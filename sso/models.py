@@ -59,6 +59,14 @@ class Service(models.Model):
     api = models.CharField(max_length=200)
     groups = models.ManyToManyField(Group, blank=False)
 
+    @property
+    def provide_login(self):
+        return acc.service.api().settings['provide_login']
+           
+
+    def api(self):
+        return get_api(self.api)
+
     def __str__(self):
         #return "%s: %s" % (self.name, self.api)
         return self.name
@@ -79,7 +87,7 @@ class ServiceAccount(models.Model):
         if not self.username:
             self.username = self.user.username
 
-        api = get_api(self.service.api)
+        api = self.service.api()
 
         if self.active:
             if not api.check_user(self.username):

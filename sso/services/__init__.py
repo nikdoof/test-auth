@@ -17,6 +17,10 @@ class BaseService():
 
     """
 
+    settings = { 'require_user': True,
+                 'require_password': True,
+                 'provide_login': False }
+
     def add_user(self, username, password):
         """ Add a user """
         pass
@@ -35,4 +39,8 @@ class BaseService():
 
     def check_user(self, username):
         """ Check if the username exists """
+        pass
+
+    def login(username):
+        """ Login the user and provide cookies back """ 
         pass

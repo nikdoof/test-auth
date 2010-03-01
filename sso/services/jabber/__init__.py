@@ -3,7 +3,11 @@ from sso.services.jabber.ejabberdctl import eJabberdCtl
 import settings
 
 class JabberService(BaseService):
-  
+
+    settings = { 'require_user': True,
+                 'require_password': True,
+                 'provide_login': False }
+
     def __init__(self):
         self.ejctl = eJabberdCtl(sudo=settings.JABBER_SUDO)
 
