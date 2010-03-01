@@ -26,14 +26,21 @@ class RemoveInvalidUsers(Job):
 
                 # Check each service account and delete access if they're not allowed
                 for servacc in ServiceAccount.objects.filter(user=user):
-                    if not servacc.service.group in user.groups:
-                        self._logger.info("User %s is not in allowed group for %s, deleting account" % (user.username, servacc.service))
+
+                    print servacc.service.groups.all()
+                    print user.groups.all()
+                    allowedgroups = servacc.service.groups.all()
+
+                    print set(servacc.service.groups.all()) & set(servacc.service.groups.all())
+
+                    if not (set(servacc.service.groups.all()) & set(servacc.service.groups.all())):
+                        print "User %s is not in allowed group for %s, deleting account" % (user.username, servacc.service)
                         #servacc.delete()
                         pass
 
                 # For users set to not active, delete all accounts
                 if not user.is_active:
-                    self._logger.info("User %s is inactive, deleting related service accounts" % user.username)
+                    print "User %s is inactive, deleting related service accounts" % user.username
                     for servacc in ServiceAccount.objects.filter(user=user):
                         #servacc.delete()
                         pass
@@ -41,6 +48,3 @@ class RemoveInvalidUsers(Job):
 
 cronScheduler.register(RemoveInvalidUsers)
 
-if __name__ == '__main__':
-    c = RemoveInvalidUsers()
-    c.job()
