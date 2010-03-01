@@ -34,6 +34,7 @@ class SSOUser(models.Model):
     def update_access(self):
         """ Steps through each Eve API registered to the user and updates their group 
             access accordingly """
+        self.user.groups.clear()
         for eacc in EVEAccount.objects.filter(user=self.user):
             for char in eacc.characters.all():
                 if char.corporation.group:
