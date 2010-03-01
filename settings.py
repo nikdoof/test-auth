@@ -11,20 +11,12 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-if not DEBUG:
-    DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-    DATABASE_NAME = 'dreddit_sso'             # Or path to database file if using sqlite3.
-    DATABASE_USER = 'dreddit_sso'             # Not used with sqlite3.
-    DATABASE_PASSWORD = 'bf6431670c657b9b62f08353d61047c4552ed3d4'         # Not used with sqlite3.
-    DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-    DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
-else:
-    DATABASE_ENGINE = 'sqlite3'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-    DATABASE_NAME = 'dreddit_sso.db'             # Or path to database file if using sqlite3.
-    DATABASE_USER = ''             # Not used with sqlite3.
-    DATABASE_PASSWORD = ''         # Not used with sqlite3.
-    DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-    DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = 'dreddit_sso'             # Or path to database file if using sqlite3.
+DATABASE_USER = 'dreddit_sso'             # Not used with sqlite3.
+DATABASE_PASSWORD = 'bf6431670c657b9b62f08353d61047c4552ed3d4'         # Not used with sqlite3.
+DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
+DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -45,7 +37,7 @@ USE_I18N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = '/home/dreddit/www/login.dredd.it/login/media'
+MEDIA_ROOT = '/home/dreddit/www/auth.dredd.it/auth/media'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -117,3 +109,8 @@ JABBER_SUDO = True
 DEFAULT_CONN = 'Meta:tcp -h 127.0.0.1 -p 6502'
 MUMBLE_DEFAULT_PORT = 64738
 SLICE = '/usr/share/slice/Murmur.ice'
+
+FORCE_SCRIPT_NAME=""
+DEFAULT_FROM_EMAIL = "bot@auth.dredd.it"
+
+ACCOUNT_ACTIVATION_DAYS = 14
