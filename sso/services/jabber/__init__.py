@@ -11,10 +11,6 @@ class JabberService(BaseService):
         """ Add user to service """
         return self.ejctl.register(username.lower(), settings.JABBER_SERVER, password)
 
-    def set_corp(self, username):
-        """ User is in corp, enable extra privs """
-        pass
-
     def delete_user(self, username):
         """ Delete a user """
         return self.ejctl.unregister(username.lower(), settings.JABBER_SERVER)

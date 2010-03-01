@@ -21,10 +21,6 @@ class BaseService():
         """ Add a user """
         pass
 
-    def set_corp(self, username):
-        """ User is in corp, enable extra privs """
-        pass
-
     def delete_user(self, username):
         """ Delete a user """
         pass
