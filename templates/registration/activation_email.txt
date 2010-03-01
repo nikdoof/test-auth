@@ -10,4 +10,4 @@ In case you didn't register, please ignore this Mail. The account will be delete
 Regards, 
 
 Matalok
-Mumble Admin
+Auth Gateway Admin

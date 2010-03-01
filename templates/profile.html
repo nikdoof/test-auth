@@ -10,7 +10,10 @@
 <li><b>Username:</b> {{ user.username }}</li>
 </ul>
 
+{% if eveaccounts %}
 <h2>Service Accounts</h2>
+<p>This is a list of all your current service accounts, to create a login for 
+a new service click the Add Service link</p>
 {% if srvaccounts %}
 <table>
 <thead>
@@ -35,8 +38,14 @@
 </p>
 
 <br/>
+{% endif %}
 
 <h2>Eve API Keys</h2>
+<p>Adding a Eve API key will allow you to access any services allowed for your 
+corporation. Limited keys are accepted for service validation. API keys 
+are stored for on-going authentication. As the assigned owner of a key you may 
+remove them at any time, but this may affect any existing services you have 
+setup.</p>
 {% if eveaccounts %}
 <table>
 <thead>

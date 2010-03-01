@@ -1,1 +1,1 @@
-Account verification
+Dreddit Auth Gateway Account Validation
