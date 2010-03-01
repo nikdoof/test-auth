@@ -61,14 +61,13 @@ class Service(models.Model):
 
     @property
     def provide_login(self):
-        return acc.service.api().settings['provide_login']
-           
+        return self.api_class.settings['provide_login']
 
-    def api(self):
+    @property
+    def api_class(self):
         return get_api(self.api)
 
     def __str__(self):
-        #return "%s: %s" % (self.name, self.api)
         return self.name
 
 class ServiceAccount(models.Model):
@@ -87,7 +86,7 @@ class ServiceAccount(models.Model):
         if not self.username:
             self.username = self.user.username
 
-        api = self.service.api()
+        api = self.service.api_class()
 
         if self.active:
             if not api.check_user(self.username):
@@ -103,7 +102,7 @@ class ServiceAccount(models.Model):
 
     @staticmethod
     def pre_delete_listener( **kwargs ):
-        api = get_api(kwargs['instance'].service.api)
+        api = kwargs['instance'].service.api_class
         if api.check_user(kwargs['instance'].username):
             api.delete_user(kwargs['instance'].username)
 
