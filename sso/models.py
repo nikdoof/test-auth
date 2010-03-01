@@ -57,7 +57,7 @@ class Service(models.Model):
     url = models.CharField(max_length=200, blank=True)
     active = models.BooleanField(default=True)
     api = models.CharField(max_length=200)
-    groups = models.ManyToManyField(Group)
+    groups = models.ManyToManyField(Group, blank=False)
 
     def __str__(self):
         #return "%s: %s" % (self.name, self.api)
