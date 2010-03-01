@@ -30,10 +30,14 @@ def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
     services = Service.objects.filter(groups__in=user.groups.all())
+    defaultuser = user.username
+    defaultpasswd = user.get_profile().default_service_passwd
 
     class ServiceAccountForm(forms.Form):
         service = forms.ModelChoiceField(queryset=services)
         username = ServiceUsernameField(min_length=4,max_length=50)
         password = forms.CharField(label = u'Password',widget = forms.PasswordInput(render_value=False)) 
+
+        default_data = { 'username': defaultuser, 'password': defaultpasswd }
 
     return ServiceAccountForm
