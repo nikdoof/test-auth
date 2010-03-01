@@ -88,6 +88,7 @@ def service_add(request):
             acc = ServiceAccount()
 
             acc.user = request.user
+
             acc.service = form.cleaned_data['service']
             acc.username = form.cleaned_data['username']
             acc.password = form.cleaned_data['password']
@@ -95,7 +96,8 @@ def service_add(request):
             acc.save()
             return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
     else:
-        form = clsform() # An unbound form
+        defaults = { 'username': request.user.username, 'password': request.user.get_profile().default_service_passwd }
+        form = clsform(defaults) # An unbound form
 
     return render_to_response('sso/serviceaccount.html', {
         'form': form,
