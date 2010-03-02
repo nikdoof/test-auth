@@ -29,8 +29,6 @@ class SSOUser(models.Model):
     icq = models.CharField(max_length=15, blank=True)
     xmpp = models.CharField(max_length=200, blank=True)
 
-    corp_user = models.BooleanField()
-
     def update_access(self):
         """ Steps through each Eve API registered to the user and updates their group 
             access accordingly """
