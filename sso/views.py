@@ -9,7 +9,9 @@ from eve_api.api_puller.accounts import import_eve_account
 from eve_api.models.api_player import EVEAccount
 
 from sso.models import ServiceAccount, SSOUser
-from sso.forms import EveAPIForm, UserServiceAccountForm
+from sso.forms import EveAPIForm, UserServiceAccountForm, RedditAccountForm
+
+from reddit.models import RedditAccount
 
 import settings
 
@@ -30,6 +32,11 @@ def profile(request):
         srvaccounts = ServiceAccount.objects.filter(user=request.user).all()
     except ServiceAccount.DoesNotExist:
         srvaccounts = None
+
+    try:
+        redditaccounts = RedditAccount.objects.filter(user=request.user).all()
+    except ServiceAccount.DoesNotExist:
+        redditaccounts = None
     
     try:
         eveaccounts = EVEAccount.objects.filter(user=request.user).all()
@@ -116,6 +123,42 @@ def service_del(request, serviceid=0):
             acc.delete()
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
+
+
+@login_required
+def reddit_add(request):
+    if request.method == 'POST': 
+        form = RedditAccountForm(request.POST) 
+        if form.is_valid():
+  
+            acc = RedditAccount()
+
+            acc.user = request.user
+            acc.username = form.cleaned_data['username']
+
+            acc.save()
+            return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
+    else:
+        defaults = { 'username': request.user.username, }
+        form = RedditAccountForm(defaults) # An unbound form
+
+    return render_to_response('sso/redditaccount.html', {
+        'form': form,
+    })
+
+@login_required
+def reddit_del(request, redditid=0):
+    if redditid > 0 :
+        try:
+            acc = RedditAccount.objects.get(id=redditid)
+        except RedditAccount.DoesNotExist:
+            return HttpResponseRedirect(reverse('sso.views.profile'))
+
+        if acc.user == request.user:
+            acc.delete()
+
+    return HttpResponseRedirect(reverse('sso.views.profile'))
+
 
 
 

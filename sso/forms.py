@@ -2,6 +2,7 @@ from django import forms
 
 from eve_api.models.api_player import EVEAccount
 from sso.models import ServiceAccount, Service
+from reddit.models import RedditAccount
 
 class EveAPIForm(forms.Form):
     user_id = forms.CharField(label = u'User ID', max_length=10)
@@ -37,3 +38,14 @@ def UserServiceAccountForm(user):
         password = forms.CharField(label = u'Password',widget = forms.PasswordInput(render_value=False)) 
 
     return ServiceAccountForm
+
+class RedditAccountForm(forms.Form):
+    username = forms.CharField(label = u'User ID', max_length=64)
+
+    def clean(self):
+        try:
+            eaccount = RedditAccount.objects.get(username=self.cleaned_data['username'])
+        except RedditAccount.DoesNotExist:
+            return self.cleaned_data
+        else:
+            raise forms.ValidationError("This User ID is already registered")
