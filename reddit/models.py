@@ -19,6 +19,8 @@ class RedditAccount(models.Model):
     link_karma = models.IntegerField("Link Karma", blank=True, null=True)
     comment_karma = models.IntegerField("Comment Karma", blank=True, null=True)
 
+    last_update = models.DateTimeField("Last Update from API", blank=False)
+
     def save(self):
         try:
             jsondoc = json.load(urllib.urlopen("http://reddit.com/user/%s/about.json" % self.username))
@@ -31,6 +33,8 @@ class RedditAccount(models.Model):
         self.comment_karma = data['comment_karma']
         self.reddit_id = data['id']
         self.date_created = datetime.fromtimestamp(data['created_utc'])
+
+        self.last_update = datetime.now()
         
         return models.Model.save(self)    
 
