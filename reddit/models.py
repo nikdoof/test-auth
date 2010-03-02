@@ -21,7 +21,7 @@ class RedditAccount(models.Model):
 
     last_update = models.DateTimeField("Last Update from API", blank=False)
 
-    def save(self):
+    def api_update(self):
         try:
             jsondoc = json.load(urllib.urlopen("http://reddit.com/user/%s/about.json" % self.username))
         except:
@@ -35,8 +35,6 @@ class RedditAccount(models.Model):
         self.date_created = datetime.fromtimestamp(data['created_utc'])
 
         self.last_update = datetime.now()
-        
-        return models.Model.save(self)    
 
     class Meta:
         app_label = 'reddit'

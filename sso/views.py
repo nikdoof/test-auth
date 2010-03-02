@@ -135,6 +135,7 @@ def reddit_add(request):
 
             acc.user = request.user
             acc.username = form.cleaned_data['username']
+            acc.api_update()
 
             acc.save()
             return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
