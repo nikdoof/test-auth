@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import signals
 from django.contrib.auth.models import User, UserManager, Group
-from eve_api.models import EVEAccount
+from eve_api.models import EVEAccount, EVEPlayerCorporation
 
 from services import get_api
 
@@ -32,12 +32,31 @@ class SSOUser(models.Model):
     def update_access(self):
         """ Steps through each Eve API registered to the user and updates their group 
             access accordingly """
-        self.user.groups.clear()
+
+        # Create a list of all Corp groups
+        corpgroups = []
+        for corp in EVEPlayerCorporation.objects.all():
+            if corp.group:
+                corpgroups.append(corp.group)  
+        
+        # Create a list of Char groups
+        chargroups = []
         for eacc in EVEAccount.objects.filter(user=self.user):
             for char in eacc.characters.all():
                 if char.corporation.group:
-                    self.user.groups.add(char.corporation.group)
+                    chargroups.append(char.corporation.group)
                 
+        # Generate the list of groups to add/remove
+        delgroups = set(set(self.user.groups.all()) & set(corpgroups)) - set(chargroups)
+        addgroups = set(chargroups) - set(set(self.user.groups.all()) & set(corpgroups))
+        
+        print "Del:", delgroups
+        for g in delgroups:
+            self.user.groups.remove(g)
+
+        print "Add:", addgroups
+        for g in addgroups:
+            self.user.groups.add(g)
 
     def __str__(self):
         return self.user.__str__()
