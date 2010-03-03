@@ -11,15 +11,15 @@ class RedditAccount(models.Model):
 
     user = models.ForeignKey(User, blank=True, null=True)
 
-    username = models.CharField("Username", max_length=32, blank=False)
-    reddit_id = models.CharField("Reddit ID", max_length=32, blank=True)    
+    username = models.CharField("Reddit Username", max_length=32, blank=False)
+    reddit_id = models.CharField("Reddit ID", max_length=32)    
 
-    date_created = models.DateTimeField("Date Created", blank=True)
+    date_created = models.DateTimeField("Date Created")
 
-    link_karma = models.IntegerField("Link Karma", blank=True, null=True)
-    comment_karma = models.IntegerField("Comment Karma", blank=True, null=True)
+    link_karma = models.IntegerField("Link Karma")
+    comment_karma = models.IntegerField("Comment Karma")
 
-    last_update = models.DateTimeField("Last Update from API", blank=False)
+    last_update = models.DateTimeField("Last Update from API")
 
     def api_update(self):
         try:
