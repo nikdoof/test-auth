@@ -10,6 +10,9 @@ class EveAPIForm(forms.Form):
     description = forms.CharField(max_length=100)
 
     def clean(self):
+        if not self.cleaned_data['user_id'].isdigit():
+            raise forms.ValidationError("API User ID provided is not valid")
+
         try:
             eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['user_id'])
         except EVEAccount.DoesNotExist:
