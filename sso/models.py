@@ -91,8 +91,9 @@ class ServiceAccount(models.Model):
     user = models.ForeignKey(User, blank=False)
     service = models.ForeignKey(Service, blank=False)
     username = models.CharField(max_length=200, blank=True)
-    password = models.CharField(max_length=200, blank=False)
     active = models.BooleanField(default=True)
+
+    password = None
 
     def __str__(self):
         return "%s: %s (%s)" % (self.service.name, self.user.username, self.username)
