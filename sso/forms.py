@@ -5,13 +5,13 @@ from sso.models import ServiceAccount, Service
 from reddit.models import RedditAccount
 
 class EveAPIForm(forms.Form):
-    user_id = forms.CharField(label = u'User ID', max_length=10)
-    api_key = forms.CharField(label = u'API Key', max_length=100)
+    user_id = forms.IntegerField(label = u'User ID')
+    api_key = forms.CharField(label = u'API Key', max_length=64)
     description = forms.CharField(max_length=100)
 
     def clean(self):
-        if not self.cleaned_data['user_id'].isdigit():
-            raise forms.ValidationError("API User ID provided is not valid")
+        if not self.cleaned_data['api_key'].len() == 64:
+            raise forms.ValidationError("API Key provided is invalid (Not 64 characters long)")
 
         try:
             eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['user_id'])
