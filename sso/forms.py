@@ -10,7 +10,7 @@ class EveAPIForm(forms.Form):
     description = forms.CharField(max_length=100)
 
     def clean(self):
-        if not self.cleaned_data['api_key'].len() == 64:
+        if not len(self.cleaned_data['api_key']) == 64:
             raise forms.ValidationError("API Key provided is invalid (Not 64 characters long)")
 
         try:
