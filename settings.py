@@ -81,7 +81,7 @@ INSTALLED_APPS = (
     'django_cron',
     'eve_proxy',
     'eve_api',
-#    'mumble',
+    'reddit',
     'sso',
 )
 
@@ -89,20 +89,21 @@ AUTH_PROFILE_MODULE = 'sso.SSOUser'
 
 LOGIN_REDIRECT_URL = "/profile"
 
-### EVE Corp Info
-
-ALLOWED_CORPS = [1018389948]
-
 ### Jabber Service Settings
 
 # Vhost to add users to 
 JABBER_SERVER = 'dredd.it'
 
-# Group to add authed people to
-JABBER_GROUP = 'dreddit'
+# Method of communicating with the jabber server
+# either 'xmpp' or 'cmd'
+JABBER_METHOD = 'xmpp'
 
-# Use sudo?
-JABBER_SUDO = True
+# Use sudo? (cmd mode)
+#JABBER_SUDO = True
+
+# Auth login user (xmpp mode)
+JABBER_AUTH_USER = 'auth'
+JABBER_AUTH_PASSWD = 'pepperllama34'
 
 ### Mumble Service Settings
 
