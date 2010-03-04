@@ -3,7 +3,7 @@ Hello,
 
 someone registered to {{ site }} and specified this EMail address. If this is correct, please follow this link to activate the account:
 
-http://{{ site|slice:":-1" }}{% url registration_activate activation_key=activation_key %}
+https://{{ site|slice:":-1" }}{% url registration_activate activation_key=activation_key %}
 
 In case you didn't register, please ignore this Mail. The account will be deleted in {{ expiration_days }} days and you will not receive any more mail from us.
 
