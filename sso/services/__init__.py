@@ -3,7 +3,7 @@ def get_api(api):
     try:
         mod = __import__(api)
     except ImportError:
-        raise DoesNotExist('Error creating service')
+        raise Exception('Error creating service')
 
     for i in api.split(".")[1:]:
         mod = getattr(mod, i)

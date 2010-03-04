@@ -1,7 +1,7 @@
 import time
 import xmpp 
 
-class JabberAddUser():
+class JabberAdmin():
     """ Adds a jabber user to a remote Jabber server """
 
     def __init__(self, server, username, password, ip=None):
@@ -101,7 +101,12 @@ class JabberAddUser():
         # Send request and pray for the best
         resp = self._client.SendAndWaitForResponse(iq)
 
-        if resp.getTag('command').getTag('x').getTag('field', attrs={'label': 'Password'}).getTag('value').getData():
+        try:
+            val = resp.getTag('command').getTag('x').getTag('field', attrs={'label': 'Password'}).getTag('value').getData()
+        except AttributeError:
+            return False
+
+        if not val.strip() == '':
             return True
 
         return False
