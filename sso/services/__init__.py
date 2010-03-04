@@ -1,5 +1,10 @@
+import settings
 
 def get_api(api):
+
+    if settings.DISABLE_SERVICES:
+        return BaseService()
+
     try:
         mod = __import__(api)
     except ImportError:

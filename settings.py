@@ -85,8 +85,10 @@ INSTALLED_APPS = (
     'sso',
 )
 
-AUTH_PROFILE_MODULE = 'sso.SSOUser'
+# Disable the service API, used for data imports
+DISABLE_SERVICES = False
 
+AUTH_PROFILE_MODULE = 'sso.SSOUser'
 LOGIN_REDIRECT_URL = "/profile"
 
 ### Jabber Service Settings
