@@ -39,7 +39,6 @@ class Inbox():
        
 
         url = "%s/%s" % (self.REDDIT_API_LOGIN, username)
-        print url
         req = urllib2.Request( url, urllib.urlencode(data))
         jsondoc = json.load(self.opener.open(req))
         
@@ -53,7 +52,6 @@ class Inbox():
             
             self.__inbox_cache = []
             for msg in inbox['children']:
-                print msg['data']
                 self.__inbox_cache.append(Message(msg['data']))
              
         return self.__inbox_cache
