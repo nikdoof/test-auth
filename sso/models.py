@@ -20,14 +20,14 @@ class SSOUser(models.Model):
 
     user = models.ForeignKey(User, unique=True, related_name='profile')
 
-    default_service_passwd = models.CharField(max_length=200)
-    default_service_username = models.CharField(max_length=200, blank=True)
+    default_service_passwd = models.CharField("Default Service Password", max_length=200, blank=True)
+    default_service_username = models.CharField("Default Service Username", max_length=200, blank=True)
     
-    website = models.CharField(max_length=200, blank=True)
-    aim = models.CharField(max_length=64, blank=True)
-    msn = models.CharField(max_length=200, blank=True)
-    icq = models.CharField(max_length=15, blank=True)
-    xmpp = models.CharField(max_length=200, blank=True)
+    website = models.CharField("Website URL", max_length=200, blank=True)
+    aim = models.CharField("AIM", max_length=64, blank=True)
+    msn = models.CharField("MSN", max_length=200, blank=True)
+    icq = models.CharField("ICQ", max_length=15, blank=True)
+    xmpp = models.CharField("XMPP", max_length=200, blank=True)
 
     def update_access(self):
         """ Steps through each Eve API registered to the user and updates their group 
@@ -70,10 +70,10 @@ class SSOUser(models.Model):
 signals.post_save.connect(SSOUser.create_user_profile, sender=User)
 
 class Service(models.Model):
-    name = models.CharField(max_length=200)
-    url = models.CharField(max_length=200, blank=True)
+    name = models.CharField("Service Name", max_length=200)
+    url = models.CharField("Service URL", max_length=200, blank=True)
     active = models.BooleanField(default=True)
-    api = models.CharField(max_length=200)
+    api = models.CharField("API", max_length=200)
     groups = models.ManyToManyField(Group, blank=False)
 
     @property
@@ -90,7 +90,7 @@ class Service(models.Model):
 class ServiceAccount(models.Model):
     user = models.ForeignKey(User, blank=False)
     service = models.ForeignKey(Service, blank=False)
-    username = models.CharField(max_length=200, blank=True)
+    username = models.CharField("Service Username", max_length=200, blank=True)
     active = models.BooleanField(default=True)
 
     password = None
