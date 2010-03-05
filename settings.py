@@ -90,6 +90,7 @@ DISABLE_SERVICES = False
 
 AUTH_PROFILE_MODULE = 'sso.SSOUser'
 LOGIN_REDIRECT_URL = "/profile"
+LOGIN_URL = "/login"
 
 ### Jabber Service Settings
 
