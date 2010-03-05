@@ -162,4 +162,37 @@ def reddit_del(request, redditid=0):
 
 
 
+@login_required
+def user_view(request, user):
+
+    is_admin = request.user.is_staff
+
+    user = User.objects.get(username=user)
+    profile = user.get_profile()
+
+    if is_admin:
+        try:
+            services = ServiceAccount.objects.filter(user=user).all()
+        except ServiceAccount.DoesNotExist:
+            services = None
+
+        try:
+            reddits = RedditAccount.objects.filter(user=user).all()
+        except ServiceAccount.DoesNotExist:
+            reddits = None
+
+        try:
+            eveaccounts = EVEAccount.objects.filter(user=user).all()
+
+            characters = []
+
+            for acc in eveaccounts:
+                chars = acc.characters.all()
+                for char in chars:
+                    characters.append({'name': char.name, 'corp': char.corporation.name})
+
+        except EVEAccount.DoesNotExist:
+            eveaccounts = None
+
+    return render_to_response('sso/user.html', locals())
 
