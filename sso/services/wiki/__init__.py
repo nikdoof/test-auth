@@ -16,7 +16,9 @@ class MediawikiService(BaseService):
 
 
     SQL_ADD_USER = r"INSERT INTO user (user_name, user_password, user_newpassword, user_options, user_email) VALUES (%s, %s, '', '', '')"
-    SQL_DEL_USER = r"DELETE FROM user WHERE username = %s"
+    SQL_DIS_USER = r"UPDATE user SET user_password = '', user_email = '' WHERE username = %s"
+    SQL_ENABLE_USER = r"UPDATE user SET user_password = %s WHERE user_name = %s"
+    SQL_CHECK_USER = r"SELECT user_name from user WHERE user_name = %s"
 
     def __init__(self):
 
@@ -50,19 +52,27 @@ class MediawikiService(BaseService):
 
     def delete_user(self, username):
         """ Delete a user """
-        self._dbcursor.execute(self.SQL_DEL_USER, [username])
-        self._db.connection.commit()
+        self.disable_user(username)
 
     def disable_user(self, username):
         """ Disable a user """
-        pass
+        self._dbcursor.execute(self.SQL_DIS_USER, [username])
+        self._db.connection.commit()
 
     def enable_user(self, username, password):
         """ Enable a user """
+        pwhash = self._gen_mw_hash(password)
+        self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, username.strip().capitalize()])
         pass
 
     def check_user(self, username):
         """ Check if the username exists """
-        pass
+        self._dbcursor.execute(self.SQL_CHECK_USER, [username.strip().capitalize()])
+        row = self._dbcursor.fetchone()
+
+        if row:
+            return True
+        
+        return False
 
 ServiceClass = 'MediawikiService'
