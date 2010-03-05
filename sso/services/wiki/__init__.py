@@ -16,7 +16,7 @@ class MediawikiService(BaseService):
 
 
     SQL_ADD_USER = r"INSERT INTO user (user_name, user_password, user_newpassword, user_options, user_email) VALUES (%s, %s, '', '', '')"
-    SQL_DIS_USER = r"UPDATE user SET user_password = '', user_email = '' WHERE username = %s"
+    SQL_DIS_USER = r"UPDATE user SET user_password = '', user_email = '' WHERE user_name = %s"
     SQL_ENABLE_USER = r"UPDATE user SET user_password = %s WHERE user_name = %s"
     SQL_CHECK_USER = r"SELECT user_name from user WHERE user_name = %s"
 
@@ -44,10 +44,14 @@ class MediawikiService(BaseService):
         hash = hashlib.md5('%s-%s' % (salt, hashlib.md5(password).hexdigest())).hexdigest()
         return ":B:%s:%s" % (salt, hash)
 
+    def _clean_username(self, username):
+        username = username.strip()
+        return username[0].upper() + username[1:]
+
     def add_user(self, username, password):
         """ Add a user """
         pwhash = self._gen_mw_hash(password)
-        self._dbcursor.execute(self.SQL_ADD_USER, [username.strip().capitalize(), pwhash])
+        self._dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash])
         self._db.connection.commit()
 
     def delete_user(self, username):
@@ -56,18 +60,18 @@ class MediawikiService(BaseService):
 
     def disable_user(self, username):
         """ Disable a user """
-        self._dbcursor.execute(self.SQL_DIS_USER, [username])
+        self._dbcursor.execute(self.SQL_DIS_USER, [self._clean_username(username)])
         self._db.connection.commit()
 
     def enable_user(self, username, password):
         """ Enable a user """
         pwhash = self._gen_mw_hash(password)
-        self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, username.strip().capitalize()])
+        self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, self._clean_username(username)])
         pass
 
     def check_user(self, username):
         """ Check if the username exists """
-        self._dbcursor.execute(self.SQL_CHECK_USER, [username.strip().capitalize()])
+        self._dbcursor.execute(self.SQL_CHECK_USER, [self._clean_username(username)])
         row = self._dbcursor.fetchone()
 
         if row:
