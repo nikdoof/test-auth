@@ -15,6 +15,10 @@ def get_api(api):
 
     return getattr(mod, mod.ServiceClass)()
 
+def list_apis():
+    import os.path, pkgutil
+    pkgpath = os.path.dirname(__file__)
+    return [name for _, name, _ in pkgutil.iter_modules([pkgpath])]
 
 class BaseService():
     """
