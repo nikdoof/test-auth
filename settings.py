@@ -2,11 +2,11 @@ import os
 
 # Django settings for login project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
+     ('Andrew Williams', 'andy@tensixtyone.com'),
 )
 
 MANAGERS = ADMINS
@@ -113,6 +113,10 @@ JABBER_AUTH_PASSWD = 'pepperllama34'
 DEFAULT_CONN = 'Meta:tcp -h 127.0.0.1 -p 6502'
 MUMBLE_DEFAULT_PORT = 64738
 SLICE = '/usr/share/slice/Murmur.ice'
+
+### Wiki Service Settings
+
+WIKI_DATABASE = 'dreddit_wiki'
 
 FORCE_SCRIPT_NAME=""
 DEFAULT_FROM_EMAIL = "bot@auth.dredd.it"
