@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     ('', include('registration.urls')),
     ('', include('sso.urls')),
+    (r'^eveapi/', include(eve_proxy.urls)),
 )
 
 if settings.DEBUG:
