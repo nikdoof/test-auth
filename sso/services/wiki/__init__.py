@@ -12,7 +12,7 @@ class MediawikiService(BaseService):
 
     settings = { 'require_user': False,
                  'require_password': False,
-                 'provide_login': True }
+                 'provide_login': False }
 
 
     SQL_ADD_USER = r"INSERT INTO user (user_name, user_password, user_newpassword, user_options, user_email) VALUES (%s, %s, '', '', '')"
@@ -55,29 +55,27 @@ class MediawikiService(BaseService):
         self._db.connection.commit()
         return self._clean_username(username)
 
-    def delete_user(self, username):
-        """ Delete a user """
-        self.disable_user(username)
-
-    def disable_user(self, username):
-        """ Disable a user """
-        self._dbcursor.execute(self.SQL_DIS_USER, [self._clean_username(username)])
-        self._db.connection.commit()
-
-    def enable_user(self, username, password):
-        """ Enable a user """
-        pwhash = self._gen_mw_hash(password)
-        self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, self._clean_username(username)])
-        pass
-
     def check_user(self, username):
         """ Check if the username exists """
         self._dbcursor.execute(self.SQL_CHECK_USER, [self._clean_username(username)])
         row = self._dbcursor.fetchone()
-
         if row:
-            return True
-        
+            return True        
         return False
+
+    def delete_user(self, uid):
+        """ Delete a user """
+        self.disable_user(uid)
+
+    def disable_user(self, uid):
+        """ Disable a user """
+        self._dbcursor.execute(self.SQL_DIS_USER, [uid])
+        self._db.connection.commit()
+
+    def enable_user(self, uid, password):
+        """ Enable a user """
+        pwhash = self._gen_mw_hash(password)
+        self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
+        pass
 
 ServiceClass = 'MediawikiService'

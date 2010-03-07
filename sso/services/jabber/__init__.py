@@ -30,27 +30,6 @@ class JabberService(BaseService):
             if self.ejctl.register(username.lower(), settings.JABBER_SERVER, password):
                 return '%s@%s' % (username, settings.JABBER_SERVER)
 
-    def delete_user(self, username):
-        """ Delete a user """
-        if self.method == "xmpp":
-            return self.jabberadmin.deluser('%s@%s' % (username, settings.JABBER_SERVER))
-        else:
-            return self.ejctl.unregister(username.lower(), settings.JABBER_SERVER)
-
-    def disable_user(self, username):
-        """ Disable a user """
-        if self.method == "xmpp":
-            return False
-        else:
-            return self.ejctl.ban_user(settings.JABBER_SERVER, username.lower())
-
-    def enable_user(self, username):
-        """ Enable a user """
-        if self.method == "xmpp":
-            return False
-        else:
-            return self.ejctl.enable_user(settings.JABBER_SERVER, username.lower(), password)
-
     def check_user(self, username):
         """ Check if the username exists """
         if self.method == "xmpp":
@@ -59,5 +38,29 @@ class JabberService(BaseService):
             return False
         else:
             return True
+
+    def delete_user(self, uid):
+        """ Delete a user """
+        if self.method == "xmpp":
+            return self.jabberadmin.deluser(uid)
+        else:
+            username, server = uid.split("@")
+            return self.ejctl.unregister(username, server)
+
+    def disable_user(self, uid):
+        """ Disable a user """
+        if self.method == "xmpp":
+            return False
+        else:
+            username, server = uid.split("@")
+            return self.ejctl.ban_user(server, username)
+
+    def enable_user(self, uid, password):
+        """ Enable a user """
+        if self.method == "xmpp":
+            return False
+        else:
+            username, server = uid.split("@")
+            return self.ejctl.enable_user(server, username, password)
 
 ServiceClass = 'JabberService'

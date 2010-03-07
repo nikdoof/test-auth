@@ -31,25 +31,25 @@ class BaseService():
                  'provide_login': False }
 
     def add_user(self, username, password):
-        """ Add a user """
-        pass
-
-    def delete_user(self, username):
-        """ Delete a user """
-        pass
-
-    def disable_user(self, username):
-        """ Disable a user """
-        pass
-
-    def enable_user(self, username, password):
-        """ Enable a user """       
+        """ Add a user, returns a UID for that user """
         pass
 
     def check_user(self, username):
         """ Check if the username exists """
         pass
 
-    def login(username):
+    def delete_user(self, uid):
+        """ Delete a user by uid """
+        pass
+
+    def disable_user(self, uid):
+        """ Disable a user by uid """
+        pass
+
+    def enable_user(self, uid, password):
+        """ Enable a user by uid """       
+        pass
+
+    def login(uid):
         """ Login the user and provide cookies back """ 
         pass

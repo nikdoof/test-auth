@@ -90,10 +90,10 @@ class Service(models.Model):
 class ServiceAccount(models.Model):
     user = models.ForeignKey(User, blank=False)
     service = models.ForeignKey(Service, blank=False)
-    username = models.CharField("Service Username", max_length=200, blank=True)
-    service_uid = models.CharField("Service UID", max_length=200, blank=True)
+    service_uid = models.CharField("Service UID", max_length=200, blank=False)
     active = models.BooleanField(default=True)
 
+    username = None
     password = None
 
     def __str__(self):
@@ -102,19 +102,26 @@ class ServiceAccount(models.Model):
     def save(self):
         """ Override default save to setup accounts as needed """
 
+        # If no username has been specified, use the default
         if not self.username:
             self.username = self.user.username
 
+        # Grab the API class
         api = self.service.api_class
 
-        if self.active:
-            if not api.check_user(self.username):
-                self.service_uid = api.add_user(self.username, self.password)
+        if not self.service_uid:
+            # Create a account if we've not got a UID
+            if self.active:
+                if not api.check_user(self.username):
+                    self.service_uid = api.add_user(self.username, self.password)
+                else:
+                    raise ExistingUser('Username %s has already been took' % self.username)
             else:
-                raise ExistingUser('Username %s has already been took' % self.username)
-        else:
-            if api.check_user(self.username):
-                api.delete_user(self.username)
+                return
+
+        # Disable account marked as inactive
+        if self.service_uid and not self.active:
+            api.disable_user(self.service_uid)
 
         # All went OK, save to the DB
         return models.Model.save(self)
@@ -122,7 +129,7 @@ class ServiceAccount(models.Model):
     @staticmethod
     def pre_delete_listener( **kwargs ):
         api = kwargs['instance'].service.api_class
-        if api.check_user(kwargs['instance'].username):
-            api.delete_user(kwargs['instance'].username)
+        if api.check_user(kwargs['instance'].service_uid):
+            api.delete_user(kwargs['instance'].service_uid)
 
 signals.pre_delete.connect(ServiceAccount.pre_delete_listener, sender=ServiceAccount)
