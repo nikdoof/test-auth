@@ -24,9 +24,11 @@ class JabberService(BaseService):
     def add_user(self, username, password):
         """ Add user to service """
         if self.method == "xmpp":
-            return self.jabberadmin.adduser('%s@%s' % (username, settings.JABBER_SERVER), password)
+            if self.jabberadmin.adduser('%s@%s' % (username, settings.JABBER_SERVER), password):
+                return '%s@%s' % (username, settings.JABBER_SERVER)
         else:
-            return self.ejctl.register(username.lower(), settings.JABBER_SERVER, password)
+            if self.ejctl.register(username.lower(), settings.JABBER_SERVER, password):
+                return '%s@%s' % (username, settings.JABBER_SERVER)
 
     def delete_user(self, username):
         """ Delete a user """

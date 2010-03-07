@@ -91,6 +91,7 @@ class ServiceAccount(models.Model):
     user = models.ForeignKey(User, blank=False)
     service = models.ForeignKey(Service, blank=False)
     username = models.CharField("Service Username", max_length=200, blank=True)
+    service_uid = models.CharField("Service UID", max_length=200, blank=True)
     active = models.BooleanField(default=True)
 
     password = None
@@ -108,7 +109,7 @@ class ServiceAccount(models.Model):
 
         if self.active:
             if not api.check_user(self.username):
-                api.add_user(self.username, self.password)
+                self.service_uid = api.add_user(self.username, self.password)
             else:
                 raise ExistingUser('Username %s has already been took' % self.username)
         else:

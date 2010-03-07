@@ -53,6 +53,7 @@ class MediawikiService(BaseService):
         pwhash = self._gen_mw_hash(password)
         self._dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash])
         self._db.connection.commit()
+        return self._clean_username(username)
 
     def delete_user(self, username):
         """ Delete a user """
