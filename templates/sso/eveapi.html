@@ -5,10 +5,12 @@
 {% block content %}
 <p>Please fill in your API key as provided on the <a
 href="http://eve-online.com/api">EVE Online API
-page</a></p>
+page</a> and a optional description.</p>
 
 <form action="/profile/add/eveapi" method="post">
-{{ form.as_p }}
-<input type="submit" value="Submit" />
+<table>
+{{ form.as_table }}
+</table>
+<input type="submit" value="Add Key" />
 </form>
 {% endblock %}

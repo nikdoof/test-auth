@@ -7,7 +7,7 @@ from reddit.models import RedditAccount
 class EveAPIForm(forms.Form):
     user_id = forms.IntegerField(label = u'User ID')
     api_key = forms.CharField(label = u'API Key', max_length=64)
-    description = forms.CharField(max_length=100)
+    description = forms.CharField(max_length=100, required=False)
 
     def clean(self):
         if not len(self.cleaned_data['api_key']) == 64:

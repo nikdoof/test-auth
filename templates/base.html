@@ -1,16 +1,30 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html lang="en">
 <head>
-    <title>dredd.it - {% block title %}{% endblock %}</title>
-    <style type="text/css">
-        BODY, TH, TD, P {
-            font-size: 0.9em;  
-            font-family: Verdana;
-        }
-    </style>
-    <link rel="stylesheet" href="/static/css/tables.css" type="text/css" media="screen">
+    <title></title>
+    <link rel="stylesheet" href="/static/css/style.css" type="text/css" media="screen">
 </head>
 <body>
-    {% block content %}{% endblock %}
+<div id="container">
+	<div id="header">
+		<h1>
+			Dreddit Auth Gateway - {% block title %}{% endblock %}
+		</h1>
+	</div>
+	<div id="navigation">
+		<ul>
+			<li><a href="/">Home</a></li>
+			<li><a href="/profile">Profile</a></li>
+		</ul>
+	</div>
+	<div id="content">
+           {% block content %}{% endblock %}
+	</div>
+	<div id="footer">
+		&nbsp;
+	</div>
+</div>
 </body>
 </html>
+
+

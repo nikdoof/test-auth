@@ -6,9 +6,10 @@
 
 <h1>Your Profile</h1>
 
-<ul>
-<li><b>Username:</b> {{ user.username }}</li>
-</ul>
+<p>
+<b>Username:</b> {{ user.username }}<br/>
+<b>Email:</b> {{ user.email }}<br/>
+</p>
 
 {% if eveaccounts %}
 <h2>Service Accounts</h2>
@@ -33,7 +34,6 @@ a new service click the Add Service link</p>
 </tr>
 {% endfor %}
 </tbody>
-<tfoot><tr><td colspan="5">&nbsp;</td></tr></tfoot>
 </table>
 {% endif %}
 
@@ -65,13 +65,13 @@ setup.</p>
 </tr>
 </tbody>
 {% endfor %}
-<tfoot><tr><td colspan="5">&nbsp;</td></tr></tfoot>
 </table>
 {% endif %}
 <p>
 <a href="/profile/add/eveapi">Add a Eve API key</a>
 </p>
 
+<br/>
 
 <h2>Reddit Accounts</h2>
 <p>This is a list of all your current linked Reddit accounts</p>
@@ -87,7 +87,6 @@ setup.</p>
 </tr>
 {% endfor %}
 </tbody>
-<tfoot><tr><td colspan="5">&nbsp;</td></tr></tfoot>
 </table>
 {% endif %}
 <p>

@@ -8,7 +8,9 @@ corporation</p>
 <p>Please note, you will be forever tied to this account and posts and comments made on this account will be checked 
 on from time to time</p>
 <form action="/profile/add/reddit" method="post">
-{{ form.as_p }}
-<input type="submit" value="Submit" />
+<table>
+{{ form.as_table }}
+</table>
+<input type="submit" value="Add Account" />
 </form>
 {% endblock %}
