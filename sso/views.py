@@ -8,7 +8,7 @@ from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 from eve_api.api_puller.accounts import import_eve_account
 from eve_api.models.api_player import EVEAccount
 
-from sso.models import ServiceAccount, SSOUser
+from sso.models import ServiceAccount, SSOUser, ExistingUser
 from sso.forms import EveAPIForm, UserServiceAccountForm, RedditAccountForm
 
 from reddit.models import RedditAccount
@@ -100,11 +100,14 @@ def service_add(request):
             acc.username = form.cleaned_data['username']
             acc.password = form.cleaned_data['password']
 
-            acc.save()
+            try:
+                acc.save()
+            except ExistingUser:
+                pass
             return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
     else:
-        defaults = { 'username': request.user.username, 'password': request.user.get_profile().default_service_passwd }
-        form = clsform(defaults) # An unbound form
+        #defaults = { 'username': request.user.username, 'password': request.user.get_profile().default_service_passwd }
+        form = clsform() # An unbound form
 
     return render_to_response('sso/serviceaccount.html', {
         'form': form,

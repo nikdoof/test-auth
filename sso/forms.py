@@ -24,7 +24,7 @@ class ServiceUsernameField(forms.CharField):
     def clean(self, request, initial=None):
         field = super(ServiceUsernameField, self).clean(request)
         try:
-            acc = ServiceAccount.objects.get(username=field)
+            acc = ServiceAccount.objects.get(service_uid=field)
         except ServiceAccount.DoesNotExist:
             return field
         else:

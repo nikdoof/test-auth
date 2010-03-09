@@ -22,7 +22,7 @@ a new service click the Add Service link</p>
 <tbody>
 {% for acc in srvaccounts %}
 <tr><td>{{ acc.service }}</td>
-    <td>{{ acc.username }}</td>
+    <td>{{ acc.service_uid }}</td>
     <td>******</td>
     <td>{{ acc.active }}</td>
     <td><a href="/profile/del/service/{{ acc.id }}/">Delete</a>
