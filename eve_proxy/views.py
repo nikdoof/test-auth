@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from eve_proxy.models import CachedDocument
 
