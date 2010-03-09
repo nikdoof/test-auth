@@ -2,7 +2,7 @@ import os
 
 # Django settings for login project.
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -77,6 +77,7 @@ INSTALLED_APPS = (
     'django_cron',
     'eve_proxy',
     'eve_api',
+    'mumble',
     'reddit',
     'sso',
 )
@@ -108,7 +109,8 @@ JABBER_AUTH_PASSWD = 'pepperllama34'
 
 DEFAULT_CONN = 'Meta:tcp -h 127.0.0.1 -p 6502'
 MUMBLE_DEFAULT_PORT = 64738
-SLICE = '/usr/share/slice/Murmur.ice'
+SLICE = 'Murmur.ice'
+MUMBLE_SERVER_ID = 1
 
 ### Wiki Service Settings
 
