@@ -1,6 +1,8 @@
+{% extends "base.html" %}
+
 {% load i18n %}
 
-{% block Content %}
+{% block content %}
 {% if account %}
     <p>{% with account.username as username %}
     Thank you for registering!<br />

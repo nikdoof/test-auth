@@ -3,6 +3,7 @@
 <head>
     <title></title>
     <link rel="stylesheet" href="/static/css/style.css" type="text/css" media="screen">
+    {% block HeadTag %}{% endblock %}
 </head>
 <body>
 <div id="container">
@@ -14,7 +15,12 @@
 	<div id="navigation">
 		<ul>
 			<li><a href="/">Home</a></li>
+                        {% if request.user %}
 			<li><a href="/profile">Profile</a></li>
+                        <li><a href="/logout">Logout</a></li>
+                        {% else %}
+                        <li><a href="/login">Login</a></li>
+                        {% endif %}
 		</ul>
 	</div>
 	<div id="content">
