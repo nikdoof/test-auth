@@ -7,7 +7,7 @@ def retrieve_xml(request):
     retrieving a cached document or querying and caching as needed.
     """
     # This is the URL path (minus the parameters).
-    url_path = request.META['PATH_INFO']
+    url_path = request.META['PATH_INFO'].replace(reverse('eve_proxy.views.retrieve_xml'),"/")
     # The parameters attached to the end of the URL path.
     params = request.META['QUERY_STRING']
 
