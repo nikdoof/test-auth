@@ -7,15 +7,11 @@ import settings
 django_cron.autodiscover()
 admin.autodiscover()
 
-# Unregister unneeded interfaces
-from eve_proxy.models import CachedDocument
-admin.site.unregister(CachedDocument)
-
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
     ('', include('registration.urls')),
     ('', include('sso.urls')),
-    (r'^eveapi/', include(eve_proxy.urls)),
+    (r'^eveapi/', include('eve_proxy.urls')),
 )
 
 if settings.DEBUG:
