@@ -11,12 +11,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'mysql'           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'dreddit_sso'             # Or path to database file if using sqlite3.
-DATABASE_USER = 'dreddit_sso'             # Not used with sqlite3.
-DATABASE_PASSWORD = 'bf6431670c657b9b62f08353d61047c4552ed3d4'         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+# Import db settings from dbsettings.py
+from dbsettings import *
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
