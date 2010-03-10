@@ -15,7 +15,7 @@
 <tr><th>Service</th><th>Username</th><th>Password</th><th>Active</th></tr>
 {% for acc in services %}
 <tr><td>{{ acc.service }}</td>
-    <td>{{ acc.username }}</td>
+    <td>{{ acc.service_uid }}</td>
     <td>******</td>
     <td>{{ acc.active }}</td>
 </tr>
