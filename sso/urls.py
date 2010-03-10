@@ -15,4 +15,5 @@ urlpatterns = patterns('',
     (r'^profile/del/reddit/$', views.reddit_del),
     (r'^profile/del/reddit/(?P<redditid>\d+)/$', views.reddit_del),
     (r'^users/(?P<user>.*)/$', views.user_view),
+    (r'^users/$', views.user_view),
 )

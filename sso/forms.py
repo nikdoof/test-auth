@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 
 from eve_api.models.api_player import EVEAccount
 from sso.models import ServiceAccount, Service
@@ -52,3 +53,13 @@ class RedditAccountForm(forms.Form):
             return self.cleaned_data
         else:
             raise forms.ValidationError("This User ID is already registered")
+
+class UserLookupForm(forms.Form):
+    username = forms.CharField(label = u'User ID', max_length=64)
+
+    def clean(self):
+        try: 
+            acc = User.objects.get(username=self.cleaned_data['username'])
+        except User.DoesNotExist:
+            raise forms.ValidationError("User doesn't exist")
+        return self.cleaned_data

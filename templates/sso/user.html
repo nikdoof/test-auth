@@ -1,3 +1,5 @@
+{% extends "base.html" %}
+
 {% block content %}
 
 <h1>{{user.username}}'s Profile</h1>
@@ -6,9 +8,10 @@
 <b>Email:</b> {{ user.email }}<br/>
 
 {% if is_admin %}
+<br/>
 <h2>Service Accounts</h2>
 {% if services %}
-<table border=1>
+<table>
 <tr><th>Service</th><th>Username</th><th>Password</th><th>Active</th></tr>
 {% for acc in services %}
 <tr><td>{{ acc.service }}</td>
@@ -19,10 +22,10 @@
 {% endfor %}
 </table>
 {% endif %}
-
+<br/>
 <h2>Eve API Keys</h2>
 {% if eveaccounts %}
-<table border=1>
+<table>
 <tr><th>User ID</th><th>API Key</th><th>Description</th><th>Active</th></tr>
 {% for acc in eveaccounts %}
 <tr><td>{{ acc.api_user_id }}</td>
@@ -35,7 +38,7 @@
 {% endif %}
 <br/>
 {% if characters %}
-<table border=1>
+<table>
 <tr><th>Character Name</th><th>Corp</th></tr>
 {% for char in characters %}
 <tr><td>{{ char.name }}</td>
@@ -45,10 +48,10 @@
 </table>
 {% endif %}
 
-
+<br/>
 <h2>Reddit Accounts</h2>
 {% if reddits %}
-<table border=1>
+<table>
 <tr><th>Username</th><th>Created Date</th></tr>
 {% for acc in reddits %}
 <tr><td>{{ acc.username }}</td>
