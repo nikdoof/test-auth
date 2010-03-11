@@ -36,6 +36,8 @@ class ServiceUsernameField(forms.CharField):
         if not re.match("^[A-Za-z0-9_-]*$", field):
             raise forms.ValidationError("Invalid character in username, use letters and numbers only")
 
+        return field
+
 def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
