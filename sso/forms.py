@@ -36,13 +36,6 @@ class ServiceUsernameField(forms.CharField):
         if not re.match("^[A-Za-z0-9_-]*$", username):
             raise forms.ValidationError("Invalid character in username, use letters and numbers only")
 
-        try:
-            acc = ServiceAccount.objects.get(service_uid=field)
-        except ServiceAccount.DoesNotExist:
-            return field
-        else:
-            raise forms.ValidationError("That username is already taken")
-
 def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
@@ -54,6 +47,15 @@ def UserServiceAccountForm(user):
         service = forms.ModelChoiceField(queryset=services)
         username = ServiceUsernameField(min_length=4,max_length=50)
         password = forms.CharField(label = u'Password',widget = forms.PasswordInput(render_value=False)) 
+
+        def clean(self):
+            try:
+                acc = ServiceAccount.objects.get(service_uid=self.cleaned_data['username'],service==self.cleaned_data['service'])
+            except ServiceAccount.DoesNotExist:
+                pass
+            else:
+                raise forms.ValidationError("That username is already taken")
+
 
     return ServiceAccountForm
 
