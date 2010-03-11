@@ -33,7 +33,7 @@ class ServiceUsernameField(forms.CharField):
         field = super(ServiceUsernameField, self).clean(request)
 
         # Checks that usernames consist of letters and numbers only
-        if not re.match("^[A-Za-z0-9_-]*$", username):
+        if not re.match("^[A-Za-z0-9_-]*$", field):
             raise forms.ValidationError("Invalid character in username, use letters and numbers only")
 
 def UserServiceAccountForm(user):
@@ -50,11 +50,12 @@ def UserServiceAccountForm(user):
 
         def clean(self):
             try:
-                acc = ServiceAccount.objects.get(service_uid=self.cleaned_data['username'],service==self.cleaned_data['service'])
+                acc = ServiceAccount.objects.get(service_uid=self.cleaned_data['username'],service=self.cleaned_data['service'])
             except ServiceAccount.DoesNotExist:
                 pass
             else:
                 raise forms.ValidationError("That username is already taken")
+            return self.cleaned_data
 
 
     return ServiceAccountForm
