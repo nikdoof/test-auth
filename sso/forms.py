@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.contrib.auth.models import User
 
@@ -6,6 +8,8 @@ from sso.models import ServiceAccount, Service
 from reddit.models import RedditAccount
 
 class EveAPIForm(forms.Form):
+    """ EVE API input form """
+
     user_id = forms.IntegerField(label = u'User ID')
     api_key = forms.CharField(label = u'API Key', max_length=64)
     description = forms.CharField(max_length=100, required=False)
@@ -22,8 +26,16 @@ class EveAPIForm(forms.Form):
             raise forms.ValidationError("This API User ID is already registered")
 
 class ServiceUsernameField(forms.CharField):
+    """ Extension of a CharField, does extra validation on username format and
+        also checks the username is free with ServiceAccount model """
+
     def clean(self, request, initial=None):
         field = super(ServiceUsernameField, self).clean(request)
+
+        # Checks that usernames consist of letters and numbers only
+        if not re.match("^[A-Za-z0-9_-]*$", username):
+            raise forms.ValidationError("Invalid character in username, use letters and numbers only")
+
         try:
             acc = ServiceAccount.objects.get(service_uid=field)
         except ServiceAccount.DoesNotExist:
@@ -37,6 +49,8 @@ def UserServiceAccountForm(user):
     services = Service.objects.filter(groups__in=user.groups.all())
 
     class ServiceAccountForm(forms.Form):
+        """ Service Account Form """
+
         service = forms.ModelChoiceField(queryset=services)
         username = ServiceUsernameField(min_length=4,max_length=50)
         password = forms.CharField(label = u'Password',widget = forms.PasswordInput(render_value=False)) 
@@ -44,6 +58,8 @@ def UserServiceAccountForm(user):
     return ServiceAccountForm
 
 class RedditAccountForm(forms.Form):
+    """ Reddit Account Form """
+
     username = forms.CharField(label = u'User ID', max_length=64)
 
     def clean(self):
@@ -55,6 +71,8 @@ class RedditAccountForm(forms.Form):
             raise forms.ValidationError("This User ID is already registered")
 
 class UserLookupForm(forms.Form):
+    """ User Lookup Form """
+
     username = forms.CharField(label = u'User ID', max_length=64)
 
     def clean(self):
