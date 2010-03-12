@@ -3,3 +3,4 @@
 *.db
 django/
 registration/
+dbsettings.py
