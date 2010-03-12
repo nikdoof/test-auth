@@ -25,44 +25,26 @@ class EveAPIForm(forms.Form):
         else:
             raise forms.ValidationError("This API User ID is already registered")
 
-class ServiceUsernameField(forms.CharField):
-    """ Extension of a CharField, does extra validation on username format and
-        also checks the username is free with ServiceAccount model """
-
-    def clean(self, request, initial=None):
-        field = super(ServiceUsernameField, self).clean(request)
-
-        # Checks that usernames consist of letters and numbers only
-        if not re.match("^[A-Za-z0-9_-]*$", field):
-            raise forms.ValidationError("Invalid character in username, use letters and numbers only")
-
-        return field
-
 def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
     current_services = []
     for sa in ServiceAccount.objects.filter(user=user):
         current_services.append(sa.service)
-
     services = set(Service.objects.filter(groups__in=user.groups.all())) - set(current_services)
+
+    eveacc = EVEAccount.objects.filter(user=user)
+    chars = []
+    for srv in services:
+        for char in eveacc.characters.all():
+            if char.corporation.group = srv.group and not char in chars:
+                chars.append(char)
 
     class ServiceAccountForm(forms.Form):
         """ Service Account Form """
 
-        service = forms.ModelChoiceField(queryset=services)
-        username = ServiceUsernameField(min_length=4,max_length=50)
-        password = forms.CharField(label = u'Password',widget = forms.PasswordInput(render_value=False)) 
-
-        def clean(self):
-            try:
-                acc = ServiceAccount.objects.get(service_uid=self.cleaned_data['username'],service=self.cleaned_data['service'])
-            except ServiceAccount.DoesNotExist:
-                pass
-            else:
-                raise forms.ValidationError("That username is already taken")
-            return self.cleaned_data
-
+        character = forms.ChoiceField(chars)
+        service = forms.ChoiceField(services)
 
     return ServiceAccountForm
 

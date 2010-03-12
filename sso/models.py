@@ -1,3 +1,5 @@
+import unicodedata
+
 from django.db import models
 from django.db.models import signals
 from django.contrib.auth.models import User, UserManager, Group
@@ -93,6 +95,7 @@ class ServiceAccount(models.Model):
     service_uid = models.CharField("Service UID", max_length=200, blank=False)
     active = models.BooleanField(default=True)
 
+    character = None
     username = None
     password = None
 
@@ -102,9 +105,12 @@ class ServiceAccount(models.Model):
     def save(self):
         """ Override default save to setup accounts as needed """
 
-        # If no username has been specified, use the default
-        if not self.username:
-            self.username = self.user.username
+        # Force username to be the same as their selected character
+        # Fix unicode first of all
+        name = unicodedata.normalize('NFKD', self.character.name).encode('ASCII', 'ignore')
+
+        # Remove spaces and non-acceptable characters
+        self.username = re.sub('[^a-zA-Z0-9_-]+', '', name)
 
         # Grab the API class
         api = self.service.api_class

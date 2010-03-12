@@ -1,3 +1,5 @@
+import hashlib
+
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
@@ -97,14 +99,16 @@ def service_add(request):
             acc.user = request.user
 
             acc.service = form.cleaned_data['service']
-            acc.username = form.cleaned_data['username']
-            acc.password = form.cleaned_data['password']
+            acc.password = hashlib.sha1('%s%s' % form.cleaned_data['service'].name, request.user.username).hexdigest()
 
             try:
                 acc.save()
             except ExistingUser:
-                pass
-            return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
+                error = "User by this name already exists, your account has not been created"
+            else:
+                error = None
+
+            return render_to_response('sso/serviceaccount_created.html', { 'account': acc, 'error': error }) 
     else:
         #defaults = { 'username': request.user.username, 'password': request.user.get_profile().default_service_passwd }
         form = clsform() # An unbound form
