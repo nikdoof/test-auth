@@ -41,7 +41,11 @@ class ServiceUsernameField(forms.CharField):
 def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
-    services = Service.objects.filter(groups__in=user.groups.all())
+    current_services = []
+    for sa in ServiceAccount.objects.filter(user=user):
+        current_services.append(sa.service)
+
+    services = set(Service.objects.filter(groups__in=user.groups.all())) - set(current_services)
 
     class ServiceAccountForm(forms.Form):
         """ Service Account Form """
