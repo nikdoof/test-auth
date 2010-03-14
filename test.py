@@ -1,9 +1,12 @@
 import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
-from sso.models import Service
-from sso.services.jabber import JabberService
+from eve_api.cron import UpdateAPIs
 
-b = JabberService()
+b = UpdateAPIs()
+b.job()
 
-print b.check_user('matalok')
+from sso.cron import RemoveInvalidUsers
+
+b = RemoveInvalidUsers()
+b.job()

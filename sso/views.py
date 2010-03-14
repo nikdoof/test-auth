@@ -67,9 +67,7 @@ def eveapi_add(request):
     else:
         form = EveAPIForm() # An unbound form
 
-    return render_to_response('sso/eveapi.html', {
-        'form': form,
-    })
+    return render_to_response('sso/eveapi.html', locals())
 
 @login_required
 def eveapi_del(request, userid=0):
@@ -113,9 +111,7 @@ def service_add(request):
         #defaults = { 'username': request.user.username, 'password': request.user.get_profile().default_service_passwd }
         form = clsform() # An unbound form
 
-    return render_to_response('sso/serviceaccount.html', {
-        'form': form,
-    })
+    return render_to_response('sso/serviceaccount.html', locals())
 
 @login_required
 def service_del(request, serviceid=0):
@@ -150,9 +146,7 @@ def reddit_add(request):
         defaults = { 'username': request.user.username, }
         form = RedditAccountForm(defaults) # An unbound form
 
-    return render_to_response('sso/redditaccount.html', {
-        'form': form,
-    })
+    return render_to_response('sso/redditaccount.html', locals())
 
 @login_required
 def reddit_del(request, redditid=0):
@@ -180,13 +174,9 @@ def user_view(request, user=None):
         if form.is_valid():
             user = form.cleaned_data['username']
         else:
-            return render_to_response('sso/userlookup.html', {
-		        'form': form,
-    		})
+            return render_to_response('sso/userlookup.html', locals())
     else:
-		return render_to_response('sso/userlookup.html', {
-		    'form': form,
-		})
+		return render_to_response('sso/userlookup.html', locals())
 
     is_admin = request.user.is_staff
 
