@@ -25,19 +25,6 @@ class EveAPIForm(forms.Form):
         else:
             raise forms.ValidationError("This API User ID is already registered")
 
-class ServiceUsernameField(forms.CharField):
-    """ Extension of a CharField, does extra validation on username format and
-        also checks the username is free with ServiceAccount model """
-
-    def clean(self, request, initial=None):
-        field = super(ServiceUsernameField, self).clean(request)
-
-        # Checks that usernames consist of letters and numbers only
-        if not re.match("^[A-Za-z0-9_-]*$", field):
-            raise forms.ValidationError("Invalid character in username, use letters and numbers only")
-
-        return field
-
 def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
@@ -47,13 +34,23 @@ def UserServiceAccountForm(user):
         """ Service Account Form """
 
         service = forms.ModelChoiceField(queryset=services)
-        username = ServiceUsernameField(min_length=4,max_length=50)
+        username = forms.CharField(min_length=4,max_length=50)
         password = forms.CharField(label = u'Password',widget = forms.PasswordInput(render_value=False)) 
+
+        def clean_username(self):
+            field = self.cleaned_data.get('username', '')
+
+            # Checks that usernames consist of letters and numbers only
+            if not re.match("^[A-Za-z0-9_-]*$", field):
+                raise forms.ValidationError("Invalid character in username, use letters and numbers only")
+
+            return field
+
 
         def clean(self):
             try:
                 acc = ServiceAccount.objects.get(service_uid=self.cleaned_data['username'],service=self.cleaned_data['service'])
-            except ServiceAccount.DoesNotExist:
+            except (ServiceAccount.DoesNotExist, KeyError):
                 pass
             else:
                 raise forms.ValidationError("That username is already taken")
