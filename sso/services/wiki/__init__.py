@@ -76,6 +76,7 @@ class MediawikiService(BaseService):
         """ Enable a user """
         pwhash = self._gen_mw_hash(password)
         self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
+        self._db.connection.commit()
         pass
 
 ServiceClass = 'MediawikiService'
