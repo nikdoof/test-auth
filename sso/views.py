@@ -97,7 +97,8 @@ def service_add(request):
             acc.user = request.user
 
             acc.service = form.cleaned_data['service']
-            acc.password = hashlib.sha1('%s%s' % form.cleaned_data['service'].name, request.user.username).hexdigest()
+            acc.character = form.cleaned_data['character']
+            acc.password = hashlib.sha1('%s%s' % (form.cleaned_data['service'].name, settings.SECRET_KEY)).hexdigest()
 
             try:
                 acc.save()

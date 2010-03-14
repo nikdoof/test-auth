@@ -1,3 +1,4 @@
+import re
 import unicodedata
 
 from django.db import models

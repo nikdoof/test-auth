@@ -3,7 +3,7 @@ import re
 from django import forms
 from django.contrib.auth.models import User
 
-from eve_api.models.api_player import EVEAccount
+from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter
 from sso.models import ServiceAccount, Service
 from reddit.models import RedditAccount
 
@@ -34,12 +34,12 @@ def UserServiceAccountForm(user):
     class ServiceAccountForm(forms.Form):
         """ Service Account Form """
 
-        character = forms.ChoiceField(chars)
-        service = forms.ChoiceField(services)
+        character = forms.ModelChoiceField(queryset=chars)
+        service = forms.ModelChoiceField(queryset=services)
 
         def clean(self):
             if not self.cleaned_data['character'].corporation.group in self.cleaned_data['service'].groups.all():
-                raise form.ValidationError("%s is not in a corporation allowed to access %s" % (self.cleaned_data['character'].name, self.cleaned_data['service'])
+                raise form.ValidationError("%s is not in a corporation allowed to access %s" % (self.cleaned_data['character'].name, self.cleaned_data['service']))
 
             return self.cleaned_data
 
