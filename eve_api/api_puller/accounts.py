@@ -28,6 +28,17 @@ def import_eve_account(api_key, user_id):
     #print account_doc.body
 
     dom = minidom.parseString(account_doc.body)
+
+    if dom.getElementsByTagName('error'):
+        try:
+            account = EVEAccount.objects.get(id=user_id)
+        except EVEAccount.DoesNotExist:
+            return
+
+        account.api_status = API_STATUS_OTHER_ERROR
+        account.save()
+        return
+
     characters_node_children = dom.getElementsByTagName('rowset')[0].childNodes
 
     # Create or retrieve the account last to make sure everything

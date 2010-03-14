@@ -26,23 +26,16 @@ class RemoveInvalidUsers(Job):
 
                 # Check each service account and delete access if they're not allowed
                 for servacc in ServiceAccount.objects.filter(user=user):
-
-                    print servacc.service.groups.all()
-                    print user.groups.all()
-                    allowedgroups = servacc.service.groups.all()
-
-                    print set(servacc.service.groups.all()) & set(servacc.service.groups.all())
-
-                    if not (set(servacc.service.groups.all()) & set(servacc.service.groups.all())):
+                    if not (set(user.groups.all()) & set(servacc.service.groups.all())):
                         print "User %s is not in allowed group for %s, deleting account" % (user.username, servacc.service)
-                        #servacc.delete()
+                        servacc.delete()
                         pass
 
                 # For users set to not active, delete all accounts
                 if not user.is_active:
                     print "User %s is inactive, deleting related service accounts" % user.username
                     for servacc in ServiceAccount.objects.filter(user=user):
-                        #servacc.delete()
+                        servacc.delete()
                         pass
 
 
