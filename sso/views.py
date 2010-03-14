@@ -98,7 +98,7 @@ def service_add(request):
 
             acc.service = form.cleaned_data['service']
             acc.character = form.cleaned_data['character']
-            acc.password = hashlib.sha1('%s%s' % (form.cleaned_data['service'].name, settings.SECRET_KEY)).hexdigest()
+            acc.password = hashlib.sha1('%s%s' % (form.cleaned_data['character'].name, settings.SECRET_KEY)).hexdigest()
 
             try:
                 acc.save()
@@ -127,6 +127,27 @@ def service_del(request, serviceid=0):
             acc.delete()
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
+
+@login_required
+def service_reset(request, serviceid=0, accept=0):
+    if serviceid > 0 :
+        try:
+            acc = ServiceAccount.objects.get(id=serviceid)
+        except ServiceAccount.DoesNotExist:
+            return HttpResponseRedirect(reverse('sso.views.profile'))
+
+        if acc.user == request.user:
+            if not accept:
+                return render_to_response('sso/serviceaccount_reset.html', locals())
+
+            passwd = hashlib.sha1('%s%s' % (acc.service_uid, settings.SECRET_KEY)).hexdigest()
+
+            api = acc.service.api_class
+            api.enable_user(acc.service_uid, passwd)
+            return render_to_response('sso/serviceaccount_resetcomplete.html', locals())
+
+    return HttpResponseRedirect(reverse('sso.views.profile'))
+
 
 
 @login_required

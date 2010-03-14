@@ -26,7 +26,7 @@ a new service click the Add Service link</p>
     <td>{{ acc.service_uid }}</td>
     <td>******</td>
     <td>{{ acc.active }}</td>
-    <td><a href="/profile/del/service/{{ acc.id }}/">Delete</a>
+    <td><a href="/profile/del/service/{{ acc.id }}/">Delete</a> / <a href="/profile/reset/service/{{ acc.id }}/">Reset</a>
     {% if acc.service.provide_login %}
     &nbsp;/&nbsp;<a href="/profile/login/service/{{ acc.id }}/">Login</a>
     {% endif %}
