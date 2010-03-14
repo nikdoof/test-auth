@@ -1,6 +1,8 @@
 """
 This module holds data from the EVE XML API.
 """
+from datetime import datetime
+
 from django.db import models
 from django.contrib.auth.models import User, Group
 from eve_proxy.models import CachedDocument
@@ -194,4 +196,5 @@ class EVEPlayerCorporation(EVEAPIModel):
                 continue
 
         print "Updating", self.id, self.name
+        self.api_last_updated = datetime.utcnow()
         self.save()
