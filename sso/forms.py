@@ -39,7 +39,7 @@ def UserServiceAccountForm(user):
 
         def clean(self):
             if not self.cleaned_data['character'].corporation.group in self.cleaned_data['service'].groups.all():
-                raise form.ValidationError("%s is not in a corporation allowed to access %s" % (self.cleaned_data['character'].name, self.cleaned_data['service']))
+                raise forms.ValidationError("%s is not in a corporation allowed to access %s" % (self.cleaned_data['character'].name, self.cleaned_data['service']))
 
             return self.cleaned_data
 
