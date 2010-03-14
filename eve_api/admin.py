@@ -5,7 +5,7 @@ from django.contrib import admin
 from eve_api.models import *
 
 class EVEAccountAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user')
+    list_display = ('id', 'user', 'api_status;, 'api_last_updated')
     search_fields = ['id']
 admin.site.register(EVEAccount, EVEAccountAdmin)
 
