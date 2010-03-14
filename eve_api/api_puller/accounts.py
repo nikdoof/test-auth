@@ -10,6 +10,8 @@ if __name__ == "__main__":
     from importer_path import fix_environment
     fix_environment() 
 
+from datetime import datetime
+
 from django.conf import settings
 from eve_proxy.models import CachedDocument
 from eve_api.app_defines import *
@@ -50,7 +52,7 @@ def import_eve_account(api_key, user_id):
 
     account.api_key = api_key
     account.api_user_id = user_id
-    account.api_last_updated = datetime.now()
+    account.api_last_updated = datetime.utcnow()
     account.api_status = API_STATUS_OK
     account.save()
 
@@ -67,6 +69,7 @@ def import_eve_account(api_key, user_id):
             # Save these for last to keep the save count low.
             pchar.name = name
             pchar.corporation = corp
+            pchar.api_last_updated = datetime.utcnow()
             pchar.save()
             account.characters.add(pchar)
         except AttributeError:
