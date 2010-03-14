@@ -37,16 +37,6 @@ def UserServiceAccountForm(user):
         character = forms.ChoiceField(chars)
         service = forms.ChoiceField(services)
 
-        def clean_username(self):
-            field = self.cleaned_data.get('username', '')
-
-            # Checks that usernames consist of letters and numbers only
-            if not re.match("^[A-Za-z0-9_-]*$", field):
-                raise forms.ValidationError("Invalid character in username, use letters and numbers only")
-
-            return field
-
-
         def clean(self):
             if not self.cleaned_data['character'].corporation.group in self.cleaned_data['service'].groups.all():
                 raise form.ValidationError("%s is not in a corporation allowed to access %s" % (self.cleaned_data['character'].name, self.cleaned_data['service'])
