@@ -32,7 +32,7 @@ class BaseService():
 
     def add_user(self, username, password):
         """ Add a user, returns a UID for that user """
-        pass
+        return username
 
     def check_user(self, username):
         """ Check if the username exists """
