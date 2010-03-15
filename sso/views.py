@@ -45,7 +45,7 @@ def profile(request):
     except EVEAccount.DoesNotExist:
         eveaccounts = None
 
-    return render_to_response('profile.html', locals())
+    return render_to_response('sso/profile.html', locals())
 
 @login_required
 def eveapi_add(request):
@@ -113,7 +113,7 @@ def service_add(request):
 
         availserv = Service.objects.filter(groups__in=request.user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=request.user).values('service'))
         if len(availserv) == 0:
-            return render_to_response('sso/serviceaccount/noneavailable.html')
+            return render_to_response('sso/serviceaccount/noneavailable.html', locals())
         else: 
             form = clsform() # An unbound form
 
