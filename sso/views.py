@@ -107,17 +107,17 @@ def service_add(request):
             else:
                 error = None
 
-            return render_to_response('sso/serviceaccount_created.html', { 'account': acc, 'error': error }) 
+            return render_to_response('sso/serviceaccount/created.html', { 'account': acc, 'error': error })
     else:
         #defaults = { 'username': request.user.username, 'password': request.user.get_profile().default_service_passwd }
 
         availserv = Service.objects.filter(groups__in=request.user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=request.user).values('service'))
         if len(availserv) == 0:
-            return HttpResponseRedirect(reverse('sso.views.profile'))
+            return render_to_response('sso/serviceaccount/noneavailable.html')
         else: 
             form = clsform() # An unbound form
 
-    return render_to_response('sso/serviceaccount.html', locals())
+    return render_to_response('sso/serviceaccount/index.html', locals())
 
 @login_required
 def service_del(request, serviceid=0):
@@ -143,13 +143,13 @@ def service_reset(request, serviceid=0, accept=0):
 
         if acc.user == request.user:
             if not accept:
-                return render_to_response('sso/serviceaccount_reset.html', locals())
+                return render_to_response('sso/serviceaccount/reset.html', locals())
 
             passwd = hashlib.sha1('%s%s' % (acc.service_uid, settings.SECRET_KEY)).hexdigest()
 
             api = acc.service.api_class
             api.enable_user(acc.service_uid, passwd)
-            return render_to_response('sso/serviceaccount_resetcomplete.html', locals())
+            return render_to_response('sso/serviceaccount/resetcomplete.html', locals())
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
