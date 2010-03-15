@@ -34,8 +34,8 @@ def UserServiceAccountForm(user):
     class ServiceAccountForm(forms.Form):
         """ Service Account Form """
 
-        character = forms.ModelChoiceField(queryset=chars)
-        service = forms.ModelChoiceField(queryset=services)
+        character = forms.ModelChoiceField(queryset=chars, required=True, empty_label=None)
+        service = forms.ModelChoiceField(queryset=services, required=True, empty_label=None)
 
         def clean(self):
             if not self.cleaned_data['character'].corporation.group in self.cleaned_data['service'].groups.all():

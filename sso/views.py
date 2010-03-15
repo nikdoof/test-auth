@@ -10,7 +10,7 @@ from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 from eve_api.api_puller.accounts import import_eve_account
 from eve_api.models.api_player import EVEAccount
 
-from sso.models import ServiceAccount, SSOUser, ExistingUser
+from sso.models import ServiceAccount, Service, SSOUser, ExistingUser
 from sso.forms import EveAPIForm, UserServiceAccountForm, RedditAccountForm, UserLookupForm
 
 from reddit.models import RedditAccount
@@ -110,7 +110,12 @@ def service_add(request):
             return render_to_response('sso/serviceaccount_created.html', { 'account': acc, 'error': error }) 
     else:
         #defaults = { 'username': request.user.username, 'password': request.user.get_profile().default_service_passwd }
-        form = clsform() # An unbound form
+
+        availserv = Service.objects.filter(groups__in=request.user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=request.user).values('service'))
+        if len(availserv) == 0:
+            return HttpResponseRedirect(reverse('sso.views.profile'))
+        else: 
+            form = clsform() # An unbound form
 
     return render_to_response('sso/serviceaccount.html', locals())
 
