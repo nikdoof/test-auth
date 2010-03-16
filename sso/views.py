@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.template import RequestContext
 
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 from eve_api.api_puller.accounts import import_eve_account
@@ -46,7 +47,7 @@ def profile(request):
     except EVEAccount.DoesNotExist:
         eveaccounts = None
 
-    return render_to_response('sso/profile.html', locals())
+    return render_to_response('sso/profile.html', locals(), context_instance=RequestContext(request))
 
 @login_required
 def eveapi_add(request):
@@ -61,6 +62,7 @@ def eveapi_add(request):
             acc.user = request.user
             acc.description = form.cleaned_data['description']
             acc.save()
+            request.user.message_set.create(message="EVE API successfully added.")
 
             request.user.get_profile().update_access()
 
@@ -68,7 +70,7 @@ def eveapi_add(request):
     else:
         form = EveAPIForm() # An unbound form
 
-    return render_to_response('sso/eveapi.html', locals())
+    return render_to_response('sso/eveapi.html', locals(), context_instance=RequestContext(request))
 
 @login_required
 def eveapi_del(request, userid=0):
@@ -82,6 +84,7 @@ def eveapi_del(request, userid=0):
 
         if acc.user == request.user:
             acc.delete()
+            request.user.message_set.create(message="EVE API key successfully deleted.")
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
@@ -114,7 +117,7 @@ def service_add(request):
 
         availserv = Service.objects.filter(groups__in=request.user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=request.user).values('service'))
         if len(availserv) == 0:
-            return render_to_response('sso/serviceaccount/noneavailable.html', locals())
+            return render_to_response('sso/serviceaccount/noneavailable.html', locals(), context_instance=RequestContext(request))
         else: 
             form = clsform() # An unbound form
 
@@ -131,7 +134,7 @@ def service_del(request, serviceid=0):
 
         if acc.user == request.user:
             acc.delete()
-
+            request.user.message_set.create(message="Service account successfully deleted.")
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
 @login_required
@@ -150,7 +153,7 @@ def service_reset(request, serviceid=0, accept=0):
 
             api = acc.service.api_class
             api.enable_user(acc.service_uid, passwd)
-            return render_to_response('sso/serviceaccount/resetcomplete.html', locals())
+            return render_to_response('sso/serviceaccount/resetcomplete.html', locals(), context_instance=RequestContext(request))
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
@@ -169,6 +172,8 @@ def reddit_add(request):
             acc.api_update()
 
             acc.save()
+
+            request.user.message_set.create(message="Reddit account %s successfully added." % acc.username)
             return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
     else:
         defaults = { 'username': request.user.username, }
@@ -186,6 +191,7 @@ def reddit_del(request, redditid=0):
 
         if acc.user == request.user:
             acc.delete()
+            request.user.message_set.create(message="Reddit account successfully deleted.")
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
