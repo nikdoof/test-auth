@@ -1,4 +1,5 @@
 import hashlib
+import random
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -98,7 +99,7 @@ def service_add(request):
 
             acc.service = form.cleaned_data['service']
             acc.character = form.cleaned_data['character']
-            acc.password = hashlib.sha1('%s%s' % (form.cleaned_data['character'].name, settings.SECRET_KEY)).hexdigest()
+            acc.password = hashlib.sha1('%s%s%s' % (form.cleaned_data['character'].name, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
 
             try:
                 acc.save()
@@ -145,7 +146,7 @@ def service_reset(request, serviceid=0, accept=0):
             if not accept:
                 return render_to_response('sso/serviceaccount/reset.html', locals())
 
-            passwd = hashlib.sha1('%s%s' % (acc.service_uid, settings.SECRET_KEY)).hexdigest()
+            passwd = hashlib.sha1('%s%s%s' % (acc.service_uid, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
 
             api = acc.service.api_class
             api.enable_user(acc.service_uid, passwd)
