@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>{{ character.name }}</h1>
+
+<ul>
+<li>Race: {{ character.race }}</li>
+<li>Gender: {{ character.gender }}</li>
+<li>Corporation: {{ character.corporation.name }}</li>
+</ul>
+
+<table>
+<tr><th>Stat</th><th>Value</th></tr>
+<tr><td>Intelligence</td><td> {{ character.attrib_intelligence }}</td></tr>
+<tr><td>Memory</td><td>{{ character.attrib_memory }}</td></tr>
+<tr><td>Charisma</td><td>{{ character.attrib_charisma }}</td></tr>
+<tr><td>Perception</td><td>{{ character.attrib_perception }}</td></tr>
+<tr><td>Willpower</td><td>{{ character.attrib_willpower }}</td></tr>
+</table>
+
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Character List</h1>
+
+{% if characters %}
+<table>
+<tr><th>Character Name</th><th>Corp</th></tr>
+{% for char in characters %}
+<tr><td><a href="/profile/characters/{{ char.id }}/">{{ char.name }}</a></td>
+    <td>{{ char.corp }}</td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+{% endblock %}
