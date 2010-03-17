@@ -10,7 +10,7 @@ from django.template import RequestContext
 
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 from eve_api.api_puller.accounts import import_eve_account
-from eve_api.models.api_player import EVEAccount
+from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter
 
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser
 from sso.forms import EveAPIForm, UserServiceAccountForm, RedditAccountForm, UserLookupForm
@@ -48,6 +48,28 @@ def profile(request):
         eveaccounts = None
 
     return render_to_response('sso/profile.html', locals(), context_instance=RequestContext(request))
+
+@login_required
+def characters(request, charid=0):
+
+    if charid:
+        try:
+            character = EVEPlayerCharacter.objects.get(id=charid)
+        except EVEPlayerCharacter.DoesNotExist:
+            return HttpResponseRedirect(reverse('sso.views.profile'))
+        return render_to_response('sso/character.html', locals(), context_instance=RequestContext(request))
+    try:
+        eveaccounts = EVEAccount.objects.filter(user=request.user).all()
+        characters = []
+        for acc in eveaccounts:
+            chars = acc.characters.all()
+            for char in chars:
+                characters.append({'id': char.id, 'name': char.name, 'corp': char.corporation.name})
+
+    except EVEAccount.DoesNotExist:
+        characters = []
+
+    return render_to_response('sso/characterlist.html', locals(), context_instance=RequestContext(request))
 
 @login_required
 def eveapi_add(request):

@@ -16,6 +16,8 @@ urlpatterns = patterns('',
     (r'^profile/add/reddit', views.reddit_add),
     (r'^profile/del/reddit/$', views.reddit_del),
     (r'^profile/del/reddit/(?P<redditid>\d+)/$', views.reddit_del),
+    (r'^profile/characters$', views.characters),
+    (r'^profile/characters/(?P<charid>.*)/$', views.characters),
     (r'^users/(?P<user>.*)/$', views.user_view),
     (r'^users/$', views.user_view),
 )
