@@ -18,13 +18,13 @@ a new service click the Add Service link</p>
 {% if srvaccounts %}
 <table>
 <thead>
-<tr><th>Service</th><th>Username</th><th>Password</th><th>Active</th><th>Actions</th></tr>
+<tr><th>Service</th><th>Username</th><th>URL</th><th>Active</th><th>Actions</th></tr>
 </thead>
 <tbody>
 {% for acc in srvaccounts %}
 <tr><td>{{ acc.service }}</td>
     <td>{{ acc.service_uid }}</td>
-    <td>******</td>
+    <td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td>
     <td>{{ acc.active }}</td>
     <td><a href="/profile/del/service/{{ acc.id }}/">Delete</a> / <a href="/profile/reset/service/{{ acc.id }}/">Reset</a>
     {% if acc.service.provide_login %}
