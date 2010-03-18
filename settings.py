@@ -81,6 +81,7 @@ INSTALLED_APPS = (
     'mumble',
     'reddit',
     'sso',
+    'api',
 )
 
 # Disable the service API, used for data imports

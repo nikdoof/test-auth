@@ -4,3 +4,6 @@
 django/
 registration/
 dbsettings.py
+django_cron
+django_evolution
+piston
