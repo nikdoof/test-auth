@@ -54,7 +54,7 @@ class Inbox():
     def _inbox_data(self):
 
         if not hasattr(self, '__inbox_cache'):
-            inbox = json.load(self.opener.open(self.REDDIT_API_INBOX))['data']
+            inbox = json.load(self._opener.open(self.REDDIT_API_INBOX))['data']
             
             self.__inbox_cache = []
             for msg in inbox['children']:

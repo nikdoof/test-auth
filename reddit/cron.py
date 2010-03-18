@@ -3,6 +3,7 @@ import logging
 
 from django_cron import cronScheduler, Job
 from reddit.models import RedditAccount
+from reddit.api import Inbox
 
 class UpdateAPIs(Job):
         """
@@ -23,5 +24,41 @@ class UpdateAPIs(Job):
                 acc.api_update()
                 acc.save()
                 time.sleep(2)
+
+
+class APIKeyParser:
+    dictitems = {}
+
+    def __init__(self, key):
+        rows = key.split('\n')
+        for row in rows:
+            key = row.split(":")[0].replace(" ", "_").lower().strip()
+            value = row.split(":")[1].strip()
+
+            self.dictitems[key] = value
+
+    def __getattr__(self, key):
+        return self.dictitems[key]
+
+    def __str__(self):
+        return "%s:%s" % (self.user_id, self.api_key)
+
+class ProcessInbox(Job):
+    """
+    Grabs all Reddit Mail and processes any new applications
+    """
+
+    def job(self):
+        inbox = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWORD)
+
+        for msg in inbox:
+            if not msg.was_comment and msg.new:
+                try:
+                    key = APIKeyParser(msg.body)
+                except:
+                    pass
+                else:
+                    print key.username
+                
 
 cronScheduler.register(UpdateAPIs)
