@@ -20,6 +20,9 @@ class MediawikiService(BaseService):
     SQL_ENABLE_USER = r"UPDATE user SET user_password = %s WHERE user_name = %s"
     SQL_CHECK_USER = r"SELECT user_name from user WHERE user_name = %s"
 
+    SQL_DEL_REV = r"UPDATE revision SET rev_user = (SELECT user_id FROM user WHERE user_name = 'DeletedUser'), rev_user_text = 'DeletedUser' WHERE rev_user = (SELECT user_id FROM user WHERE user_name = '%s')"
+    SQL_DEL_USER = r"DELETE FROM USER WHERE user_name = '%s'"
+
     def __init__(self):
 
         # Use the master DB settings, bar the database name
@@ -65,7 +68,9 @@ class MediawikiService(BaseService):
 
     def delete_user(self, uid):
         """ Delete a user """
-        self.disable_user(uid)
+        self._dbcursor.execute(self.SQL_DEL_REV, [uid])
+        self._dbcursor.execute(self.SQL_DEL_USER, [uid])
+        self._db.connection.commit()
 
     def disable_user(self, uid):
         """ Disable a user """
