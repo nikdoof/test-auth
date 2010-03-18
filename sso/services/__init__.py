@@ -50,6 +50,10 @@ class BaseService():
         """ Enable a user by uid """       
         pass
 
+    def reset_password(self, uid, password):
+        """ Reset the user's password """
+        pass
+
     def login(uid):
         """ Login the user and provide cookies back """ 
         pass

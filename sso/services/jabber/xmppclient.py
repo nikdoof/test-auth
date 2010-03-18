@@ -87,6 +87,25 @@ class JabberAdmin():
         else:
             return False
 
+    def resetpassword(self, username, password):
+        # Send request and get the Session ID
+        resp = self._client.SendAndWaitForResponse(self._construct_iq_req('http://jabber.org/protocol/commands', 'http://jabber.org/protocol/admin#change-user-password'))
+        sessionid = resp.getTagAttr('command','sessionid')
+
+        values = [ ('hidden', 'FORM_TYPE', 'http://jabber.org/protocol/admin'),
+                   ('jid-single', 'accountjid', username),
+                   ('text-private', 'password', password) ]
+
+        iq = self._construct_form('http://jabber.org/protocol/commands', 'http://jabber.org/protocol/admin#change-user-password', sessionid, values)
+
+        # Send request and pray for the best
+        resp = self._client.SendAndWaitForResponse(iq)
+
+        if resp.getAttrs()['type'] == "result":
+            return True
+        else:
+            return False
+
 
     def checkuser(self, username):
         # Send request and get the Session ID

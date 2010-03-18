@@ -79,4 +79,8 @@ class MediawikiService(BaseService):
         self._db.connection.commit()
         pass
 
+    def reset_password(self, uid, password):
+        """ Reset the user's password """
+        self.enable_user(uid, password)
+
 ServiceClass = 'MediawikiService'

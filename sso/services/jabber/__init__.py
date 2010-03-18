@@ -63,4 +63,12 @@ class JabberService(BaseService):
             username, server = uid.split("@")
             return self.ejctl.enable_user(server, username, password)
 
+    def reset_password(self, uid, password):
+        """ Reset the user's password """
+        if self.method == "xmpp":
+            return self.jabberadmin.resetpassword(uid, password)
+        else:
+            username, server = uid.split("@")
+            return self.ejctl.set_password(server, username, password)
+
 ServiceClass = 'JabberService'
