@@ -174,7 +174,7 @@ def service_reset(request, serviceid=0, accept=0):
             passwd = hashlib.sha1('%s%s%s' % (acc.service_uid, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
 
             api = acc.service.api_class
-            if api.reset_password(acc.service_uid, passwd):
+            if not api.reset_password(acc.service_uid, passwd):
                 error = True
             return render_to_response('sso/serviceaccount/resetcomplete.html', locals(), context_instance=RequestContext(request))
 
