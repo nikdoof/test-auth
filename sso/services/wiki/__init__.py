@@ -82,10 +82,11 @@ class MediawikiService(BaseService):
         pwhash = self._gen_mw_hash(password)
         self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
         self._db.connection.commit()
-        pass
+        return True
 
     def reset_password(self, uid, password):
         """ Reset the user's password """
-        self.enable_user(uid, password)
+        return self.enable_user(uid, password)
+        
 
 ServiceClass = 'MediawikiService'
