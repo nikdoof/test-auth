@@ -26,7 +26,7 @@ class JabberAdmin():
         client = xmpp.Client(self.jid.getDomain(), debug=[])
 
         client.connect(server=('dredd.it', 5222))
-        client.auth(self.username, self.password,'rmtmgmt')
+        client.auth(self.username, self.password)
         client.sendInitPresence()
 
         self._client = client
