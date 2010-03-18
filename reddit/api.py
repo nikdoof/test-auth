@@ -32,10 +32,6 @@ class Inbox():
     REDDIT_API_COMPOSE = "%s/api/compose/" % REDDIT
 
     def __init__(self, username=None, password=None):
-
-        self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
-        urllib2.install_opener(self.opener)
-
         if username and password:
             self.login(username, password)
 
@@ -43,17 +39,15 @@ class Inbox():
         data = { 'user': username,
                  'passwd': password, 
                  'api_type': 'json' }
-     
-
         url = "%s/%s" % (self.REDDIT_API_LOGIN, username)
-        req = urllib2.Request( url, urllib.urlencode(data))
-        jsondoc = json.load(self.opener.open(req))
+
+        jsondoc = json.load(self._url_request(url, data))
 
         self.login_cookie = jsondoc['json']['data']['cookie']
         self.modhash = jsondoc['json']['data']['modhash']
+
         if self.login_cookie:
             return True
-
         return False            
 
     @property
@@ -69,8 +63,12 @@ class Inbox():
         return self.__inbox_cache
 
     def _url_request(self, url, data):
+        if not hasattr(self, '_opener'):
+            self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
+            urllib2.install_opener(self._opener)
+
         req = urllib2.Request( url, urllib.urlencode(data))
-        return self.opener.open(req)
+        return self._opener.open(req)
 
     def __len__(self):
         return len(self._inbox_data)
