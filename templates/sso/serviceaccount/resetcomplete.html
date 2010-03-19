@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Service Account{% endblock %}
+{% block title %}External Service Account{% endblock %}
 
 {% block content %}
 {% if error %}
 <div style="border: 1px solid #FF0000; background: #FF7D7D; width: 100%; text-align: center;">
-<b>Error:</b> Your account has not been created. Either you already have a user on this service or a error has occured. If you think 
-this is incorrect please raise a bug on the tracker.
+<b>Error:</b> A error occured resetting your account. Please raise a issue with the Web Team
 </div>
 {% else %}
 <p>Your account on {{ acc.service }} has been reset. Your login details are as follows:</p>
