@@ -4,3 +4,4 @@
 django/
 registration/
 dbsettings.py
+django_evolution
