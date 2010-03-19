@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Service Account{% endblock %}
+{% block title %}External Service Account{% endblock %}
 
 {% block content %}
 {% if error %}
@@ -12,6 +12,8 @@ this is incorrect please raise a bug on the tracker.
 <p>Your account on {{ account.service }} has been created. Your login details are as follows:</p>
 
 <table>
+<tr><td>Service:</td><td>{{ account.service.name }}</td></tr>
+<tr><td>Service URL:</td><td><a href="{{ account.service.url }}">{{ account.service.url }}</a></td></tr>
 <tr><td>Username:</td><td>{{ account.service_uid }}</td></tr>
 <tr><td>Password:</td><td>{{ account.password }}</td></tr>
 </table>
