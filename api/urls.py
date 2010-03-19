@@ -9,13 +9,14 @@ auth = HttpBasicAuthentication(realm="My Realm")
 ad = {}
 
 user_resource = Resource(handler=UserHandler, **ad)
-serviceaccount_resource = Resource(handler=ServiceAccountHandler, **ad)
 login_resource = Resource(handler=LoginHandler, **ad)
+access_resource = Resource(handler=AccessHandler, **ad)
 
 urlpatterns = patterns('',
     url(r'^login/$', login_resource),
+    url(r'^access/$', access_resource),
     url(r'^user/$', user_resource),
-    url(r'^user/(?P<id>\d+)/$', user_resource),
-    url(r'^serviceaccount/$', serviceaccount_resource),
-    url(r'^serviceaccount/(?P<id>\d+)/$', serviceaccount_resource),
+#    url(r'^user/(?P<id>\d+)/$', user_resource),
+#    url(r'^serviceaccount/$', serviceaccount_resource),
+#    url(r'^serviceaccount/(?P<id>\d+)/$', serviceaccount_resource),
 )

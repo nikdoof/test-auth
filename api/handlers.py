@@ -4,93 +4,77 @@ from piston.handler import BaseHandler
 from piston.utils import rc, throttle
 
 from django.contrib.auth.models import User
+from eve_api.models import EVEAccount
 from sso.models import ServiceAccount
 
 class UserHandler(BaseHandler):
     allowed_methods = ('GET')
-    fields = ('id', 'username', 'password' )
-    model = User
-
-    def read(self, request, user=None, id=None, sid=None, suid=None):
-
-        if user:
-            try:
-                user = User.objects.get(username=user)
-            except User.DoesNotExist:
-                return rc.NOT_HERE
-        if id:
-            try:
-                user = User.objects.get(id=id)
-            except (User.DoesNotExist, ValueError):
-                return rc.NOT_HERE
-        if sid:
-            try:
-                sa = ServiceAccount.objects.get(service_id=sid, service_uid=suid)
-            except ServiceAccount.DoesNotExist:
-                return rc.NOT_HERE
-            user = sa.user
-
-        enctype, salt, passwd = user.password.split("$")
-        return { 'id': user.id, 'username': user.username, 'type': enctype, 'salt': salt }
-
-
-class LoginHandler(BaseHandler):
-    allowed_methods = ('GET')
-    fields = ('id', 'username', 'password' )
-    model = User
-
-    def read(self, request):
-        if 'hash' not in request.GET:
-            return rc.BAD_REQUEST
-        else:
-            hash = request.GET['hash']
-
-        if 'username' in request.GET:
-            try:
-                user = User.objects.get(username=request.GET['username'])
-            except (User.DoesNotExist, ValueError):
-                return rc.NOT_HERE
-        elif 'id' in request.GET:
-            try:
-                user = User.objects.get(id=request.GET['id'])
-            except (User.DoesNotExist, ValueError):
-                return rc.NOT_HERE
-        elif 'suid' in request.GET:
-            if 'sid' not in request.GET:
-                return rc.BAD_REQUEST
-            try:
-                sa = ServiceAccount.objects.get(service_uid=request.GET['suid'], service=request.GET['sid'])
-                user = sa.user
-            except (ServiceAccount.DoesNotExist, ValueError):
-                return rc.NOT_HERE
-        else:
-            return rc.BAD_REQUEST
-
-        enctype, salt, passwd = user.password.split("$")
-
-        if hash == passwd:
-            return { 'auth': 'ok', 'id': user.id, 'username': user.username }
-        else:
-            return { 'auth': 'fail' }
-
-
-class ServiceAccountHandler(BaseHandler):    
-    allowed_methods = ('GET')
-    fields = ('id', 'user_id', 'service_uid' )
-    model = ServiceAccount
 
     def read(self, request, id=None):
         if id:
             try:
-                account = ServiceAccount.objects.get(id=id)
-            except (ServiceAccount.DoesNotExist, ValueError):
+                user = User.objects.filter(id=id)
+            except (User.DoesNotExist, ValueError):
                 return rc.NOT_HERE
+
+        if 'user' in request.GET:
+            try:
+                user = User.objects.filter(username=request.GET['user'])
+                print user
+            except User.DoesNotExist:
+                return rc.NOT_HERE
+
+        if 'serviceuid' in request.GET:
+            try:
+                sa = ServiceAccount.objects.filter(service_uid=request.get['serviceuid'])
+            except ServiceAccount.DoesNotExist:
+                return rc.NOT_HERE
+            user = sa.user
+
+
+        out = []
+        for u in user:
+            sa = ServiceAccount.objects.filter(user=u)        
+            ea = EVEAccount.objects.filter(user=u)
+
+            d = { 'id': u.id, 'username': u.username, 'serviceaccounts': sa, 'eveapi': ea }
+            out.append (d)
+
+        return out	
+
+
+class LoginHandler(BaseHandler):
+    allowed_methods = ('GET')
+
+    def read(self, request):
+        if request.user:
+            return {'auth': 'notrequired', 'cookie': request.session.session_key }
+
+        if not 'user' in request.GET or not 'pass' in request.GET:
+            return rc.BAD_REQUEST
+
+        if not user.is_active:
+            return { 'auth': 'disabled' }
+
+        if authenticate(user.name, password):
+            login(request, user)
+            return { 'auth': 'ok', 'id': user.id, 'username': user.username, 'cookie': request.session.session_key }
         else:
-            if request.GET['serviceuid']:
-                try:
-                    account = ServiceAccount.objects.get(service_uid=request.GET['serviceuid'])
-                except (ServiceAccount.DoesNotExist, ValueError):
-                    return rc.NOT_HERE
+            return { 'auth': 'fail' }
 
-        return account
+class AccessHandler(BaseHandler):
+    allowed_methods = ('GET')
 
+    def read(self, request):
+        if not request.user:
+            return rc.FORBIDDEN
+
+        if not 'serviceid' in request.GET:
+            return rc.BAD_REQUEST
+        
+        sa = ServiceAccount.objects.filter(user=request.user, service=request.GET['serviceid'])
+
+        if sa:
+            return { 'access': True, 'service': sa.service.id, 'service_uid': sa.service_uid }
+        else:
+            return { 'access': False }
