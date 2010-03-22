@@ -12,7 +12,7 @@ class MumbleService(BaseService):
     def _get_server(self):
         return Mumble.objects.get(id=settings.MUMBLE_SERVER_ID)
 
-    def add_user(self, username, password):
+    def add_user(self, username, password, **kwargs):
         """ Add a user, returns a UID for that user """
         mumbleuser = MumbleUser()
         mumbleuser.name = username

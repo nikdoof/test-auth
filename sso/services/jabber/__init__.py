@@ -21,7 +21,7 @@ class JabberService(BaseService):
             self.method = "cmd"
             self.ejctl = eJabberdCtl(sudo=settings.JABBER_SUDO)
 
-    def add_user(self, username, password):
+    def add_user(self, username, password, **kwargs):
         """ Add user to service """
         if self.method == "xmpp":
             if self.jabberadmin.adduser('%s@%s' % (username, settings.JABBER_SERVER), password):

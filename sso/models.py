@@ -121,7 +121,9 @@ class ServiceAccount(models.Model):
             # Create a account if we've not got a UID
             if self.active:
                 if not api.check_user(self.username):
-                    self.service_uid = api.add_user(self.username, self.password)
+                    eve_api = EVEAccount.objects.filter(user=self.user)
+                    reddit = RedditAccount.objects.filter(user=self.user)
+                    self.service_uid = api.add_user(self.username, self.password, user=self.user, character=self.character, eveapi=eve_api, reddit=reddit)
                 else:
                     raise ExistingUser('Username %s has already been took' % self.username)
             else:

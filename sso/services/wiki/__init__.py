@@ -51,7 +51,7 @@ class MediawikiService(BaseService):
         username = username.strip()
         return username[0].upper() + username[1:]
 
-    def add_user(self, username, password):
+    def add_user(self, username, password, **kwargs):
         """ Add a user """
         pwhash = self._gen_mw_hash(password)
         self._dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash])

@@ -30,7 +30,7 @@ class BaseService():
                  'require_password': True,
                  'provide_login': False }
 
-    def add_user(self, username, password):
+    def add_user(self, username, password, **kwargs):
         """ Add a user, returns a UID for that user """
         return username
 
