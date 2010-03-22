@@ -68,7 +68,6 @@ class SSOUser(models.Model):
 
     @staticmethod
     def create_user_profile(sender, instance, created, **kwargs):   
-        print 'trigger', instance
         if created:   
             profile, created = SSOUser.objects.get_or_create(user=instance) 
 
@@ -128,7 +127,6 @@ class ServiceAccount(models.Model):
                             eveapi = eacc
                             break
 
-                    print eveapi
                     reddit = RedditAccount.objects.filter(user=self.user)
                     self.service_uid = api.add_user(self.username, self.password, user=self.user, character=self.character, eveapi=eveapi, reddit=reddit)
                 else:

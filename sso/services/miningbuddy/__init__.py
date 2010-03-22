@@ -1,5 +1,6 @@
 import crypt
 import random
+import time
 from django.db import load_backend, transaction
 from sso.services import BaseService
 import settings
@@ -16,7 +17,7 @@ class MiningBuddyService(BaseService):
 
 
     SQL_ADD_USER = r"INSERT INTO users (username, password, email, emailvalid, confirmed) VALUES (%s, %s, %s, 0, 1)"
-    SQL_ADD_API = r"INSERT INTO api_keys (userid, time, apiID, apiKey, api_valid) values (%s, %s, %s, %s, 1)"
+    SQL_ADD_API = r"INSERT INTO api_keys (userid, time, apiID, apiKey, api_valid, charid) values (%s, %s, %s, %s, 1, %s)"
     SQL_DIS_USER = r"UPDATE users SET canLogin = 0 WHERE username = %s"
     SQL_ENABLE_USER = r"UPDATE users SET canLogin = 1, password = %s WHERE username = %s"
     SQL_CHECK_USER = r"SELECT username from users WHERE username = %s and deleted = 0"
@@ -59,6 +60,12 @@ class MiningBuddyService(BaseService):
 
         self._dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email])
         self._db.connection.commit()
+
+        userid = self._dbcursor.lastrowid
+        if 'eveapi' in kwargs:
+            self._dbcursor.execute(self.SQL_ADD_API, [userid, int(time.time()), kwargs['eveapi'].api_user_id, kwargs['eveapi'].api_key, kwargs['character'].id])
+            self._db.connection.commit()
+
         return self._clean_username(username)
 
     def check_user(self, username):
