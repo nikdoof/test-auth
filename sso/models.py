@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import signals
 from django.contrib.auth.models import User, UserManager, Group
 from eve_api.models import EVEAccount, EVEPlayerCorporation
+from reddit.models import RedditAccount
 
 from services import get_api
 
@@ -121,9 +122,15 @@ class ServiceAccount(models.Model):
             # Create a account if we've not got a UID
             if self.active:
                 if not api.check_user(self.username):
-                    eve_api = EVEAccount.objects.filter(user=self.user)
+                    eveapi = None
+                    for eacc in EVEAccount.objects.filter(user=self.user):
+                        if self.character in eacc.characters.all():
+                            eveapi = eacc
+                            break
+
+                    print eveapi
                     reddit = RedditAccount.objects.filter(user=self.user)
-                    self.service_uid = api.add_user(self.username, self.password, user=self.user, character=self.character, eveapi=eve_api, reddit=reddit)
+                    self.service_uid = api.add_user(self.username, self.password, user=self.user, character=self.character, eveapi=eveapi, reddit=reddit)
                 else:
                     raise ExistingUser('Username %s has already been took' % self.username)
             else:

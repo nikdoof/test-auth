@@ -15,10 +15,10 @@ class MiningBuddyService(BaseService):
                  'provide_login': False }
 
 
-    SQL_ADD_USER = r"INSERT INTO users (username, password, email, emailvalid, confirmed) VALUES (%s, %s, '', 0, 1)"
+    SQL_ADD_USER = r"INSERT INTO users (username, password, email, emailvalid, confirmed) VALUES (%s, %s, %s, 0, 1)"
     SQL_ADD_API = r"INSERT INTO api_keys (userid, time, apiID, apiKey, api_valid) values (%s, %s, %s, %s, 1)"
     SQL_DIS_USER = r"UPDATE users SET canLogin = 0 WHERE username = %s"
-    SQL_ENABLE_USER = r"UPDATE users SET canLogin = 1 WHERE username = %s"
+    SQL_ENABLE_USER = r"UPDATE users SET canLogin = 1, password = %s WHERE username = %s"
     SQL_CHECK_USER = r"SELECT username from users WHERE username = %s and deleted = 0"
     SQL_DEL_USER = r"UPDATE users set deleted = 1 WHERE username = %s"
 
@@ -42,17 +42,22 @@ class MiningBuddyService(BaseService):
 
     def _gen_mb_hash(self, password, salt=None):
         if not salt:
-            salt = _gen_salt()
+            salt = self._gen_salt()
         return crypt.crypt(password, salt)
 
     def _clean_username(self, username):
         username = username.strip()
         return username[0].upper() + username[1:]
 
-    def add_user(self, username, password):
+    def add_user(self, username, password, **kwargs):
         """ Add a user """
         pwhash = self._gen_mb_hash(password)
-        self._dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash])
+        if 'user' in kwargs:
+            email = kwargs['user'].email
+        else:
+            email = ''
+
+        self._dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email])
         self._db.connection.commit()
         return self._clean_username(username)
 
@@ -76,7 +81,7 @@ class MiningBuddyService(BaseService):
 
     def enable_user(self, uid, password):
         """ Enable a user """
-        pwhash = self._gen_mw_hash(password)
+        pwhash = self._gen_mb_hash(password)
         self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
         self._db.connection.commit()
         return True

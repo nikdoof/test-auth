@@ -90,6 +90,10 @@ AUTH_PROFILE_MODULE = 'sso.SSOUser'
 LOGIN_REDIRECT_URL = "/profile"
 LOGIN_URL = "/login"
 
+FORCE_SCRIPT_NAME=""
+DEFAULT_FROM_EMAIL = "bot@auth.dredd.it"
+ACCOUNT_ACTIVATION_DAYS = 14
+
 ### Jabber Service Settings
 
 # Vhost to add users to 
@@ -115,9 +119,14 @@ MUMBLE_SERVER_ID = 1
 
 ### Wiki Service Settings
 
+# Mediawiki database name
 WIKI_DATABASE = 'dreddit_wiki'
 
-FORCE_SCRIPT_NAME=""
-DEFAULT_FROM_EMAIL = "bot@auth.dredd.it"
+### Mining Buddy Settings
 
-ACCOUNT_ACTIVATION_DAYS = 14
+# Mining Buddy database name
+MINING_DATABASE = 'dreddit_mining'
+
+# Mining buddy secret key (in the config)
+MINING_SALT = 's98ss7fsc7fd2rf62ctcrlwztstnzve9toezexcsdhfgviuinusxcdtsvbrg'
+
