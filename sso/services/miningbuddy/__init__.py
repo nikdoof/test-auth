@@ -16,7 +16,7 @@ class MiningBuddyService(BaseService):
 
 
     SQL_ADD_USER = r"INSERT INTO users (username, password, email, emailvalid, confirmed) VALUES (%s, %s, '', 0, 1)"
-    SQL_ADD_API = r"INSERT INTO api_keys (userid, time, apiID, apiKey, api_valid) values (%s, %s, %s, %s, 1)
+    SQL_ADD_API = r"INSERT INTO api_keys (userid, time, apiID, apiKey, api_valid) values (%s, %s, %s, %s, 1)"
     SQL_DIS_USER = r"UPDATE users SET canLogin = 0 WHERE username = %s"
     SQL_ENABLE_USER = r"UPDATE users SET canLogin = 1 WHERE username = %s"
     SQL_CHECK_USER = r"SELECT username from users WHERE username = %s and deleted = 0"
