@@ -133,7 +133,7 @@ def service_add(request):
             else:
                 error = None
 
-            return render_to_response('sso/serviceaccount/created.html', { 'account': acc, 'error': error })
+            return render_to_response('sso/serviceaccount/created.html', { 'account': acc, 'error': error }, context_instance=RequestContext(request))
     else:
         #defaults = { 'username': request.user.username, 'password': request.user.get_profile().default_service_passwd }
 

@@ -36,16 +36,26 @@ class MumbleService(BaseService):
 
     def delete_user(self, uid):
         """ Delete a user by uid """
-        mumbleuser = MumbleUser.objects.get(name=uid)
+        mumbleuser = MumbleUser.objects.get(name=uid, server=self._get_server())
         mumbleuser.delete()
 
     def disable_user(self, uid):
         """ Disable a user by uid """
-        pass
+        try:
+            mumbleuser = MumbleUser.objects.get(name=uid, server=self._get_server())
+        except MumbleUser.DoesNotExist:
+            return False
+        mumbleuser.password = ""
+        mumbleuser.save()
 
     def enable_user(self, uid, password):
         """ Enable a user by uid """       
-        pass
+        try:
+            mumbleuser = MumbleUser.objects.get(name=uid, server=self._get_server())
+        except MumbleUser.DoesNotExist:
+            return False
+        mumbleuser.password = password
+        mumbleuser.save()
 
     def login(uid):
         """ Login the user and provide cookies back """ 
