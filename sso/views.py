@@ -119,9 +119,7 @@ def service_add(request):
         if form.is_valid():
   
             acc = ServiceAccount()
-
             acc.user = request.user
-
             acc.service = form.cleaned_data['service']
             acc.character = form.cleaned_data['character']
             acc.password = hashlib.sha1('%s%s%s' % (form.cleaned_data['character'].name, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
@@ -173,6 +171,9 @@ def service_reset(request, serviceid=0, accept=0):
         except ServiceAccount.DoesNotExist:
             return HttpResponseRedirect(reverse('sso.views.profile'))
 
+        if not acc.active:
+            return HttpResponseRedirect(reverse('sso.views.profile'))
+
         if acc.user == request.user:
             if not accept:
                 return render_to_response('sso/serviceaccount/reset.html', locals(), context_instance=RequestContext(request))
@@ -185,7 +186,6 @@ def service_reset(request, serviceid=0, accept=0):
             return render_to_response('sso/serviceaccount/resetcomplete.html', locals(), context_instance=RequestContext(request))
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
-
 
 @login_required
 def reddit_add(request):
@@ -219,8 +219,6 @@ def reddit_del(request, redditid=0):
             request.user.message_set.create(message="Reddit account successfully deleted.")
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
-
-
 
 @login_required
 def user_view(request, username=None):

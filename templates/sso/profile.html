@@ -25,12 +25,15 @@ create a login for a service click the Add Service link</p>
 <tr><td>{{ acc.service }}</td>
     <td>{{ acc.service_uid }}</td>
     <td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td>
-    <td>{{ acc.active }}</td>
-    <td><a href="/profile/del/service/{{ acc.id }}/">Delete</a> / <a href="/profile/reset/service/{{ acc.id }}/">Reset</a>
+    <td>{% if acc.active %}Yes{% else %}No{% endif %}</td>
+    <td><a href="/profile/del/service/{{ acc.id }}/">Delete</a>
+    {% if acc.active %}
+    &nbsp;/&nbsp;<a href="/profile/reset/service/{{ acc.id }}/">Reset</a>
     {% if acc.service.provide_login %}
     &nbsp;/&nbsp;<a href="/profile/login/service/{{ acc.id }}/">Login</a>
     {% endif %}
-    </a></td>
+    {% endif %}
+    </td>
 </tr>
 {% endfor %}
 </tbody>
