@@ -14,9 +14,10 @@
  *  GNU General Public License for more details.
 """
 
-import socket
+import socket, Ice, re
+from sys import stderr
 
-from django.utils.translation	import ugettext_lazy as _
+from django.utils.translation	import ugettext_noop, ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.db			import models
 from django.db.models		import signals
@@ -26,19 +27,118 @@ from mumble.mmobjects		import mmChannel, mmPlayer
 from mumble.mctl		import MumbleCtlBase
 
 
-def mk_config_property( field, doc="" ):
+def mk_config_property( field, doc="", get_coerce=None, get_none=None, set_coerce=unicode, set_none='' ):
 	""" Create a property for the given config field. """
 	
 	def get_field( self ):
 		if self.id is not None:
-			return self.getConf( field )
-		else:
-			return None
+			val = self.getConf( field );
+			if val is None or val == '':
+				return get_none
+			if callable(get_coerce):
+				return get_coerce( val )
+			return val
+		return None
 	
 	def set_field( self, value ):
-		self.setConf( field, value )
+		if value is None:
+			self.setConf( field, set_none )
+		elif callable(set_coerce):
+			self.setConf( field, set_coerce(value) )
+		else:
+			self.setConf( field, value )
 	
 	return property( get_field, set_field, doc=doc )
+
+def mk_config_bool_property( field, doc="" ):
+	return mk_config_property( field, doc=doc,
+		get_coerce = lambda value: value == "true",
+		set_coerce = lambda value: str(value).lower()
+		);
+
+
+class MumbleServer( models.Model ):
+	""" Represents a Murmur server installation. """
+	
+	dbus    = models.CharField( _('DBus or ICE base'), max_length=200, unique=True, default=settings.DEFAULT_CONN, help_text=_(
+			"Examples: 'net.sourceforge.mumble.murmur' for DBus or 'Meta:tcp -h 127.0.0.1 -p 6502' for Ice.") );
+	secret  = models.CharField( _('Ice Secret'),       max_length=200, blank=True );
+	
+	class Meta:
+		verbose_name        = _('Mumble Server');
+		verbose_name_plural = _('Mumble Servers');
+	
+	def __init__( self, *args, **kwargs ):
+		models.Model.__init__( self, *args, **kwargs );
+		self._ctl  = None;
+		self._conf = None;
+	
+	def __unicode__( self ):
+		return self.dbus;
+	
+	# Ctl instantiation
+	def getCtl( self ):
+		""" Instantiate and return a MumbleCtl object for this server.
+		
+		    Only one instance will be created, and reused on subsequent calls.
+		"""
+		if not self._ctl:
+			self._ctl = MumbleCtlBase.newInstance( self.dbus, settings.SLICE, self.secret );
+		return self._ctl;
+	
+	ctl = property( getCtl, doc="Get a Control object for this server. The ctl is cached for later reuse." );
+	
+	def isMethodDbus(self):
+		""" Return true if this instance uses DBus. """
+		rd = re.compile( r'^(\w+\.)*\w+$' );
+		return bool(rd.match(self.dbus))
+	
+	method_dbus = property( isMethodDbus )
+	method_ice  = property( lambda self: not self.isMethodDbus(), doc="Return true if this instance uses Ice." )
+	
+	def getDefaultConf( self, field=None ):
+		""" Get a field from the default conf dictionary, or None if the field isn't set. """
+		if self._conf is None:
+			self._conf = self.ctl.getDefaultConf()
+		if field is None:
+			return self._conf
+		if field in self._conf:
+			return self._conf[field]
+		return None
+	
+	def isOnline( self ):
+		""" Return true if this server process is running. """
+		possibleexceptions = []
+		try:
+			from Ice import ConnectionRefusedException
+		except ImportError, err:
+			if self.method_ice:
+				print >> stderr, err
+				return None
+		else:
+			possibleexceptions.append( ConnectionRefusedException )
+		try:
+			from dbus import DBusException
+		except ImportError, err:
+			if self.method_dbus:
+				print >> stderr, err
+				return None
+		else:
+			possibleexceptions.append( DBusException )
+		
+		try:
+			self.ctl
+		except tuple(possibleexceptions), err:
+			print >> stderr, err
+			return False
+		except (EnvironmentError, RuntimeError), err:
+			print >> stderr, err
+			return None
+		else:
+			return True
+	
+	online = property( isOnline )
+	defaultconf = property( getDefaultConf, doc="The default config dictionary." )
 
 
 class Mumble( models.Model ):
@@ -56,42 +156,49 @@ class Mumble( models.Model ):
 	    deleted as well.
 	"""
 	
-	name    = models.CharField(    _('Server Name'),        max_length = 200 );
-	dbus    = models.CharField(    _('DBus or ICE base'),   max_length = 200, default = settings.DEFAULT_CONN, help_text=_(
-		"Examples: 'net.sourceforge.mumble.murmur' for DBus or 'Meta:tcp -h 127.0.0.1 -p 6502' for Ice.") );
-	srvid   = models.IntegerField( _('Server ID'),          editable = False );
-	addr    = models.CharField(    _('Server Address'),     max_length = 200, help_text=_(
-		"Hostname or IP address to bind to. You should use a hostname here, because it will appear on the "
-		"global server list.") );
-	port    = models.IntegerField( _('Server Port'),        default=settings.MUMBLE_DEFAULT_PORT, help_text=_(
-		"Port number to bind to. Use -1 to auto assign one.") );
-	
+	server  = models.ForeignKey(   MumbleServer, verbose_name=_("Mumble Server") );
+	name    = models.CharField(    _('Server Name'),            max_length=200 );
+	srvid   = models.IntegerField( _('Server ID'),              editable=False );
+	addr    = models.CharField(    _('Server Address'),         max_length=200, blank=True, help_text=_(
+			"Hostname or IP address to bind to. You should use a hostname here, because it will appear on the "
+			"global server list.") );
+	port    = models.IntegerField( _('Server Port'),            blank=True, null=True, help_text=_(
+			"Port number to bind to. Leave empty to auto assign one.") );
+	display = models.CharField(    _('Server Display Address'), max_length=200, blank=True, help_text=_(
+			"This field is only relevant if you are located behind a NAT, and names the Hostname or IP address "
+			"to use in the Channel Viewer and for the global server list registration. If not given, the addr "
+			"and port fields are used. If display and bind ports are equal, you can omit it here.") );
 	
 	supw    = property( lambda self: '',
-			lambda self, value: self.ctl.setSuperUserPassword( self.srvid, value ),
-			doc='Superuser Password'
+			lambda self, value: ( value and self.ctl.setSuperUserPassword( self.srvid, value ) ) or None,
+			doc=_('Superuser Password')
 			)
 	
-	url     = mk_config_property( "registerurl",	"Website URL" )
-	motd    = mk_config_property( "welcometext",	"Welcome Message" )
-	passwd  = mk_config_property( "password",	"Server Password" )
-	users   = mk_config_property( "users",		"Max. Users" )
-	bwidth  = mk_config_property( "bandwidth",	"Bandwidth [Bps]" )
-	sslcrt  = mk_config_property( "certificate",	"SSL Certificate" )
-	sslkey  = mk_config_property( "key",		"SSL Key" )
-	player  = mk_config_property( "username",	"Player name regex" )
-	channel = mk_config_property( "channelname",	"Channel name regex" )
-	defchan = mk_config_property( "defaultchannel", "Default channel" )
+	url     = mk_config_property( "registerurl",		ugettext_noop("Website URL") )
+	motd    = mk_config_property( "welcometext",		ugettext_noop("Welcome Message") )
+	passwd  = mk_config_property( "password",		ugettext_noop("Server Password") )
+	users   = mk_config_property( "users",			ugettext_noop("Max. Users"),		get_coerce=int )
+	bwidth  = mk_config_property( "bandwidth",		ugettext_noop("Bandwidth [Bps]"),	get_coerce=int )
+	sslcrt  = mk_config_property( "certificate",		ugettext_noop("SSL Certificate") )
+	sslkey  = mk_config_property( "key",			ugettext_noop("SSL Key") )
+	player  = mk_config_property( "username",		ugettext_noop("Player name regex") )
+	channel = mk_config_property( "channelname",		ugettext_noop("Channel name regex") )
+	defchan = mk_config_property( "defaultchannel", 	ugettext_noop("Default channel"),	get_coerce=int )
+	timeout = mk_config_property( "timeout",		ugettext_noop("Timeout"),		get_coerce=int )
 	
-	obfsc   = property(
-		lambda self: ( self.getConf( "obfuscate" ) == "true" ) if self.id is not None else None,
-		lambda self, value: self.setConf( "obfuscate", str(value).lower() ),
-		doc="IP Obfuscation"
-		)
-
+	obfsc   = mk_config_bool_property( "obfuscate",         ugettext_noop("IP Obfuscation") )
+	certreq = mk_config_bool_property( "certrequired",      ugettext_noop("Require Certificate") )
+	textlen = mk_config_bool_property( "textmessagelength", ugettext_noop("Maximum length of text messages") )
+	html    = mk_config_bool_property( "allowhtml",         ugettext_noop("Allow HTML to be used in messages") )
+	bonjour = mk_config_bool_property( "bonjour",           ugettext_noop("Publish this server via Bonjour") )
+	autoboot= mk_config_bool_property( "boot",              ugettext_noop("Boot Server when Murmur starts") )
+	
 	def getBooted( self ):
 		if self.id is not None:
-			return self.ctl.isBooted( self.srvid );
+			if self.server.online:
+				return self.ctl.isBooted( self.srvid )
+			else:
+				return None
 		else:
 			return False
 	
@@ -102,10 +209,11 @@ class Mumble( models.Model ):
 			else:
 				self.ctl.stop( self.srvid );
 	
-	booted  = property( getBooted, setBooted, doc="Boot Server" )
+	booted  = property( getBooted, setBooted, doc=ugettext_noop("Boot Server") )
+	online  = property( getBooted, setBooted, doc=ugettext_noop("Boot Server") )
 	
 	class Meta:
-		unique_together     = ( ( 'dbus', 'srvid' ), ( 'addr', 'port' ), );
+		unique_together     = ( ( 'server', 'srvid' ), );
 		verbose_name        = _('Server instance');
 		verbose_name_plural = _('Server instances');
 	
@@ -119,52 +227,33 @@ class Mumble( models.Model ):
 		    but to Murmur as well.
 		"""
 		if dontConfigureMurmur:
-			# skip murmur configuration, e.g. because we're inserting models for existing servers.
 			return models.Model.save( self );
-		
-		# check if this server already exists, if not call newServer and set my srvid first
 		
 		if self.id is None:
 			self.srvid = self.ctl.newServer();
 		
-		if self.port == -1:
-			self.port = max( [ rec['port'] for rec in Mumble.objects.values('port') ] ) + 1;
+		self.ctl.setConf( self.srvid, 'registername', self.name );
 		
-		if self.port < 1 or self.port >= 2**16:
-			raise ValueError( _("Port number %(portno)d is not within the allowed range %(minrange)d - %(maxrange)d") % {
-				'portno': self.port,
-				'minrange': 1,
-				'maxrange': 2**16,
-				});
-		
-		self.ctl.setConf( self.srvid,     'host',                socket.gethostbyname( self.addr ) );
-		self.ctl.setConf( self.srvid,     'port',                str(self.port) );
-		self.ctl.setConf( self.srvid,     'registername',        self.name );
-		self.ctl.setConf( self.srvid,     'registerurl',         self.url );
-		
-		# registerHostname needs to take the port no into account
-		if self.port and self.port != settings.MUMBLE_DEFAULT_PORT:
-			self.ctl.setConf( self.srvid, 'registerhostname',    "%s:%d" % ( self.addr, self.port ) );
+		if self.addr and self.addr != '0.0.0.0':
+			self.ctl.setConf( self.srvid, 'host', socket.gethostbyname(self.addr) );
 		else:
-			self.ctl.setConf( self.srvid, 'registerhostname',    self.addr );
+			self.ctl.setConf( self.srvid, 'host', '' );
 		
-		if self.supw:
-			self.ctl.setSuperUserPassword( self.srvid, self.supw );
-			self.supw = '';
+		if self.port and self.port != settings.MUMBLE_DEFAULT_PORT + self.srvid - 1:
+			self.ctl.setConf( self.srvid, 'port', str(self.port) );
+		else:
+			self.ctl.setConf( self.srvid, 'port', '' );
 		
-		if self.booted != self.ctl.isBooted( self.srvid ):
-			if self.booted:
-				self.ctl.start( self.srvid );
-			else:
-				self.ctl.stop( self.srvid );
+		if self.netloc:
+			self.ctl.setConf( self.srvid, 'registerhostname', self.netloc );
+		else:
+			self.ctl.setConf( self.srvid, 'registerhostname', '' );
 		
-		# Now allow django to save the record set
 		return models.Model.save( self );
 	
 	
 	def __init__( self, *args, **kwargs ):
 		models.Model.__init__( self, *args, **kwargs );
-		self._ctl      = None;
 		self._channels = None;
 		self._rootchan = None;
 	
@@ -172,26 +261,14 @@ class Mumble( models.Model ):
 	users_regged = property( lambda self: self.mumbleuser_set.count(),           doc="Number of registered users." );
 	users_online = property( lambda self: len(self.ctl.getPlayers(self.srvid)),  doc="Number of online users." );
 	channel_cnt  = property( lambda self: len(self.ctl.getChannels(self.srvid)), doc="Number of channels." );
-	is_public    = property( lambda self: self.passwd == '',
+	is_public    = property( lambda self: not self.passwd,
 			doc="False if a password is needed to join this server." );
 	
 	is_server  = True;
 	is_channel = False;
 	is_player  = False;
 	
-	
-	# Ctl instantiation
-	def getCtl( self ):
-		""" Instantiate and return a MumbleCtl object for this server.
-		
-		    Only one instance will be created, and reused on subsequent calls.
-		"""
-		if not self._ctl:
-			self._ctl = MumbleCtlBase.newInstance( self.dbus, settings.SLICE );
-		return self._ctl;
-	
-	ctl = property( getCtl, doc="Get a Control object for this server. The ctl is cached for later reuse." );
-	
+	ctl = property( lambda self: self.server.ctl );
 	
 	def getConf( self, field ):
 		return self.ctl.getConf( self.srvid, field )
@@ -200,38 +277,54 @@ class Mumble( models.Model ):
 		return self.ctl.setConf( self.srvid, field, value )
 	
 	def configureFromMurmur( self ):
-		default = self.ctl.getDefaultConf();
-		conf    = self.ctl.getAllConf( self.srvid );
+		conf = self.ctl.getAllConf( self.srvid );
 		
-		def find_in_dicts( keys, valueIfNotFound=None ):
-			if not isinstance( keys, tuple ):
-				keys = ( keys, );
-			
-			for keyword in keys:
-				if keyword in conf:
-					return conf[keyword];
-			
-			for keyword in keys:
-				keyword = keyword.lower();
-				if keyword in default:
-					return default[keyword];
-			
-			return valueIfNotFound;
+		if "registername" not in conf or not conf["registername"]:
+			self.name = "noname";
+		else:
+			self.name = conf["registername"];
 		
-		servername = find_in_dicts( "registername", "noname" );
-		if not servername:
-			# RegistrationName was found in the dicts, but is an empty string
-			servername = "noname";
+		if "registerhostname" in conf and conf["registerhostname"]:
+			if ':' in conf["registerhostname"]:
+				regname, regport = conf["registerhostname"].split(':')
+				regport = int(regport)
+			else:
+				regname = conf["registerhostname"]
+				regport = None
+		else:
+			regname = None
+			regport = None
 		
-		addr =  find_in_dicts( ( "registerhostname", "host" ), "0.0.0.0" );
-		if addr.find( ':' ) != -1:
-			# The addr is a hostname which actually contains a port number, but we already got that from
-			# the port field, so we can simply drop it.
-			addr = addr.split(':')[0];
+		if "host" in conf and conf["host"]:
+			addr = conf["host"]
+		else:
+			addr = None
 		
-		self.name    =  servername;
-		self.addr    =  addr;
-		self.port    =  find_in_dicts( "port"        );
+		if "port" in conf and conf["port"]:
+			self.port = int(conf["port"])
+		else:
+			self.port = None
+		
+		if regname and addr:
+			if regport == self.port:
+				if socket.gethostbyname(regname) == socket.gethostbyname(addr):
+					self.display = ''
+					self.addr = regname
+				else:
+					self.display = regname
+					self.addr = addr
+			else:
+				self.display = conf["registerhostname"]
+				self.addr = addr
+		elif regname and not addr:
+			self.display = regname
+			self.addr    = ''
+		elif addr and not regname:
+			self.display = ''
+			self.addr    = addr
+		else:
+			self.display = ''
+			self.addr    = ''
 		
 		self.save( dontConfigureMurmur=True );
 	
@@ -241,6 +334,9 @@ class Mumble( models.Model ):
 			raise SystemError( "This murmur instance is not currently running, can't sync." );
 		
 		players = self.ctl.getRegisteredPlayers(self.srvid);
+		known_ids = [rec["mumbleid"]
+			for rec in MumbleUser.objects.filter( server=self ).values( "mumbleid" )
+			]
 		
 		for idx in players:
 			playerdata = players[idx];
@@ -248,12 +344,9 @@ class Mumble( models.Model ):
 			if playerdata.userid == 0: # Skip SuperUsers
 				continue;
 			if verbose > 1:
-				print "Checking Player with id %d and name '%s'." % ( playerdata.userid, playerdata.name );
+				print "Checking Player with id %d." % playerdata.userid;
 			
-			try:
-				playerinstance = MumbleUser.objects.get( server=self, mumbleid=playerdata.userid );
-			
-			except MumbleUser.DoesNotExist:
+			if playerdata.userid not in known_ids:
 				if verbose:
 					print 'Found new Player "%s".' % playerdata.name;
 				
@@ -267,8 +360,8 @@ class Mumble( models.Model ):
 			
 			else:
 				if verbose > 1:
-					print "This player is already listed in the database.";
-			
+					print "Player '%s' is already known." % playerdata.name;
+				playerinstance = MumbleUser.objects.get( server=self, mumbleid=playerdata.userid );
 				playerinstance.name = playerdata.name;
 			
 			playerinstance.save( dontConfigureMurmur=True );
@@ -277,6 +370,8 @@ class Mumble( models.Model ):
 	def isUserAdmin( self, user ):
 		""" Determine if the given user is an admin on this server. """
 		if user.is_authenticated():
+			if user.is_superuser:
+				return True;
 			try:
 				return self.mumbleuser_set.get( owner=user ).getAdmin();
 			except MumbleUser.DoesNotExist:
@@ -355,29 +450,85 @@ class Mumble( models.Model ):
 	channels = property( getChannels,                       doc="A convenience wrapper for getChannels()."    );
 	rootchan = property( lambda self: self.channels[0],     doc="A convenience wrapper for getChannels()[0]." );
 	
+	def getNetloc( self ):
+		""" Return the address from the Display field (if any), or the server address.
+		    Users from outside a NAT will need to use the Display address to connect
+		    to this server instance.
+		"""
+		if self.display:
+			if ":" in self.display:
+				return self.display;
+			else:
+				daddr = self.display;
+		else:
+			daddr = self.addr;
+		
+		if self.port and self.port != settings.MUMBLE_DEFAULT_PORT:
+			return "%s:%d" % (daddr, self.port);
+		else:
+			return daddr;
+	
+	netloc = property( getNetloc );
+	
 	def getURL( self, forUser = None ):
 		""" Create an URL of the form mumble://username@host:port/ for this server. """
-		userstr = "";
+		if not self.netloc:
+			return None
+		from urlparse import urlunsplit
+		versionstr = "version=%d.%d.%d" % tuple(self.version[:3]);
 		if forUser is not None:
-			userstr = "%s@" % forUser.name;
-		
-		versionstr = "version=%d.%d.%d" % tuple(self.version[0:3]);
-		
-		if self.port != settings.MUMBLE_DEFAULT_PORT:
-			return "mumble://%s%s:%d/?%s" % ( userstr, self.addr, self.port, versionstr );
-		
-		return "mumble://%s%s/?%s" % ( userstr, self.addr, versionstr );
+			netloc = "%s@%s" % ( forUser.name, self.netloc );
+			return urlunsplit(( "mumble", netloc, "", versionstr, "" ))
+		else:
+			return urlunsplit(( "mumble", self.netloc, "", versionstr, "" ))
 	
-	connecturl = property( getURL,                          doc="A convenience wrapper for getURL()." );
+	connecturl = property( getURL );
 	
-	version = property( lambda self: self.ctl.getVersion(), doc="The version of Murmur."              );
+	version = property( lambda self: self.ctl.getVersion(), doc="The version of Murmur." );
 	
 	def asDict( self ):
 		return { 'name':   self.name,
 			 'id':     self.id,
 			 'root':   self.rootchan.asDict()
 			};
+	
+	def asMvXml( self ):
+		""" Return an XML tree for this server suitable for MumbleViewer-ng. """
+		from xml.etree.cElementTree import Element
+		root = Element("root")
+		self.rootchan.asMvXml(root)
+		return root
+	
+	def asMvJson( self ):
+		""" Return a Dict for this server suitable for MumbleViewer-ng. """
+		return self.rootchan.asMvJson()
+	
+	# "server" field protection
+	def __setattr__( self, name, value ):
+		if name == 'server':
+			if self.id is not None and self.server != value:
+				raise AttributeError( _( "This field must not be updated once the record has been saved." ) );
+		
+		models.Model.__setattr__( self, name, value );
+	
+	def kickUser( self, sessionid, reason="" ):
+		return self.ctl.kickUser( self.srvid, sessionid, reason );
+	
+	def banUser( self, sessionid, reason="" ):
+		return self.ctl.addBanForSession( self.srvid, sessionid, reason=reason );
 
+
+
+def mk_registration_property( field, doc="" ):
+	""" Create a property for the given registration field. """
+	
+	def get_field( self ):
+		if "comment" in self.registration:
+			return self.registration["comment"];
+		else:
+			return None;
+	
+	return property( get_field, doc=doc )
 
 
 class MumbleUser( models.Model ):
@@ -399,6 +550,9 @@ class MumbleUser( models.Model ):
 	server   = models.ForeignKey(   Mumble, verbose_name=_('Server instance'), related_name="mumbleuser_set" );
 	owner    = models.ForeignKey(   User,   verbose_name=_('Account owner'),   related_name="mumbleuser_set", null=True, blank=True );
 	
+	comment = mk_registration_property( "comment", doc=ugettext_noop("The user's comment.") );
+	hash    = mk_registration_property( "hash",    doc=ugettext_noop("The user's hash.")    );
+	
 	class Meta:
 		unique_together     = ( ( 'server', 'owner' ), ( 'server', 'mumbleid' ) );
 		verbose_name        = _( 'User account'  );
@@ -418,10 +572,8 @@ class MumbleUser( models.Model ):
 	def save( self, dontConfigureMurmur=False ):
 		""" Save the settings in this model to Murmur. """
 		if dontConfigureMurmur:
-			# skip murmur configuration, e.g. because we're inserting models for existing players.
 			return models.Model.save( self );
 		
-		# Before the record set is saved, update Murmur via controller.
 		ctl = self.server.ctl;
 		
 		if self.owner:
@@ -451,7 +603,6 @@ class MumbleUser( models.Model ):
 		# Don't save the users' passwords, we don't need them anyway
 		self.password = '';
 		
-		# Now allow django to save the record set
 		return models.Model.save( self );
 	
 	def __init__( self, *args, **kwargs ):
@@ -461,10 +612,15 @@ class MumbleUser( models.Model ):
 	# Admin handlers
 	def getAdmin( self ):
 		""" Get ACL of root Channel, get the admin group and see if this user is in it. """
-		return self.server.rootchan.acl.group_has_member( "admin", self.mumbleid );
+		if self.mumbleid == -1:
+			return False;
+		else:
+			return self.server.rootchan.acl.group_has_member( "admin", self.mumbleid );
 	
 	def setAdmin( self, value ):
 		""" Set or revoke this user's membership in the admin group on the root channel. """
+		if self.mumbleid == -1:
+			return False;
 		if value:
 			self.server.rootchan.acl.group_add_member( "admin", self.mumbleid );
 		else:
@@ -472,7 +628,8 @@ class MumbleUser( models.Model ):
 		self.server.rootchan.acl.save();
 		return value;
 	
-	aclAdmin = property( getAdmin, setAdmin, doc="Wrapper around getAdmin/setAdmin (not a database field like isAdmin)" );
+	aclAdmin = property( getAdmin, setAdmin, doc=ugettext_noop('Admin on root channel') );
+	
 	
 	# Registration fetching
 	def getRegistration( self ):
@@ -481,38 +638,19 @@ class MumbleUser( models.Model ):
 			self._registration = self.server.ctl.getRegistration( self.server.srvid, self.mumbleid );
 		return self._registration;
 	
-	registration = property( getRegistration, doc=getRegistration.__doc__ );
-	
-	def getComment( self ):
-		""" Retrieve a user's comment, if any. """
-		if "comment" in self.registration:
-			return self.registration["comment"];
-		else:
-			return None;
-	
-	comment = property( getComment, doc=getComment.__doc__ );
-	
-	def getHash( self ):
-		""" Retrieve a user's hash, if any. """
-		if "hash" in self.registration:
-			return self.registration["hash"];
-		else:
-			return None;
-	
-	hash = property( getHash, doc=getHash.__doc__ );
+	registration = property( getRegistration );
 	
 	# Texture handlers
-	
 	def getTexture( self ):
 		""" Get the user texture as a PIL Image. """
 		return self.server.ctl.getTexture(self.server.srvid, self.mumbleid);
 	
-	def setTexture( self, infile ):
-		""" Read an image from the infile and install it as the user's texture. """
-		self.server.ctl.setTexture(self.server.srvid, self.mumbleid, infile)
+	def setTexture( self, image ):
+		""" Install the given image as the user's texture. """
+		self.server.ctl.setTexture(self.server.srvid, self.mumbleid, image)
 	
 	texture = property( getTexture, setTexture,
-		doc="Get the texture as a PIL Image or read from a file (pass the path)."
+		doc="Get the texture as a PIL Image or set the Image as the texture."
 		);
 	
 	def hasTexture( self ):
@@ -530,10 +668,10 @@ class MumbleUser( models.Model ):
 		from django.core.urlresolvers		import reverse
 		return reverse( showTexture, kwargs={ 'server': self.server.id, 'userid': self.id } );
 	
-	textureUrl = property( getTextureUrl, doc=getTextureUrl.__doc__ );
+	textureUrl = property( getTextureUrl );
+	
 	
 	# Deletion handler
-	
 	@staticmethod
 	def pre_delete_listener( **kwargs ):
 		kwargs['instance'].unregister();
@@ -546,7 +684,6 @@ class MumbleUser( models.Model ):
 	
 	
 	# "server" field protection
-	
 	def __setattr__( self, name, value ):
 		if name == 'server':
 			if self.id is not None and self.server != value:

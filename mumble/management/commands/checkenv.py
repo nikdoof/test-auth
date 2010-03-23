@@ -14,7 +14,7 @@
  *  GNU General Public License for more details.
 """
 
-import os, Ice
+import os
 
 from django.core.management.base	import BaseCommand
 from django.contrib.auth.models 	import User
@@ -28,8 +28,16 @@ class TestFailed( Exception ):
 	pass;
 
 class Command( BaseCommand ):
+	help = "Run a few tests on Mumble-Django's setup."
+	
 	def handle(self, **options):
-		self.check_slice();
+		try:
+			import Ice
+		except ImportError:
+			pass
+		else:
+			self.check_slice();
+		
 		self.check_rootdir();
 		self.check_dbase();
 		self.check_sites();
@@ -166,10 +174,10 @@ class Command( BaseCommand ):
 		else:
 			for mumble in mm:
 				try:
-					mumble.getCtl();
-				except Ice.Exception, err:
+					mumble.ctl
+				except Exception, err:
 					raise TestFailed(
-						"Connecting to Murmur `%s` (%s) failed: %s" % ( mumble.name, mumble.dbus, err )
+						"Connecting to Murmur `%s` (%s) failed: %s" % ( mumble.name, mumble.server, err )
 						);
 			print "[ OK ]";
 	

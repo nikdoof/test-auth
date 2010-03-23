@@ -1,0 +1,388 @@
+{% extends "index.html" %}
+{% comment %}
+  <!-- kate: space-indent on; indent-width 2; replace-tabs on; -->
+{% endcomment %}
+{% load mumble_extras %}
+{% load i18n %}
+{% block Headline %}
+  {{ DBaseObject.name }}
+{% endblock %}
+{% block LeftColumn %}
+  {{ DBaseObject|chanview:MumbleAccount }}
+{% endblock %}
+{% block Content %}
+  <noscript>
+    <p>
+      {% blocktrans %}
+      <b>Hint:</b><br />
+      This area is used to display additional information for each channel and player, but requires JavaScript to be
+      displayed correctly. You will not see the detail pages, but you can use all links and forms
+      that are displayed.
+      {% endblocktrans %}
+    </p>
+  </noscript>
+    <div id="mumble_ext_container"></div>
+        <div id="mumble_motd" class="mumble-ext x-hide-display">
+          <ul>
+            {% if DBaseObject.connecturl %}
+              <li>{% trans "Server Address" %}: <a href="{{ DBaseObject.connecturl }}">{{ DBaseObject.connecturl }}</a></li>
+            {% endif %}
+            {% if DBaseObject.url %}
+              <li>{% trans "Website" %}: {{ DBaseObject.url|urlize }}</li>
+            {% endif %}
+            <li>{% trans "Server version" %}: {{ DBaseObject.version.0 }}.{{ DBaseObject.version.1 }}.{{ DBaseObject.version.2 }}</li>
+            <li><a href="{% url mumble.views.mobile_show DBaseObject.id %}">{% trans "Minimal view"   %}</a></li>
+          </ul>
+          <fieldset>
+            <legend>{% trans "Welcome message" %}</legend>
+            {{ DBaseObject.motd|removetags:"script link meta html head body style"|safe }}
+          </fieldset>
+        </div>
+    <div id="mumble_registration" class="mumble-ext">
+  {% if user.is_authenticated %}
+      <h2>{% trans "Server registration" %}</h2>
+      <form action="{% url mumble.views.show DBaseObject.id %}" method="post">
+        {% if Registered %}
+          {% trans "You are registered on this server" %}.<br />
+        {% else %}
+          {% trans "You do not have an account on this server" %}.<br />
+        {% endif %}
+        <table>
+          {{ RegForm }}
+        </table>
+        <input type="hidden" name="mode" value="reg" />
+        <input type="submit" />
+      </form>
+  {% else %}
+    {% blocktrans %}
+      <p>You need to be <a href="{{ login_url }}">logged in</a> to be able to register an account on this Mumble server.</p>
+    {% endblocktrans %}
+  {% endif %}
+    </div>
+
+  {% if Registered %}
+    <div id="mumble_texture" class="mumble-ext">
+      <h2>{% trans "User Texture" %}</h2>
+      {% if DBaseObject|mmversion_eq:"1.2.2" %}
+        {% blocktrans %}
+          Sorry, due to a bug in Murmur 1.2.2, displaying and setting the Texture is disabled.
+        {% endblocktrans %}
+      {% else %}
+        <p>
+          {% blocktrans with DBaseObject.id as serverid %}
+            You can upload an image that you would like to use as your user texture here.
+          {% endblocktrans %}<br />
+          <br />
+          {% if MumbleAccount.hasTexture %}
+            {% trans "Your current texture is" %}:<br />
+            <img src="{% url mumble.views.showTexture DBaseObject.id MumbleAccount.id %}" alt="user texture" /><br />
+          {% else %}
+            {% trans "You don't currently have a texture set" %}.<br />
+          {% endif %}
+          <br />
+          {% if DBaseObject|mmversion_lt:"1.2.3" %}
+            {% blocktrans with DBaseObject.id as serverid %}
+              Hint: The texture image <b>needs</b> to be 600x60 in size. If you upload an image with
+              a different size, it will be resized accordingly.<br />
+            {% endblocktrans %}
+          {% endif %}
+        </p>
+        <form action="{% url mumble.views.show DBaseObject.id %}" method="post" enctype="multipart/form-data">
+          <table>
+            {{ TextureForm }}
+          </table>
+          <input type="hidden" name="mode" value="texture" />
+          <input type="submit" />
+        </form>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if CurrentUserIsAdmin %}
+    <div id="mumble_admin" class="mumble-ext">
+      <h2>{% trans "Server administration" %}</h2>
+      <form action="{% url mumble.views.show DBaseObject.id %}" method="post">
+        <table>
+          {{ AdminForm }}
+        </table>
+        <input type="hidden" name="mode" value="admin" />
+        <input type="submit" />
+      </form>
+    </div>
+  {% endif %}
+
+  {% for item in ChannelTable %}
+    {% if item.is_player %}
+    <div id="mumble_{{ item.id }}" class="mumble-ext x-hide-display">
+      <h2>{% trans "Player" %} {{ item.name }}</h2>
+      <ul>
+        <li>{% trans "Online since"     %}: {{ item.onlinesince|time }}</li>
+        <li>{% trans "Authenticated"    %}: {{ item.isAuthed|yesno   }}</li>
+        <li>{% trans "Admin"            %}: {{  item.isAdmin|yesno   }}</li>
+        <li>{% trans "Muted"            %}: {{     item.mute|yesno   }}</li>
+        <li>{% trans "Deafened"         %}: {{     item.deaf|yesno   }}</li>
+        <li>{% trans "Muted by self"    %}: {{ item.selfMute|yesno   }}</li>
+        <li>{% trans "Deafened by self" %}: {{ item.selfDeaf|yesno   }}</li>
+        {% if CurrentUserIsAdmin or user.is_staff %}
+          <li>{% trans "IP Address" %}: <acronym title="{{ item.ipaddress }}">{{ item.fqdn }}</acronym></li>
+        {% endif %}
+      </ul>
+      {% if item.mumbleuser and item.mumbleuser.owner %}
+        <h2>{% trans "User" %} {{ item.mumbleuser.owner.username|capfirst }}</h2>
+        <ul>
+          {% if item.mumbleuser.owner.first_name and item.mumbleuser.owner.last_name %}
+            <li>{% trans "Full Name" %}:  {{ item.mumbleuser.owner.first_name }} {{ item.mumbleuser.owner.last_name }}</li>
+          {% endif %}
+          <li>{% trans "Admin" %}:        {{ item.mumbleuser.owner.is_staff|yesno }}</li>
+          <li>{% trans "Sign-up date" %}: {{ item.mumbleuser.owner.date_joined|date }}</li>
+        </ul>
+      {% endif %}
+      {% if item.comment %}
+        <fieldset>
+          <legend>{% trans "User Comment" %}</legend>
+          {{ item.comment|removetags:"script link meta html head body style"|safe }}
+        </fieldset>
+      {% endif %}
+      {% if item.mumbleuser and item.mumbleuser.hasTexture %}
+        <fieldset>
+          <legend>{% trans "User Texture" %}</legend>
+          <img src="{% url mumble.views.showTexture DBaseObject.id item.mumbleuser.id %}" alt="user texture" />
+        </fieldset>
+      {% endif %}
+      {% if CurrentUserIsAdmin or user.is_staff %}
+        <fieldset>
+          <legend>{% trans "Kick user" %}</legend>
+          <form action="{% url mumble.views.show DBaseObject.id %}" method="POST">
+            <input type="hidden" name="mode"    value="kick" />
+            <input type="hidden" name="session" value="{{ item.session }}" />
+            <ul>
+              <li>
+                <label for="inp_reason">{% trans "Reason" %}</label>
+                <input type="text"   name="reason"  value="" id="inp_reason" />
+              </li>
+              <li>
+                <input type="checkbox" name="ban"   value="1" id="inp_ban" />
+                <label for="inp_ban">{% trans "Ban user" %}</label>
+              </li>
+            </ul>
+            <input type="submit" value="{% trans "Kick user" %}" />
+          </form>
+        </fieldset>
+      {% endif %}
+    </div>
+    {% else %}
+    <div id="mumble_{{ item.id }}" class="mumble-ext x-hide-display">
+      <h2>{% trans "Channel" %} {{ item.name }}</h2>
+        {% if CurrentUserIsAdmin or user.is_staff %}
+          {% trans "Channel ID" %}: {{ item.chanid }}<br />
+        {% endif %}
+      <a href="{{ item|chanurl:MumbleAccount }}" class="mumble">{% trans "Connect" %}</a>
+        {% if item.description %}
+          <fieldset>
+            <legend>{% trans "Channel description" %}</legend>
+            {{ item.description|removetags:"script link meta html head body style"|safe }}
+          </fieldset>
+        {% endif %}
+    </div>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
+
+{% block HeadTag %}
+  <script type="text/javascript">
+    Ext.onReady( function(){
+      Ext.get( 'mumble_registration' ).addClass( 'x-hide-display' );
+      {% if Registered %}
+        Ext.get( 'mumble_texture' ).addClass( 'x-hide-display' );
+      {% endif %}
+      {% if CurrentUserIsAdmin %}
+        Ext.get( 'mumble_admin' ).addClass( 'x-hide-display' );
+      {% endif %}
+
+      {% if CurrentUserIsAdmin %}
+      userRecord = Ext.data.Record.create([
+        { name: 'id',       type: 'int'    },
+        { name: 'name',     type: 'string' },
+        { name: 'password', type: 'string' },
+        { name: 'owner',    type: 'int'    },
+        { name: 'admin',    type: 'bool'   },
+        { name: 'delete',   type: 'bool'   }
+        ]);
+
+      userAdminStore = new Ext.data.Store({
+        url:    '{% url mumble.views.users DBaseObject.id %}',
+        reader: new Ext.data.JsonReader({
+          root:    'objects',
+          fields:  userRecord
+          }),
+        autoLoad: true,
+        remoteSort: false
+        });
+
+      adminColumn = new Ext.grid.CheckColumn({
+        header:    '{% trans "Admin on root channel" %}',
+        dataIndex: 'admin',
+        width:     50
+        });
+
+      deleteColumn = new Ext.grid.CheckColumn({
+        header:    '{% trans "Delete" %}',
+        dataIndex: 'delete',
+        width:     50
+        });
+
+      ownerCombo = new Ext.form.ComboBox({
+        name:     'owner',
+        hiddenName:     'owner_id',
+        forceSelection: true,
+        triggerAction:  'all',
+        valueField:     'uid',
+        displayField:   'uname',
+        store: new Ext.data.Store({
+          url:    '{% url mumble.views.djangousers %}',
+          reader: new Ext.data.JsonReader({
+            fields:  [ 'uid', 'uname' ],
+            root:    'objects'
+            }),
+          autoLoad: true
+          })
+        });
+      {% endif %}
+
+      var cardpanel = new Ext.Panel({
+        renderTo:   'mumble_ext_container',
+        layout:     'card',
+        id:   'mumble_container',
+        height:     570,
+        activeItem: 0,
+        border:     false,
+        items:      [ {
+          id:  'mumble_tabpanel',
+          xtype:     'tabpanel',
+          defaults:  { autoheight: true },
+          activeTab: {{ DisplayTab }},
+          items: [
+            { contentEl: 'mumble_motd',     title: '{% trans "Server Info" %}',    autoScroll: true },
+            {  contentEl: 'mumble_registration', title: '{% trans "Registration" %}', autoScroll: true,
+
+              {% if user.is_authenticated %}
+                listeners: {
+                  activate: function(){ Ext.fly("id_name").focus() }
+                  }
+              {% endif %}
+            },
+            {% if CurrentUserIsAdmin %}
+              { contentEl: 'mumble_admin',  title: '{% trans "Administration" %}', autoScroll: true },
+            {% endif %}
+            {% if Registered %}
+              { contentEl: 'mumble_texture',title: '{% trans "User Texture" %}',   autoScroll: true },
+            {% endif %}
+            {% if CurrentUserIsAdmin %}
+              {
+              title:  '{% trans "User List" %}',
+              xtype:  'editorgrid',
+              store:  userAdminStore,
+              cm:     new Ext.grid.ColumnModel( [ {
+                  header:    '{% trans "name" %}',
+                  dataIndex: 'name',
+                  sortable:  true,
+                  editor:    new Ext.form.TextField({
+                  allowBlank: false
+                    })
+                }, {
+                  header:    '{% trans "Account owner" %}',
+                  dataIndex: 'owner',
+                  editor:    ownerCombo,
+                  sortable:  true,
+                  renderer:  function( value ){
+                    if( value == '' ) return '';
+                    items = ownerCombo.store.data.items;
+                    for( i = 0; i < items.length; i++ )
+                      if( items[i].data.uid == value )
+                        return items[i].data.uname;
+                    }
+
+                }, adminColumn, {
+                  header:    '{% trans "Change password" %}',
+                  dataIndex: 'password',
+                  editor: new Ext.form.TextField({
+                    inputType: 'password'
+                    }),
+                  renderer: function( value ){
+                    ret = '';
+                    for( i = 0; i < value.length; i++ )
+                      ret += '*';
+                    return ret;
+                    }
+                }, deleteColumn ] ),
+              tbar:   [{
+                text:     '{% trans "Add" %}',
+                handler : function(){
+                  userAdminStore.add( new userRecord( {
+                    id:       -1,
+                    name:     'New User',
+                    admin:    false,
+                    owner:    '',
+                    password: '',
+                    'delete': false
+                    } ) );
+                  }
+                }, {
+                text:     '{% trans "Save" %}',
+                handler : function(){
+                  data = [];
+                  for( i = 0; i < userAdminStore.data.items.length; i++ ){
+                    rec = userAdminStore.data.items[i];
+                    if( rec.dirty ){
+                      data.push(rec.data);
+                      }
+                    }
+                  var conn = new Ext.data.Connection();
+                  conn.request( {
+                    url:     userAdminStore.url,
+                    params:  { data: Ext.encode( data ) },
+                    success: function(){
+                      for( i = 0; i < userAdminStore.data.items.length; i++ ){
+                        rec = userAdminStore.data.items[i];
+                        if( rec.data['delete'] == true )
+                          userAdminStore.remove( rec );
+                        else if( rec.dirty ){
+                          rec.commit();
+                          }
+                        }
+                      }
+                    } );
+                  }
+                }, {
+                text:    '{% trans "Resync with Murmur" %}',
+                handler: function(){
+                  userAdminStore.reload({
+                    params: { 'resync': 'true' }
+                    });
+                  }
+                }],
+              plugins: [ adminColumn, deleteColumn ]
+              }
+            {% endif %}
+            ]
+          },
+          {% for item in ChannelTable %}
+            { contentEl: 'mumble_{{ item.id }}', id: 'carditem_{{ item.id }}' }{% if not forloop.last %},{% endif %}
+          {% endfor %}
+          ]
+        });
+
+      Ext.get( 'link_server' ).on( 'click', function( event, target ){
+        cardpanel.layout.setActiveItem( 'mumble_tabpanel' );
+        event.preventDefault();
+        });
+      {% for item in ChannelTable %}
+        Ext.get( 'link_{{ item.id }}' ).on( 'click', function( event, target ){
+          cardpanel.layout.setActiveItem( 'carditem_{{ item.id }}' );
+          event.preventDefault();
+          });
+      {% endfor %}
+      } );
+  </script>
+  <meta http-equiv="refresh" content="300" />
+{% endblock %}

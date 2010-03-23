@@ -15,16 +15,20 @@
  *  GNU General Public License for more details.
 """
 
-from os.path		import exists
+from time		import time
+from functools		import wraps
+from StringIO		import StringIO
+from os.path		import exists, join
+from os			import unlink, name as os_name
 from PIL		import Image
 from struct		import pack, unpack
-from zlib		import compress, decompress
+from zlib		import compress, decompress, error
 
 from mctl		import MumbleCtlBase
 
 from utils		import ObjectInfo
 
-import Ice
+import Ice, IcePy, tempfile
 
 
 def protectDjangoErrPage( func ):
@@ -36,47 +40,104 @@ def protectDjangoErrPage( func ):
 	    non-existant files and borking.
 	"""
 	
-	def protection_wrapper( *args, **kwargs ):
+	@wraps(func)
+	def protection_wrapper( self, *args, **kwargs ):
 		""" Call the original function and catch Ice exceptions. """
 		try:
-			return func( *args, **kwargs );
-		except Ice.Exception, e:
-			raise e;
+			return func( self, *args, **kwargs );
+		except Ice.Exception, err:
+			raise err;
 	protection_wrapper.innerfunc = func
 	
 	return protection_wrapper;
 
 
-
 @protectDjangoErrPage
-def MumbleCtlIce( connstring, slicefile ):
+def MumbleCtlIce( connstring, slicefile=None, icesecret=None ):
 	""" Choose the correct Ice handler to use (1.1.8 or 1.2.x), and make sure the
 	    Murmur version matches the slice Version.
+	
+	    Optional parameters are the path to the slice file and the Ice secret
+	    necessary to authenticate to Murmur.
+	
+	    The path can be omitted only if running Murmur 1.2.3 or later, which
+	    exports a getSlice method to retrieve the Slice from.
 	"""
+	
+	prop = Ice.createProperties([])
+	prop.setProperty("Ice.ImplicitContext", "Shared")
+	
+	idd = Ice.InitializationData()
+	idd.properties = prop
+	
+	ice = Ice.initialize(idd)
+	
+	if icesecret:
+		ice.getImplicitContext().put( "secret", icesecret.encode("utf-8") )
+	
+	prx = ice.stringToProxy( connstring.encode("utf-8") )
+	
+	try:
+		prx.ice_ping()
+	except Ice.Exception:
+		raise EnvironmentError( "Murmur does not appear to be listening on this address (Ice ping failed)." )
 	
 	try:
 		import Murmur
-	
 	except ImportError:
-		if not slicefile:
-			raise EnvironmentError( "You didn't configure a slice file. Please set the SLICE variable in settings.py." )
-		
-		if not exists( slicefile ):
-			raise EnvironmentError( "The slice file does not exist: '%s' - please check the settings." % slicefile )
-		
-		if " " in slicefile:
-			raise EnvironmentError( "You have a space char in your Slice path. This will confuse Ice, please check." )
-		
-		if not slicefile.endswith( ".ice" ):
-			raise EnvironmentError( "The slice file name MUST end with '.ice'." )
-		
-		Ice.loadSlice( slicefile )
+		# Try loading the Slice from Murmur directly via its getSlice method.
+		# See scripts/testdynamic.py in Mumble's Git repository.
+		try:
+			slice = IcePy.Operation( 'getSlice',
+				Ice.OperationMode.Idempotent, Ice.OperationMode.Idempotent,
+				True, (), (), (), IcePy._t_string, ()
+				).invoke(prx, ((), None))
+		except (TypeError, Ice.OperationNotExistException):
+			if not slicefile:
+				raise EnvironmentError(
+					"You didn't configure a slice file. Please set the SLICE variable in settings.py." )
+			if not exists( slicefile ):
+				raise EnvironmentError(
+					"The slice file does not exist: '%s' - please check the settings." % slicefile )
+			if " " in slicefile:
+				raise EnvironmentError(
+					"You have a space char in your Slice path. This will confuse Ice, please check." )
+			if not slicefile.endswith( ".ice" ):
+				raise EnvironmentError( "The slice file name MUST end with '.ice'." )
+			
+			try:
+				Ice.loadSlice( slicefile )
+			except RuntimeError:
+				raise RuntimeError( "Slice preprocessing failed. Please check your server's error log." )
+		else:
+			if os_name == "nt":
+				# It weren't Windows if it didn't need to be treated differently. *sigh*
+				temppath = join( tempfile.gettempdir(), "Murmur.ice" )
+				slicetemp = open( temppath, "w+b" )
+				try:
+					slicetemp.write( slice )
+				finally:
+					slicetemp.close()
+				try:
+					Ice.loadSlice( temppath )
+				except RuntimeError:
+					raise RuntimeError( "Slice preprocessing failed. Please check your server's error log." )
+				finally:
+					unlink(temppath)
+			else:
+				slicetemp = tempfile.NamedTemporaryFile( suffix='.ice' )
+				try:
+					slicetemp.write( slice )
+					slicetemp.flush()
+					Ice.loadSlice( slicetemp.name )
+				except RuntimeError:
+					raise RuntimeError( "Slice preprocessing failed. Please check your server's error log." )
+				finally:
+					slicetemp.close()
 		
 		import Murmur
 	
-	ice    = Ice.initialize()
-	prx    = ice.stringToProxy( connstring.encode("utf-8") )
-	meta   = Murmur.MetaPrx.checkedCast(prx)
+	meta = Murmur.MetaPrx.checkedCast(prx)
 	
 	murmurversion = meta.getVersion()[:3]
 	
@@ -84,7 +145,16 @@ def MumbleCtlIce( connstring, slicefile ):
 		return MumbleCtlIce_118( connstring, meta );
 	
 	elif murmurversion[:2] == (1, 2):
-		return MumbleCtlIce_120( connstring, meta );
+		if   murmurversion[2] < 2:
+			return MumbleCtlIce_120( connstring, meta );
+		
+		elif murmurversion[2] == 2:
+			return MumbleCtlIce_122( connstring, meta );
+		
+		elif murmurversion[2] == 3:
+			return MumbleCtlIce_123( connstring, meta );
+	
+	raise NotImplementedError( "No ctl object available for Murmur version %d.%d.%d" % tuple(murmurversion) )
 
 
 class MumbleCtlIce_118(MumbleCtlBase):
@@ -291,7 +361,10 @@ class MumbleCtlIce_118(MumbleCtlBase):
 		if len(texture) == 0:
 			raise ValueError( "No Texture has been set." );
 		# this returns a list of bytes.
-		decompressed = decompress( texture );
+		try:
+			decompressed = decompress( texture );
+		except error, err:
+			raise ValueError( err )
 		# iterate over 4 byte chunks of the string
 		imgdata = "";
 		for idx in range( 0, len(decompressed), 4 ):
@@ -308,7 +381,7 @@ class MumbleCtlIce_118(MumbleCtlBase):
 	@protectDjangoErrPage
 	def setTexture(self, srvid, mumbleid, infile):
 		# open image, convert to RGBA, and resize to 600x60
-		img = Image.open( infile ).convert( "RGBA" ).transform( ( 600, 60 ), Image.EXTENT, ( 0, 0, 600, 60 ) );
+		img = infile.convert( "RGBA" ).transform( ( 600, 60 ), Image.EXTENT, ( 0, 0, 600, 60 ) );
 		# iterate over the list and pack everything into a string
 		bgrastring = "";
 		for ent in list( img.getdata() ):
@@ -360,7 +433,20 @@ class MumbleCtlIce_120(MumbleCtlIce_118):
 	
 	@protectDjangoErrPage
 	def getPlayers(self, srvid):
-		return self._getIceServerObject(srvid).getUsers();
+		userdata = self._getIceServerObject(srvid).getUsers();
+		for key in userdata:
+			if isinstance( userdata[key], str ):
+				userdata[key] = userdata[key].decode( "UTF-8" )
+		return userdata
+	
+	@protectDjangoErrPage
+	def getState(self, srvid, sessionid):
+		userdata = self._getIceServerObject(srvid).getState(sessionid);
+		for key in userdata.__dict__:
+			attr = getattr( userdata, key )
+			if isinstance( attr, str ):
+				setattr( userdata, key, attr.decode( "UTF-8" ) )
+		return userdata
 	
 	@protectDjangoErrPage
 	def registerPlayer(self, srvid, name, email, password):
@@ -433,4 +519,77 @@ class MumbleCtlIce_120(MumbleCtlIce_118):
 	@protectDjangoErrPage
 	def setACL(self, srvid, channelid, acls, groups, inherit):
 		return self._getIceServerObject(srvid).setACL( channelid, acls, groups, inherit );
+	
+	@protectDjangoErrPage
+	def getBans(self, srvid):
+		return self._getIceServerObject(srvid).getBans();
+	
+	@protectDjangoErrPage
+	def setBans(self, srvid, bans):
+		return self._getIceServerObject(srvid).setBans(bans);
+	
+	@protectDjangoErrPage
+	def addBanForSession(self, srvid, sessionid, **kwargs):
+		session = self.getState(srvid, sessionid);
+		if "bits" not in kwargs:
+			kwargs["bits"] = 128;
+		if "start" not in kwargs:
+			kwargs["start"] = int(time());
+		if "duration" not in kwargs:
+			kwargs["duration"] = 3600;
+		return self.addBan(srvid, address=session.address, **kwargs);
+	
+	@protectDjangoErrPage
+	def addBan(self, srvid, **kwargs):
+		for key in kwargs:
+			if isinstance( kwargs[key], unicode ):
+				kwargs[key] = kwargs[key].encode("UTF-8")
+		
+		from Murmur import Ban
+		srvbans = self.getBans(srvid);
+		srvbans.append( Ban( **kwargs ) );
+		return self.setBans(srvid, srvbans);
+	
+	@protectDjangoErrPage
+	def kickUser(self, srvid, userid, reason=""):
+		return self._getIceServerObject(srvid).kickUser( userid, reason.encode("UTF-8") );
+
+
+class MumbleCtlIce_122(MumbleCtlIce_120):
+	@protectDjangoErrPage
+	def getTexture(self, srvid, mumbleid):
+		raise ValueError( "This method is buggy in 1.2.2, sorry dude." );
+	
+	@protectDjangoErrPage
+	def setTexture(self, srvid, mumbleid, infile):
+		buf = StringIO()
+		infile.save( buf, "PNG" )
+		buf.seek(0)
+		self._getIceServerObject(srvid).setTexture(mumbleid, buf.read())
+
+
+class MumbleCtlIce_123(MumbleCtlIce_120):
+	
+	@protectDjangoErrPage
+	def getRawTexture(self, srvid, mumbleid):
+		return self._getIceServerObject(srvid).getTexture(mumbleid)
+	
+	@protectDjangoErrPage
+	def getTexture(self, srvid, mumbleid):
+		texture = self.getRawTexture(srvid, mumbleid)
+		if len(texture) == 0:
+			raise ValueError( "No Texture has been set." );
+		from StringIO import StringIO
+		try:
+			return Image.open( StringIO( texture ) )
+		except IOError, err:
+			raise ValueError( err )
+	
+	@protectDjangoErrPage
+	def setTexture(self, srvid, mumbleid, infile):
+		buf = StringIO()
+		infile.save( buf, "PNG" )
+		buf.seek(0)
+		self._getIceServerObject(srvid).setTexture(mumbleid, buf.read())
+
 

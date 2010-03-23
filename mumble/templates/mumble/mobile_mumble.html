@@ -1,0 +1,12 @@
+{% extends "mobile_index.html" %}
+{% comment %}
+  <!-- kate: space-indent on; indent-width 2; replace-tabs on; -->
+{% endcomment %}
+{% load mumble_extras %}
+{% load i18n %}
+{% block Headline %}
+  {{ DBaseObject.name }}
+{% endblock %}
+{% block LeftColumn %}
+  {{ DBaseObject|chanview:MumbleAccount }}
+{% endblock %}
