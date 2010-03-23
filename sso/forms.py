@@ -17,7 +17,6 @@ class EveAPIForm(forms.Form):
     def clean(self):
         if not len(self.cleaned_data['api_key']) == 64:
             raise forms.ValidationError("API Key provided is invalid (Not 64 characters long)")
-
         try:
             eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['user_id'])
         except EVEAccount.DoesNotExist:
@@ -61,11 +60,29 @@ class RedditAccountForm(forms.Form):
 class UserLookupForm(forms.Form):
     """ User Lookup Form """
 
+    choices = [ (1, "Auth Username"),
+                (2, "Character"),
+                (3, "Reddit ID") ]
+
+    type = forms.ChoiceField(label = u'Search type', choices = choices)
     username = forms.CharField(label = u'User ID', max_length=64)
 
     def clean(self):
-        try: 
-            acc = User.objects.get(username=self.cleaned_data['username'])
-        except User.DoesNotExist:
-            raise forms.ValidationError("User doesn't exist")
+
+        if self.cleaned_data['type'] == 1:
+            try: 
+                acc = User.objects.filter(username=self.cleaned_data['username'])
+            except User.DoesNotExist:
+                raise forms.ValidationError("User doesn't exist")
+        elif self.cleaned_data['type'] == 2:
+            try:
+                acc = EVEPlayerCharacter.filter(name=self.cleaned_data['username'])
+            except User.DoesNotExist:
+                raise forms.ValidationError("Character doesn't exist")
+        elif self.cleaned_data['type'] == 3:
+            try:
+                acc = RedditAccount.filter(name=self.cleaned_data['username'])
+            except User.DoesNotExist:
+                raise forms.ValidationError("Account doesn't exist")
+
         return self.cleaned_data

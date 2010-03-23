@@ -155,7 +155,6 @@ def service_del(request, serviceid=0):
             return HttpResponseRedirect(reverse('sso.views.profile'))
 
         if request.method == 'POST':
-            print request.POST
             if 'confirm-delete' in request.POST:
                 acc.delete()
                 request.user.message_set.create(message="Service account successfully deleted.")
@@ -190,14 +189,11 @@ def service_reset(request, serviceid=0, accept=0):
 def reddit_add(request):
     if request.method == 'POST': 
         form = RedditAccountForm(request.POST) 
-        if form.is_valid():
-  
+        if form.is_valid(): 
             acc = RedditAccount()
-
             acc.user = request.user
             acc.username = form.cleaned_data['username']
             acc.api_update()
-
             acc.save()
 
             request.user.message_set.create(message="Reddit account %s successfully added." % acc.username)
@@ -225,47 +221,60 @@ def reddit_del(request, redditid=0):
 
 
 @login_required
-def user_view(request, user=None):
+def user_view(request, username=None):
+    if username:
+       user = User.objects.get(username=username)
+    else:
+       return HttpResponseRedirect(reverse('sso.views.user_lookup'))
+
+    profile = user.get_profile()
+    is_admin = request.user.is_staff
+    if is_admin:
+        try:
+            services = ServiceAccount.objects.filter(user=user).all()
+        except ServiceAccount.DoesNotExist:
+            services = None
+        try:
+            reddits = RedditAccount.objects.filter(user=user).all()
+        except ServiceAccount.DoesNotExist:
+            reddits = None
+        try:
+            eveaccounts = EVEAccount.objects.filter(user=user).all()
+            characters = []
+            for acc in eveaccounts:
+                chars = acc.characters.all()
+                for char in chars:
+                    characters.append({'name': char.name, 'corp': char.corporation.name})
+        except EVEAccount.DoesNotExist:
+            eveaccounts = None
+
+    return render_to_response('sso/lookup/user.html', locals(), context_instance=RequestContext(request))
+
+def user_lookup(request):
     form = UserLookupForm()
 
-    if user:
-       user = user
-    elif request.method == 'POST': 
-        form = UserLookupForm(request.POST) 
+    if request.method == 'POST':
+        form = UserLookupForm(request.POST)
         if form.is_valid():
-            user = form.cleaned_data['username']
-        else:
-            return render_to_response('sso/userlookup.html', locals(), context_instance=RequestContext(request))
-    else:
-		return render_to_response('sso/userlookup.html', locals(), context_instance=RequestContext(request))
+            users = None
+            uids = []
+            if form.cleaned_data['type'] == '1':
+                users = User.objects.filter(username=form.cleaned_data['username'])
+            elif form.cleaned_data['type'] == '2':
+                uid = EVEAccount.objects.filter(characters__name=form.cleaned_data['username']).values('user')
+                for u in uid: uids.append(u['user'])
+                users = User.objects.filter(id__in=uids)
+            elif form.cleaned_data['type'] == '3':
+                uid = RedditAccount.objects.filter(username=form.cleaned_data['username']).values('user')
+                for u in uid: uids.append(u['user'])
+                users = User.objects.filter(id__in=uids)
+            else:
+                request.user.message_set.create(message="Error parsing form, Type: %s, Value: %s" % (form.cleaned_data['type'], form.cleaned_data['username']))
+                return HttpResponseRedirect(reverse('sso.views.user_lookup'))
 
-    is_admin = request.user.is_staff
-
-    user = User.objects.get(username=user)
-    profile = user.get_profile()
-
-    if is_admin:
-		try:
-			services = ServiceAccount.objects.filter(user=user).all()
-		except ServiceAccount.DoesNotExist:
-			services = None
-
-		try:
-			reddits = RedditAccount.objects.filter(user=user).all()
-		except ServiceAccount.DoesNotExist:
-			reddits = None
-
-		try:
-			eveaccounts = EVEAccount.objects.filter(user=user).all()
-
-			characters = []
-
-			for acc in eveaccounts:
-				chars = acc.characters.all()
-				for char in chars:
-					characters.append({'name': char.name, 'corp': char.corporation.name})
-
-		except EVEAccount.DoesNotExist:
-			eveaccounts = None
-
-    return render_to_response('sso/user.html', locals(), context_instance=RequestContext(request))
+            if users and len(users) == 1:
+                return HttpResponseRedirect(reverse(user_view, kwargs={'username': users[0].username}))
+            elif users and len(users) > 1:
+                render_to_response('sso/lookup/lookuplist.html', locals(), context_instance=RequestContext(request))
+            
+    return render_to_response('sso/lookup/userlookup.html', locals(), context_instance=RequestContext(request))
