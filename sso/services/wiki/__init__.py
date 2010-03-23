@@ -38,6 +38,10 @@ class MediawikiService(BaseService):
 
         self._dbcursor = self._db.cursor()
 
+    def __del__(self):
+        self._db.close()
+        self._db = None
+
     def _gen_salt(self):
         return "%x" % random.randint(0, 2147483647)
 
