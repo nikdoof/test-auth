@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}External Service Account{% endblock %}
+
+{% block content %}
+<p><b>Warning</b>: This will delete your account on {{ acc.service.name }}, you will no longer be able to login and in some situtations unable to 
+create a new account until fixed by a Sysop. If you are having issues logging in then please <b>use the password reset function first!</b></p>
+
+<p>If you are sure, then please click confirm</p>
+
+<form action="/profile/del/service/{{ acc.id }}/" method="post">
+<input name="confirm-delete" type="hidden" value="1"/>
+<input type="submit" value="Confirm Delete" />
+</form>
+{% endblock %}
+

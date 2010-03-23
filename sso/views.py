@@ -20,7 +20,7 @@ from reddit.models import RedditAccount
 import settings
 
 def index(request):
-    return render_to_response('sso/index.html')
+    return render_to_response('sso/index.html', context_instance=RequestContext(request))
 
 @login_required
 def profile(request):
@@ -133,10 +133,8 @@ def service_add(request):
             else:
                 error = None
 
-            return render_to_response('sso/serviceaccount/created.html', { 'account': acc, 'error': error }, context_instance=RequestContext(request))
+            return render_to_response('sso/serviceaccount/created.html', locals(), context_instance=RequestContext(request))
     else:
-        #defaults = { 'username': request.user.username, 'password': request.user.get_profile().default_service_passwd }
-
         availserv = Service.objects.filter(groups__in=request.user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=request.user).values('service'))
         if len(availserv) == 0:
             return render_to_response('sso/serviceaccount/noneavailable.html', locals(), context_instance=RequestContext(request))
@@ -148,15 +146,22 @@ def service_add(request):
 @login_required
 def service_del(request, serviceid=0):
     if serviceid > 0 :
-
         try:
             acc = ServiceAccount.objects.get(id=serviceid)
         except ServiceAccount.DoesNotExist:
             return HttpResponseRedirect(reverse('sso.views.profile'))
 
-        if acc.user == request.user:
-            acc.delete()
-            request.user.message_set.create(message="Service account successfully deleted.")
+        if not acc.user == request.user:
+            return HttpResponseRedirect(reverse('sso.views.profile'))
+
+        if request.method == 'POST':
+            print request.POST
+            if 'confirm-delete' in request.POST:
+                acc.delete()
+                request.user.message_set.create(message="Service account successfully deleted.")
+        else:
+            return render_to_response('sso/serviceaccount/deleteconfirm.html', locals(), context_instance=RequestContext(request))
+
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
 @login_required
@@ -169,7 +174,7 @@ def service_reset(request, serviceid=0, accept=0):
 
         if acc.user == request.user:
             if not accept:
-                return render_to_response('sso/serviceaccount/reset.html', locals())
+                return render_to_response('sso/serviceaccount/reset.html', locals(), context_instance=RequestContext(request))
 
             passwd = hashlib.sha1('%s%s%s' % (acc.service_uid, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
 
@@ -201,7 +206,7 @@ def reddit_add(request):
         defaults = { 'username': request.user.username, }
         form = RedditAccountForm(defaults) # An unbound form
 
-    return render_to_response('sso/redditaccount.html', locals())
+    return render_to_response('sso/redditaccount.html', locals(), context_instance=RequestContext(request))
 
 @login_required
 def reddit_del(request, redditid=0):
@@ -230,9 +235,9 @@ def user_view(request, user=None):
         if form.is_valid():
             user = form.cleaned_data['username']
         else:
-            return render_to_response('sso/userlookup.html', locals())
+            return render_to_response('sso/userlookup.html', locals(), context_instance=RequestContext(request))
     else:
-		return render_to_response('sso/userlookup.html', locals())
+		return render_to_response('sso/userlookup.html', locals(), context_instance=RequestContext(request))
 
     is_admin = request.user.is_staff
 
@@ -263,4 +268,4 @@ def user_view(request, user=None):
 		except EVEAccount.DoesNotExist:
 			eveaccounts = None
 
-    return render_to_response('sso/user.html', locals())
+    return render_to_response('sso/user.html', locals(), context_instance=RequestContext(request))
