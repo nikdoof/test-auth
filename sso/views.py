@@ -130,6 +130,8 @@ def service_add(request):
                 acc.save()
             except ExistingUser:
                 error = "User by this name already exists, your account has not been created"
+            except ServiceError:
+                error = "A error occured while trying to create the Service Account, please try again later"
             else:
                 error = None
 

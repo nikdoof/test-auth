@@ -16,7 +16,6 @@ class JabberService(BaseService):
         if settings.JABBER_METHOD == "xmpp":
             self.method = "xmpp"
             self.jabberadmin = JabberAdmin(settings.JABBER_SERVER, settings.JABBER_AUTH_USER, settings.JABBER_AUTH_PASSWD)
-            self.jabberadmin.connect()
         else:
             self.method = "cmd"
             self.ejctl = eJabberdCtl(sudo=settings.JABBER_SUDO)

@@ -17,6 +17,9 @@ class CorporateOnlyService(Exception):
 class ExistingUser(Exception):
     pass
 
+class ServiceError(Exception):
+    pass
+
 ## Models
 
 class SSOUser(models.Model):
@@ -129,6 +132,8 @@ class ServiceAccount(models.Model):
 
                     reddit = RedditAccount.objects.filter(user=self.user)
                     self.service_uid = api.add_user(self.username, self.password, user=self.user, character=self.character, eveapi=eveapi, reddit=reddit)
+                    if not self.service_uid:
+                        raise ServiceError('Error occured while trying to create the Service Account, please try again later')
                 else:
                     raise ExistingUser('Username %s has already been took' % self.username)
             else:

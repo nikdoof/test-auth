@@ -22,14 +22,14 @@ class JabberAdmin():
         self._client.disconnect()
 
     def connect(self):
+        if not hasattr(self, '_client'):
+            client = xmpp.Client(self.jid.getDomain(), debug=[])
 
-        client = xmpp.Client(self.jid.getDomain(), debug=[])
+            client.connect(server=('dredd.it', 5222))
+            client.auth(self.username, self.password)
+            client.sendInitPresence()
 
-        client.connect(server=('dredd.it', 5222))
-        client.auth(self.username, self.password)
-        client.sendInitPresence()
-
-        self._client = client
+            self._client = client
 
     def _construct_iq_req(self, xmlns, node):
         n = xmpp.Node('command', attrs={'xmlns': xmlns, 'node': node})
@@ -49,6 +49,10 @@ class JabberAdmin():
 
 
     def adduser(self, username, password):
+        try:
+            self.connect()
+        except:
+            return False
         # Send request and get the Session ID
         resp = self._client.SendAndWaitForResponse(self._construct_iq_req('http://jabber.org/protocol/commands', 'http://jabber.org/protocol/admin#add-user'))
         sessionid = resp.getTagAttr('command','sessionid')
@@ -70,6 +74,10 @@ class JabberAdmin():
 
 
     def deluser(self, username):
+        try:
+            self.connect()
+        except:
+            return False
         # Send request and get the Session ID
         resp = self._client.SendAndWaitForResponse(self._construct_iq_req('http://jabber.org/protocol/commands', 'http://jabber.org/protocol/admin#delete-user'))
         sessionid = resp.getTagAttr('command','sessionid')
@@ -88,6 +96,10 @@ class JabberAdmin():
             return False
 
     def resetpassword(self, username, password):
+        try:
+            self.connect()
+        except:
+            return False
         # Send request and get the Session ID
         resp = self._client.SendAndWaitForResponse(self._construct_iq_req('http://jabber.org/protocol/commands', 'http://jabber.org/protocol/admin#change-user-password'))
         sessionid = resp.getTagAttr('command','sessionid')
@@ -108,6 +120,10 @@ class JabberAdmin():
 
 
     def checkuser(self, username):
+        try:
+            self.connect()
+        except:
+            return False
         # Send request and get the Session ID
         resp = self._client.SendAndWaitForResponse(self._construct_iq_req('http://jabber.org/protocol/commands', 'http://jabber.org/protocol/admin#get-user-password'))
         sessionid = resp.getTagAttr('command','sessionid')
