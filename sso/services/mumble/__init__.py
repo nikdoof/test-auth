@@ -18,13 +18,17 @@ class MumbleService(BaseService):
         mumbleuser.name = username
         mumbleuser.password = password
         mumbleuser.server = self._get_server()
+
+        if 'user' in kwargs:
+            mumbleuser.user = kwargs['user']
+
         mumbleuser.save()
         return mumbleuser.name
 
     def check_user(self, username):
         """ Check if the username exists """
         try:
-            mumbleuser = MumbleUser.objects.get(name=username)
+            mumbleuser = MumbleUser.objects.get(name=username, server=self._get_server())
         except MumbleUser.DoesNotExist:
             return False
         else:

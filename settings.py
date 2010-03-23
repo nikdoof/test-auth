@@ -112,9 +112,9 @@ JABBER_AUTH_PASSWD = 'pepperllama34'
 ### Mumble Service Settings
 
 DEFAULT_CONN = 'Meta:tcp -h 127.0.0.1 -p 6502'
-MUMBLE_DEFAULT_PORT = 64738
+MUMBLE_DEFAULT_PORT = 64740
 SLICE = 'Murmur.ice'
-MUMBLE_SERVER_ID = 1
+MUMBLE_SERVER_ID = 2
 
 ### Wiki Service Settings
 
