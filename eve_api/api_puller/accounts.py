@@ -22,12 +22,10 @@ def import_eve_account(api_key, user_id):
     """
     Imports an account from the API into the EVEAccount model.
     """
-    print user_id, ":", api_key
     auth_params = {'userID': user_id, 'apiKey': api_key}
     account_doc = CachedDocument.objects.api_query('/account/Characters.xml.aspx',
                                                    params=auth_params,
                                                    no_cache=False)
-    #print account_doc.body
 
     dom = minidom.parseString(account_doc.body)
 

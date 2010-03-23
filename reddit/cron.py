@@ -1,18 +1,13 @@
 import time
 import logging
 
-from django_cron import cronScheduler, Job
 from reddit.models import RedditAccount
 from reddit.api import Inbox
 
-class UpdateAPIs(Job):
+class UpdateAPIs():
         """
         Updates all Reddit API elements in the database
         """
-
-        # run every 24 hours
-        run_every = 86400
-
         @property
         def _logger(self):
             if not hasattr(self, '__logger'):
@@ -60,5 +55,3 @@ class ProcessInbox(Job):
                 else:
                     print key.username
                 
-
-cronScheduler.register(UpdateAPIs)

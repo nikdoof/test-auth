@@ -192,9 +192,7 @@ class EVEPlayerCorporation(EVEAPIModel):
                 continue
             except IndexError:
                 # Something weird has happened
-                print " * Index Error:", tag_map[0]
                 continue
 
-        print "Updating", self.id, self.name
         self.api_last_updated = datetime.utcnow()
         self.save()

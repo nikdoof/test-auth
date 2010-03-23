@@ -1,17 +1,13 @@
 import logging
 
-from django_cron import cronScheduler, Job
 from eve_api.models.api_player import EVEAccount, EVEPlayerCorporation
 import eve_api.api_puller.accounts
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 
-class UpdateAPIs(Job):
+class UpdateAPIs():
         """
         Updates all Eve API elements in the database
         """
-
-        # run every 2 hours
-        run_every = 7200
 
         @property
         def _logger(self):
@@ -36,6 +32,3 @@ class UpdateAPIs(Job):
 
             for corp in EVEPlayerCorporation.objects.all():
                 corp.query_and_update_corp()
-
-
-cronScheduler.register(UpdateAPIs)

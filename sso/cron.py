@@ -1,11 +1,10 @@
 import logging
 
-from django_cron import cronScheduler, Job
 from django.contrib.auth.models import User, Group
 from eve_api.models import EVEAccount
 from sso.models import ServiceAccount
 
-class RemoveInvalidUsers(Job):
+class RemoveInvalidUsers():
         """
         Cycles through all users, check if their permissions are correct.
         """
@@ -27,7 +26,7 @@ class RemoveInvalidUsers(Job):
                 # Check each service account and delete access if they're not allowed
                 for servacc in ServiceAccount.objects.filter(user=user):
                     if not (set(user.groups.all()) & set(servacc.service.groups.all())):
-                        print "User %s is not in allowed group for %s, deleting account" % (user.username, servacc.service)
+                        self._logger.info("User %s is not in allowed group for %s, deleting account" % (user.username, servacc.service))
                         servacc.delete()
                         pass
 
@@ -39,5 +38,4 @@ class RemoveInvalidUsers(Job):
                         pass
 
 
-cronScheduler.register(RemoveInvalidUsers)
 

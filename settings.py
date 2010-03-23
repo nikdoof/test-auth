@@ -75,7 +75,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django_evolution',
     'registration',
-    'django_cron',
     'eve_proxy',
     'eve_api',
     'mumble',

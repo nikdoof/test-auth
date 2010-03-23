@@ -1,0 +1,4 @@
+
+@daily ./run-cron.py reddit.cron UpdateAPIs
+@daily ./run-cron.py eve_api.cron UpdateAPIs
+@hourly ./run-cron.py sso.cron RemoveInvalidUsers
