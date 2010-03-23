@@ -110,19 +110,19 @@ class ServiceAccount(models.Model):
     def save(self):
         """ Override default save to setup accounts as needed """
 
-        # Force username to be the same as their selected character
-        # Fix unicode first of all
-        name = unicodedata.normalize('NFKD', self.character.name).encode('ASCII', 'ignore')
-
-        # Remove spaces and non-acceptable characters
-        self.username = re.sub('[^a-zA-Z0-9_-]+', '', name)
-
         # Grab the API class
         api = self.service.api_class
 
         if not self.service_uid:
             # Create a account if we've not got a UID
             if self.active:
+                # Force username to be the same as their selected character
+                # Fix unicode first of all
+                name = unicodedata.normalize('NFKD', self.character.name).encode('ASCII', 'ignore')
+
+                # Remove spaces and non-acceptable characters
+                self.username = re.sub('[^a-zA-Z0-9_-]+', '', name)
+
                 if not api.check_user(self.username):
                     eveapi = None
                     for eacc in EVEAccount.objects.filter(user=self.user):
