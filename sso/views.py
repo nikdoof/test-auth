@@ -259,13 +259,13 @@ def user_lookup(request):
             users = None
             uids = []
             if form.cleaned_data['type'] == '1':
-                users = User.objects.filter(username=form.cleaned_data['username'])
+                users = User.objects.filter(username__contains=form.cleaned_data['username'])
             elif form.cleaned_data['type'] == '2':
-                uid = EVEAccount.objects.filter(characters__name=form.cleaned_data['username']).values('user')
+                uid = EVEAccount.objects.filter(characters__name__contains=form.cleaned_data['username']).values('user')
                 for u in uid: uids.append(u['user'])
                 users = User.objects.filter(id__in=uids)
             elif form.cleaned_data['type'] == '3':
-                uid = RedditAccount.objects.filter(username=form.cleaned_data['username']).values('user')
+                uid = RedditAccount.objects.filter(username__contains=form.cleaned_data['username']).values('user')
                 for u in uid: uids.append(u['user'])
                 users = User.objects.filter(id__in=uids)
             else:
@@ -276,5 +276,8 @@ def user_lookup(request):
                 return HttpResponseRedirect(reverse(user_view, kwargs={'username': users[0].username}))
             elif users and len(users) > 1:
                 render_to_response('sso/lookup/lookuplist.html', locals(), context_instance=RequestContext(request))
+            else:
+                request.user.message_set.create(message="No results found")
+                return HttpResponseRedirect(reverse('sso.views.user_lookup'))
             
     return render_to_response('sso/lookup/userlookup.html', locals(), context_instance=RequestContext(request))
