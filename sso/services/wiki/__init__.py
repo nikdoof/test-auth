@@ -21,7 +21,7 @@ class MediawikiService(BaseService):
     SQL_CHECK_USER = r"SELECT user_name from user WHERE user_name = %s"
 
     SQL_DEL_REV = r"UPDATE revision SET rev_user = (SELECT user_id FROM user WHERE user_name = 'DeletedUser'), rev_user_text = 'DeletedUser' WHERE rev_user = (SELECT user_id FROM user WHERE user_name = %s)"
-    SQL_DEL_USER = r"DELETE FROM USER WHERE user_name = %s"
+    SQL_DEL_USER = r"DELETE FROM user WHERE user_name = %s"
 
     def __init__(self):
 
