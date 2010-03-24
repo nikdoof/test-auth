@@ -26,10 +26,11 @@ class RemoveInvalidUsers():
                 # Check each service account and disable access if they're not allowed
                 for servacc in ServiceAccount.objects.filter(user=user):
                     if not (set(user.groups.all()) & set(servacc.service.groups.all())):
-                        self._logger.info("User %s is not in allowed group for %s, deleting account" % (user.username, servacc.service))
-                        servacc.active = 0
-                        servacc.save()
-                        servacc.user.message_set.create(message="Your %s account has been disabled due to lack of permissions. If this is incorrect, check your API keys." % (servacc.service))
+                        if servacc.active:
+                            self._logger.info("User %s is not in allowed group for %s, deleting account" % (user.username, servacc.service))
+                            servacc.active = 0
+                            servacc.save()
+                            servacc.user.message_set.create(message="Your %s account has been disabled due to lack of permissions. If this is incorrect, check your API keys." % (servacc.service))
                         pass
                     else:
                         if not servacc.active:
