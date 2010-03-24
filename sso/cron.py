@@ -34,7 +34,7 @@ class RemoveInvalidUsers():
                         pass
                     else:
                         if not servacc.active:
-                            self._logger.info("User % is now in a allowed group for %s, enabling account" % (user.username, servacc.service))
+                            self._logger.info("User %s is now in a allowed group for %s, enabling account" % (user.username, servacc.service))
                             servacc.active = 1
                             servacc.save()
                             servacc.user.message_set.create(message="Your %s account has been re-enabled, you may need to reset your password to access this service again." % (servacc.service))
