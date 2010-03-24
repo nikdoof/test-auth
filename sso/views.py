@@ -85,6 +85,8 @@ def eveapi_add(request):
             acc.description = form.cleaned_data['description']
             acc.save()
             request.user.message_set.create(message="EVE API successfully added.")
+            if len(ServiceAccount.objects.filter(user=request.user, active=0)) > 0:
+                request.user.message_set.create(message="It can take up to 10 minutes for inactive accounts to be reenabled, please check back later.")
 
             request.user.get_profile().update_access()
 
