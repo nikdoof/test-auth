@@ -195,7 +195,11 @@ def reddit_add(request):
             acc = RedditAccount()
             acc.user = request.user
             acc.username = form.cleaned_data['username']
-            acc.api_update()
+            try:
+                acc.api_update()
+            except RedditAccount.DoesNotExist:
+                request.user.message_set.create(message="Error, user %s does not exist on Reddit" % acc.username )
+                return render_to_response('sso/redditaccount.html', locals(), context_instance=RequestContext(request))
             acc.save()
 
             request.user.message_set.create(message="Reddit account %s successfully added." % acc.username)
