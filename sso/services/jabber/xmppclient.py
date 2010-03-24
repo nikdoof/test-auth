@@ -2,7 +2,6 @@ import time
 import xmpp 
 import random
 import hashlib
-import settings
 
 class JabberAdmin():
     """ Adds a jabber user to a remote Jabber server """
@@ -128,7 +127,7 @@ class JabberAdmin():
         except:
             return False
 
-        pass = hashlib.sha1('%s%s%s' % (username, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
+        pass = hashlib.sha1('%s%s%s' % (username, random.randint(0, 2147483647))).hexdigest()
         if self.resetpassword(username, pass):
             return self.kickuser(username)
         else:
