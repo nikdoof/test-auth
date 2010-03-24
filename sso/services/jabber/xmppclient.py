@@ -1,5 +1,8 @@
 import time
 import xmpp 
+import random
+import hashlib
+import settings
 
 class JabberAdmin():
     """ Adds a jabber user to a remote Jabber server """
@@ -118,6 +121,36 @@ class JabberAdmin():
         else:
             return False
 
+
+    def disableuser(self, username):
+        try:
+            self.connect()
+        except:
+            return False
+
+        pass = hashlib.sha1('%s%s%s' % (username, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
+        self.resetpassword(username, pass)
+        self.kickuser(username)
+
+    def kickuser(self, username):
+        try:
+            self.connect()
+        except:
+            return False
+
+        # Send request and get the Session ID
+        resp = self._client.SendAndWaitForResponse(self._construct_iq_req('http://jabber.org/protocol/commands', 'http://jabber.org/protocol/admin#end-user-session'))
+        sessionid = resp.getTagAttr('command','sessionid')
+
+        values = [ ('hidden', 'FORM_TYPE', 'http://jabber.org/protocol/admin'),
+                   ('jid-single', 'accountjid', username) ]
+
+        iq = self._construct_form('http://jabber.org/protocol/commands', 'http://jabber.org/protocol/admin#end-user-session', sessionid, values)
+
+        # Send request and pray for the best
+        resp = self._client.SendAndWaitForResponse(iq)
+
+        return True
 
     def checkuser(self, username):
         try:

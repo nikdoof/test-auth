@@ -49,7 +49,7 @@ class JabberService(BaseService):
     def disable_user(self, uid):
         """ Disable a user """
         if self.method == "xmpp":
-            return False
+            return self.jabberadmin.disableuser(uid)
         else:
             username, server = uid.split("@")
             return self.ejctl.ban_user(server, username)
@@ -57,7 +57,7 @@ class JabberService(BaseService):
     def enable_user(self, uid, password):
         """ Enable a user """
         if self.method == "xmpp":
-            return False
+            return True
         else:
             username, server = uid.split("@")
             return self.ejctl.enable_user(server, username, password)
