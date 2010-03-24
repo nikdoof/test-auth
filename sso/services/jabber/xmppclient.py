@@ -129,8 +129,10 @@ class JabberAdmin():
             return False
 
         pass = hashlib.sha1('%s%s%s' % (username, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
-        self.resetpassword(username, pass)
-        self.kickuser(username)
+        if self.resetpassword(username, pass):
+            return self.kickuser(username)
+        else:
+            return False
 
     def kickuser(self, username):
         try:
@@ -150,7 +152,10 @@ class JabberAdmin():
         # Send request and pray for the best
         resp = self._client.SendAndWaitForResponse(iq)
 
-        return True
+        if resp.getAttrs()['type'] == "result":
+            return True
+        else:
+            return False
 
     def checkuser(self, username):
         try:
