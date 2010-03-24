@@ -2,12 +2,13 @@
 """Executes a Django cronjob"""
 
 import sys
+import logging
 from django.core.management import setup_environ
 import settings
 
 setup_environ(settings)
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('runcron')
 
 try:
@@ -19,11 +20,11 @@ for i in sys.argv[1].split(".")[1:]:
     mod = getattr(mod, i)
 cron_class = getattr(mod, sys.argv[2])()
 
-log.info("Starting Job %s in %s" % (sys.argv[2], sys.argv[1])
+log.info("Starting Job %s in %s" % (sys.argv[2], sys.argv[1]))
 
-try:
-    cron_class.job()
-except:
-    log.error("Error executing job, aborting.")
+#try:
+cron_class.job()
+#except:
+#    log.error("Error executing job, aborting.")
 
 log.info("Job complete")

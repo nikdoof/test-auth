@@ -1,5 +1,5 @@
 ROOT=$HOME/auth/auth/
 
-*/5	*	*	*	*	$ROOT/run-cron.py reddit.cron UpdateAPIs
+@daily					$ROOT/run-cron.py reddit.cron UpdateAPIs
 @daily 					$ROOT/run-cron.py eve_api.cron UpdateAPIs
-@hourly 				$ROOT/run-cron.py sso.cron RemoveInvalidUsers
+*/10	*	*	*	*	$ROOT/run-cron.py sso.cron RemoveInvalidUsers
