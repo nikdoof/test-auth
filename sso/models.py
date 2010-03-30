@@ -181,6 +181,7 @@ class ServiceAccount(models.Model):
     def pre_delete_listener( **kwargs ):
         api = kwargs['instance'].service.api_class
         if api.check_user(kwargs['instance'].service_uid):
-            api.delete_user(kwargs['instance'].service_uid)
+            if not api.delete_user(kwargs['instance'].service_uid):
+                raise ServiceError('Unable to delete account on related service')
 
 signals.pre_delete.connect(ServiceAccount.pre_delete_listener, sender=ServiceAccount)

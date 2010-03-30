@@ -158,8 +158,12 @@ def service_del(request, serviceid=0):
 
         if request.method == 'POST':
             if 'confirm-delete' in request.POST:
-                acc.delete()
-                request.user.message_set.create(message="Service account successfully deleted.")
+                try:
+                    acc.delete()
+                except ServiceError:
+                    request.user.message_set.create(message="Error deleting the service account, try again later.")
+                else:
+                    request.user.message_set.create(message="Service account successfully deleted.")
         else:
             return render_to_response('sso/serviceaccount/deleteconfirm.html', locals(), context_instance=RequestContext(request))
 
