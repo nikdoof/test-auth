@@ -69,6 +69,10 @@ class MumbleService(BaseService):
         mumbleuser.password = password
         mumbleuser.save()
 
+    def reset_password(self, uid, password):
+        """ Reset the user's password """
+        self.enable_user(uid, password)
+
     def login(uid):
         """ Login the user and provide cookies back """ 
         pass
