@@ -24,7 +24,7 @@ class MumbleService(BaseService):
                     tag = kwargs['character'].corporation.ticker
 
         if tag:
-            username = "[%s] %s" % (tag, username)
+            username = "%s - %s" % (tag, username)
 
         mumbleuser = MumbleUser()
         mumbleuser.name = username
