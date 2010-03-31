@@ -8,7 +8,7 @@ class MumbleService(BaseService):
     settings = { 'require_user': True,
                  'require_password': True,
                  'provide_login': False, 
-                 'use_corptag': False }
+                 'use_corptag': True }
 
     def _get_server(self):
         return Mumble.objects.get(id=settings.MUMBLE_SERVER_ID)
