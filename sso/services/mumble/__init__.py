@@ -50,6 +50,7 @@ class MumbleService(BaseService):
         """ Delete a user by uid """
         mumbleuser = MumbleUser.objects.get(name=uid, server=self._get_server())
         mumbleuser.delete()
+        return True
 
     def disable_user(self, uid):
         """ Disable a user by uid """
@@ -59,6 +60,7 @@ class MumbleService(BaseService):
             return False
         mumbleuser.password = ""
         mumbleuser.save()
+        return True
 
     def enable_user(self, uid, password):
         """ Enable a user by uid """       
@@ -68,10 +70,11 @@ class MumbleService(BaseService):
             return False
         mumbleuser.password = password
         mumbleuser.save()
+        return True
 
     def reset_password(self, uid, password):
         """ Reset the user's password """
-        self.enable_user(uid, password)
+        return self.enable_user(uid, password)
 
     def login(uid):
         """ Login the user and provide cookies back """ 
