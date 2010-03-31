@@ -12,7 +12,7 @@ from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 from eve_api.api_puller.accounts import import_eve_account
 from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter
 
-from sso.models import ServiceAccount, Service, SSOUser, ExistingUser
+from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
 from sso.forms import EveAPIForm, UserServiceAccountForm, RedditAccountForm, UserLookupForm
 
 from reddit.models import RedditAccount
