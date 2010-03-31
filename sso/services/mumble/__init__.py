@@ -7,13 +7,25 @@ class MumbleService(BaseService):
 
     settings = { 'require_user': True,
                  'require_password': True,
-                 'provide_login': False }
+                 'provide_login': False, 
+                 'use_corptag': False }
 
     def _get_server(self):
         return Mumble.objects.get(id=settings.MUMBLE_SERVER_ID)
 
     def add_user(self, username, password, **kwargs):
         """ Add a user, returns a UID for that user """
+
+        if 'character' in kwargs and self.settings['use_corptag']:
+            if kwargs['character'].corporation:
+                if kwargs['character'].corporation.alliance:
+                    tag = kwargs['character'].corporation.alliance.ticker
+                else:
+                    tag = kwargs['character'].corporation.ticker
+
+        if tag:
+            username = "[%s] %s" % (tag, username)
+
         mumbleuser = MumbleUser()
         mumbleuser.name = username
         mumbleuser.password = password
