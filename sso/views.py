@@ -269,13 +269,13 @@ def user_lookup(request):
             users = None
             uids = []
             if form.cleaned_data['type'] == '1':
-                users = User.objects.filter(username__contains=form.cleaned_data['username'])
+                users = User.objects.filter(username__icontains=form.cleaned_data['username'])
             elif form.cleaned_data['type'] == '2':
-                uid = EVEAccount.objects.filter(characters__name__contains=form.cleaned_data['username']).values('user')
+                uid = EVEAccount.objects.filter(characters__name__icontains=form.cleaned_data['username']).values('user')
                 for u in uid: uids.append(u['user'])
                 users = User.objects.filter(id__in=uids)
             elif form.cleaned_data['type'] == '3':
-                uid = RedditAccount.objects.filter(username__contains=form.cleaned_data['username']).values('user')
+                uid = RedditAccount.objects.filter(username__icontains=form.cleaned_data['username']).values('user')
                 for u in uid: uids.append(u['user'])
                 users = User.objects.filter(id__in=uids)
             else:
