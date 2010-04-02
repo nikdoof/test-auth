@@ -32,6 +32,7 @@ API_RACES_CHOICES = (
     (10, 'Amarr'),
     (11, 'Khanid'),
     (12, 'Ni-Kunni'),
+    (13, 'Caldari'),
 )
 
 API_RACES = {
@@ -47,4 +48,5 @@ API_RACES = {
     'Amarr': 10,
     'Khanid': 11,
     'Ni-Kunni': 12,
+    'Caldari': 13,
 }
