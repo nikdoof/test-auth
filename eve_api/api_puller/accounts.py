@@ -59,6 +59,11 @@ def import_eve_account(api_key, user_id):
             # Get this first, as it's safe.
             corporation_id = node.getAttribute('corporationID')
             corp, created = EVEPlayerCorporation.objects.get_or_create(id=corporation_id)
+            if not corp.name:
+                try:
+                    corp.query_and_update_corp()
+                except:
+                    pass
             # Do this last, since the things we retrieved above are used
             # on the EVEPlayerCharacter object's fields.
             character_id = node.getAttribute('characterID')
