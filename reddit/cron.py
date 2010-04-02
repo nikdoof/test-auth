@@ -63,7 +63,7 @@ class ProcessValidations():
         for msg in inbox:
             if not msg.was_comment and msg.new:
                 try:
-                    acc = RedditAccount.objects.get(username_iexact=msg.username)
+                    acc = RedditAccount.objects.get(username__iexact=msg.author)
                     if not acc.validated and msg.body == acc.user.username:
                         acc.validated = True
                         acc.save()
