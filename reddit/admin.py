@@ -5,8 +5,8 @@ from reddit.forms import RedditAccountForm
 from datetime import date
 
 class RedditAccountAdmin(admin.ModelAdmin):
-    list_display = ('username', 'user', 'date_created', 'link_karma', 'comment_karma', 'last_update', 'is_valid')
-    search_fields = ['username', 'user']
+    list_display = ('username', 'user', 'date_created', 'link_karma', 'comment_karma', 'last_update', 'validated', 'is_valid')
+    search_fields = ['username']
 
     fields = ('user', 'username')
 
