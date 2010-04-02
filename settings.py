@@ -93,6 +93,14 @@ FORCE_SCRIPT_NAME=""
 DEFAULT_FROM_EMAIL = "bot@auth.dredd.it"
 ACCOUNT_ACTIVATION_DAYS = 14
 
+### Reddit Settings
+
+# Username to validate accounts from
+REDDIT_USER = 'DredditVerification'
+
+# Password for validatio account
+REDDIT_PASSWD = ''
+
 ### Jabber Service Settings
 
 # Vhost to add users to 

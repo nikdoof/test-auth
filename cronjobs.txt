@@ -1,5 +1,6 @@
 ROOT=/home/matalok/auth/auth
 
-@daily					$ROOT/run-cron.py reddit.cron UpdateAPIs
+@daily              	$ROOT/run-cron.py reddit.cron UpdateAPIs
+*/10	*	*	*	*	$ROOT/run-cron.py reddit.cron ProcessValidations
 @daily 					$ROOT/run-cron.py eve_api.cron UpdateAPIs
 */10	*	*	*	*	$ROOT/run-cron.py sso.cron RemoveInvalidUsers > $ROOT/auth-update.log 2>&1

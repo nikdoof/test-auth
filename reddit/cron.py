@@ -52,20 +52,21 @@ class APIKeyParser:
     def __str__(self):
         return "%s:%s" % (self.user_id, self.api_key)
 
-class ProcessInbox():
+class ProcessValidations():
     """
-    Grabs all Reddit Mail and processes any new applications
+    Grabs all Reddit Mail and processes validations
     """
 
     def job(self):
-        inbox = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWORD)
+        inbox = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWD)
 
         for msg in inbox:
             if not msg.was_comment and msg.new:
                 try:
-                    key = APIKeyParser(msg.body)
-                except:
-                    pass
-                else:
-                    print key.username
+                    acc = RedditAccount.objects.get(username_iexact=msg.username)
+                    if not acc.validated and msg.body == acc.user.username:
+                        acc.validated = True
+                        acc.save()
+                except RedditAccount.DoesNotExist:
+                    continue
                 
