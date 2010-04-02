@@ -14,11 +14,11 @@ class RedditAccount(models.Model):
     username = models.CharField("Reddit Username", max_length=32, blank=False)
     reddit_id = models.CharField("Reddit ID", max_length=32)    
 
-    date_created = models.DateTimeField("Date Created")
-
     link_karma = models.IntegerField("Link Karma")
     comment_karma = models.IntegerField("Comment Karma")
+    validated = models.BooleanField("Validated")
 
+    date_created = models.DateTimeField("Date Created")
     last_update = models.DateTimeField("Last Update from API")
 
     def api_update(self):
@@ -32,8 +32,8 @@ class RedditAccount(models.Model):
         self.link_karma = data['link_karma']
         self.comment_karma = data['comment_karma']
         self.reddit_id = data['id']
-        self.date_created = datetime.fromtimestamp(data['created_utc'])
 
+        self.date_created = datetime.fromtimestamp(data['created_utc'])
         self.last_update = datetime.now()
 
     class Meta:
