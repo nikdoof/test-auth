@@ -41,7 +41,7 @@
 <table>
 <tr><th>Character Name</th><th>Corp</th></tr>
 {% for char in characters %}
-<tr><td>{{ char.name }}</td>
+<tr><td><a href="/profile/characters/{{ char.id }}/">{{ char.name }}</a></td>
     <td>{{ char.corp }}</td>
 </tr>
 {% endfor %}
@@ -52,12 +52,17 @@
 <h2>Reddit Accounts</h2>
 {% if reddits %}
 <table>
-<tr><th>Username</th><th>Created Date</th></tr>
+<thead>
+<tr><th>Username</th><th>Created Date</th><th>Validated</th></tr>
+</thead>
+<tbody>
 {% for acc in reddits %}
 <tr><td>{{ acc.username }}</td>
     <td>{{ acc.date_created }}</td>
+    <td>{% if acc.validated %}Yes{% else %}No{% endif %}</td>
 </tr>
 {% endfor %}
+</tbody>
 </table>
 {% endif %}
 {% endif %}

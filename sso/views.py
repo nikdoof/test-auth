@@ -254,7 +254,7 @@ def user_view(request, username=None):
             for acc in eveaccounts:
                 chars = acc.characters.all()
                 for char in chars:
-                    characters.append({'name': char.name, 'corp': char.corporation.name})
+                    characters.append({'id': char.id, 'name': char.name, 'corp': char.corporation.name})
         except EVEAccount.DoesNotExist:
             eveaccounts = None
 
