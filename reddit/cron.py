@@ -1,6 +1,7 @@
 import time
 import datetime
 import logging
+import settings
 
 from reddit.models import RedditAccount
 from reddit.api import Inbox
