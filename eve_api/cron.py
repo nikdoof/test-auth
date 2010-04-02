@@ -31,4 +31,8 @@ class UpdateAPIs():
                acc.save()
 
             for corp in EVEPlayerCorporation.objects.all():
-                corp.query_and_update_corp()
+                try:
+                    corp.query_and_update_corp()
+                except:
+                    self._logger.error('Error updating %s' % corp)
+                    continue
