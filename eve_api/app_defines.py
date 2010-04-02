@@ -20,6 +20,13 @@ API_GENDER_CHOICES = (
 )
 
 API_RACES_CHOICES = (
+    (1, 'Caldari'),
+    (2, 'Minmatar'),
+    (3, 'Gallente'),
+    (4, 'Amarr'),
+)
+
+API_BLOODLINES_CHOICES = (
     (1, 'Sebiestor'),
     (2, 'Vherokior'),
     (3, 'Brutor'),
@@ -36,6 +43,13 @@ API_RACES_CHOICES = (
 )
 
 API_RACES = {
+    'Caldari': 1,
+    'Minmatar': 2,
+    'Gallente': 3,
+    'Amarr': 4, 
+}
+
+API_BLOODLINES = {
     'Sebiestor': 1,
     'Vherokior': 2,
     'Brutor': 3,
@@ -48,5 +62,4 @@ API_RACES = {
     'Amarr': 10,
     'Khanid': 11,
     'Ni-Kunni': 12,
-    'Caldari': 13,
 }
