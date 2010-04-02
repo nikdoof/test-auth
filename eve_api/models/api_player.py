@@ -76,6 +76,20 @@ class EVEPlayerCharacter(EVEAPIModel):
     
     objects = EVEPlayerCharacterManager()
     
+    @property
+    def gender_description():
+        for va in API_GENDER_CHOICES:
+            k, v = va
+            if v == self.gender:
+                return k
+
+    @property
+    def race_description():
+        for va in API_RACES_CHOICES:
+            k, v = va
+            if v == self.race:
+                return k
+
     def __unicode__(self):
         if self.name:
             return "%s (%d)" % (self.name, self.id)
