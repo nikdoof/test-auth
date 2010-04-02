@@ -79,14 +79,17 @@ setup.</p>
 <h2>Reddit Accounts</h2>
 <p>This is a list of all your current linked Reddit accounts</p>
 {% if redditaccounts %}
+<p>To verify your Reddit account, login on Reddit then click 
+<a href="http://www.reddit.com/message/compose/?to=DredditVerification&subject=Verification">this link</a> and put your Auth username in the message.</p>
 <table>
 <thead>
-<tr><th>Username</th><th>Created Date</th></tr>
+<tr><th>Username</th><th>Created Date</th><th>Validated</th></tr>
 </thead>
 <tbody>
 {% for acc in redditaccounts %}
 <tr><td>{{ acc.username }}</td>
     <td>{{ acc.date_created }}</td>
+    <td>{% if acc.validated %}Yes{% else %}No{% endif %}</td>
 </tr>
 {% endfor %}
 </tbody>
