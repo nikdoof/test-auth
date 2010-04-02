@@ -7,7 +7,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from eve_proxy.models import CachedDocument
 from eve_api.managers import EVEPlayerCorporationManager, EVEPlayerAllianceManager, EVEPlayerCharacterManager
-from eve_api.app_defines import API_STATUS_CHOICES, API_STATUS_PENDING
+from eve_api.app_defines import API_STATUS_CHOICES, API_STATUS_PENDING, API_RACES_CHOICES, API_GENDER_CHOICES
 
 class EVEAPIModel(models.Model):
     """
@@ -64,10 +64,8 @@ class EVEPlayerCharacter(EVEAPIModel):
     """
     name = models.CharField(max_length=255, blank=True, null=False)
     corporation = models.ForeignKey('EVEPlayerCorporation', blank=True, null=True)
-    # TODO: Choices field
-    race = models.IntegerField(blank=True, null=True)
-    # TODO: Choices field
-    gender = models.IntegerField(blank=True, null=True)
+    race = models.IntegerField(blank=True, null=True, choices=API_RACES_CHOICES)
+    gender = models.IntegerField(blank=True, null=True, choices=API_GENDER_CHOICES)
     balance = models.FloatField("Account Balance", blank=True, null=True)
     attrib_intelligence = models.IntegerField("Intelligence", blank=True, 
                                               null=True)
