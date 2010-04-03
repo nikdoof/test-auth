@@ -13,7 +13,7 @@ from eve_api.api_puller.accounts import import_eve_account
 from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter
 
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
-from sso.forms import EveAPIForm, UserServiceAccountForm, RedditAccountForm, UserLookupForm
+from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetForm, RedditAccountForm, UserLookupForm
 
 from reddit.models import RedditAccount
 
@@ -173,7 +173,7 @@ def service_del(request, serviceid=0):
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
 @login_required
-def service_reset(request, serviceid=0, accept=0):
+def service_reset(request, serviceid=0):
     if serviceid > 0 :
         try:
             acc = ServiceAccount.objects.get(id=serviceid)
@@ -184,15 +184,23 @@ def service_reset(request, serviceid=0, accept=0):
             return HttpResponseRedirect(reverse('sso.views.profile'))
 
         if acc.user == request.user:
-            if not accept:
+            if not request.method == 'POST':
+                form = ServiceAccountResetForm()
                 return render_to_response('sso/serviceaccount/reset.html', locals(), context_instance=RequestContext(request))
 
-            passwd = hashlib.sha1('%s%s%s' % (acc.service_uid, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
+            form = ServiceAccountResetForm(request.POST)
+            if form.is_valid():
+                if settings.GENERATE_SERVICE_PASSWORD:
+                    passwd = hashlib.sha1('%s%s%s' % (acc.service_uid, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
+                else:
+                    passwd = form.cleaned_data['password']
 
-            api = acc.service.api_class
-            if not api.reset_password(acc.service_uid, passwd):
-                error = True
-            return render_to_response('sso/serviceaccount/resetcomplete.html', locals(), context_instance=RequestContext(request))
+                api = acc.service.api_class
+                if not api.reset_password(acc.service_uid, passwd):
+                    error = True
+                return render_to_response('sso/serviceaccount/resetcomplete.html', locals(), context_instance=RequestContext(request))
+            else:
+                return render_to_response('sso/serviceaccount/reset.html', locals(), context_instance=RequestContext(request))
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 

@@ -51,6 +51,13 @@ def UserServiceAccountForm(user):
 
     return ServiceAccountForm
 
+class ServiceAccountResetForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super(ServiceAccountResetForm, self).__init__(*args, **kwargs)
+        if not settings.GENERATE_SERVICE_PASSWORD:
+            self.password = forms.CharField(widget=forms.PasswordInput, label="Password" )
+            self.fields['password'] = self.password
+
 class RedditAccountForm(forms.Form):
     """ Reddit Account Form """
 

@@ -7,6 +7,11 @@
 <p>This service will reset your password for account {{ acc.service_uid }} on {{ acc.service }}. If you wish to continue please click the link 
 below.</p>
 
-<p><a href="/profile/reset/service/{{ serviceid }}/1">Reset my Password</a></p>
+<form action="/profile/reset/service/{{ serviceid }}/" method="post">
+<table>
+{{ form.as_table }}
+</table>
+<input type="submit" value="Reset Account" />
+</form>
 
 {% endblock %}
