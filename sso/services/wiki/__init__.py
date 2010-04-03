@@ -14,8 +14,7 @@ class MediawikiService(BaseService):
                  'require_password': False,
                  'provide_login': False }
 
-
-    SQL_ADD_USER = r"INSERT INTO user (user_name, user_password, user_newpassword, user_options, user_email) VALUES (%s, %s, '', '', '')"
+    SQL_ADD_USER = r"INSERT INTO user (user_name, user_password, user_newpassword, user_email) VALUES (%s, %s, '', %s)"
     SQL_DIS_USER = r"UPDATE user SET user_password = '', user_email = '' WHERE user_name = %s"
     SQL_ENABLE_USER = r"UPDATE user SET user_password = %s WHERE user_name = %s"
     SQL_CHECK_USER = r"SELECT user_name from user WHERE user_name = %s"
@@ -57,8 +56,12 @@ class MediawikiService(BaseService):
 
     def add_user(self, username, password, **kwargs):
         """ Add a user """
+        if 'user' in kwargs:
+            email = kwargs['user'].email
+        else:
+            email = ''
         pwhash = self._gen_mw_hash(password)
-        self._dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash])
+        self._dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email])
         self._db.connection.commit()
         return self._clean_username(username)
 
