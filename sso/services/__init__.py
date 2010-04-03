@@ -36,23 +36,23 @@ class BaseService():
 
     def check_user(self, username):
         """ Check if the username exists """
-        pass
+        return False
 
     def delete_user(self, uid):
         """ Delete a user by uid """
-        pass
+        return True
 
     def disable_user(self, uid):
         """ Disable a user by uid """
-        pass
+        return True
 
     def enable_user(self, uid, password):
         """ Enable a user by uid """       
-        pass
+        return True
 
     def reset_password(self, uid, password):
         """ Reset the user's password """
-        pass
+        return True
 
     def login(uid):
         """ Login the user and provide cookies back """ 
