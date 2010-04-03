@@ -79,10 +79,9 @@ class EVEPlayerCorporationManager(models.Manager):
         """
         corp_doc = CachedDocument.objects.api_query('/corp/CorporationSheet.xml.aspx',
                                                     params={'corporationID': id})
-        corp_dat = corp_doc.body.decode("utf-8", "replace")
         
         # Convert incoming data to UTF-8.
-        dom = minidom.parseString(corp_dat)
+        dom = minidom.parseString(corp_doc.body.encode('utf-8'))
         
         error_node = dom.getElementsByTagName('error')
         

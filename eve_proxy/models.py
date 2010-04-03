@@ -27,14 +27,12 @@ class CachedDocumentManager(models.Manager):
         # Retrieve the response from the server.
         response = conn.getresponse()
         # Save the response (an XML document) to the CachedDocument.
-        cached_doc.body = response.read()
-    
+        cached_doc.body = unicode(response.read(), 'utf-8')
+   
         try:
             # Parse the response via minidom
-            dom = minidom.parseString(cached_doc.body)
+            dom = minidom.parseString(cached_doc.body.encode('utf-8'))
         except xml.parsers.expat.ExpatError:
-            print "XML Parser Error:"
-            print cached_doc.body
             return
 
         # Set the CachedDocument's time_retrieved and cached_until times based
@@ -97,7 +95,7 @@ class CachedDocumentManager(models.Manager):
         else:
             # Parse the document here since it was retrieved from the
             # database cache instead of queried for.
-            dom = minidom.parseString(cached_doc.body)
+            dom = minidom.parseString(cached_doc.body.encode('utf-8'))
         
         # Check for the presence errors. Only check the bare minimum,
         # generic stuff that applies to most or all queries. User-level code
