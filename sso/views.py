@@ -124,7 +124,10 @@ def service_add(request):
             acc.user = request.user
             acc.service = form.cleaned_data['service']
             acc.character = form.cleaned_data['character']
-            acc.password = hashlib.sha1('%s%s%s' % (form.cleaned_data['character'].name, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
+            if settings.GENERATE_SERVICE_PASSWORD:
+                acc.password = hashlib.sha1('%s%s%s' % (form.cleaned_data['character'].name, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
+            else:
+                acc.password = form.cleaned_data['password']
 
             try:
                 acc.save()

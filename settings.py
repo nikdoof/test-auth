@@ -85,6 +85,9 @@ INSTALLED_APPS = (
 # Disable the service API, used for data imports
 DISABLE_SERVICES = False
 
+# Services API generates a new password for the user
+GENERATE_SERVICE_PASSWORD = False
+
 AUTH_PROFILE_MODULE = 'sso.SSOUser'
 LOGIN_REDIRECT_URL = "/profile"
 LOGIN_URL = "/login"

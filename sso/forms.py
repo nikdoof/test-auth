@@ -3,6 +3,7 @@ import re
 from django import forms
 from django.contrib.auth.models import User
 
+import settings
 from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter
 from sso.models import ServiceAccount, Service
 from reddit.models import RedditAccount
@@ -35,6 +36,12 @@ def UserServiceAccountForm(user):
 
         character = forms.ModelChoiceField(queryset=chars, required=True, empty_label=None)
         service = forms.ModelChoiceField(queryset=services, required=True, empty_label=None)
+
+        def __init__(self, *args, **kwargs):
+            super(ServiceAccountForm, self).__init__(*args, **kwargs)
+            if not settings.GENERATE_SERVICE_PASSWORD:
+                self.password = forms.CharField(widget=forms.PasswordInput, label="Password" )
+                self.fields['password'] = self.password
 
         def clean(self):
             if not self.cleaned_data['character'].corporation.group in self.cleaned_data['service'].groups.all():
