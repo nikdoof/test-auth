@@ -9,6 +9,8 @@ class UpdateAPIs():
         Updates all Eve API elements in the database
         """
 
+        settings = { 'update_corp': False }
+
         @property
         def _logger(self):
             if not hasattr(self, '__logger'):
@@ -30,9 +32,10 @@ class UpdateAPIs():
 
                acc.save()
 
-            for corp in EVEPlayerCorporation.objects.all():
-                try:
-                    corp.query_and_update_corp()
-                except:
-                    self._logger.error('Error updating %s' % corp)
-                    continue
+            if self.settings['update_corp']:
+                for corp in EVEPlayerCorporation.objects.all():
+                    try:
+                        corp.query_and_update_corp()
+                    except:
+                        self._logger.error('Error updating %s' % corp)
+                        continue
