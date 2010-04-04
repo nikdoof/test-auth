@@ -2,5 +2,5 @@ ROOT=/home/matalok/auth/auth
 
 @daily                  $ROOT/run-cron.py reddit.cron UpdateAPIs > $ROOT/logs/redditapi-update.log 2>&1
 */10	*	*	*	*   $ROOT/run-cron.py reddit.cron ProcessValidations > $ROOT/logs/reddit-validations.log 2>&1
-*/5	*	*	*	*	*   $ROOT/run-cron.py eve_api.cron UpdateAPIs > $ROOT/logs/eveapi-update.log 2>&1
+*/5     *	*	*	*   $ROOT/run-cron.py eve_api.cron UpdateAPIs > $ROOT/logs/eveapi-update.log 2>&1
 @hourly                 $ROOT/run-cron.py sso.cron RemoveInvalidUsers > $ROOT/logs/auth-update.log 2>&1
