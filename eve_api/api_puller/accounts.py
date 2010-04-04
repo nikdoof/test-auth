@@ -48,7 +48,6 @@ def import_eve_account(api_key, user_id):
     dom = minidom.parseString(account_doc.body.encode('utf-8'))
 
     enode = dom.getElementsByTagName('error')
-    print enode
     if enode:
         try:
             account = EVEAccount.objects.get(id=user_id)
