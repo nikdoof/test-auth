@@ -27,7 +27,7 @@ def import_eve_account(api_key, user_id):
                                                    params=auth_params,
                                                    no_cache=False)
 
-    dom = minidom.parseString(account_doc.body)
+    dom = minidom.parseString(account_doc.body.encode('utf-8'))
 
     if dom.getElementsByTagName('error'):
         try:
@@ -36,6 +36,7 @@ def import_eve_account(api_key, user_id):
             return
 
         account.api_status = API_STATUS_OTHER_ERROR
+        account.api_last_updated = datetime.utcnow()
         account.save()
         return
 
@@ -50,8 +51,8 @@ def import_eve_account(api_key, user_id):
 
     account.api_key = api_key
     account.api_user_id = user_id
-    account.api_last_updated = datetime.utcnow()
     account.api_status = API_STATUS_OK
+    account.api_last_updated = datetime.utcnow()
     account.save()
 
     for node in characters_node_children:
