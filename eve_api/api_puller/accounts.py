@@ -47,13 +47,19 @@ def import_eve_account(api_key, user_id):
 
     dom = minidom.parseString(account_doc.body.encode('utf-8'))
 
-    if dom.getElementsByTagName('error'):
+    enode = dom.getElementsByTagName('error')
+    print enode
+    if enode:
         try:
             account = EVEAccount.objects.get(id=user_id)
         except EVEAccount.DoesNotExist:
             return
 
-        account.api_status = API_STATUS_OTHER_ERROR
+        error = enode[0].getAttribute('code')
+        if error == '211':
+            account.api_status = API_STATUS_ACC_EXPIRED
+        else:
+            account.api_status = API_STATUS_OTHER_ERROR
         account.api_last_updated = datetime.utcnow()
         account.save()
         return
