@@ -23,9 +23,27 @@ def import_eve_account(api_key, user_id):
     Imports an account from the API into the EVEAccount model.
     """
     auth_params = {'userID': user_id, 'apiKey': api_key}
-    account_doc = CachedDocument.objects.api_query('/account/Characters.xml.aspx',
+
+    try:
+        account_doc = CachedDocument.objects.api_query('/account/Characters.xml.aspx',
                                                    params=auth_params,
                                                    no_cache=False)
+    except APIAuthException:
+        try:
+            account = EVEAccount.objects.get(id=user_id)
+        except EVEAccount.DoesNotExist:
+            return
+        if api_key == account.api_key:
+            account.api_status = API_STATUS_AUTH_ERROR
+            account.api_last_updated = datetime.utcnow()
+            account.save()
+            return
+    except APINoUserIDException:
+        try:
+            account = EVEAccount.objects.get(id=user_id)
+            account.delete()
+        except EVEAccount.DoesNotExist:
+            return
 
     dom = minidom.parseString(account_doc.body.encode('utf-8'))
 
@@ -52,8 +70,6 @@ def import_eve_account(api_key, user_id):
     account.api_key = api_key
     account.api_user_id = user_id
     account.api_status = API_STATUS_OK
-    account.api_last_updated = datetime.utcnow()
-    account.save()
 
     for node in characters_node_children:
         try:
@@ -63,6 +79,9 @@ def import_eve_account(api_key, user_id):
         except AttributeError:
             # This must be a Text node, ignore it.
             continue
+
+    account.api_last_updated = datetime.utcnow()
+    account.save()
     return account
     
 def import_eve_character(api_key, user_id, character_id):

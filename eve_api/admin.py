@@ -8,12 +8,7 @@ from eve_api.api_puller.accounts import import_eve_account
 
 def account_api_update(modeladmin, request, queryset):
     for obj in queryset:
-        try:
-            import_eve_account(obj.api_key, obj.api_user_id)
-            obj.api_status = 1
-        except APIAuthException:
-            obj.api_status = 2
-        obj.save()
+        import_eve_account(obj.api_key, obj.api_user_id)
 
 account_api_update.short_description = "Update account from the EVE API"
 

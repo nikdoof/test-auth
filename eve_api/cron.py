@@ -24,13 +24,7 @@ class UpdateAPIs():
                if not acc.user:
                    acc.delete()
                    continue
-               try:
-                   eve_api.api_puller.accounts.import_eve_account(acc.api_key, acc.api_user_id)
-                   acc.api_status = 1
-               except APIAuthException:
-                   acc.api_status = 2
-
-               acc.save()
+               eve_api.api_puller.accounts.import_eve_account(acc.api_key, acc.api_user_id)
 
             if self.settings['update_corp']:
                 for corp in EVEPlayerCorporation.objects.all():
