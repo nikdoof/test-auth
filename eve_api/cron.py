@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 from eve_api.models.api_player import EVEAccount, EVEPlayerCorporation
 import eve_api.api_puller.accounts
@@ -11,6 +12,8 @@ class UpdateAPIs():
 
         settings = { 'update_corp': False }
 
+        last_update_delay = 86400
+
         @property
         def _logger(self):
             if not hasattr(self, '__logger'):
@@ -19,7 +22,13 @@ class UpdateAPIs():
                 
         def job(self):
             # Update all the eve accounts and related corps
-            for acc in EVEAccount.objects.all():
+
+            delta = datetime.timedelta(seconds=self.last_update_delay)
+            self._logger.debug("Updating APIs older than %s" % (datetime.datetime.now() - delta))
+
+            accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.datetime.now() - delta))
+            self._logger.debug("%s account(s) to update" % len(accounts))
+            for acc in accounts:
                self._logger.info("Updating UserID %s" % acc.api_user_id)
                if not acc.user:
                    acc.delete()
