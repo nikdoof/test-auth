@@ -141,3 +141,7 @@ MINING_DATABASE = 'dreddit_mining'
 # Mining buddy secret key (in the config)
 MINING_SALT = 's98ss7fsc7fd2rf62ctcrlwztstnzve9toezexcsdhfgviuinusxcdtsvbrg'
 
+### HR Settings
+
+HR_STAFF_GROUP = 'hrstaff'
+

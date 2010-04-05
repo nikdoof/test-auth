@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 
+import settings
+
 from eve_api.models import EVEPlayerCorporation
 
 from hr.forms import CreateRecommendationForm, CreateApplicationForm
@@ -14,7 +16,7 @@ from hr.models import Recommendation, Application
 
 
 def index(request):
-    if request.user.is_staff or 'hrstaff' in request.user.groups.all():
+    if request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all():
         hrstaff = True
 
     return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
