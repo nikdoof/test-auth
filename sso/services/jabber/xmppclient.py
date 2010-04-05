@@ -127,7 +127,7 @@ class JabberAdmin():
         except:
             return False
 
-        if self.resetpassword(username, hashlib.sha1('%s%s%s' % (username, random.randint(0, 2147483647))).hexdigest()):
+        if self.resetpassword(username, hashlib.sha1('%s%s' % (username, random.randint(0, 2147483647))).hexdigest()):
             return self.kickuser(username)
         else:
             return False
