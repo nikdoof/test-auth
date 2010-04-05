@@ -50,7 +50,7 @@ class SSOUser(models.Model):
         self._log.debug("Update - User %s" % self.user)
         # Create a list of all Corp groups
         corpgroups = []
-        for corp in EVEPlayerCorporation.objects.all():
+        for corp in EVEPlayerCorporation.objects.filter(group__isnull=False):
             if corp.group:
                 corpgroups.append(corp.group)  
         
