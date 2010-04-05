@@ -65,7 +65,7 @@ class MumbleService(BaseService):
 
         for session in srv.players:
             userdtl = srv.players[session]
-            if userdtl.name = uid:
+            if userdtl.name == uid:
                 srv.kickUser(session, "Account Disabled")
         return True
 
