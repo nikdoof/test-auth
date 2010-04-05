@@ -26,13 +26,13 @@ class MumbleService(BaseService):
         if tag:
             username = "[%s]%s" % (tag, username)
 
+        return self.raw_add_user(username, password, user)
+
+    def raw_add_user(username, password):
         mumbleuser = MumbleUser()
         mumbleuser.name = username
         mumbleuser.password = password
         mumbleuser.server = self._get_server()
-
-        if 'user' in kwargs:
-            mumbleuser.user = kwargs['user']
 
         mumbleuser.save()
         return mumbleuser.name
@@ -54,29 +54,17 @@ class MumbleService(BaseService):
 
     def disable_user(self, uid):
         """ Disable a user by uid """
-
-        srv = self._get_server()
-        try:
-            mumbleuser = MumbleUser.objects.get(name=uid, server=srv)
-        except MumbleUser.DoesNotExist:
-            return False
-        mumbleuser.password = ""
-        mumbleuser.save()
-
-        for session in srv.players:
-            userdtl = srv.players[session]
-            if userdtl.name == uid:
-                srv.kickUser(session, "Account Disabled")
+        self.delete_user(uid)
         return True
 
     def enable_user(self, uid, password):
         """ Enable a user by uid """       
-        try:
+        if self.check_user(uid):
             mumbleuser = MumbleUser.objects.get(name=uid, server=self._get_server())
-        except MumbleUser.DoesNotExist:
-            return False
-        mumbleuser.password = password
-        mumbleuser.save()
+            mumbleuser.password = password
+            mumbleuser.save()
+        else:
+            self.raw_add_user(uid, password)
         return True
 
     def reset_password(self, uid, password):
