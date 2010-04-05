@@ -21,7 +21,8 @@ class JabberAdmin():
 
 
     def __del__(self):
-        self._client.disconnect()
+        if hasattr(self, '_client'):
+            self._client.disconnect()
 
     def connect(self):
         if not hasattr(self, '_client'):
