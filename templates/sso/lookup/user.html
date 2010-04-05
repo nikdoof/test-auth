@@ -12,12 +12,11 @@
 <h2>Service Accounts</h2>
 {% if services %}
 <table>
-<tr><th>Service</th><th>Username</th><th>Password</th><th>Active</th></tr>
+<tr><th>Service</th><th>Username</th><th>Active</th></tr>
 {% for acc in services %}
 <tr><td>{{ acc.service }}</td>
     <td>{{ acc.service_uid }}</td>
-    <td>******</td>
-    <td>{{ acc.active }}</td>
+    <td>{% if acc.active %}Yes{% else %}No{% endif %}</td>
 </tr>
 {% endfor %}
 </table>
