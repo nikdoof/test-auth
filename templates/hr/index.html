@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}HR{% endblock %}
+
+{% block content %}
+<h3>Applications</h3>
+<p><a href="/hr/applications/">View your current open applications</a><br/>
+<a href="/hr/add/application/">Create a application</a><br/></p>
+<h3>Recommendations</h3>
+<p>
+<a href="/hr/recommendations/">View your current open recommendations</a><br/>
+<a href="/hr/add/recommendation/">Add a recommendation</a><br/>
+</p>
+
+{% if hrstaff %}
+<h3>HR Admin</h3>
+<p>
+<a href="/hr/admin/applications/">View applications</a><br/>
+</p>
+{% endif %}
+
+{% endblock %}

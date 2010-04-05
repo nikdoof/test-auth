@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Recommendations{% endblock %}
+
+{% block content %}
+<p>This list shows your current open recommendations that are yet to be submitted, as 
+soon as the recommended user submits their application your recommendation will be removed from this list.</p>
+{% if recs %}
+<table>
+<thead>
+<tr><th>Recommender</th><th>Recommended Application</th><th>Application Status</th></tr>
+</thead>
+<tbody>
+{% for rec in recs %}
+<tr><td>{{ rec.user_character }}</td>
+    <td>{{ rec.application }}</td>
+    <td>{{ rec.application.status_description }}</td>
+</tr>
+</tbody>
+{% endfor %}
+</table>
+{% else %}
+<p>You have no current recommendations</p>
+{% endif %}
+
+{% endblock %}
