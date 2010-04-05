@@ -54,12 +54,19 @@ class MumbleService(BaseService):
 
     def disable_user(self, uid):
         """ Disable a user by uid """
+
+        srv = self._get_server()
         try:
-            mumbleuser = MumbleUser.objects.get(name=uid, server=self._get_server())
+            mumbleuser = MumbleUser.objects.get(name=uid, server=srv)
         except MumbleUser.DoesNotExist:
             return False
         mumbleuser.password = ""
         mumbleuser.save()
+
+        for session in srv.players:
+            userdtl = srv.players[session]
+            if userdtl.name = uid:
+                srv.kickUser(session, "Account Disabled")
         return True
 
     def enable_user(self, uid, password):
