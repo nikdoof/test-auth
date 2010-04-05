@@ -1,26 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Recommendations{% endblock %}
+{% block title %}Applications{% endblock %}
 
 {% block content %}
-<p>This list shows your current open recommendations that are yet to be submitted, as 
-soon as the recommended user submits their application your recommendation will be removed from this list.</p>
-{% if recs %}
+<p>This list shows your current open applications</p>
+{% if apps %}
 <table>
-<thead>
-<tr><th>Recommender</th><th>Recommended Application</th><th>Application Status</th></tr>
-</thead>
-<tbody>
-{% for rec in recs %}
-<tr><td>{{ rec.user_character }}</td>
-    <td>{{ rec.application }}</td>
-    <td>{{ rec.application.status_description }}</td>
+<tr><th>Application ID</th><th>Character</th><th>Corporation</th><th>Application Status</th></tr>
+{% for app in apps %}
+<tr><td><a href="/hr/applications/{{ app.id }}/">{{ app.id }}</a></td>
+    <td>{{ app.character }}</td>
+    <td>{{ app.corporation }}</td>
+    <td>{{ app.status_description }}</td>
 </tr>
-</tbody>
 {% endfor %}
 </table>
 {% else %}
-<p>You have no current recommendations</p>
+<p>You have no current applications</p>
 {% endif %}
 
 {% endblock %}

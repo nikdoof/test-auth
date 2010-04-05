@@ -3,7 +3,7 @@ import settings
 
 from hr.app_defines import *
 from hr.models import Application
-from eve_api.models import EVEPlayerCharacter
+from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
 
 def CreateRecommendationForm(user):
     """ Generate a Recommendation form based on the user's permissions """
@@ -28,7 +28,13 @@ def CreateApplicationForm(user):
 
     class ApplicationForm(forms.Form):
         character = forms.ModelChoiceField(queryset=characters, required=True, empty_label=None)
+        corporation = forms.ModelChoiceField(queryset=corporations, required=True, empty_label=None)
 
+        def clean(self):
+            if len(Application.objects.filter(character=self.cleaned_data['character'], status__in=[APPLICATION_STATUS_NOTSUBMITTED, APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_QUERY])):
+                raise forms.ValidationError("This character already has a open application")
+
+            return self.cleaned_data
     return ApplicationForm
 
 

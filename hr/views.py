@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 
+from eve_api.models import EVEPlayerCorporation
+
 from hr.forms import CreateRecommendationForm, CreateApplicationForm
 from hr.models import Recommendation, Application
 
@@ -46,15 +48,16 @@ def add_application(request):
             app.corporation = form.cleaned_data['corporation']
             app.save()
 
-            request.user.message_set.create(message="Application has been submitted." % rec.application )
+            request.user.message_set.create(message="Your application to %s has been submitted." % app.corporation)
             return HttpResponseRedirect(reverse('hr.views.view_applications'))
-        else:
-            return HttpResponseRedirect(reverse('hr.views.add_application'))
             
     else:
         form = clsform() # An unbound form
 
-    return render_to_response('hr/applications/add.html', locals(), context_instance=RequestContext(request))
+    if len(EVEPlayerCorporation.objects.filter(applications=True)):
+        return render_to_response('hr/applications/add.html', locals(), context_instance=RequestContext(request))
+    else:
+        return render_to_response('hr/applications/noadd.html', locals(), context_instance=RequestContext(request)) 
 
 ### Recommendation Management
 
@@ -90,8 +93,6 @@ def add_recommendation(request):
 
             request.user.message_set.create(message="Recommendation added to %s's application" % rec.application )
             return HttpResponseRedirect(reverse('hr.views.view_recommendations'))
-        else:
-            return HttpResponseRedirect(reverse('hr.views.add_recommendation'))
             
     else:
         form = clsform() # An unbound form
