@@ -9,7 +9,8 @@ from django.template import RequestContext
 
 import settings
 
-from eve_api.models import EVEPlayerCorporation
+from eve_api.models import EVEAccount, EVEPlayerCorporation
+from reddit.models import RedditAccount
 
 from hr.forms import CreateRecommendationForm, CreateApplicationForm
 from hr.models import Recommendation, Application
@@ -34,6 +35,18 @@ def view_application(request, applicationid):
         app = Application.objects.get(id=applicationid)
     except Application.DoesNotExist:
         return HttpResponseRedirect(reverse('hr.views.index'))
+
+    if not app.user == request.user and not (request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all()):
+        return HttpResponseRedirect(reverse('hr.views.index'))
+
+    eveacc = EVEAccount.objects.filter(user=app.user)
+    redditacc = RedditAccount.objects.filter(user=app.user)
+    recs = Recommendation.objects.filter(application=app)
+
+    posts = []
+    for acc in redditacc:
+        posts.extend(acc.recent_posts())
+
     return render_to_response('hr/applications/view.html', locals(), context_instance=RequestContext(request))
 
 @login_required
