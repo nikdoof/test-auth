@@ -79,6 +79,7 @@ INSTALLED_APPS = (
     'eve_api',
     'mumble',
     'reddit',
+#    'hr',
     'sso',
 )
 
