@@ -36,6 +36,19 @@ class RedditAccount(models.Model):
         self.date_created = datetime.fromtimestamp(data['created_utc'])
         self.last_update = datetime.now()
 
+    def recent_posts(self):
+        try:
+            jsondoc = json.load(urllib.urlopen("http://reddit.com/user/%s.json" % self.username))
+        except:
+            raise self.DoesNotExist
+        
+        posts = []
+        for item in jsondoc['data']['children']:
+            posts.append(item['data'])
+
+        return posts
+
+
     class Meta:
         app_label = 'reddit'
         ordering = ['username']
