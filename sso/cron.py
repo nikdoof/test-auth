@@ -23,4 +23,22 @@ class RemoveInvalidUsers():
                 # For each user, update access list based on Corp details
                 user.get_profile().update_access()
 
+class ValidateDisabledUsers():
+        """
+        Cycles through all users, check if their permissions are correct.
+        """
 
+        # run daily
+        run_every = 84600
+
+        @property
+        def _logger(self):
+            if not hasattr(self, '__logger'):
+                self.__logger = logging.getLogger(__name__)
+            return self.__logger
+
+        def job(self):
+            for servacc in ServiceAccount.objects.filter(active=0):
+                self.__logger.info('Checking %s' % servacc)
+                if not servacc.service.api_class.disable_user(servcc.service_uid):
+                    self.__logger.error('Error disabling %s on %s" % (servacc, servacc.service))
