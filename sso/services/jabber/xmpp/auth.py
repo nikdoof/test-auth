@@ -23,9 +23,14 @@ from protocol import *
 from client import PlugIn
 import sha,base64,random,dispatcher,re
 
-import md5
-def HH(some): return md5.new(some).hexdigest()
-def H(some): return md5.new(some).digest()
+try:
+    from hashlib import md5
+except ImportError:
+    import md5 as md5lib
+    def md5(val): return md5lib.new(val)
+
+def HH(some): return md5(some).hexdigest()
+def H(some): return md5(some).digest()
 def C(some): return ':'.join(some)
 
 class NonSASL(PlugIn):
