@@ -26,9 +26,9 @@ class MumbleService(BaseService):
         if tag:
             username = "[%s]%s" % (tag, username)
 
-        return self.raw_add_user(username, password, user)
+        return self.raw_add_user(username, password)
 
-    def raw_add_user(username, password):
+    def raw_add_user(self, username, password):
         mumbleuser = MumbleUser()
         mumbleuser.name = username
         mumbleuser.password = password
@@ -48,8 +48,14 @@ class MumbleService(BaseService):
 
     def delete_user(self, uid):
         """ Delete a user by uid """
-        mumbleuser = MumbleUser.objects.get(name=uid, server=self._get_server())
-        mumbleuser.delete()
+        try:
+            mumbleuser = MumbleUser.objects.get(name=uid, server=self._get_server())
+        except MumbleUser.DoesNotExist:
+            return True
+        try:
+            mumbleuser.delete()
+        except:
+            pass
         return True
 
     def disable_user(self, uid):

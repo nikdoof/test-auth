@@ -78,11 +78,13 @@ class MediawikiService(BaseService):
         self._dbcursor.execute(self.SQL_DEL_REV, [uid])
         self._dbcursor.execute(self.SQL_DEL_USER, [uid])
         self._db.connection.commit()
+        return True
 
     def disable_user(self, uid):
         """ Disable a user """
         self._dbcursor.execute(self.SQL_DIS_USER, [uid])
         self._db.connection.commit()
+        return True
 
     def enable_user(self, uid, password):
         """ Enable a user """
