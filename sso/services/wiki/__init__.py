@@ -1,6 +1,6 @@
 import hashlib
 import random
-from django.db import load_backend, transaction
+from django.db import load_backend, transaction, IntegrityError
 from sso.services import BaseService
 import settings
 
@@ -89,7 +89,11 @@ class MediawikiService(BaseService):
     def disable_user(self, uid):
         """ Disable a user """
         #self._dbcursor.execute(self.SQL_DIS_USER, [self._gen_user_token(), uid])
-        self._dbcursor.execute(self.SQL_DIS_GROUP, [uid])
+        try:
+            self._dbcursor.execute(self.SQL_DIS_GROUP, [uid])
+        except IntegrityError:
+            # Record already exists, skip it
+            pass
         self._db.connection.commit()
         return True
 
