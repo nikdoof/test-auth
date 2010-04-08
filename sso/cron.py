@@ -41,4 +41,4 @@ class ValidateDisabledUsers():
             for servacc in ServiceAccount.objects.filter(active=0):
                 self.__logger.info('Checking %s' % servacc)
                 if not servacc.service.api_class.disable_user(servcc.service_uid):
-                    self.__logger.error('Error disabling %s on %s" % (servacc, servacc.service))
+                    self.__logger.error('Error disabling %s on %s' % (servacc, servacc.service))
