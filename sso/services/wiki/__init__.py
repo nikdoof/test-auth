@@ -102,7 +102,7 @@ class MediawikiService(BaseService):
         pwhash = self._gen_mw_hash(password)
         self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
         self._db.connection.commit()
-        self._dbcursor.execute(self.SQL_ENABBLE_GROUP, [uid])
+        self._dbcursor.execute(self.SQL_ENABLE_GROUP, [uid])
         self._db.connection.commit()
         return True
 
