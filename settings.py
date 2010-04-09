@@ -110,16 +110,8 @@ REDDIT_PASSWD = ''
 # Vhost to add users to 
 JABBER_SERVER = 'dredd.it'
 
-# Method of communicating with the jabber server
-# either 'xmpp' or 'cmd'
-JABBER_METHOD = 'xmpp'
-
-# Use sudo? (cmd mode)
-#JABBER_SUDO = True
-
-# Auth login user (xmpp mode)
-JABBER_AUTH_USER = 'auth'
-JABBER_AUTH_PASSWD = 'pepperllama34'
+# XMLRPC url for ejabberd_xmlrpc
+JABBER_XMLRPC_URL = 'http://127.0.0.1:4560'
 
 ### Mumble Service Settings
 

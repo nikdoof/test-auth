@@ -1,10 +1,7 @@
+import xmlrpclib
 from sso.services import BaseService
 import settings
 
-if settings.JABBER_METHOD == "xmpp":
-    from sso.services.jabber.xmppclient import JabberAdmin
-else:
-    from sso.services.jabber.ejabberdctl import eJabberdCtl
 
 class JabberService(BaseService):
 
@@ -12,62 +9,63 @@ class JabberService(BaseService):
                  'require_password': True,
                  'provide_login': False }
 
-    def __init__(self):
-        if settings.JABBER_METHOD == "xmpp":
-            self.method = "xmpp"
-            self.jabberadmin = JabberAdmin(settings.JABBER_SERVER, settings.JABBER_AUTH_USER, settings.JABBER_AUTH_PASSWD)
-        else:
-            self.method = "cmd"
-            self.ejctl = eJabberdCtl(sudo=settings.JABBER_SUDO)
+    @staticmethod
+    def exec_xmlrpc(func, **kwargs):
+        """ Send a XMLRPC request """
+        server = xmlrpclib.Server(settings.JABBER_XMLRPC_URL)
+        params = {}
+        for i in kwargs:
+            params[i] = kwargs[i]
+
+        return getattr(server, func)(params)
 
     def add_user(self, username, password, **kwargs):
         """ Add user to service """
-        if self.method == "xmpp":
-            if self.jabberadmin.adduser('%s@%s' % (username, settings.JABBER_SERVER), password):
-                return '%s@%s' % (username, settings.JABBER_SERVER)
+        res = self.exec_xmlrpc('register', user=username, host=settings.JABBER_SERVER, password=password)
+        if res['res'] == 0:
+            if 'character' in kwargs:
+                self.exec_xmlrpc('set_nickname', user=username, host=settings.JABBER_SERVER, nickname=kwargs['character'].name)
+            return res['text'].split(" ")[1]
         else:
-            if self.ejctl.register(username.lower(), settings.JABBER_SERVER, password):
-                return '%s@%s' % (username, settings.JABBER_SERVER)
-
-    def check_user(self, username):
-        """ Check if the username exists """
-        if self.method == "xmpp":
-            return self.jabberadmin.checkuser("%s@%s" % (username, settings.JABBER_SERVER))
-        elif username.lower() not in self.ejctl.get_users(settings.JABBER_SERVER):
             return False
-        else:
-            return True
 
     def delete_user(self, uid):
         """ Delete a user """
-        if self.method == "xmpp":
-            return self.jabberadmin.deluser(uid)
+        username, server = uid.split("@")
+        res = self.exec_xmlrpc('unregister', user=username, host=server)
+        if res['res'] == 0:
+            return True
         else:
-            username, server = uid.split("@")
-            return self.ejctl.unregister(username, server)
+            return False
+
+    def check_user(self, username):
+        """ Check if the username exists """
+        res = self.exec_xmlrpc('check_account', user=username, host=settings.JABBER_SERVER)
+        if res['res'] == 0:
+            return True
+        else:
+            return False
 
     def disable_user(self, uid):
         """ Disable a user """
-        if self.method == "xmpp":
-            return self.jabberadmin.disableuser(uid)
+        username, server = uid.split("@")
+        res = self.exec_xmlrpc('ban_account', host=server, user=username, reason='Auth account disable')
+        if res['res'] == 0:
+            return True
         else:
-            username, server = uid.split("@")
-            return self.ejctl.ban_user(server, username)
+            return False
 
     def enable_user(self, uid, password):
         """ Enable a user """
-        if self.method == "xmpp":
-            return True
-        else:
-            username, server = uid.split("@")
-            return self.ejctl.enable_user(server, username, password)
+        self.reset_password(uid, password)
 
     def reset_password(self, uid, password):
         """ Reset the user's password """
-        if self.method == "xmpp":
-            return self.jabberadmin.resetpassword(uid, password)
+        username, server = uid.split("@")
+        res = self.exec_xmlrpc('change_password', user=username, host=server, newpass=password)
+        if res['res'] == 0:
+            return True
         else:
-            username, server = uid.split("@")
-            return self.ejctl.set_password(server, username, password)
+            return False
 
 ServiceClass = 'JabberService'
