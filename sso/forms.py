@@ -16,8 +16,13 @@ class EveAPIForm(forms.Form):
     description = forms.CharField(max_length=100, required=False)
 
     def clean(self):
-        if not len(self.cleaned_data['api_key']) == 64:
+
+        if not 'api_key' in self.cleaned_data or not len(self.cleaned_data['api_key']) == 64:
             raise forms.ValidationError("API Key provided is invalid (Not 64 characters long)")
+
+        if not 'user_id' in self.cleaned_data:
+            raise forms.ValidationError("Please provide a valid User ID")
+
         try:
             eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['user_id'])
         except EVEAccount.DoesNotExist:
