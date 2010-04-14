@@ -3,6 +3,7 @@ import re
 from piston.handler import BaseHandler
 from piston.utils import rc, throttle
 
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from eve_api.models import EVEAccount
 from sso.models import ServiceAccount
@@ -86,6 +87,8 @@ class AccessHandler(BaseHandler):
         sa = ServiceAccount.objects.filter(user=request.user, service=request.GET['serviceid'])
 
         if sa:
-            return { 'access': True, 'service': sa.service.id, 'service_uid': sa.service_uid }
+            return { 'access': True, 'service': sa.service.id, 
+                     'service_type': sa.service.api, 'service_uid': sa.service_uid 
+                     'service_url': sa.service.url, }
         else:
             return { 'access': False }
