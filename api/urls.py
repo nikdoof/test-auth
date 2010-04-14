@@ -4,9 +4,9 @@ from piston.authentication import HttpBasicAuthentication
 
 from api.handlers import *
 
-auth = HttpBasicAuthentication(realm="My Realm")
-#ad = { 'authentication': auth }
-ad = {}
+auth = HttpBasicAuthentication(realm="Auth API")
+ad = { 'authentication': auth }
+#ad = {}
 
 user_resource = Resource(handler=UserHandler, **ad)
 login_resource = Resource(handler=LoginHandler, **ad)
