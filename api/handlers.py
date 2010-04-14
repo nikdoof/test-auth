@@ -47,7 +47,7 @@ class LoginHandler(BaseHandler):
     allowed_methods = ('GET')
 
     def read(self, request):
-        if request.user:
+        if request.user and request.user.is_authenticated():
             return {'auth': 'notrequired', 'cookie': request.session.session_key }
 
         if not 'user' in request.GET or not 'pass' in request.GET:
@@ -56,11 +56,22 @@ class LoginHandler(BaseHandler):
         if not user.is_active:
             return { 'auth': 'disabled' }
 
-        if authenticate(user.name, password):
+        userobj = authenticate(user.name, password)
+        if userobj and user.is_active:
             login(request, user)
             return { 'auth': 'ok', 'id': user.id, 'username': user.username, 'cookie': request.session.session_key }
         else:
             return { 'auth': 'fail' }
+
+class LogoutHandler(BaseHandler):
+    allowed_methods = ('GET')
+
+    def read(self, request):
+        if request.user and not request.user.is_authenticated():
+            return {'auth': 'notrequired', }
+
+        logout(request)
+        return { 'auth': 'logout', }
 
 class AccessHandler(BaseHandler):
     allowed_methods = ('GET')
