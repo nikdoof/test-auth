@@ -68,7 +68,7 @@ class LogoutHandler(BaseHandler):
 
     def read(self, request):
         if request.user and not request.user.is_authenticated():
-            return {'auth': 'notrequired', }
+            return rc.FORBIDDEN
 
         logout(request)
         return { 'auth': 'logout', }
@@ -77,7 +77,7 @@ class AccessHandler(BaseHandler):
     allowed_methods = ('GET')
 
     def read(self, request):
-        if not request.user:
+        if not request.user and not request.user.is_authenticated():
             return rc.FORBIDDEN
 
         if not 'serviceid' in request.GET:
