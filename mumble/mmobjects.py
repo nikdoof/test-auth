@@ -14,12 +14,22 @@
  *  GNU General Public License for more details.
 """
 
+import socket
 import datetime
+import re
 from time			import time
-from os.path			import join
 
 from django.utils.http		import urlquote
 from django.conf		import settings
+
+
+def cmp_channels( left, rite ):
+	""" Compare two channels, first by position, and if that equals, by name. """
+	if hasattr( left, "position" ) and hasattr( rite, "position" ):
+		byorder = cmp( left.position, rite.position );
+		if byorder != 0:
+			return byorder;
+	return cmp_names( left, rite );
 
 def cmp_names( left, rite ):
 	""" Compare two objects by their name property. """
@@ -65,7 +75,7 @@ class mmChannel( object ):
 		
 		return self._acl;
 	
-	acl = property( getACL, doc=getACL.__doc__ );
+	acl = property( getACL );
 	
 	
 	is_server  = False;
@@ -95,7 +105,7 @@ class mmChannel( object ):
 	
 	def sort( self ):
 		""" Sort my subchannels and players, and then iterate over them and sort them recursively. """
-		self.subchans.sort( cmp_names );
+		self.subchans.sort( cmp_channels );
 		self.players.sort( cmp_names );
 		for subc in self.subchans:
 			subc.sort();
@@ -113,26 +123,23 @@ class mmChannel( object ):
 		""" Create an URL to connect to this channel. The URL is of the form
 		    mumble://username@host:port/parentchans/self.name
 		"""
-		userstr = "";
+		from urlparse import urlunsplit
+		versionstr = "version=%d.%d.%d" % tuple(self.server.version[:3]);
+		
+		if self.parent is not None:
+			chanlist = self.parent_channels() + [self.name];
+			chanlist = [ urlquote( chan ) for chan in chanlist ];
+			urlpath  = "/".join( chanlist );
+		else:
+			urlpath  = "";
 		
 		if for_user is not None:
-			userstr = "%s@" % for_user.name;
-		
-		versionstr = "version=%d.%d.%d" % tuple(self.server.version[0:3]);
-		
-		# create list of all my parents and myself
-		chanlist = self.parent_channels() + [self.name];
-		# urlencode channel names
-		chanlist = [ urlquote( chan ) for chan in chanlist ];
-		# create a path by joining the channel names
-		chanpath = join( *chanlist );
-		
-		if self.server.port != settings.MUMBLE_DEFAULT_PORT:
-			return "mumble://%s%s:%d/%s?%s" % ( userstr, self.server.addr, self.server.port, chanpath, versionstr );
-		
-		return "mumble://%s%s/%s?%s" % ( userstr, self.server.addr, chanpath, versionstr );
+			netloc = "%s@%s" % ( for_user.name, self.server.netloc );
+			return urlunsplit(( "mumble", netloc, urlpath, versionstr, "" ))
+		else:
+			return urlunsplit(( "mumble", self.server.netloc, urlpath, versionstr, "" ))
 	
-	connecturl = property( getURL, doc="A convenience wrapper for getURL." );
+	connecturl = property( getURL );
 	
 	def setDefault( self ):
 		""" Make this the server's default channel. """
@@ -149,7 +156,33 @@ class mmChannel( object ):
 		chandata['players']  = [ pl.asDict() for pl in self.players  ];
 		chandata['subchans'] = [ sc.asDict() for sc in self.subchans ];
 		return chandata;
-
+	
+	def asMvXml( self, parentnode ):
+		""" Return an XML tree for this channel suitable for MumbleViewer-ng. """
+		from xml.etree.cElementTree import SubElement
+		me      = SubElement( parentnode, "item" , id=self.id, rel='channel' )
+		content = SubElement( me,         "content" )
+		name    = SubElement( content ,   "name" )
+		name.text = self.name
+		
+		for sc in self.subchans:
+			sc.asMvXml(me)
+		for pl in self.players:
+			pl.asMvXml(me)
+	
+	def asMvJson( self ):
+		""" Return a Dict for this channel suitable for MumbleViewer-ng. """
+		return  {
+			"attributes": {
+				"href": self.connecturl,
+				"id":   self.id,
+				"rel":  "channel",
+				},
+			"data": self.name,
+			"children": [ sc.asMvJson() for sc in self.subchans ] + \
+				    [ pl.asMvJson() for pl in self.players  ],
+			"state": { False: "closed", True: "open" }[self.top_or_not_empty],
+			}
 
 
 
@@ -201,6 +234,21 @@ class mmPlayer( object ):
 	is_channel = False;
 	is_player  = True;
 	
+	def getIpAsString( self ):
+		""" Get the client's IPv4 or IPv6 address, in a pretty format. """
+		addr = self.player_obj.address;
+		if max( addr[:10] ) == 0 and addr[10:12] == (255, 255):
+			return "%d.%d.%d.%d" % tuple( addr[12:] );
+		ip6addr = [(hi << 8 | lo) for (hi, lo) in zip(addr[0::2], addr[1::2])]
+		# colon-separated string:
+		ipstr = ':'.join([ ("%x" % part) for part in ip6addr ]);
+		# 0:0:0 -> ::
+		return re.sub( "((^|:)(0:){2,})", '::', ipstr, 1 );
+	
+	ipaddress = property( getIpAsString );
+	fqdn      = property( lambda self: socket.getfqdn( self.ipaddress ),
+		doc="The fully qualified domain name of the user's host." );
+	
 	# kept for compatibility to mmChannel (useful for traversal funcs)
 	playerCount = property( lambda self: -1, doc="Exists only for compatibility to mmChannel." );
 	
@@ -221,6 +269,24 @@ class mmPlayer( object ):
 				pldata['texture'] = self.mumbleuser.textureUrl;
 		
 		return pldata;
+	
+	def asMvXml( self, parentnode ):
+		""" Return an XML node for this player suitable for MumbleViewer-ng. """
+		from xml.etree.cElementTree import SubElement
+		me      = SubElement( parentnode, "item" , id=self.id, rel='user' )
+		content = SubElement( me,         "content" )
+		name    = SubElement( content ,   "name" )
+		name.text = self.name
+	
+	def asMvJson( self ):
+		""" Return a Dict for this player suitable for MumbleViewer-ng. """
+		return {
+			"attributes": {
+				"id":   self.id,
+				"rel":  "user",
+				},
+			'data': self.name,
+			}
 
 
 

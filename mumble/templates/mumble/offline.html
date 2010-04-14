@@ -1,0 +1,14 @@
+{% extends "index.html" %}
+{% comment %}
+  <!-- kate: space-indent on; indent-width 2; replace-tabs on; -->
+{% endcomment %}
+{% load i18n %}
+{% load mumble_extras %}
+{% block Headline %}
+  {{ DBaseObject.name }}
+{% endblock %}
+{% block Content %}
+<div class="rahmen">
+  {% trans "This server is currently offline." %}
+</div>
+{% endblock %}

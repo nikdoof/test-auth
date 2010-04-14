@@ -14,27 +14,61 @@
  *  GNU General Public License for more details.
 """
 
+from django.conf import settings
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-#from mumble.forms  import MumbleAdminForm, MumbleUserAdminForm
-from mumble.models import Mumble, MumbleUser
+from mumble.forms  import MumbleServerForm, MumbleAdminForm, MumbleUserAdminForm
+from mumble.models import MumbleServer, Mumble, MumbleUser
+
+class MumbleServerAdmin(admin.ModelAdmin):
+	list_display   = [ 'dbus', 'get_murmur_online' ]
+	search_fields  = [ 'dbus' ]
+	ordering       = [ 'dbus' ]
+	
+	form = MumbleServerForm
+	
+	def get_murmur_online( self, obj ):
+		return obj.online
+	
+	get_murmur_online.short_description = _('Master is running')
+	get_murmur_online.boolean = True
+
 
 class MumbleAdmin(admin.ModelAdmin):
 	""" Specification for the "Server administration" admin section. """
 	
-	list_display   = [ 'name', 'addr', 'port', 'get_booted', 'get_is_public',
-			   'get_users_regged', 'get_users_online', 'get_channel_count' ];
-	list_filter    = [ 'addr' ];
+	list_display   = [ 'name', 'srvid', 'get_addr', 'get_port', 'get_murmur_online', 'get_booted',
+			   'get_is_public', 'get_users_regged', 'get_users_online', 'get_channel_count' ];
+	list_filter    = [ 'addr', 'server' ];
 	search_fields  = [ 'name', 'addr', 'port' ];
 	ordering       = [ 'name' ];
-	#form           = MumbleAdminForm;
+	form           = MumbleAdminForm;
 	
+	def get_murmur_online( self, obj ):
+		return obj.server.online
+	
+	get_murmur_online.short_description = _('Master is running')
+	get_murmur_online.boolean = True
+	
+	def get_addr( self, obj ):
+		if not obj.addr:
+			return "*"
+		return obj.addr
+	
+	get_addr.short_description = _('Server Address')
+	
+	def get_port( self, obj ):
+		if not obj.port:
+			return "< %d >" % (settings.MUMBLE_DEFAULT_PORT + obj.srvid - 1)
+		return obj.port
+	
+	get_port.short_description = _('Server Port')
 	
 	def get_booted( self, obj ):
 		return obj.booted
 	
-	get_booted.short_description = _('Boot Server')
+	get_booted.short_description = _('Instance is running')
 	get_booted.boolean = True
 	
 	def get_users_regged( self, obj ):
@@ -88,14 +122,17 @@ class MumbleUserAdmin(admin.ModelAdmin):
 	search_fields  = [ 'owner__username', 'name' ];
 	ordering       = [ 'owner__username' ];
 	
-	#form = MumbleUserAdminForm
+	form = MumbleUserAdminForm
 	
 	def get_acl_admin( self, obj ):
-		return obj.aclAdmin
+		if obj.server.booted:
+			return obj.aclAdmin
+		return None
 	
 	get_acl_admin.short_description = _('Admin on root channel')
 	get_acl_admin.boolean = True
 
 
-admin.site.register( Mumble, MumbleAdmin );
-admin.site.register( MumbleUser, MumbleUserAdmin );
+admin.site.register( MumbleServer, MumbleServerAdmin );
+admin.site.register( Mumble,       MumbleAdmin );
+admin.site.register( MumbleUser,   MumbleUserAdmin );

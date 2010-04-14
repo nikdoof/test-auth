@@ -1,17 +1,19 @@
 import logging
+import datetime
 
-from django_cron import cronScheduler, Job
 from eve_api.models.api_player import EVEAccount, EVEPlayerCorporation
 import eve_api.api_puller.accounts
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 
-class UpdateAPIs(Job):
+class UpdateAPIs():
         """
         Updates all Eve API elements in the database
         """
 
-        # run every 2 hours
-        run_every = 7200
+        settings = { 'update_corp': False }
+
+        last_update_delay = 86400
+        batches = 50
 
         @property
         def _logger(self):
@@ -21,21 +23,23 @@ class UpdateAPIs(Job):
                 
         def job(self):
             # Update all the eve accounts and related corps
-            for acc in EVEAccount.objects.all():
+
+            delta = datetime.timedelta(seconds=self.last_update_delay)
+            self._logger.debug("Updating APIs older than %s" % (datetime.datetime.now() - delta))
+
+            accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.datetime.now() - delta))[:self.batches]
+            self._logger.debug("%s account(s) to update" % len(accounts))
+            for acc in accounts:
                self._logger.info("Updating UserID %s" % acc.api_user_id)
                if not acc.user:
                    acc.delete()
                    continue
-               try:
-                   eve_api.api_puller.accounts.import_eve_account(acc.api_key, acc.api_user_id)
-                   acc.api_status = 1
-               except APIAuthException:
-                   acc.api_status = 2
+               eve_api.api_puller.accounts.import_eve_account(acc.api_key, acc.api_user_id)
 
-               acc.save()
-
-            for corp in EVEPlayerCorporation.objects.all():
-                corp.query_and_update_corp()
-
-
-cronScheduler.register(UpdateAPIs)
+            if self.settings['update_corp']:
+                for corp in EVEPlayerCorporation.objects.all():
+                    try:
+                        corp.query_and_update_corp()
+                    except:
+                        self._logger.error('Error updating %s' % corp)
+                        continue

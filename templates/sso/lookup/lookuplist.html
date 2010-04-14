@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}User Lookup List{% endblock %}
+
+{% block content %}
+
+<p>More than one user was found matching your criteria:</p>
+
+<ul>
+{% for user in users %}
+<li><a href="/users/{{ user.name }}/">{{ user.name }}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}

@@ -9,13 +9,13 @@
 this is incorrect please raise a bug on the tracker.
 </div>
 {% else %}
-<p>Your account on {{ account.service }} has been created. Your login details are as follows:</p>
+<p>Your account on {{ acc.service }} has been created. Your login details are as follows:</p>
 
 <table>
-<tr><td>Service:</td><td>{{ account.service.name }}</td></tr>
-<tr><td>Service URL:</td><td><a href="{{ account.service.url }}">{{ account.service.url }}</a></td></tr>
-<tr><td>Username:</td><td>{{ account.service_uid }}</td></tr>
-<tr><td>Password:</td><td>{{ account.password }}</td></tr>
+<tr><td>Service:</td><td>{{ acc.service.name }}</td></tr>
+<tr><td>Service URL:</td><td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td></tr>
+<tr><td>Username:</td><td>{{ acc.service_uid }}</td></tr>
+<tr><td>Password:</td><td>{{ acc.password }}</td></tr>
 </table>
 
 <p><b>Warning:</b> You password is random, please either note it down or once logged into the service change it to something you 

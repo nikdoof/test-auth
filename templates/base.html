@@ -1,3 +1,5 @@
+{% load installed %}
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html lang="en">
 <head>
@@ -15,17 +17,20 @@
 	<div id="navigation">
 		<ul>
 			<li><a href="/">Home</a></li>
-                        {% if request.user %}
-			<li><a href="/profile">Profile</a></li>
-                        <li><a href="/profile/characters">Characters</a></li>
-                        {% if request.user.is_staff %}
-                        <li><a href="/users">Lookup User</a></li>
-                        <li><a href="/admin">Admin</a></li>
-                        {% endif %}
-                        <li><a href="/logout">Logout</a></li>
-                        {% else %}
-                        <li><a href="/login">Login</a></li>
-                        {% endif %}
+            {% if request.user %}
+			    <li><a href="/profile">Profile</a></li>
+                {% if "hr"|installed %}
+                <li><a href="/hr/">HR</a></li>
+                {% endif %}
+                <li><a href="/profile/characters">Characters</a></li>
+                {% if request.user.is_staff %}
+                    <li><a href="/users">Lookup User</a></li>
+                    <li><a href="/admin">Admin</a></li>
+                {% endif %}
+                 <li><a href="/logout">Logout</a></li>
+            {% else %}
+                 <li><a href="/login">Login</a></li>
+            {% endif %}
 		</ul>
 	</div>
 	<div id="content">

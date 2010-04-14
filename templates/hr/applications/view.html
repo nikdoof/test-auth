@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}View Application{% endblock %}
+
+{% block content %}
+<h3>Application Details</h3>
+
+<ul>
+<li>Applying Auth User: <a href="/users/{{ app.user }}">{{ app.user }}</a></li>
+<li>Applying Character: {{ app.character }} <button type="button" onclick="CCPEVE.showInfo('1377//{{ app.character.id }}')">Show In Eve</button></li>
+<li>Application Status: <b>{{ app.status_description }}</b></li>
+</ul>
+
+{% if recs %}
+<h3>Recommendations</h3>
+<ul>
+{% for rec in recs %}
+<li><a href="/users/{{ rec.user }}/">{{ rec.user }}</a> / {{ rec.user_character }} - {{ rec.user_character.corporation }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+<h3>EVE Characters</h3>
+<ul>
+{% for acc in eveacc %}
+{% for char in acc.characters.all %}
+<li><a href="/profile/characters/{{ char.id }}/">{{ char.name }}</a> - {{ char.corporation }}/{{ char.corporation.alliance }} <button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button></li>
+{% endfor %}
+{% endfor %}
+</ul>
+
+<h3>Reddit Posts</h3>
+<ul>
+{% for post in posts %}
+{% if post.permalink %}
+<p><b><a href="http://reddit.com{{ post.permalink }}">{{ post.title }}</a></b> - /r/{{ post.subreddit }}</p>
+{% else %}
+<p>{{ post.body }} - <a href="http://reddit.com/comments/{{ post.link_id }}/">Permalink</a></p>
+{% endif %}
+{% endfor %}
+</ul>
+
+{% endblock %}

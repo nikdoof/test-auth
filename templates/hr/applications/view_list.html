@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Applications{% endblock %}
+
+{% block content %}
+<p>This list shows your current open applications</p>
+{% if apps %}
+<table>
+<tr><th>Application ID</th><th>Character</th><th>Corporation</th><th>Application Status</th></tr>
+{% for app in apps %}
+<tr><td><a href="/hr/applications/{{ app.id }}/">{{ app.id }}</a></td>
+    <td>{{ app.character }}</td>
+    <td>{{ app.corporation }}</td>
+    <td>{{ app.status_description }}</td>
+</tr>
+{% endfor %}
+</table>
+{% else %}
+<p>You have no current applications</p>
+{% endif %}
+
+{% endblock %}

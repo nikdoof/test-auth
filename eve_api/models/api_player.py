@@ -7,7 +7,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from eve_proxy.models import CachedDocument
 from eve_api.managers import EVEPlayerCorporationManager, EVEPlayerAllianceManager, EVEPlayerCharacterManager
-from eve_api.app_defines import API_STATUS_CHOICES, API_STATUS_PENDING
+from eve_api.app_defines import API_STATUS_CHOICES, API_STATUS_PENDING, API_RACES_CHOICES, API_GENDER_CHOICES
 
 class EVEAPIModel(models.Model):
     """
@@ -39,6 +39,12 @@ class EVEAccount(EVEAPIModel):
                                      verbose_name="API Status",
                                      help_text="End result of the last attempt at updating this object from the API.")
 
+    @property
+    def api_status_description(self):
+        for choice in API_STATUS_CHOICES:
+            if choice[0] == self.api_status:
+                return choice[1]
+
     def in_corp(self, corpid):
         for char in self.characters.all():
             if char.corporation_id == corpid:
@@ -58,10 +64,8 @@ class EVEPlayerCharacter(EVEAPIModel):
     """
     name = models.CharField(max_length=255, blank=True, null=False)
     corporation = models.ForeignKey('EVEPlayerCorporation', blank=True, null=True)
-    # TODO: Choices field
-    race = models.IntegerField(blank=True, null=True)
-    # TODO: Choices field
-    gender = models.IntegerField(blank=True, null=True)
+    race = models.IntegerField(blank=True, null=True, choices=API_RACES_CHOICES)
+    gender = models.IntegerField(blank=True, null=True, choices=API_GENDER_CHOICES)
     balance = models.FloatField("Account Balance", blank=True, null=True)
     attrib_intelligence = models.IntegerField("Intelligence", blank=True, 
                                               null=True)
@@ -72,6 +76,18 @@ class EVEPlayerCharacter(EVEAPIModel):
     
     objects = EVEPlayerCharacterManager()
     
+    @property
+    def gender_description(self):
+        for choice in API_GENDER_CHOICES:
+            if choice[0] == self.gender:
+                return choice[1]
+
+    @property
+    def race_description(self):
+        for choice in API_RACES_CHOICES:
+            if choice[0] == self.race:
+                return choice[1]
+
     def __unicode__(self):
         if self.name:
             return "%s (%d)" % (self.name, self.id)
@@ -141,6 +157,7 @@ class EVEPlayerCorporation(EVEAPIModel):
     logo_color3 = models.IntegerField(blank=True, null=True)
 
     group = models.ForeignKey(Group, blank=True, null=True)
+    applications = models.BooleanField(blank=False, default=False)
 
     objects = EVEPlayerCorporationManager()
     
@@ -192,9 +209,7 @@ class EVEPlayerCorporation(EVEAPIModel):
                 continue
             except IndexError:
                 # Something weird has happened
-                print " * Index Error:", tag_map[0]
                 continue
 
-        print "Updating", self.id, self.name
         self.api_last_updated = datetime.utcnow()
         self.save()

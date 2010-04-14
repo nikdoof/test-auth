@@ -14,11 +14,12 @@
  *  GNU General Public License for more details.
 """
 
-import os
+import os, getpass
 
+from django.db		import DatabaseError
 from django.conf	import settings
 
-from mumble		import models
+from mumble.models	import MumbleServer, Mumble
 from mumble.mctl	import MumbleCtlBase
 
 
@@ -61,7 +62,7 @@ def find_existing_instances( **kwargs ):
 			print "  2) ICE  -- Meta:tcp -h 127.0.0.1 -p 6502"
 			print "Enter 1 or 2 for the defaults above, nothing to skip Server detection,"
 			print "and if the defaults do not fit your needs, enter the correct string."
-			print "Whether to use DBus or ICE will be detected automatically from the"
+			print "Whether to use DBus or Ice will be detected automatically from the"
 			print "string's format."
 			print
 			
@@ -78,8 +79,10 @@ def find_existing_instances( **kwargs ):
 		elif dbusName == "2":
 			dbusName = "Meta:tcp -h 127.0.0.1 -p 6502";
 		
+		icesecret = getpass.getpass("Please enter the Ice secret (if any): ");
+		
 		try:
-			ctl = MumbleCtlBase.newInstance( dbusName, settings.SLICE );
+			ctl = MumbleCtlBase.newInstance( dbusName, settings.SLICE, icesecret );
 		except Exception, instance:
 			if v:
 				print "Unable to connect using name %s. The error was:" % dbusName;
@@ -92,40 +95,71 @@ def find_existing_instances( **kwargs ):
 	
 	servIDs   = ctl.getAllServers();
 	
+	try:
+		meta = MumbleServer.objects.get( dbus=dbusName );
+	except MumbleServer.DoesNotExist:
+		meta = MumbleServer( dbus=dbusName );
+	finally:
+		meta.secret = icesecret;
+		meta.save();
+	
 	for id in servIDs:
 		if v > 1:
 			print "Checking Murmur instance with id %d." % id;
 		# first check that the server has not yet been inserted into the DB
 		try:
-			instance = models.Mumble.objects.get( dbus=dbusName, srvid=id );
-		except models.Mumble.DoesNotExist:
+			instance = Mumble.objects.get( server=meta, srvid=id );
+		except Mumble.DoesNotExist:
 			values = {
+				"server":  meta,
 				"srvid":   id,
-				"dbus":    dbusName,
 				}
 			
-			if v > 1:
-				print "Found new Murmur instance %d on bus '%s'... " % ( id, dbusName ),
+			if v:
+				print "Found new Murmur instance %d on bus '%s'... " % ( id, dbusName )
 			
 			# now create a model for the record set.
-			instance = models.Mumble( **values );
+			instance = Mumble( **values );
 		else:
-			if v > 1:
-				print "Syncing Murmur instance... ",
+			if v:
+				print "Syncing Murmur instance %d: '%s'... " % ( instance.id, instance.name )
 		
-		instance.configureFromMurmur();
-		
-		if v > 1:
-			print instance.name;
-		
-		instance.save( dontConfigureMurmur=True );
+		try:
+			instance.configureFromMurmur();
+		except DatabaseError, err:
+			try:
+				# Find instances with the same address/port
+				dup = Mumble.objects.get( addr=instance.addr, port=instance.port )
+			except Mumble.DoesNotExist:
+				# None exist - this must've been something else.
+				print "Server ID / Name: %d / %s" % ( instance.srvid, instance.name )
+				raise err
+			else:
+				print "ERROR: There is already another server instance registered"
+				print "       on the same address and port."
+				print "        -------------"
+				print "        New Server ID:", instance.srvid,
+				print "      New Server Name:", instance.name
+				print "              Address:", instance.addr
+				print "                 Port:", instance.port
+				print "    Connection string:", instance.server.dbus
+				print "        -------------"
+				print "  Duplicate Server ID:", dup.srvid,
+				print "Duplicate Server Name:", dup.name
+				print "              Address:", dup.addr
+				print "                 Port:", dup.port
+				print "    Connection string:", dup.server.dbus
+				return False
+		except Exception, err:
+			print "Server ID / Name: %d / %s" % ( instance.srvid, instance.name )
+			raise err
 		
 		# Now search for players on this server that have not yet been registered
 		if instance.booted:
 			if v > 1:
 				print "Looking for registered Players on Server id %d." % id;
 			instance.readUsersFromMurmur( verbose=v );
-		elif v > 1:
+		elif v:
 			print "This server is not running, can't sync players.";
 	
 	if v > 1:

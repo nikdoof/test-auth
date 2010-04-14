@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Add EVE API Key{% endblock %}
+
+{% block content %}
+<p>Select a character you wish to recommend from, then select your friend's current application.
+
+The person you are recommending needs to have created their application before you can add a recommendation.</p>
+
+<form action="/hr/add/recommendation/" method="post">
+<table>
+{{ form.as_table }}
+</table>
+<input type="submit" value="Add Recommendation" />
+</form>
+{% endblock %}

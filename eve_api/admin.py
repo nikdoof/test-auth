@@ -4,9 +4,20 @@ Admin interface models. Automatically detected by admin.autodiscover().
 from django.contrib import admin
 from eve_api.models import *
 
+from eve_api.api_puller.accounts import import_eve_account
+
+def account_api_update(modeladmin, request, queryset):
+    for obj in queryset:
+        import_eve_account(obj.api_key, obj.api_user_id)
+
+account_api_update.short_description = "Update account from the EVE API"
+
 class EVEAccountAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'api_status', 'api_last_updated')
     search_fields = ['id']
+
+    actions = [account_api_update]
+
 admin.site.register(EVEAccount, EVEAccountAdmin)
 
 class EVEPlayerCharacterAdmin(admin.ModelAdmin):

@@ -75,11 +75,11 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django_evolution',
     'registration',
-    'django_cron',
     'eve_proxy',
     'eve_api',
     'mumble',
     'reddit',
+    'hr',
     'sso',
     'api',
 )
@@ -87,38 +87,54 @@ INSTALLED_APPS = (
 # Disable the service API, used for data imports
 DISABLE_SERVICES = False
 
+# Services API generates a new password for the user
+GENERATE_SERVICE_PASSWORD = False
+
 AUTH_PROFILE_MODULE = 'sso.SSOUser'
 LOGIN_REDIRECT_URL = "/profile"
 LOGIN_URL = "/login"
+
+FORCE_SCRIPT_NAME=""
+DEFAULT_FROM_EMAIL = "bot@auth.dredd.it"
+ACCOUNT_ACTIVATION_DAYS = 14
+
+### Reddit Settings
+
+# Username to validate accounts from
+REDDIT_USER = 'DredditVerification'
+
+# Password for validatio account
+REDDIT_PASSWD = ''
 
 ### Jabber Service Settings
 
 # Vhost to add users to 
 JABBER_SERVER = 'dredd.it'
 
-# Method of communicating with the jabber server
-# either 'xmpp' or 'cmd'
-JABBER_METHOD = 'xmpp'
-
-# Use sudo? (cmd mode)
-#JABBER_SUDO = True
-
-# Auth login user (xmpp mode)
-JABBER_AUTH_USER = 'auth'
-JABBER_AUTH_PASSWD = 'pepperllama34'
+# XMLRPC url for ejabberd_xmlrpc
+JABBER_XMLRPC_URL = 'http://127.0.0.1:4560'
 
 ### Mumble Service Settings
 
 DEFAULT_CONN = 'Meta:tcp -h 127.0.0.1 -p 6502'
-MUMBLE_DEFAULT_PORT = 64738
+MUMBLE_DEFAULT_PORT = 64740
 SLICE = 'Murmur.ice'
-MUMBLE_SERVER_ID = 1
+MUMBLE_SERVER_ID = 2
 
 ### Wiki Service Settings
 
+# Mediawiki database name
 WIKI_DATABASE = 'dreddit_wiki'
 
-FORCE_SCRIPT_NAME=""
-DEFAULT_FROM_EMAIL = "bot@auth.dredd.it"
+### Mining Buddy Settings
 
-ACCOUNT_ACTIVATION_DAYS = 14
+# Mining Buddy database name
+MINING_DATABASE = 'dreddit_mining'
+
+# Mining buddy secret key (in the config)
+MINING_SALT = 's98ss7fsc7fd2rf62ctcrlwztstnzve9toezexcsdhfgviuinusxcdtsvbrg'
+
+### HR Settings
+
+HR_STAFF_GROUP = 'hrstaff'
+
