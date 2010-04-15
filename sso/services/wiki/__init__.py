@@ -14,7 +14,7 @@ class MediawikiService(BaseService):
                  'require_password': False,
                  'provide_login': False }
 
-    SQL_ADD_USER = r"INSERT INTO user (user_name, user_password, user_newpassword, user_email) VALUES (%s, %s, '', %s)"
+    SQL_ADD_USER = r"INSERT INTO user (user_name, user_password, user_newpassword, user_email, user_options) VALUES (%s, %s, '', %s, NULL)"
     SQL_DIS_USER = r"UPDATE user SET user_password = '', user_email = '', user_token = %s WHERE user_name = %s"
     SQL_DIS_GROUP = r"INSERT INTO user_groups (ug_user, ug_group) VALUES ((SELECT user_id FROM user WHERE user_name = %s), 'Disabled')"
     SQL_ENABLE_USER = r"UPDATE user SET user_password = %s WHERE user_name = %s"
