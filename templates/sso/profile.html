@@ -64,7 +64,8 @@ setup.</p>
     <td>{{ acc.api_key }}</td>
     <td>{{ acc.description }}</td>
     <td>{{ acc.api_status_description }}</td>
-    <td><a href="/profile/del/eveapi/{{ acc.api_user_id }}/">Delete</a></td>
+    <td><a href="/profile/refresh/eveapi/{{ acc.api_user_id }}/">Refresh</a>,&nbsp;
+        <a href="/profile/del/eveapi/{{ acc.api_user_id }}/">Delete</a></td>
 </tr>
 </tbody>
 {% endfor %}

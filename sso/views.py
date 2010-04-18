@@ -115,6 +115,19 @@ def eveapi_del(request, userid=0):
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
+def eveapi_refresh(request, userid=0):
+    if userid > 0 :
+        try:
+            acc = EVEAccount.objects.get(id=userid)
+        except EVEAccount.DoesNotExist:
+            pass
+        else:
+            import_eve_account(acc.api_key, acc.api_user_id)
+            request.user.get_profile().update_access()
+            request.user.message_set.create(message="Key %s has been refreshed from the EVE API." % acc.api_user_id)
+
+    return HttpResponseRedirect(reverse('sso.views.profile'))
+
 @login_required
 def service_add(request):
     clsform = UserServiceAccountForm(request.user)
