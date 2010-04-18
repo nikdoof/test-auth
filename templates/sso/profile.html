@@ -56,7 +56,7 @@ setup.</p>
 {% if eveaccounts %}
 <table>
 <thead>
-<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Active</th><th>Actions</th></tr>
+<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Active</th><th>Last Updated</th><th>Actions</th></tr>
 </thead>
 <tbody>
 {% for acc in eveaccounts %}
@@ -64,6 +64,7 @@ setup.</p>
     <td>{{ acc.api_key }}</td>
     <td>{{ acc.description }}</td>
     <td>{{ acc.api_status_description }}</td>
+    <td>{{ acc.api_last_updated }}</td>
     <td><a href="/profile/refresh/eveapi/{{ acc.api_user_id }}/">Refresh</a>,&nbsp;
         <a href="/profile/del/eveapi/{{ acc.api_user_id }}/">Delete</a></td>
 </tr>
