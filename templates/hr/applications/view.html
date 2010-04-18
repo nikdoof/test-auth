@@ -11,6 +11,15 @@
 <li>Application Status: <b>{{ app.status_description }}</b></li>
 </ul>
 
+{% if form %}
+<form action="/hr/applications/{{ app.id }}/update/" method="post">
+<table>
+{{ form.as_table }}
+</table>
+<input type="submit" value="Apply" />
+</form>
+{% endif %}
+
 {% if recs %}
 <h3>Recommendations</h3>
 <ul>
@@ -24,8 +33,15 @@
 <ul>
 {% for acc in eveacc %}
 {% for char in acc.characters.all %}
-<li><a href="/profile/characters/{{ char.id }}/">{{ char.name }}</a> - {{ char.corporation }}/{{ char.corporation.alliance }} <button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button></li>
+<li><a href="/profile/characters/{{ char.id }}/">{{ char.name }}</a> - {{ char.corporation }} / {{ char.corporation.alliance }} <button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button></li>
 {% endfor %}
+{% endfor %}
+</ul>
+
+<h3>Reddit Accounts</h3>
+<ul>
+{% for acc in redditacc %}
+<li><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a>{% if acc.validated %} - Validated{% endif %} - {{ acc.date_created }}</li>
 {% endfor %}
 </ul>
 

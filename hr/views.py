@@ -12,9 +12,10 @@ import settings
 from eve_api.models import EVEAccount, EVEPlayerCorporation
 from reddit.models import RedditAccount
 
-from hr.forms import CreateRecommendationForm, CreateApplicationForm
+from hr.forms import CreateRecommendationForm, CreateApplicationForm, CreateApplicationStatusForm
 from hr.models import Recommendation, Application
 
+from app_defines import *
 
 def index(request):
     if request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all():
@@ -38,6 +39,15 @@ def view_application(request, applicationid):
 
     if not app.user == request.user and not (request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all()):
         return HttpResponseRedirect(reverse('hr.views.index'))
+
+    if request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all():
+        hrstaff = True
+    else:
+        hrstaff = False
+
+    if hrstaff or app.status < 1:
+        appform = CreateApplicationStatusForm(hrstaff)
+        form = appform(initial={'application': app.id, 'new_status': app.status})
 
     eveacc = EVEAccount.objects.filter(user=app.user)
     redditacc = RedditAccount.objects.filter(user=app.user)
@@ -63,7 +73,7 @@ def add_application(request):
             app.corporation = form.cleaned_data['corporation']
             app.save()
 
-            request.user.message_set.create(message="Your application to %s has been submitted." % app.corporation)
+            request.user.message_set.create(message="Your application to %s has been created." % app.corporation)
             return HttpResponseRedirect(reverse('hr.views.view_applications'))
             
     else:
@@ -114,5 +124,34 @@ def add_recommendation(request):
 
     return render_to_response('hr/recommendations/add.html', locals(), context_instance=RequestContext(request))
 
+@login_required
+def admin_applications(request):
+    if not (request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all()):
+        return HttpResponseRedirect(reverse('hr.views.index'))
 
+    apps = Application.objects.filter(status=APPLICATION_STATUS_AWAITINGREVIEW)
+    return render_to_response('hr/applications/admin/view_list.html', locals(), context_instance=RequestContext(request))
 
+@login_required
+def update_application(request, applicationid):   
+    if request.method == 'POST':
+        appform = CreateApplicationStatusForm(True)
+        form = appform(request.POST)
+        if form.is_valid():
+            app = Application.objects.get(id=form.cleaned_data['application'])
+
+            hrstaff = (request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all())
+            if not hrstaff and int(form.cleaned_data['new_status']) > 1:
+                return HttpResponseRedirect(reverse('hr.views.index'))
+
+            app.status = form.cleaned_data['new_status']
+            app.save()
+
+            if app.status == APPLICATION_STATUS_AWAITINGREVIEW:
+                app.user.message_set.create(message="Your application for %s to %s has been submitted." % (app.character, app.corporation))
+            if app.status == APPLICATION_STATUS_ACCEPTED:
+                app.user.message_set.create(message="Your application for %s to %s has been accepted." % (app.character, app.corporation))
+            elif app.status == APPLICATION_STATUS_REJECTED:
+                app.user.message_set.create(message="Your application for %s to %s has been rejected." % (app.character, app.corporation))
+
+    return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))

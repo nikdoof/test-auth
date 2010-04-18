@@ -37,4 +37,20 @@ def CreateApplicationForm(user):
             return self.cleaned_data
     return ApplicationForm
 
+def CreateApplicationStatusForm(admin):
 
+    if admin:
+        form_choices = APPLICATION_STATUS_CHOICES
+    else:
+        form_choices = APPLICATION_STATUS_CHOICES_USER
+
+    class ApplicationStatusForm(forms.Form):
+        """ Application Status Change Form """
+
+        application = forms.IntegerField(required=True, widget=forms.HiddenInput)
+        new_status = forms.ChoiceField(label = u'New Status', choices = form_choices)
+
+        class Meta:
+            exclude = ('application')
+
+    return ApplicationStatusForm
