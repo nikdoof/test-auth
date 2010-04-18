@@ -88,7 +88,7 @@ class AccessHandler(BaseHandler):
 
         if sa:
             return { 'access': True, 'service': sa.service.id, 
-                     'service_type': sa.service.api, 'service_uid': sa.service_uid 
+                     'service_type': sa.service.api, 'service_uid': sa.service_uid, 
                      'service_url': sa.service.url, }
         else:
             return { 'access': False }
