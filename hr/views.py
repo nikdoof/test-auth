@@ -130,7 +130,7 @@ def admin_applications(request):
         return HttpResponseRedirect(reverse('hr.views.index'))
 
     view_status = [APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY]
-    apps = Application.objects.filter(status=view_status)
+    apps = Application.objects.filter(status__in=view_status)
     return render_to_response('hr/applications/admin/view_list.html', locals(), context_instance=RequestContext(request))
 
 @login_required
