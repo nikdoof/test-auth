@@ -29,6 +29,7 @@
 </ul>
 {% endif %}
 
+{% if hrstaff %}
 <h3>EVE Characters</h3>
 <ul>
 {% for acc in eveacc %}
@@ -55,5 +56,5 @@
 {% endif %}
 {% endfor %}
 </ul>
-
+{% endif %}
 {% endblock %}
