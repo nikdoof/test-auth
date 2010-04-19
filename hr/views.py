@@ -3,7 +3,7 @@ import datetime
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 
@@ -18,7 +18,7 @@ from hr.models import Recommendation, Application
 from app_defines import *
 
 def index(request):
-    if request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all():
+    if request.user.is_staff or Group.objects.get(name=settings.HR_STAFF_GROUP) in request.user.groups.all():
         hrstaff = True
 
     return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
@@ -37,10 +37,10 @@ def view_application(request, applicationid):
     except Application.DoesNotExist:
         return HttpResponseRedirect(reverse('hr.views.index'))
 
-    if not app.user == request.user and not (request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all()):
+    if not app.user == request.user and not (request.user.is_staff or Group.objects.get(name=settings.HR_STAFF_GROUP) in request.user.groups.all()):
         return HttpResponseRedirect(reverse('hr.views.index'))
 
-    if request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all():
+    if request.user.is_staff or Group.objects.get(name=settings.HR_STAFF_GROUP) in request.user.groups.all():
         hrstaff = True
     else:
         hrstaff = False
@@ -126,7 +126,7 @@ def add_recommendation(request):
 
 @login_required
 def admin_applications(request):
-    if not (request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all()):
+    if not (request.user.is_staff or Group.objects.get(name=settings.HR_STAFF_GROUP) in request.user.groups.all()):
         return HttpResponseRedirect(reverse('hr.views.index'))
 
     apps = Application.objects.filter(status=APPLICATION_STATUS_AWAITINGREVIEW)
@@ -140,7 +140,7 @@ def update_application(request, applicationid):
         if form.is_valid():
             app = Application.objects.get(id=form.cleaned_data['application'])
 
-            hrstaff = (request.user.is_staff or settings.HR_STAFF_GROUP in request.user.groups.all())
+            hrstaff = (request.user.is_staff or Group.objects.get(name=settings.HR_STAFF_GROUP) in request.user.groups.all())
             if not hrstaff and int(form.cleaned_data['new_status']) > 1:
                 return HttpResponseRedirect(reverse('hr.views.index'))
 
