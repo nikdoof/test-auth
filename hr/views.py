@@ -163,11 +163,9 @@ def update_application(request, applicationid):
                         ib = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWD)
                         ib.send(application.user.redditaccount_set.all()[0].username, subject, message)
 
-                print app.status, APPLICATION_STATUS_ACCEPTED
                 if int(app.status) == APPLICATION_STATUS_ACCEPTED:
-                    print "Yup!"
                     send_message(app, 'accepted')
-                elif app.status == APPLICATION_STATUS_REJECTED:
+                elif int(app.status) == APPLICATION_STATUS_REJECTED:
                     send_message(app, 'rejected')
 
     return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
