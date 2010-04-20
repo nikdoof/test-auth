@@ -42,7 +42,7 @@
 <h3>Reddit Accounts</h3>
 <ul>
 {% for acc in redditacc %}
-<li><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a>{% if acc.validated %} - Validated{% endif %} - {{ acc.date_created }}</li>
+<li><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a>{% if acc.validated %} - Validated{ %else %}<b>NOT VALIDATED</b>{% endif %} - {{ acc.date_created }}</li>
 {% endfor %}
 </ul>
 
