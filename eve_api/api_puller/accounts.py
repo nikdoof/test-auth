@@ -110,13 +110,21 @@ def import_eve_character(api_key, user_id, character_id):
             if len(node.childNodes) == 1:
                 values[node.tagName] = node.childNodes[0].nodeValue
             else:
-                if node.tagName == "rowset":
-                    continue
                 nv = {}
-                for nd in node.childNodes:
-                    if nd.nodeType == 1:
-                        nv[nd.tagName] = nd.childNodes[0].nodeValue
-                values[node.tagName] = nv
+                if node.tagName == "rowset":
+                    rset = []
+                    for nd in node.childNodes:
+                        if nd.nodeType == 1:
+                            d = {}
+                            for e in nd.attributes.keys():
+                                d[e] = nd.attributes[e].value
+                            rset.append(d)
+                    values[node.attributes['name'].value] = rset
+                else:
+                    for nd in node.childNodes:
+                        if nd.nodeType == 1:
+                            nv[nd.tagName] = nd.childNodes[0].nodeValue
+                    values[node.tagName] = nv
 
     # Get this first, as it's safe.
     corporation_id = values['corporationID']
@@ -145,6 +153,11 @@ def import_eve_character(api_key, user_id, character_id):
         pchar.gender = 2
 
     pchar.race = API_RACES[values['race']]
+
+    total = 0
+    for skill in values['skills']:
+        total = total + int(skill['skillpoints'])
+    pchar.total_sp = total
 
     pchar.api_last_updated = datetime.utcnow()
     pchar.save()

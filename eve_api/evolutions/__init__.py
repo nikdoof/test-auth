@@ -1,1 +1,1 @@
-SEQUENCE = ['applications-field']
+SEQUENCE = ['applications-field', 'total-sp']

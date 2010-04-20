@@ -34,7 +34,7 @@
 <ul>
 {% for acc in eveacc %}
 {% for char in acc.characters.all %}
-<li><a href="/profile/characters/{{ char.id }}/">{{ char.name }}</a> - {{ char.corporation }} / {{ char.corporation.alliance }} - {{ char.balance }} ISK <button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button></li>
+<li><a href="/profile/characters/{{ char.id }}/">{{ char.name }}</a> - {{ char.corporation }} / {{ char.corporation.alliance }} - {{ char.balance }} ISK, {{ char.total_sp }} SP <button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button></li>
 {% endfor %}
 {% endfor %}
 </ul>

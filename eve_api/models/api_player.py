@@ -73,6 +73,8 @@ class EVEPlayerCharacter(EVEAPIModel):
     attrib_charisma = models.IntegerField("Charisma", blank=True, null=True)
     attrib_perception = models.IntegerField("Perception", blank=True, null=True)
     attrib_willpower = models.IntegerField("Willpower", blank=True, null=True)
+
+    total_sp = models.IntegerField("Total SP", blank=True, null=True)
     
     objects = EVEPlayerCharacterManager()
     
