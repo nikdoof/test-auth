@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
+from django.template.loader import render_to_string
 
 import settings
 
@@ -145,14 +146,28 @@ def update_application(request, applicationid):
             if not hrstaff and int(form.cleaned_data['new_status']) > 1:
                 return HttpResponseRedirect(reverse('hr.views.index'))
 
-            app.status = form.cleaned_data['new_status']
-            app.save()
+            if not app.status == form.cleaned_data['new_status']:
+            
+                app.status = form.cleaned_data['new_status']
+                app.save()
 
-            if app.status == APPLICATION_STATUS_AWAITINGREVIEW:
-                app.user.message_set.create(message="Your application for %s to %s has been submitted." % (app.character, app.corporation))
-            if app.status == APPLICATION_STATUS_ACCEPTED:
-                app.user.message_set.create(message="Your application for %s to %s has been accepted." % (app.character, app.corporation))
-            elif app.status == APPLICATION_STATUS_REJECTED:
-                app.user.message_set.create(message="Your application for %s to %s has been rejected." % (app.character, app.corporation))
+                def send_message(application, message_type):
+                    from django.core.mail import send_mail
+                    subject = render_to_string('hr/emails/%s_subject.txt' % message_type, { 'app': app })
+                    subject = ''.join(subject.splitlines())
+                    message = render_to_string('hr/emails/%s.txt' % message_type, { 'app': app })
+                    #send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [application.user.email])
+
+                    if len(application.user.redditaccount_set.all()) > 0:
+                        from reddit.api import Inbox
+                        ib = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWD)
+                        ib.send(application.user.redditaccount_set.all()[0].username, subject, message)
+
+                print app.status, APPLICATION_STATUS_ACCEPTED
+                if int(app.status) == APPLICATION_STATUS_ACCEPTED:
+                    print "Yup!"
+                    send_message(app, 'accepted')
+                elif app.status == APPLICATION_STATUS_REJECTED:
+                    send_message(app, 'rejected')
 
     return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))

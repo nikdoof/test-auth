@@ -83,14 +83,11 @@ class Inbox():
         if not self.login_cookie:
             raise NotLoggedIn
 
-        print self.login_cookie
-
         data = { 'to': to,
                  'subject': subject,
-                 'text': 'text', 
+                 'text': text, 
                  'uh': self.modhash,
                  'thing_id': '' }
         url = "%s" % (self.REDDIT_API_COMPOSE)
 
         jsondoc = json.load(self._url_request(url, data))
-        print jsondoc

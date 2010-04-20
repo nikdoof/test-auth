@@ -1,0 +1,9 @@
+Hi {{ app.character }},
+
+Congratulations, Your application to {{ app.corporation }} has been accepted. You will be accepted into the {{ app.corporation }} within the next 24 hours.
+
+If you have any further questions regarding your application, please contact {{ app.corporation }} via the normal channels.
+
+Regards,
+
+{{ app.corporation }} HR Bot
