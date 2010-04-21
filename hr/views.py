@@ -156,7 +156,10 @@ def update_application(request, applicationid):
                     subject = render_to_string('hr/emails/%s_subject.txt' % message_type, { 'app': app })
                     subject = ''.join(subject.splitlines())
                     message = render_to_string('hr/emails/%s.txt' % message_type, { 'app': app })
-                    #send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [application.user.email])
+                    try:
+                        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [application.user.email])
+                    except:
+                        pass
 
                     if len(application.user.redditaccount_set.all()) > 0:
                         from reddit.api import Inbox
