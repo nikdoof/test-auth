@@ -1,8 +1,9 @@
 import logging
 import datetime
 
-from eve_api.models.api_player import EVEAccount, EVEPlayerCorporation
+from eve_api.models.api_player import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter
 import eve_api.api_puller.accounts
+from eve_api.api_puller.corp_management import pull_corp_members
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 
 class UpdateAPIs():
@@ -43,3 +44,28 @@ class UpdateAPIs():
                     except:
                         self._logger.error('Error updating %s' % corp)
                         continue
+
+class CorpManagementUpdate():
+        """
+        Pulls character information from corp directors marked in the DB
+        """
+
+        settings = { 'update_corp': False }
+
+        last_update_delay = 86400
+        batches = 50
+
+        @property
+        def _logger(self):
+            if not hasattr(self, '__logger'):
+                self.__logger = logging.getLogger(__name__)
+            return self.__logger
+
+        def job(self):
+            directors = EVEPlayerCharacter.objects.filter(director_update=True)
+
+            for director in directors:
+                self._logger.info("Updating: %s / %s" % (director, director.corporation))
+                #api = director.eveaccount
+                api = EVEAccount.objects.get(characters__in=[director])
+                pull_corp_members(api.api_key, api.api_user_id, director.id)

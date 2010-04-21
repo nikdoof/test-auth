@@ -67,14 +67,26 @@ class EVEPlayerCharacter(EVEAPIModel):
     race = models.IntegerField(blank=True, null=True, choices=API_RACES_CHOICES)
     gender = models.IntegerField(blank=True, null=True, choices=API_GENDER_CHOICES)
     balance = models.FloatField("Account Balance", blank=True, null=True)
+
     attrib_intelligence = models.IntegerField("Intelligence", blank=True, 
                                               null=True)
     attrib_memory = models.IntegerField("Memory", blank=True, null=True)
     attrib_charisma = models.IntegerField("Charisma", blank=True, null=True)
     attrib_perception = models.IntegerField("Perception", blank=True, null=True)
     attrib_willpower = models.IntegerField("Willpower", blank=True, null=True)
-
     total_sp = models.IntegerField("Total SP", blank=True, null=True)
+
+    current_location_id = models.IntegerField("Current Location ID", blank=True, null=True)
+    last_login = models.DateTimeField(blank=True, null=True,
+                                            verbose_name="Last Login Date/Time",
+                                            help_text="The last time this character logged into EVE")
+    last_logoff = models.DateTimeField(blank=True, null=True,
+                                            verbose_name="Last Logoff Date/Time",
+                                            help_text="The last time this character logged off EVE")
+
+    director_update = models.BooleanField(blank=False, default=False,
+                                            verbose_name="Director Update",
+                                            help_text="This character is a Director of the associated corporation and should be used for updates")
     
     objects = EVEPlayerCharacterManager()
     
