@@ -15,7 +15,7 @@
 <tr><td>Password:</td><td>{{ passwd }}</td></tr>
 </table>
 
-<p><a href="/profile">Return to your profile page</a></p>
+<p><a href="{% url sso.views.profile %}">Return to your profile page</a></p>
 {% endif %}
 
 {% endblock %}

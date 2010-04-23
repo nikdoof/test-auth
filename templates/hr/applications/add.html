@@ -7,7 +7,7 @@
 
 The person you are recommending needs to have created their application before you can add a recommendation.</p>
 
-<form action="/hr/add/application/" method="post">
+<form action="{% url hr.views.add_application %}" method="post">
 <table>
 {{ form.as_table }}
 </table>

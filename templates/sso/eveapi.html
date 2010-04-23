@@ -7,7 +7,7 @@
 href="http://eve-online.com/api">EVE Online API
 page</a> and a optional description.</p>
 
-<form action="/profile/add/eveapi" method="post">
+<form action="{% url sso.views.eveapi_add %}" method="post">
 <table>
 {{ form.as_table }}
 </table>

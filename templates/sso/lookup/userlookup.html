@@ -3,7 +3,7 @@
 {% block title %}User Lookup{% endblock %}
 
 {% block content %}
-<form action="/users/" method="post">
+<form action="{% url sso.views.user_lookup %}" method="post">
 <table>
 {{ form.as_table }}
 </table>

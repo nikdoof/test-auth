@@ -18,7 +18,7 @@ this is incorrect please raise a bug on the tracker.
 <tr><td>Password:</td><td>{{ acc.password }}</td></tr>
 </table>
 
-<p><a href="/profile">Return to your profile page</a></p>
+<p><a href="{% url sso.views.profile %}">Return to your profile page</a></p>
 {% endif %}
 
 {% endblock %}

@@ -8,13 +8,13 @@
 <h3>Application Details</h3>
 
 <ul>
-<li>Applying Auth User: <a href="/users/{{ app.user }}">{{ app.user }}</a></li>
+<li>Applying Auth User: <a href="{% url sso.views.user_view app.user %}">{{ app.user }}</a></li>
 <li>Applying Character: {{ app.character }} <button type="button" onclick="CCPEVE.showInfo('1377//{{ app.character.id }}')">Show In Eve</button></li>
 <li>Application Status: <b>{{ app.status_description }}</b></li>
 </ul>
 
 {% if form %}
-<form action="/hr/applications/{{ app.id }}/update/" method="post">
+<form action="{% url hr.views.update_application app.id %}" method="post">
 <table>
 {{ form.as_table }}
 </table>
@@ -26,7 +26,7 @@
 <h3>Recommendations</h3>
 <ul>
 {% for rec in recs %}
-<li><a href="/users/{{ rec.user }}/">{{ rec.user }}</a> / {{ rec.user_character }} - {{ rec.user_character.corporation }}</li>
+<li><a href="{% url sso.views.user_view rec.user %}">{{ rec.user }}</a> / {{ rec.user_character }} - {{ rec.user_character.corporation }}</li>
 {% endfor %}
 </ul>
 {% endif %}
@@ -36,7 +36,7 @@
 <ul>
 {% for acc in eveacc %}
 {% for char in acc.characters.all %}
-<li><a href="/profile/characters/{{ char.id }}/">{{ char.name }}</a> - {{ char.corporation }} / {{ char.corporation.alliance }} - {{ char.balance|intcomma }} ISK, {{ char.total_sp|intcomma }} SP <button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button></li>
+<li><a href="{% url sso.views.characters char.id %}">{{ char.name }}</a> - {{ char.corporation }} / {{ char.corporation.alliance }} - {{ char.balance|intcomma }} ISK, {{ char.total_sp|intcomma }} SP <button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button></li>
 {% endfor %}
 {% endfor %}
 </ul>

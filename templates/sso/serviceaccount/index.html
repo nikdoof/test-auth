@@ -8,7 +8,7 @@ then provide select a username you wish to use create the account for<br/>
 <br/>
 For details on how to connect to each service, please consult the <a 
 href="http://wiki.dredd.it">wiki</a></p>
-<form action="/profile/add/service" method="post">
+<form action="{% url sso.views.service_add %}" method="post">
 <table>
 {{ form.as_table }}
 </table>

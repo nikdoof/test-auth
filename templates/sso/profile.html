@@ -28,11 +28,11 @@ create a login for a service click the Add Service link</p>
     <td>{{ acc.service_uid }}</td>
     <td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td>
     <td>{% if acc.active %}Yes{% else %}No{% endif %}</td>
-    <td><a href="/profile/del/service/{{ acc.id }}/">Delete</a>
+    <td><a href="{% url sso.views.service_del acc.id %}/">Delete</a>
     {% if acc.active %}
-    &nbsp;/&nbsp;<a href="/profile/reset/service/{{ acc.id }}/">Reset</a>
+    &nbsp;/&nbsp;<a href="{% url sso.views.service_reset acc.id %}/">Reset</a>
     {% if acc.service.provide_login %}
-    &nbsp;/&nbsp;<a href="/profile/login/service/{{ acc.id }}/">Login</a>
+    &nbsp;/&nbsp;<a href="{% url sso.views.service_login acc.id %}/">Login</a>
     {% endif %}
     {% endif %}
     </td>
@@ -43,7 +43,7 @@ create a login for a service click the Add Service link</p>
 {% endif %}
 
 <p>
-<a href="/profile/add/service">Add Service</a>
+<a href="{% url sso.views.service_add %}">Add Service</a>
 </p>
 
 <br/>
@@ -67,15 +67,15 @@ setup.</p>
     <td>{{ acc.description }}</td>
     <td>{{ acc.api_status_description }}</td>
     <td>{{ acc.api_last_updated|naturaltimediff }}</td>
-    <td><a href="/profile/refresh/eveapi/{{ acc.api_user_id }}/">Refresh</a>,&nbsp;
-        <a href="/profile/del/eveapi/{{ acc.api_user_id }}/">Delete</a></td>
+    <td><a href="{% url sso.views.eveapi_refresh acc.api_user_id %}">Refresh</a>,&nbsp;
+        <a href="{% url sso.views.eveapi_del acc.api_user_id %}">Delete</a></td>
 </tr>
 </tbody>
 {% endfor %}
 </table>
 {% endif %}
 <p>
-<a href="/profile/add/eveapi">Add a Eve API key</a>
+<a href="{% url sso.views.eveapi_add %}">Add a Eve API key</a>
 </p>
 
 <br/>
@@ -99,7 +99,7 @@ setup.</p>
 </table>
 {% endif %}
 <p>
-<a href="/profile/add/reddit">Add a Reddit account</a>
+<a href="{% url sso.views.reddit_add %}">Add a Reddit account</a>
 </p>
 
 <p>If you encounter any errors during using this service, copy the massive 
