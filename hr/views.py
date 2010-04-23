@@ -67,6 +67,11 @@ def add_application(request):
     if request.method == 'POST': 
         form = clsform(request.POST) 
         if form.is_valid():
+
+            if form.cleaned_data['character'].corporation == form.cleaned_data['corporation']:
+                request.user.message_set.create(message="This character is already a member of %s" % form.cleaned_data['corporation'])
+                return HttpResponseRedirect(reverse('hr.views.view_applications'))
+
             app = Application()
 
             app.user = request.user
