@@ -75,6 +75,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.humanize',
     'django_evolution',
+    'piston',
     'registration',
     'eve_proxy',
     'eve_api',
@@ -84,6 +85,10 @@ INSTALLED_APPS = (
     'sso',
     'api',
 )
+
+# API OAuth
+#OAUTH_AUTH_VIEW = 'api.views.oauth.authorize_oauth'
+OAUTH_CALLBACK_VIEW = 'api.views.oauth_callback'
 
 # Disable the service API, used for data imports
 DISABLE_SERVICES = False

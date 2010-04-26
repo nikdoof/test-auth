@@ -1,10 +1,11 @@
 from django.conf.urls.defaults import *
 from piston.resource import Resource
-from piston.authentication import HttpBasicAuthentication
+from piston.authentication import HttpBasicAuthentication, OAuthAuthentication
 
 from api.handlers import *
 
-auth = HttpBasicAuthentication(realm="Auth API")
+auth = OAuthAuthentication()
+#auth = HttpBasicAuthentication(realm="Auth API")
 ad = { 'authentication': auth }
 #ad = {}
 
@@ -22,3 +23,10 @@ urlpatterns = patterns('',
 #    url(r'^serviceaccount/$', serviceaccount_resource),
 #    url(r'^serviceaccount/(?P<id>\d+)/$', serviceaccount_resource),
 )
+
+urlpatterns += patterns('piston.authentication',
+    url(r'^oauth/request_token/$','oauth_request_token'),
+    url(r'^oauth/authorize/$','oauth_user_auth'),
+    url(r'^oauth/access_token/$','oauth_access_token'),
+)
+
