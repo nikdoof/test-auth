@@ -19,8 +19,26 @@ class Application(models.Model):
     @property
     def status_description(self):
         for choice in APPLICATION_STATUS_CHOICES:
-            if choice[0] == self.status:
+            if choice[0] == int(self.status):
                 return choice[1]
+
+    def save(self, *args, **kwargs):
+        try:
+            old_instance = Application.objects.get(id=self.id)
+            if not (old_instance.status == int(self.status)):
+                event = Audit(application=self)
+                if 'user' in kwargs:
+                    event.user = kwargs['user']
+                event.event = AUDIT_EVENT_STATUSCHANGE
+
+                event.text = "Status changed from %s to %s" % (old_instance.status_description, self.status_description)
+                event.save()
+        except:
+            pass
+
+        if 'user' in kwargs:
+            del kwargs['user']
+        super(Application, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.character.name
@@ -37,4 +55,18 @@ class Recommendation(models.Model):
         return self.user_character.name
 
     def __str__(self):
-        return self.__unicode__()  
+        return self.__unicode__()
+
+class Audit(models.Model):
+    application = models.ForeignKey(Application, blank=False, verbose_name="Application")
+    user = models.ForeignKey(User, blank=True, verbose_name="User")
+    event = models.IntegerField(choices=AUDIT_EVENT_CHOICES,
+                                     verbose_name="Event Type",
+                                     help_text="Type of audit event")
+    text = models.TextField(blank=False, verbose_name="Event Text",
+                                     help_text="Detailed event text")
+
+    date = models.DateTimeField(auto_now_add=True, verbose_name="Event Date")
+
+    def event_description(self):
+        return AUDIT_EVENT_LOOKUP[self.event]

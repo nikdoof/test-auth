@@ -13,10 +13,29 @@ import settings
 from eve_api.models import EVEAccount, EVEPlayerCorporation
 from reddit.models import RedditAccount
 
-from hr.forms import CreateRecommendationForm, CreateApplicationForm, CreateApplicationStatusForm
-from hr.models import Recommendation, Application
+from hr.forms import CreateRecommendationForm, CreateApplicationForm, CreateApplicationStatusForm, NoteForm
+from hr.models import Recommendation, Application, Audit
 
 from app_defines import *
+
+### Shared Functions
+
+def send_message(application, message_type, note=None):
+    from django.core.mail import send_mail
+    subject = render_to_string('hr/emails/%s_subject.txt' % message_type, { 'app': application })
+    subject = ''.join(subject.splitlines())
+    message = render_to_string('hr/emails/%s.txt' % message_type, { 'app': application, 'note': note })
+    try:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [application.user.email])
+    except:
+        pass
+
+    if len(application.user.redditaccount_set.all()) > 0:
+        from reddit.api import Inbox
+        ib = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWD)
+        ib.send(application.user.redditaccount_set.all()[0].username, subject, message)
+
+### General Views
 
 def index(request):
     if request.user.is_staff or Group.objects.get(name=settings.HR_STAFF_GROUP) in request.user.groups.all():
@@ -43,16 +62,18 @@ def view_application(request, applicationid):
 
     if request.user.is_staff or Group.objects.get(name=settings.HR_STAFF_GROUP) in request.user.groups.all():
         hrstaff = True
+        audit = app.audit_set.all()
     else:
         hrstaff = False
+        audit = app.audit_set.filter(event__in=[AUDIT_EVENT_STATUSCHANGE, AUDIT_EVENT_REJECTION_REASON])
 
     if hrstaff or app.status < 1:
         appform = CreateApplicationStatusForm(hrstaff)
         form = appform(initial={'application': app.id, 'new_status': app.status})
 
-    eveacc = EVEAccount.objects.filter(user=app.user)
-    redditacc = RedditAccount.objects.filter(user=app.user)
-    recs = Recommendation.objects.filter(application=app)
+    eveacc = app.user.eveaccount_set.all()
+    redditacc = app.user.redditaccount_set.all()
+    recs = app.recommendation_set.all()
 
     posts = []
     for acc in redditacc:
@@ -152,28 +173,54 @@ def update_application(request, applicationid):
                 return HttpResponseRedirect(reverse('hr.views.index'))
 
             if not app.status == form.cleaned_data['new_status']:
-            
+
                 app.status = form.cleaned_data['new_status']
-                app.save()
-
-                def send_message(application, message_type):
-                    from django.core.mail import send_mail
-                    subject = render_to_string('hr/emails/%s_subject.txt' % message_type, { 'app': app })
-                    subject = ''.join(subject.splitlines())
-                    message = render_to_string('hr/emails/%s.txt' % message_type, { 'app': app })
-                    try:
-                        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [application.user.email])
-                    except:
-                        pass
-
-                    if len(application.user.redditaccount_set.all()) > 0:
-                        from reddit.api import Inbox
-                        ib = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWD)
-                        ib.send(application.user.redditaccount_set.all()[0].username, subject, message)
+                app.save(user=request.user)
 
                 if int(app.status) == APPLICATION_STATUS_ACCEPTED:
                     send_message(app, 'accepted')
-                elif int(app.status) == APPLICATION_STATUS_REJECTED:
-                    send_message(app, 'rejected')
 
     return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
+
+@login_required
+def add_note(request, applicationid):   
+    if request.method == 'POST':
+        obj = Audit(application=Application.objects.get(id=applicationid), user=request.user, event=AUDIT_EVENT_NOTE)
+        form = NoteForm(request.POST, instance=obj)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
+
+    form = NoteForm()
+    return render_to_response('hr/applications/add_note.html', locals(), context_instance=RequestContext(request))
+
+@login_required
+def reject_application(request, applicationid):   
+    if request.method == 'POST':
+        obj = Audit(application=Application.objects.get(id=applicationid), user=request.user, event=AUDIT_EVENT_REJECTION)
+        form = NoteForm(request.POST, instance=obj)
+        if form.is_valid():
+            obj = form.save()
+            obj.application.status = APPLICATION_STATUS_REJECTED
+            obj.application.save(user=request.user)
+            send_message(obj.application, 'rejected', note=obj.text)
+            return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
+
+    form = NoteForm()
+    return render_to_response('hr/applications/reject.html', locals(), context_instance=RequestContext(request))
+
+@login_required
+def accept_application(request, applicationid):   
+    if request.method == 'POST':
+        obj = Audit(application=Application.objects.get(id=applicationid), user=request.user, event=AUDIT_EVENT_ACCEPTED)
+        form = NoteForm(request.POST, instance=obj)
+        if form.is_valid():
+            obj = form.save()
+            obj.application.status = APPLICATION_STATUS_ACCEPTED
+            obj.application.save(user=request.user)
+            send_message(obj.application, 'accepted', note=obj.text)
+            return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
+
+    form = NoteForm()
+    return render_to_response('hr/applications/accept.html', locals(), context_instance=RequestContext(request))
+

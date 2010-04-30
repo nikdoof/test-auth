@@ -2,7 +2,11 @@ Hi {{ app.character }},
 
 Your application to {{ app.corporation }} has been rejected.
 
+{% if note %}
+{{ note }}
+{% else %}
 One of our Personnel people will contact you in a seperate method to explain why you have been rejected. 
+{% endif %}
 
 If you have any further questions regarding your application, please contact {{ app.corporation }} via the normal channels.
 

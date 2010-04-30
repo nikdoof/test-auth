@@ -92,7 +92,7 @@ setup.</p>
 {% for acc in redditaccounts %}
 <tr><td>{{ acc.username }}</td>
     <td>{{ acc.date_created }}</td>
-    <td>{% if acc.validated %}Yes{% else %}No (<a href="http://www.reddit.com/message/compose/?to=DredditVerification&subject=Validation%3a%20{{user.username}}">Validate</a>){% endif %}</td>
+    <td>{% if acc.validated %}Yes{% else %}No (<a href="http://www.reddit.com/message/compose/?to=DredditVerification&subject=Validation%3a%20{{user.username}}" target="_blank">Validate</a>){% endif %}</td>
 </tr>
 {% endfor %}
 </tbody>

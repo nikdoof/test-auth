@@ -2,7 +2,7 @@ from django import forms
 import settings
 
 from hr.app_defines import *
-from hr.models import Application
+from hr.models import Application, Audit
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
 
 def CreateRecommendationForm(user):
@@ -40,7 +40,7 @@ def CreateApplicationForm(user):
 def CreateApplicationStatusForm(admin):
 
     if admin:
-        form_choices = APPLICATION_STATUS_CHOICES
+        form_choices = APPLICATION_STATUS_CHOICES_ADMIN
     else:
         form_choices = APPLICATION_STATUS_CHOICES_USER
 
@@ -54,3 +54,10 @@ def CreateApplicationStatusForm(admin):
             exclude = ('application')
 
     return ApplicationStatusForm
+
+
+class NoteForm(forms.ModelForm):
+
+    class Meta:
+        model = Audit
+        exclude = ('application', 'user', 'event')
