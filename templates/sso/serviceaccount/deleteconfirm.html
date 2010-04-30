@@ -8,7 +8,7 @@ create a new account until fixed by a Sysop. If you are having issues logging in
 
 <p>If you are sure, then please click confirm</p>
 
-<form action="{% url sso.views.service_del acc.id %}/" method="post">
+<form action="{% url sso.views.service_del acc.id %}" method="post">
 <input name="confirm-delete" type="hidden" value="1"/>
 <input type="submit" value="Confirm Delete" />
 </form>

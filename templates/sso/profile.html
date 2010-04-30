@@ -30,9 +30,9 @@ create a login for a service click the Add Service link</p>
     <td>{% if acc.active %}Yes{% else %}No{% endif %}</td>
     <td><a href="{% url sso.views.service_del acc.id %}/">Delete</a>
     {% if acc.active %}
-    &nbsp;/&nbsp;<a href="{% url sso.views.service_reset acc.id %}/">Reset</a>
+    &nbsp;/&nbsp;<a href="{% url sso.views.service_reset acc.id %}">Reset</a>
     {% if acc.service.provide_login %}
-    &nbsp;/&nbsp;<a href="{% url sso.views.service_login acc.id %}/">Login</a>
+    &nbsp;/&nbsp;<a href="{% url sso.views.service_login acc.id %}">Login</a>
     {% endif %}
     {% endif %}
     </td>
