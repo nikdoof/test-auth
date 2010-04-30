@@ -53,6 +53,9 @@ class Inbox():
     @property
     def _inbox_data(self):
 
+        if not self.login_cookie:
+            raise NotLoggedIn
+
         if not hasattr(self, '__inbox_cache'):
             inbox = json.load(self._opener.open(self.REDDIT_API_INBOX))['data']
             
