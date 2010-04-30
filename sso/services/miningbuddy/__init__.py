@@ -52,7 +52,7 @@ class MiningBuddyService(BaseService):
 
     def _clean_username(self, username):
         username = username.strip()
-        return username[0].upper() + username[1:]
+        return username
 
     def add_user(self, username, password, **kwargs):
         """ Add a user """
