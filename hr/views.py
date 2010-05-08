@@ -154,10 +154,10 @@ def admin_applications(request):
 def update_application(request, applicationid, status): 
 
     hrstaff = (request.user.is_staff or Group.objects.get(name=settings.HR_STAFF_GROUP) in request.user.groups.all())
+    app = get_object_or_404(Application, id=applicationid)
 
     # Allow admins and users that are setting the application as awaiting review
     if hrstaff or (app.user == request.user and status == APPLICATION_STATUS_AWAITINGREVIEW):  
-        app = get_object_or_404(Application, id=applicationid)
         if not app.status == status:
             app.status = status
             app.save(user=request.user)
