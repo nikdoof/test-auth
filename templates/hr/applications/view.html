@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load humanize %}
+{% load if_extra %}
 
 {% block title %}View Application{% endblock %}
 
@@ -13,15 +14,26 @@
 <li>Application Status: <b>{{ app.status_description }}</b></li>
 </ul>
 
+{% ifnotequal app.status 5 %}
 <h3>Actions</h3>
 <p>
-{% ifequal app.status 0 %}
-<a href="{% url hr.views.update_application app.id 1 %}">Submit Application</a>
-{% endifequal %}
-
-{% if hrstaff %}
-<a href="{% url hr.views.add_note app.id %}">Add Note</a>, <a href="{% url hr.views.reject_application app.id %}">Reject Application</a>,  <a href="{% url hr.views.accept_application app.id %}">Accept Application</a>
+{% if app.status < 1 %}
+<a href="{% url hr.views.update_application app.id 1 %}">Submit Application</a>,&nbsp;
 {% endif %}
+{% if hrstaff %}
+<a href="{% url hr.views.add_note app.id %}">Add Note</a>,
+{% if app.status < 2 or app.status = 4 %}
+<a href="{% url hr.views.reject_application app.id %}">Reject Application</a>,&nbsp; 
+<a href="{% url hr.views.accept_application app.id %}">Accept Application</a>,&nbsp;
+{% ifnotequal app.status 4 %}
+<a href="{% url hr.views.update_application app.id 4 %}">Mark as In Query</a>,&nbsp;
+{% endifnotequal %}
+{% endif %}
+{% ifequal app.status 3 %}
+<a href="{% url hr.views.update_application app.id 5 %}">Mark as Complete</a>,&nbsp;
+{% endifequal %}
+{% endif %}
+{% endifnotequal %}
 </p>
 
 {% if audit %}
