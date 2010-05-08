@@ -86,6 +86,9 @@ INSTALLED_APPS = (
     'api',
 )
 
+## Server Mail
+SERVER_EMAIL = 'trace@auth.dredd.it'
+
 # API OAuth
 #OAUTH_AUTH_VIEW = 'api.views.oauth.authorize_oauth'
 OAUTH_CALLBACK_VIEW = 'api.views.oauth_callback'
@@ -140,7 +143,11 @@ MINING_DATABASE = 'dreddit_mining'
 # Mining buddy secret key (in the config)
 MINING_SALT = 's98ss7fsc7fd2rf62ctcrlwztstnzve9toezexcsdhfgviuinusxcdtsvbrg'
 
+### QMS Service Settings
+
+QMS_DATABASE = 'dreddit_qms'
+
 ### HR Settings
 
-HR_STAFF_GROUP = 'hrstaff'
+HR_STAFF_GROUP = 'HR Staff'
 
