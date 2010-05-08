@@ -126,6 +126,7 @@ class EVEPlayerAlliance(EVEAPIModel):
     #executor_character = models.ForeignKey(EVECharacter, blank=True, null=False)
     member_count = models.IntegerField(blank=True, null=True)
     date_founded = models.DateField(blank=True, null=True)
+    group = models.ForeignKey(Group, blank=True, null=True)
     
     objects = EVEPlayerAllianceManager()
     

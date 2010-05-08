@@ -5,7 +5,7 @@ import logging
 from django.db import models
 from django.db.models import signals
 from django.contrib.auth.models import User, UserManager, Group
-from eve_api.models import EVEAccount, EVEPlayerCorporation
+from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
 from reddit.models import RedditAccount
 
 from services import get_api
@@ -48,11 +48,14 @@ class SSOUser(models.Model):
             access accordingly """
 
         self._log.debug("Update - User %s" % self.user)
-        # Create a list of all Corp groups
+        # Create a list of all Corp and Alliance groups
         corpgroups = []
         for corp in EVEPlayerCorporation.objects.filter(group__isnull=False):
             if corp.group:
                 corpgroups.append(corp.group)  
+        for alliance in EVEPlayerAlliance.objects.filter(group__isnull=False):
+            if alliance.group:
+                corpgroups.append(alliance.group)  
         
         # Create a list of Char groups
         chargroups = []
@@ -61,6 +64,9 @@ class SSOUser(models.Model):
                 for char in eacc.characters.all():
                     if char.corporation.group:
                         chargroups.append(char.corporation.group)
+                    if char.corporation.alliance:
+                        if char.corporation.alliance.group:
+                            chargroups.append(char.corporation.alliance.group)
                 
         # Generate the list of groups to add/remove
         delgroups = set(set(self.user.groups.all()) & set(corpgroups)) - set(chargroups)
