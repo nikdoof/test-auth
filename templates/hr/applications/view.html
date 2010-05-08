@@ -14,18 +14,15 @@
 </ul>
 
 <h3>Actions</h3>
-{% if form %}
-<form action="{% url hr.views.update_application app.id %}" method="post">
-<table>
-{{ form.as_table }}
-</table>
-<input type="submit" value="Apply" />
-</form>
-{% endif %}
+<p>
+{% ifequal app.status 0 %}
+<a href="{% url hr.views.update_application app.id 1 %}">Submit Application</a>
+{% endifequal %}
 
 {% if hrstaff %}
-<p><a href="{% url hr.views.add_note app.id %}">Add Note</a>, <a href="{% url hr.views.reject_application app.id %}">Reject Application</a>,  <a href="{% url hr.views.accept_application app.id %}">Accept Application</a></p> 
+<a href="{% url hr.views.add_note app.id %}">Add Note</a>, <a href="{% url hr.views.reject_application app.id %}">Reject Application</a>,  <a href="{% url hr.views.accept_application app.id %}">Accept Application</a>
 {% endif %}
+</p>
 
 {% if audit %}
 <h3>Event Log</h3>

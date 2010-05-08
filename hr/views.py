@@ -1,7 +1,7 @@
 import datetime
 
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
@@ -13,7 +13,7 @@ import settings
 from eve_api.models import EVEAccount, EVEPlayerCorporation
 from reddit.models import RedditAccount
 
-from hr.forms import CreateRecommendationForm, CreateApplicationForm, CreateApplicationStatusForm, NoteForm
+from hr.forms import CreateRecommendationForm, CreateApplicationForm, NoteForm
 from hr.models import Recommendation, Application, Audit
 
 from app_defines import *
@@ -52,10 +52,7 @@ def view_applications(request):
 
 @login_required
 def view_application(request, applicationid):
-    try:
-        app = Application.objects.get(id=applicationid)
-    except Application.DoesNotExist:
-        return HttpResponseRedirect(reverse('hr.views.index'))
+    app = get_object_or_404(Application, id=applicationid)
 
     if not app.user == request.user and not (request.user.is_staff or Group.objects.get(name=settings.HR_STAFF_GROUP) in request.user.groups.all()):
         return HttpResponseRedirect(reverse('hr.views.index'))
@@ -65,11 +62,7 @@ def view_application(request, applicationid):
         audit = app.audit_set.all()
     else:
         hrstaff = False
-        audit = app.audit_set.filter(event__in=[AUDIT_EVENT_STATUSCHANGE, AUDIT_EVENT_REJECTION_REASON])
-
-    if hrstaff or app.status < 1:
-        appform = CreateApplicationStatusForm(hrstaff)
-        form = appform(initial={'application': app.id, 'new_status': app.status})
+        audit = app.audit_set.filter(event__in=[AUDIT_EVENT_STATUSCHANGE, AUDIT_EVENT_REJECTION, AUDIT_EVENT_ACCEPTED])
 
     eveacc = app.user.eveaccount_set.all()
     redditacc = app.user.redditaccount_set.all()
@@ -101,7 +94,7 @@ def add_application(request):
             app.save()
 
             request.user.message_set.create(message="Your application to %s has been created." % app.corporation)
-            return HttpResponseRedirect(reverse('hr.views.view_applications'))
+            return HttpResponseRedirect(reverse('hr.views.view_application', args=[app.id]))
             
     else:
         form = clsform() # An unbound form
@@ -120,10 +113,7 @@ def view_recommendations(request):
 
 @login_required
 def view_recommendation(request, recommendationid):
-    try:
-        rec = Recommendation.objects.get(id=recommendationid, user=request.user)
-    except Recommendation.DoesNotExist:
-        return HttpResponseRedirect(reverse('hr.views.index'))
+    rec = get_object_or_404(Recommendation, id=recommendationid, user=request.user)
     return render_to_response('hr/recommendations/view.html', locals(), context_instance=RequestContext(request))
 
 @login_required
@@ -161,24 +151,16 @@ def admin_applications(request):
     return render_to_response('hr/applications/admin/view_list.html', locals(), context_instance=RequestContext(request))
 
 @login_required
-def update_application(request, applicationid):   
-    if request.method == 'POST':
-        appform = CreateApplicationStatusForm(True)
-        form = appform(request.POST)
-        if form.is_valid():
-            app = Application.objects.get(id=form.cleaned_data['application'])
+def update_application(request, applicationid, status): 
 
-            hrstaff = (request.user.is_staff or Group.objects.get(name=settings.HR_STAFF_GROUP) in request.user.groups.all())
-            if not hrstaff and int(form.cleaned_data['new_status']) > 1:
-                return HttpResponseRedirect(reverse('hr.views.index'))
+    hrstaff = (request.user.is_staff or Group.objects.get(name=settings.HR_STAFF_GROUP) in request.user.groups.all())
 
-            if not app.status == form.cleaned_data['new_status']:
-
-                app.status = form.cleaned_data['new_status']
-                app.save(user=request.user)
-
-                if int(app.status) == APPLICATION_STATUS_ACCEPTED:
-                    send_message(app, 'accepted')
+    # Allow admins and users that are setting the application as awaiting review
+    if hrstaff or (app.user == request.user and status == APPLICATION_STATUS_AWAITINGREVIEW):  
+        app = get_object_or_404(Application, id=applicationid)
+        if not app.status == status:
+            app.status = status
+            app.save(user=request.user)
 
     return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
 
