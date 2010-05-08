@@ -24,7 +24,7 @@ def pull_corp_members(api_key, user_id, character_id):
                                                    params=auth_params,
                                                    no_cache=False)
 
-    dom = minidom.parseString(char_doc.body)
+    dom = minidom.parseString(char_doc.body.encode('utf-8'))
     if dom.getElementsByTagName('error'):
         return
     nodes = dom.getElementsByTagName('result')[0].childNodes
