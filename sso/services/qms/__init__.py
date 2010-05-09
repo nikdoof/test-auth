@@ -16,7 +16,7 @@ class QMSService(BaseService):
 
     SQL_ADD_USER = r"INSERT INTO users (ssoid, Name, passhash, salt, Email, certificate) VALUES (%s, %s, %s, %s, %s, %s)"
     SQL_DIS_USER = r"UPDATE users SET passhash = '' WHERE ssoid = %s"
-    SQL_ENABLE_USER = r"UPDATE users SET passhash = %s, salt = %s WHERE ssoid = %s"
+    SQL_ENABLE_USER = r"UPDATE users SET passhash = %s, salt = %s, certificate = %s WHERE ssoid = %s"
     SQL_CHECK_USER = r"SELECT ssoid from users WHERE ssoid = %s"
 
     def __init__(self):
@@ -79,8 +79,8 @@ class QMSService(BaseService):
 
     def enable_user(self, uid, password):
         """ Enable a user """
-        pwhash, salt = self._gen_pwhash(password)
-        self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, salt, uid])
+        pwhash, salt, cert = self._gen_pwhash(password)
+        self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, salt, cert, uid])
         self._db.connection.commit()
         return True
 
