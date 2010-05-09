@@ -28,7 +28,7 @@ create a login for a service click the Add Service link</p>
     <td>{{ acc.service_uid }}</td>
     <td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td>
     <td>{% if acc.active %}Yes{% else %}No{% endif %}</td>
-    <td><a href="{% url sso.views.service_del acc.id %}/">Delete</a>
+    <td>
     {% if acc.active %}
     &nbsp;/&nbsp;<a href="{% url sso.views.service_reset acc.id %}">Reset</a>
     {% if acc.service.provide_login %}
