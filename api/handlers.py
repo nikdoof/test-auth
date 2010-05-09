@@ -6,7 +6,7 @@ from piston.utils import rc, throttle
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from eve_api.models import EVEAccount
-from sso.models import ServiceAccount
+from sso.models import ServiceAccount, Service
 
 class UserHandler(BaseHandler):
     allowed_methods = ('GET')
@@ -35,60 +35,29 @@ class UserHandler(BaseHandler):
 
         out = []
         for u in user:
-            sa = ServiceAccount.objects.filter(user=u)        
-            ea = EVEAccount.objects.filter(user=u)
-
-            d = { 'id': u.id, 'username': u.username, 'serviceaccounts': sa, 'eveapi': ea }
+            d = { 'id': u.id, 'username': u.username, 'serviceaccounts': u.serviceaccount_set.all(), 'eveapi': u.eveaccount_set.all() }
             out.append (d)
 
-        return out	
+        return out
 
 
-class LoginHandler(BaseHandler):
+class ServiceLoginHandler(BaseHandler):
     allowed_methods = ('GET')
 
     def read(self, request):
-        if request.user and request.user.is_authenticated():
-            return {'auth': 'notrequired', 'cookie': request.session.session_key }
-
-        if not 'user' in request.GET or not 'pass' in request.GET:
+        if not 'user' in request.GET or not 'pass' in request.GET or not 'service' in request.GET:
             return rc.BAD_REQUEST
 
-        if not user.is_active:
-            return { 'auth': 'disabled' }
+        userobj = authenticate(username=request.GET['user'], password=request.GET['pass'])
+        if userobj and userobj.is_active:
+            try:
+                serv = Service.objects.get(id=request.GET['service'])
+            except:
+                print 'bad service'
+                return rc.BAD_REQUEST
 
-        userobj = authenticate(user.name, password)
-        if userobj and user.is_active:
-            login(request, user)
-            return { 'auth': 'ok', 'id': user.id, 'username': user.username, 'cookie': request.session.session_key }
-        else:
-            return { 'auth': 'fail' }
+            srvacct = userobj.serviceaccount_set.filter(service=serv)
+            if len(srvacct):
+                return { 'auth': 'ok', 'id': userobj.id, 'username': userobj.username, 'display-username': srvacct[0].service_uid, }
 
-class LogoutHandler(BaseHandler):
-    allowed_methods = ('GET')
-
-    def read(self, request):
-        if request.user and not request.user.is_authenticated():
-            return rc.FORBIDDEN
-
-        logout(request)
-        return { 'auth': 'logout', }
-
-class AccessHandler(BaseHandler):
-    allowed_methods = ('GET')
-
-    def read(self, request):
-        if not request.user and not request.user.is_authenticated():
-            return rc.FORBIDDEN
-
-        if not 'serviceid' in request.GET:
-            return rc.BAD_REQUEST
-        
-        sa = ServiceAccount.objects.filter(user=request.user, service=request.GET['serviceid'])
-
-        if sa:
-            return { 'access': True, 'service': sa.service.id, 
-                     'service_type': sa.service.api, 'service_uid': sa.service_uid, 
-                     'service_url': sa.service.url, }
-        else:
-            return { 'access': False }
+        return { 'auth': 'fail' }

@@ -1,27 +1,18 @@
 from django.conf.urls.defaults import *
 from piston.resource import Resource
-from piston.authentication import HttpBasicAuthentication, OAuthAuthentication
+from piston.authentication import HttpBasicAuthentication, OAuthAuthentication, NoAuthentication
 
 from api.handlers import *
 
-auth = OAuthAuthentication()
-#auth = HttpBasicAuthentication(realm="Auth API")
-ad = { 'authentication': auth }
-#ad = {}
+oauth = { 'authentication': OAuthAuthentication() }
+noauth = { 'authentication': NoAuthentication() }
 
-user_resource = Resource(handler=UserHandler, **ad)
-login_resource = Resource(handler=LoginHandler, **ad)
-logout_resource = Resource(handler=LogoutHandler, **ad)
-access_resource = Resource(handler=AccessHandler, **ad)
+user_resource = Resource(handler=UserHandler, **oauth)
+servicelogin_resource = Resource(handler=ServiceLoginHandler, **noauth)
 
 urlpatterns = patterns('',
-    url(r'^login/$', login_resource),
-    url(r'^logout/$', logout_resource),
-    url(r'^access/$', access_resource),
     url(r'^user/$', user_resource),
-#    url(r'^user/(?P<id>\d+)/$', user_resource),
-#    url(r'^serviceaccount/$', serviceaccount_resource),
-#    url(r'^serviceaccount/(?P<id>\d+)/$', serviceaccount_resource),
+    url(r'^servicelogin/$', servicelogin_resource),
 )
 
 urlpatterns += patterns('piston.authentication',
