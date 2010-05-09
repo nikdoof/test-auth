@@ -79,7 +79,7 @@ class QMSService(BaseService):
 
     def enable_user(self, uid, password):
         """ Enable a user """
-        pwhash, salt = self._gen_mw_hash(password)
+        pwhash, salt = self._gen_pwhash(password)
         self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, salt, uid])
         self._db.connection.commit()
         return True
