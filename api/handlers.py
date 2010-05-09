@@ -58,6 +58,7 @@ class ServiceLoginHandler(BaseHandler):
 
             srvacct = userobj.serviceaccount_set.filter(service=serv)
             if len(srvacct):
-                return { 'auth': 'ok', 'id': userobj.id, 'username': userobj.username, 'display-username': srvacct[0].service_uid, }
+                return { 'auth': 'ok', 'id': userobj.id, 'username': userobj.username, 
+                         'display-username': srvacct[0].service_uid, 'eveapi': userobj.eveaccount_set.all() }
 
         return { 'auth': 'fail' }
