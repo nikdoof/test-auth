@@ -157,7 +157,7 @@ def update_application(request, applicationid, status):
     app = get_object_or_404(Application, id=applicationid)
 
     # Allow admins and users that are setting the application as awaiting review
-    if hrstaff or (app.user == request.user and status == APPLICATION_STATUS_AWAITINGREVIEW):  
+    if hrstaff or (app.user == request.user and int(status) == APPLICATION_STATUS_AWAITINGREVIEW):  
         if not app.status == status:
             app.status = status
             app.save(user=request.user)
