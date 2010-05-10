@@ -7,6 +7,15 @@ from datetime import datetime
 class RedditAccount(models.Model):
     """
     Represents a User ID on Reddit
+
+    This model can be populated by API update:
+
+    >>> from reddit.models import RedditAccount
+    >>> mod = RedditAccount()
+    >>> mod.username = 'nik_doof'
+    >>> mod.api_update()
+    >>> mod.reddit_id
+    '1axok'
     """
 
     user = models.ForeignKey(User, blank=True, null=True)
