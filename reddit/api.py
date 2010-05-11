@@ -7,7 +7,7 @@ class NotLoggedIn(Exception):
     pass
 
 class Message(dict):
-    """ Reddit Message """
+    """ Abstract for a Reddit Message """
 
     def __init__(self, dict=None):
         if dict:
@@ -23,8 +23,15 @@ class Message(dict):
         return self.__unicode__()
 
 class Inbox():
-    """ Reddit Inbox class, accesses a user's inbox and provides a iterable 
-        list of messages """    
+    """
+    Reddit Inbox class, accesses a user's inbox and provides a iterable
+    list of messages
+
+    >>> inbox = Inbox(username='testuser', password='testpassword')
+    >>> len(inbox)
+    5
+
+    """
 
     REDDIT = "http://www.reddit.com"
     REDDIT_API_LOGIN = "%s/api/login" % REDDIT
