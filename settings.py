@@ -115,37 +115,11 @@ REDDIT_USER = 'DredditVerification'
 # Password for validatio account
 REDDIT_PASSWD = ''
 
-### Jabber Service Settings
-
-# Vhost to add users to 
-JABBER_SERVER = 'dredd.it'
-
-# XMLRPC url for ejabberd_xmlrpc
-JABBER_XMLRPC_URL = 'http://127.0.0.1:4560'
-
 ### Mumble Service Settings
 
 DEFAULT_CONN = 'Meta:tcp -h 127.0.0.1 -p 6502'
 MUMBLE_DEFAULT_PORT = 64740
 SLICE = 'Murmur.ice'
-MUMBLE_SERVER_ID = 2
-
-### Wiki Service Settings
-
-# Mediawiki database name
-WIKI_DATABASE = 'dreddit_wiki'
-
-### Mining Buddy Settings
-
-# Mining Buddy database name
-MINING_DATABASE = 'dreddit_mining'
-
-# Mining buddy secret key (in the config)
-MINING_SALT = 's98ss7fsc7fd2rf62ctcrlwztstnzve9toezexcsdhfgviuinusxcdtsvbrg'
-
-### QMS Service Settings
-
-QMS_DATABASE = 'dreddit_qms'
 
 ### HR Settings
 
