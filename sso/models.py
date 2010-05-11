@@ -5,6 +5,7 @@ import logging
 from django.db import models
 from django.db.models import signals
 from django.contrib.auth.models import User, UserManager, Group
+from django_jsonfield.fields import JSONField
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
 from reddit.models import RedditAccount
 
@@ -114,15 +115,21 @@ class SSOUser(models.Model):
 signals.post_save.connect(SSOUser.create_user_profile, sender=User)
 
 class Service(models.Model):
+    """
+    Service model represents a service available to users, either a website or
+    a connection service like Jabber or IRC.
+    """
+
     name = models.CharField("Service Name", max_length=200)
     url = models.CharField("Service URL", max_length=200, blank=True)
     active = models.BooleanField(default=True)
     api = models.CharField("API", max_length=200)
     groups = models.ManyToManyField(Group, blank=False)
+    settings_json = JSONField("Service Settings", blank=True)
 
     @property
     def provide_login(self):
-        return self.api_class.settings['provide_login']
+        return self.settings['provide_login']
 
     @property
     def api_class(self):
@@ -131,7 +138,36 @@ class Service(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self):
+        if not self.settings_json:
+            if self.api:
+                self.settings_json = self.settings
+            else:
+                self.settings_json = {}
+
+        return models.Model.save(self)
+
+    @property
+    def settings(self):
+
+        if self.settings_json:
+            setdict = self.settings_json
+        else:
+            setdict = {}
+
+        # Load defaults from the module's settings dict
+        if self.api:
+            modset = self.api_class.settings
+            for k in modset:
+                if not k in setdict:
+                    setdict[k] = modset[k]
+
+        return setdict
+
 class ServiceAccount(models.Model):
+    """
+    ServiceAccount represents the user's account on a Service.
+    """
     user = models.ForeignKey(User, blank=False)
     service = models.ForeignKey(Service, blank=False)
     service_uid = models.CharField("Service UID", max_length=200, blank=False)
@@ -147,8 +183,9 @@ class ServiceAccount(models.Model):
     def save(self):
         """ Override default save to setup accounts as needed """
 
-        # Grab the API class
+        # Grab the API class and load the settings
         api = self.service.api_class
+        api.settings = self.service.settings
 
         if not self.service_uid:
             # Create a account if we've not got a UID
@@ -186,6 +223,7 @@ class ServiceAccount(models.Model):
     @staticmethod
     def pre_delete_listener( **kwargs ):
         api = kwargs['instance'].service.api_class
+        api.settings = kwargs['instance'].service.settings
         if not api.delete_user(kwargs['instance'].service_uid):
             raise ServiceError('Unable to delete account on related service')
 

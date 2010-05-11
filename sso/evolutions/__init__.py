@@ -1,1 +1,1 @@
-SEQUENCE = ['uid_fix']
+SEQUENCE = ['uid_fix', 'settings_json']
