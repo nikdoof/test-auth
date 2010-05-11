@@ -6,7 +6,8 @@ from sso.models import ServiceAccount
 
 class RemoveInvalidUsers():
         """
-        Cycles through all users, check if their permissions are correct.
+        Cycles through all users and runs the permission checking routine for
+        each profile.
         """
 
         # run every 2 hours
@@ -25,7 +26,8 @@ class RemoveInvalidUsers():
 
 class ValidateDisabledUsers():
         """
-        Cycles through all users, check if their permissions are correct.
+        Cycles through all users, and disables any Service Account of disabled
+        users.
         """
 
         # run daily
