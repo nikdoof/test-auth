@@ -1,17 +1,16 @@
 from mumble.models import Mumble, MumbleUser
 from sso.services import BaseService
 
-import settings
-
 class MumbleService(BaseService):
 
     settings = { 'require_user': True,
                  'require_password': True,
                  'provide_login': False, 
-                 'use_corptag': True }
+                 'use_corptag': True,
+                 'mumble_server_id': 1 }
 
     def _get_server(self):
-        return Mumble.objects.get(id=settings.MUMBLE_SERVER_ID)
+        return Mumble.objects.get(id=self.settings['mumble_server_id'])
 
     def add_user(self, username, password, **kwargs):
         """ Add a user, returns a UID for that user """

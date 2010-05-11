@@ -12,7 +12,8 @@ class MediawikiService(BaseService):
 
     settings = { 'require_user': False,
                  'require_password': False,
-                 'provide_login': False }
+                 'provide_login': False,
+                 'database_name': 'dreddit_wiki' }
 
     SQL_ADD_USER = r"INSERT INTO user (user_name, user_password, user_newpassword, user_email, user_options) VALUES (%s, %s, '', %s, '')"
     SQL_DIS_USER = r"UPDATE user SET user_password = '', user_email = '', user_token = %s WHERE user_name = %s"
@@ -30,7 +31,7 @@ class MediawikiService(BaseService):
         backend = load_backend(settings.DATABASE_ENGINE) 
         self._db = backend.DatabaseWrapper({
             'DATABASE_HOST': settings.DATABASE_HOST,
-            'DATABASE_NAME': settings.WIKI_DATABASE,
+            'DATABASE_NAME': self.settings['database_name'],
             'DATABASE_OPTIONS': {},
             'DATABASE_PASSWORD': settings.DATABASE_PASSWORD,
             'DATABASE_PORT': settings.DATABASE_PORT,

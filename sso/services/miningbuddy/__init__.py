@@ -13,7 +13,9 @@ class MiningBuddyService(BaseService):
 
     settings = { 'require_user': False,
                  'require_password': False,
-                 'provide_login': False }
+                 'provide_login': False,
+                 'database_name': 'dreddit_miningbuddy', 
+                 'password_salt': 'asdqwdqweqweqweqweqw' }
 
 
     SQL_ADD_USER = r"INSERT INTO users (username, password, email, emailvalid, confirmed, rank) VALUES (%s, %s, %s, 1, 1, 2)"
@@ -29,7 +31,7 @@ class MiningBuddyService(BaseService):
         backend = load_backend(settings.DATABASE_ENGINE) 
         self._db = backend.DatabaseWrapper({
             'DATABASE_HOST': settings.DATABASE_HOST,
-            'DATABASE_NAME': settings.MINING_DATABASE,
+            'DATABASE_NAME': self.settings['database_name'],
             'DATABASE_OPTIONS': {},
             'DATABASE_PASSWORD': settings.DATABASE_PASSWORD,
             'DATABASE_PORT': settings.DATABASE_PORT,
@@ -43,7 +45,7 @@ class MiningBuddyService(BaseService):
         self._db = None
 
     def _gen_salt(self):
-        return settings.MINING_SALT
+        return self.settings['password_salt']
 
     def _gen_mb_hash(self, password, salt=None):
         if not salt:
