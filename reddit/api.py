@@ -6,6 +6,35 @@ from datetime import datetime
 class NotLoggedIn(Exception):
     pass
 
+class Comment:
+    """ Abstraction for comment data provided by JSON 
+        Comments can be identifed by Kind = 1 """
+
+    kind = 1
+
+    def __init__(self, data):
+        self.id = data['id']
+        self.post = data['link_id'][3:]
+        self.body = data['body']
+        self.ups = data['likes']
+        self.downs = data['downs']
+        self.subreddit_id = data['subreddit_id']
+        self.subreddit = data['subreddit']
+        self.author = data['author']
+
+        self._rawdata = data
+
+    @property
+    def permalink(self):
+        return u'http://reddit.com/comments/%s/c/%s' % (self.post, self.id)
+
+    def __unicode__(self):
+        return u'/r/%s - %s' % (self.subreddit, self.author)
+
+    def __str__(self):
+        return self.__unicode__()
+
+
 class Message(dict):
     """ Abstract for a Reddit Message """
 

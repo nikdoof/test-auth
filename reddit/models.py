@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 import simplejson as json
 import urllib
 from datetime import datetime
+from reddit.api import Comment
+
 
 class RedditAccount(models.Model):
     """
@@ -53,7 +55,10 @@ class RedditAccount(models.Model):
         
         posts = []
         for item in jsondoc['data']['children']:
-            posts.append(item['data'])
+            if item['kind'] == 't1':
+                posts.append(Comment(item['data']))
+            elif item['kind'] == 't3':
+                posts.append(item['data'])
 
         return posts
 
