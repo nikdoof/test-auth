@@ -15,7 +15,7 @@ class MiningBuddyService(BaseService):
                  'require_password': False,
                  'provide_login': False,
                  'database_name': 'dreddit_miningbuddy', 
-                 'password_salt': 'asdqwdqweqweqweqweqw' }
+                 'password_salt': 's98ss7fsc7fd2rf62ctcrlwztstnzve9toezexcsdhfgviuinusxcdtsvbrg' }
 
 
     SQL_ADD_USER = r"INSERT INTO users (username, password, email, emailvalid, confirmed, rank) VALUES (%s, %s, %s, 1, 1, 2)"
