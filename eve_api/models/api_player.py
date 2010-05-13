@@ -226,5 +226,8 @@ class EVEPlayerCorporation(EVEAPIModel):
                 # Something weird has happened
                 continue
 
+        ceoid = dom.getElementsByTagName('ceoID')[0].firstChild.nodeValue
+        self.ceo_character, created = EVEPlayerCharacter.objects.get_or_create(id=ceoid)
+
         self.api_last_updated = datetime.utcnow()
         self.save()
