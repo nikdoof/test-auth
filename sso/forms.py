@@ -33,8 +33,10 @@ class EveAPIForm(forms.Form):
 def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
-    services = Service.objects.filter(groups__in=user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=user).values('service'))
-    chars = EVEPlayerCharacter.objects.filter(corporation__group__in=user.groups.all(),eveaccount__user=user)
+    services = Service.objects.filter(groups__in=user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=user).values('service')).distinct()
+    chars = EVEPlayerCharacter.objects.filter(eveaccount__user=user)
+
+    print len(services)
 
     class ServiceAccountForm(forms.Form):
         """ Service Account Form """
@@ -49,8 +51,16 @@ def UserServiceAccountForm(user):
                 self.fields['password'] = self.password
 
         def clean(self):
-            if not self.cleaned_data['character'].corporation.group in self.cleaned_data['service'].groups.all():
-                raise forms.ValidationError("%s is not in a corporation allowed to access %s" % (self.cleaned_data['character'].name, self.cleaned_data['service']))
+
+            corp_group = self.cleaned_data['character'].corporation.group
+            if self.cleaned_data['character'].corporation.alliance:
+                alliance_group = self.cleaned_data['character'].corporation.alliance.group
+            else:
+                alliance_group = None
+            service_groups = self.cleaned_data['service'].groups.all()
+
+            if not (corp_group in service_groups or alliance_group in service_groups):
+                raise forms.ValidationError("%s is not in a corporation or alliance allowed to register for %s" % (self.cleaned_data['character'].name, self.cleaned_data['service']))
 
             return self.cleaned_data
 
