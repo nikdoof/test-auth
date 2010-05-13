@@ -11,8 +11,7 @@ class JabberService(BaseService):
                  'jabber_server': 'dredd.it',
                  'jabber_xmlrpc_url': 'http://127.0.0.1:4560' }
 
-    @staticmethod
-    def exec_xmlrpc(func, **kwargs):
+    def exec_xmlrpc(self, func, **kwargs):
         """ Send a XMLRPC request """
         server = xmlrpclib.Server(self.settings['jabber_xmlrpc_url'])
         params = {}
