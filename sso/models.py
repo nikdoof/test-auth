@@ -1,10 +1,13 @@
 import re
 import unicodedata
 import logging
+import types
 
 from django.db import models
 from django.db.models import signals
 from django.contrib.auth.models import User, UserManager, Group
+from django.utils import simplejson as json
+
 from django_jsonfield.fields import JSONField
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
 from reddit.models import RedditAccount
@@ -144,6 +147,9 @@ class Service(models.Model):
                 self.settings_json = self.settings
             else:
                 self.settings_json = {}
+        else:
+            if isinstance(self.settings_json, types.StringTypes):
+                self.settings_json = eval(self.settings_json)
 
         return models.Model.save(self)
 
