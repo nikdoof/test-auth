@@ -312,7 +312,7 @@ def user_lookup(request):
             if users and len(users) == 1:
                 return HttpResponseRedirect(reverse(user_view, args=[users[0].username]))
             elif users and len(users) > 1:
-                render_to_response('sso/lookup/lookuplist.html', locals(), context_instance=RequestContext(request))
+                return render_to_response('sso/lookup/lookuplist.html', locals(), context_instance=RequestContext(request))
             else:
                 request.user.message_set.create(message="No results found")
                 return HttpResponseRedirect(reverse('sso.views.user_lookup'))
