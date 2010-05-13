@@ -212,7 +212,6 @@ def service_reset(request, serviceid=0):
                     passwd = form.cleaned_data['password']
 
                 api = acc.service.api_class
-                api.settings = acc.service.settings
                 if not api.reset_password(acc.service_uid, passwd):
                     error = True
                 return render_to_response('sso/serviceaccount/resetcomplete.html', locals(), context_instance=RequestContext(request))

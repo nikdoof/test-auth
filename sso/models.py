@@ -136,7 +136,9 @@ class Service(models.Model):
 
     @property
     def api_class(self):
-        return get_api(self.api)
+        api = get_api(self.api)
+        api.settings = self.settings
+        return api
 
     def __str__(self):
         return self.name
@@ -163,7 +165,7 @@ class Service(models.Model):
 
         # Load defaults from the module's settings dict
         if self.api:
-            modset = self.api_class.settings
+            modset = get_api(self.api).settings
             for k in modset:
                 if not k in setdict:
                     setdict[k] = modset[k]
@@ -191,7 +193,6 @@ class ServiceAccount(models.Model):
 
         # Grab the API class and load the settings
         api = self.service.api_class
-        api.settings = self.service.settings
 
         if not self.service_uid:
             # Create a account if we've not got a UID
@@ -229,7 +230,6 @@ class ServiceAccount(models.Model):
     @staticmethod
     def pre_delete_listener( **kwargs ):
         api = kwargs['instance'].service.api_class
-        api.settings = kwargs['instance'].service.settings
         if not api.delete_user(kwargs['instance'].service_uid):
             raise ServiceError('Unable to delete account on related service')
 
