@@ -1,7 +1,7 @@
 import hashlib
 import random
 from django.db import load_backend, transaction, IntegrityError
-from sso.services import BaseService
+from sso.services import BaseDBService
 import settings
 
 class QMSService(BaseDBService):
