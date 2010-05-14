@@ -4,7 +4,7 @@ from django.db import load_backend, transaction, IntegrityError
 from sso.services import BaseService
 import settings
 
-class PhpBBService(BaseService):
+class PhpBBService(BaseDBService):
     """
     PHPBB Class, allows registration and sign-in
 
@@ -21,26 +21,6 @@ class PhpBBService(BaseService):
     SQL_ADD_USER_GROUP = r"INSERT INTO phpbb_user_group (group_id, user_id) VALUES (%s, %s)"
     SQL_GET_GROUP = r"SELECT group_id from phpbb_groups WHERE group_name = %s"
     SQL_ADD_GROUP = r"INSERT INTO phpbb_groups (group_name) VALUES (%s)"
-
-
-    def __init__(self):
-
-        # Use the master DB settings, bar the database name
-        backend = load_backend(settings.DATABASE_ENGINE) 
-        self._db = backend.DatabaseWrapper({
-            'DATABASE_HOST': settings.DATABASE_HOST,
-            'DATABASE_NAME': settings.PHPBB_DATABASE,
-            'DATABASE_OPTIONS': {},
-            'DATABASE_PASSWORD': settings.DATABASE_PASSWORD,
-            'DATABASE_PORT': settings.DATABASE_PORT,
-            'DATABASE_USER': settings.DATABASE_USER,
-            'TIME_ZONE': settings.TIME_ZONE,})
-
-        self._dbcursor = self._db.cursor()
-
-    def __del__(self):
-        self._db.close()
-        self._db = None
 
     def _gen_salt(self):
         return "%x" % random.randint(0, 2147483647)

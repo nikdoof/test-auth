@@ -57,3 +57,33 @@ class BaseService():
     def login(uid):
         """ Login the user and provide cookies back """ 
         pass
+
+
+class BaseDBService(BaseService):
+
+    @property
+    def _db(self):
+        if not hasattr(self, '_db'):
+            # Use the master DB settings, bar the database name
+            backend = load_backend(settings.DATABASE_ENGINE)
+            self._db = backend.DatabaseWrapper({
+                'DATABASE_HOST': settings.DATABASE_HOST,
+                'DATABASE_NAME': self.settings['database_name'],
+                'DATABASE_OPTIONS': {},
+                'DATABASE_PASSWORD': settings.DATABASE_PASSWORD,
+                'DATABASE_PORT': settings.DATABASE_PORT,
+                'DATABASE_USER': settings.DATABASE_USER,
+                'TIME_ZONE': settings.TIME_ZONE,})
+
+        return self._db
+
+    @property
+    def _dbcursor(self):
+        return self._db.dbcursor()
+
+    def __del__(self):
+        if hasattr(self, '_db'):
+            self._db.connection.commit()
+            self._db.close()
+            self._db = None
+

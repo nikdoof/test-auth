@@ -2,10 +2,10 @@ import crypt
 import random
 import time
 from django.db import load_backend, transaction
-from sso.services import BaseService
+from sso.services import BaseDBService
 import settings
 
-class MiningBuddyService(BaseService):
+class MiningBuddyService(BaseDBService):
     """
     Mining Buddy Class, allows registration and sign-in
 
@@ -24,25 +24,6 @@ class MiningBuddyService(BaseService):
     SQL_ENABLE_USER = r"UPDATE users SET canLogin = 1, password = %s WHERE username = %s"
     SQL_CHECK_USER = r"SELECT username from users WHERE username = %s and deleted = 0"
     SQL_DEL_USER = r"UPDATE users set deleted = 1 WHERE username = %s"
-
-    def __init__(self):
-
-        # Use the master DB settings, bar the database name
-        backend = load_backend(settings.DATABASE_ENGINE) 
-        self._db = backend.DatabaseWrapper({
-            'DATABASE_HOST': settings.DATABASE_HOST,
-            'DATABASE_NAME': self.settings['database_name'],
-            'DATABASE_OPTIONS': {},
-            'DATABASE_PASSWORD': settings.DATABASE_PASSWORD,
-            'DATABASE_PORT': settings.DATABASE_PORT,
-            'DATABASE_USER': settings.DATABASE_USER,
-            'TIME_ZONE': settings.TIME_ZONE,})
-
-        self._dbcursor = self._db.cursor()
-
-    def __del__(self):
-        self._db.close()
-        self._db = None
 
     def _gen_salt(self):
         return self.settings['password_salt']

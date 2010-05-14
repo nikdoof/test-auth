@@ -25,25 +25,6 @@ class MediawikiService(BaseService):
     SQL_DEL_REV = r"UPDATE revision SET rev_user = (SELECT user_id FROM user WHERE user_name = 'DeletedUser'), rev_user_text = 'DeletedUser' WHERE rev_user = (SELECT user_id FROM user WHERE user_name = %s)"
     SQL_DEL_USER = r"DELETE FROM user WHERE user_name = %s"
 
-    def __init__(self):
-
-        # Use the master DB settings, bar the database name
-        backend = load_backend(settings.DATABASE_ENGINE) 
-        self._db = backend.DatabaseWrapper({
-            'DATABASE_HOST': settings.DATABASE_HOST,
-            'DATABASE_NAME': self.settings['database_name'],
-            'DATABASE_OPTIONS': {},
-            'DATABASE_PASSWORD': settings.DATABASE_PASSWORD,
-            'DATABASE_PORT': settings.DATABASE_PORT,
-            'DATABASE_USER': settings.DATABASE_USER,
-            'TIME_ZONE': settings.TIME_ZONE,})
-
-        self._dbcursor = self._db.cursor()
-
-    def __del__(self):
-        self._db.close()
-        self._db = None
-
     def _gen_salt(self):
         return "%x" % random.randint(0, 2147483647)
 

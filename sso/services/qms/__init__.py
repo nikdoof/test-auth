@@ -20,25 +20,6 @@ class QMSService(BaseService):
     SQL_ENABLE_USER = r"UPDATE users SET passhash = %s, salt = %s, certificate = %s WHERE ssoid = %s"
     SQL_CHECK_USER = r"SELECT ssoid from users WHERE ssoid = %s"
 
-    def __init__(self):
-
-        # Use the master DB settings, bar the database name
-        backend = load_backend(settings.DATABASE_ENGINE) 
-        self._db = backend.DatabaseWrapper({
-            'DATABASE_HOST': settings.DATABASE_HOST,
-            'DATABASE_NAME': self.settings['database_name'],
-            'DATABASE_OPTIONS': {},
-            'DATABASE_PASSWORD': settings.DATABASE_PASSWORD,
-            'DATABASE_PORT': settings.DATABASE_PORT,
-            'DATABASE_USER': settings.DATABASE_USER,
-            'TIME_ZONE': settings.TIME_ZONE,})
-
-        self._dbcursor = self._db.cursor()
-
-    def __del__(self):
-        self._db.close()
-        self._db = None
-
     def _gen_salt(self):
         return hashlib.md5("%x" % random.randint(0, 2147483647)).hexdigest()[:6]
 
