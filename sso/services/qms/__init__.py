@@ -34,36 +34,36 @@ class QMSService(BaseDBService):
         """ Add a user """
         email = kwargs['user'].email
         pwhash, salt, cert = self._gen_pwhash(password)
-        self._dbcursor.execute(self.SQL_ADD_USER, [username, username, pwhash, salt, email, cert])
-        self._db.connection.commit()
+        self.dbcursor.execute(self.SQL_ADD_USER, [username, username, pwhash, salt, email, cert])
+        self.db.connection.commit()
         return username
 
     def check_user(self, username):
         """ Check if the username exists """
-        self._dbcursor.execute(self.SQL_CHECK_USER, [username])
-        row = self._dbcursor.fetchone()
+        self.dbcursor.execute(self.SQL_CHECK_USER, [username])
+        row = self.dbcursor.fetchone()
         if row:
             return True        
         return False
 
     def delete_user(self, uid):
         """ Delete a user """
-        #self._dbcursor.execute(self.SQL_DEL_REV, [uid])
-        #self._dbcursor.execute(self.SQL_DEL_USER, [uid])
-        #self._db.connection.commit()
+        #self.dbcursor.execute(self.SQL_DEL_REV, [uid])
+        #self.dbcursor.execute(self.SQL_DEL_USER, [uid])
+        #self.db.connection.commit()
         return True
 
     def disable_user(self, uid):
         """ Disable a user """
-        self._dbcursor.execute(self.SQL_DIS_USER, [uid])
-        self._db.connection.commit()
+        self.dbcursor.execute(self.SQL_DIS_USER, [uid])
+        self.db.connection.commit()
         return True
 
     def enable_user(self, uid, password):
         """ Enable a user """
         pwhash, salt, cert = self._gen_pwhash(password)
-        self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, salt, cert, uid])
-        self._db.connection.commit()
+        self.dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, salt, cert, uid])
+        self.db.connection.commit()
         return True
 
     def reset_password(self, uid, password):

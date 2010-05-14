@@ -63,7 +63,7 @@ class BaseService():
 class BaseDBService(BaseService):
 
     @property
-    def _db(self):
+    def db(self):
         if not hasattr(self, '_db'):
             # Use the master DB settings, bar the database name
             backend = load_backend(settings.DATABASE_ENGINE)
@@ -79,14 +79,14 @@ class BaseDBService(BaseService):
         return self._db
 
     @property
-    def _dbcursor(self):
-        if not hasattr(self, '__dbcursor'):
-            self.__dbcursor = self._db.cursor()
-        return self.__dbcursor
+    def dbcursor(self):
+        if not hasattr(self, '_dbcursor'):
+            self._dbcursor = self.db.cursor()
+        return self._dbcursor
 
     def __del__(self):
         if hasattr(self, '_db'):
-            self._db.connection.commit()
-            self._db.close()
-            self._db = None
+            self.db.connection.commit()
+            self.db.close()
+            self.db = None
 

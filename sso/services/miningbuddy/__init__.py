@@ -45,39 +45,39 @@ class MiningBuddyService(BaseDBService):
         else:
             email = ''
 
-        self._dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email])
-        self._db.connection.commit()
+        self.dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email])
+        self.db.connection.commit()
 
-        userid = self._dbcursor.lastrowid
+        userid = self.dbcursor.lastrowid
         if 'eveapi' in kwargs:
-            self._dbcursor.execute(self.SQL_ADD_API, [userid, int(time.time()), kwargs['eveapi'].api_user_id, kwargs['eveapi'].api_key, kwargs['character'].id])
-            self._db.connection.commit()
+            self.dbcursor.execute(self.SQL_ADD_API, [userid, int(time.time()), kwargs['eveapi'].api_user_id, kwargs['eveapi'].api_key, kwargs['character'].id])
+            self.db.connection.commit()
 
         return self._clean_username(username)
 
     def check_user(self, username):
         """ Check if the username exists """
-        self._dbcursor.execute(self.SQL_CHECK_USER, [self._clean_username(username)])
-        row = self._dbcursor.fetchone()
+        self.dbcursor.execute(self.SQL_CHECK_USER, [self._clean_username(username)])
+        row = self.dbcursor.fetchone()
         if row:
             return True        
         return False
 
     def delete_user(self, uid):
         """ Delete a user """
-        self._dbcursor.execute(self.SQL_DEL_USER, [uid])
-        self._db.connection.commit()
+        self.dbcursor.execute(self.SQL_DEL_USER, [uid])
+        self.db.connection.commit()
 
     def disable_user(self, uid):
         """ Disable a user """
-        self._dbcursor.execute(self.SQL_DIS_USER, [uid])
-        self._db.connection.commit()
+        self.dbcursor.execute(self.SQL_DIS_USER, [uid])
+        self.db.connection.commit()
 
     def enable_user(self, uid, password):
         """ Enable a user """
         pwhash = self._gen_mb_hash(password)
-        self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
-        self._db.connection.commit()
+        self.dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
+        self.db.connection.commit()
         return True
 
     def reset_password(self, uid, password):

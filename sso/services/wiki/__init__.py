@@ -49,43 +49,43 @@ class MediawikiService(BaseDBService):
         else:
             email = ''
         pwhash = self._gen_mw_hash(password)
-        self._dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email])
-        self._db.connection.commit()
+        self.dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email])
+        self.db.connection.commit()
         return self._clean_username(username)
 
     def check_user(self, username):
         """ Check if the username exists """
-        self._dbcursor.execute(self.SQL_CHECK_USER, [self._clean_username(username)])
-        row = self._dbcursor.fetchone()
+        self.dbcursor.execute(self.SQL_CHECK_USER, [self._clean_username(username)])
+        row = self.dbcursor.fetchone()
         if row:
             return True        
         return False
 
     def delete_user(self, uid):
         """ Delete a user """
-        self._dbcursor.execute(self.SQL_DEL_REV, [uid])
-        self._dbcursor.execute(self.SQL_DEL_USER, [uid])
-        self._db.connection.commit()
+        self.dbcursor.execute(self.SQL_DEL_REV, [uid])
+        self.dbcursor.execute(self.SQL_DEL_USER, [uid])
+        self.db.connection.commit()
         return True
 
     def disable_user(self, uid):
         """ Disable a user """
-        #self._dbcursor.execute(self.SQL_DIS_USER, [self._gen_user_token(), uid])
+        #self.dbcursor.execute(self.SQL_DIS_USER, [self._gen_user_token(), uid])
         try:
-            self._dbcursor.execute(self.SQL_DIS_GROUP, [uid])
+            self.dbcursor.execute(self.SQL_DIS_GROUP, [uid])
         except IntegrityError:
             # Record already exists, skip it
             pass
-        self._db.connection.commit()
+        self.db.connection.commit()
         return True
 
     def enable_user(self, uid, password):
         """ Enable a user """
         pwhash = self._gen_mw_hash(password)
-        self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
-        self._db.connection.commit()
-        self._dbcursor.execute(self.SQL_ENABLE_GROUP, [uid])
-        self._db.connection.commit()
+        self.dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
+        self.db.connection.commit()
+        self.dbcursor.execute(self.SQL_ENABLE_GROUP, [uid])
+        self.db.connection.commit()
         return True
 
     def reset_password(self, uid, password):
