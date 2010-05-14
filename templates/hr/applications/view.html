@@ -75,11 +75,11 @@
 <h3>Reddit Posts</h3>
 <ul>
 {% for post in posts %}
-{% ifequal post.kind 1 %}
-<p><b><a href="{{ post.permalink }}">{{ post.title }}</a></b> - /r/{{ post.subreddit }}</p>
+{% ifnotequal post.kind 1 %}
+<p><b><a href="http://reddit.com{{ post.permalink }}">{{ post.title }}</a></b> - (/r/{{ post.subreddit }})</p>
 {% else %}
 <p>{{ post.body }} - (/r/{{post.subreddit}}) <a href="{{ post.permalink }}/">Permalink</a></p>
-{% endifequal %}
+{% endifnotequal %}
 {% endfor %}
 </ul>
 {% endif %}
