@@ -4,7 +4,7 @@ from django.db import load_backend, transaction, IntegrityError
 from sso.services import BaseService
 import settings
 
-class MediawikiService(BaseService):
+class MediawikiService(BaseDBService):
     """
     Mediawiki Class, allows registration and sign-in
 

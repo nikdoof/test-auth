@@ -4,7 +4,7 @@ from django.db import load_backend, transaction, IntegrityError
 from sso.services import BaseService
 import settings
 
-class QMSService(BaseService):
+class QMSService(BaseDBService):
     """
     QMS Class, allows registration and sign-in
 
