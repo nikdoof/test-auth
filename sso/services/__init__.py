@@ -80,7 +80,7 @@ class BaseDBService(BaseService):
 
     @property
     def _dbcursor(self):
-        return self._db.dbcursor()
+        return self._db.cursor()
 
     def __del__(self):
         if hasattr(self, '_db'):
