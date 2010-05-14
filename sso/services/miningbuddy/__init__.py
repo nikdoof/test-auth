@@ -14,7 +14,7 @@ class MiningBuddyService(BaseService):
     settings = { 'require_user': False,
                  'require_password': False,
                  'provide_login': False,
-                 'database_name': 'dreddit_miningbuddy', 
+                 'database_name': 'dreddit_mining', 
                  'password_salt': 's98ss7fsc7fd2rf62ctcrlwztstnzve9toezexcsdhfgviuinusxcdtsvbrg' }
 
 
