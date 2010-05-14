@@ -125,3 +125,4 @@ SLICE = 'Murmur.ice'
 
 HR_STAFF_GROUP = 'HR Staff'
 
+from settingslocal import *

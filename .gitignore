@@ -7,3 +7,4 @@ dbsettings.py
 piston
 django_evolution
 logs/
+settingslocal.py
