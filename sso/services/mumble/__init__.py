@@ -6,8 +6,8 @@ class MumbleService(BaseService):
     settings = { 'require_user': True,
                  'require_password': True,
                  'provide_login': False, 
-                 'use_corptag': True,
-                 'mumble_server_id': 1 }
+                 'mumble_server_id': 1
+                 'name_format': r'%(alliance}s | %(corporation)s | %(name)s' }
 
     def _get_server(self):
         return Mumble.objects.get(id=self.settings['mumble_server_id'])
@@ -15,15 +15,11 @@ class MumbleService(BaseService):
     def add_user(self, username, password, **kwargs):
         """ Add a user, returns a UID for that user """
 
-        if 'character' in kwargs and self.settings['use_corptag']:
-            if kwargs['character'].corporation:
-                if kwargs['character'].corporation.alliance:
-                    tag = kwargs['character'].corporation.alliance.ticker
-                else:
-                    tag = kwargs['character'].corporation.ticker
+        details = { 'name': username,
+                    'alliance': kwargs['character'].corporation.alliance.ticker,
+                    'corporation': kwargs['character'].corporation.ticker }
 
-        if tag:
-            username = "[%s]%s" % (tag, username)
+        username = self.settings['name_format'] % details
 
         return self.raw_add_user(username, password)
 
