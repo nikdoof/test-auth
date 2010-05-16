@@ -6,7 +6,7 @@ class MumbleService(BaseService):
     settings = { 'require_user': True,
                  'require_password': True,
                  'provide_login': False, 
-                 'mumble_server_id': 1
+                 'mumble_server_id': 1,
                  'name_format': r'%(alliance}s | %(corporation)s | %(name)s' }
 
     def _get_server(self):
