@@ -70,7 +70,12 @@ def view_application(request, applicationid):
 
     posts = []
     for acc in redditacc:
-        posts.extend(acc.recent_posts())
+        try: 
+            accposts = acc.recent_posts()
+        except:
+            reddit_error = "Encountered a error while trying to get all Reddit posts"
+            accposts = []
+        posts.extend(accposts)
 
     return render_to_response('hr/applications/view.html', locals(), context_instance=RequestContext(request))
 
