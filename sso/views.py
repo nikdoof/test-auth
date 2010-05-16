@@ -84,6 +84,10 @@ def eveapi_add(request):
             except APIAuthException:
                 return HttpResponseRedirect(reverse('sso.views.profile'))
 
+            if not acc:
+                request.user.message_set.create(message="A error was encountered while adding your API key, try again later. If the issue persists, contact a Admin.")
+                return HttpResponseRedirect(reverse('sso.views.profile'))
+
             acc.user = request.user
             acc.description = form.cleaned_data['description']
             acc.save()
