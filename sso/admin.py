@@ -11,7 +11,7 @@ admin.site.register(Service, ServiceAdmin)
 
 class ServiceAccountAdmin(admin.ModelAdmin):
     list_display = ('service', 'service_uid', 'user', 'active')
-    search_fields = ['service_uid', 'user']
+    search_fields = ['service_uid', 'user__username']
 
 admin.site.register(ServiceAccount, ServiceAccountAdmin)
 
