@@ -1,4 +1,3 @@
-from mumble.models import Mumble, MumbleUser
 from sso.services import BaseService
 from MumbleCtlIce import MumbleCtlIce
 
@@ -8,8 +7,8 @@ class MumbleService(BaseService):
                  'require_password': True,
                  'provide_login': False, 
                  'mumble_server_id': 2,
-                 'name_format': r'%(alliance)s - %(corporation)s - %(name)s' 
-                 'connection_string': 'Meta:tcp -h 127.0.0.1 -p 6502'
+                 'name_format': r'%(alliance)s - %(corporation)s - %(name)s',
+                 'connection_string': 'Meta:tcp -h 127.0.0.1 -p 6502',
                  'ice_file': 'Murmur.ice' }
 
     @property
@@ -46,7 +45,8 @@ class MumbleService(BaseService):
         """ Delete a user by uid """
         ids = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
         if len(ids) > 0:
-            for acc in ids:
+            for accid in ids:
+                acc = ids[accid]
                 self.mumblectl.unregisterPlayer(self.settings['mumble_server_id'], acc['userid'])
 
         return True
@@ -60,11 +60,22 @@ class MumbleService(BaseService):
         """ Enable a user by uid """       
         ids = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
         if len(ids) > 0:
-            for acc in ids:
+            for accid in ids:
+                acc = ids[accid]
                 self.mumblectl.setRegistration(self.settings['mumble_server_id'], acc['userid'], acc['name'], acc['email'], password)
             return True
         else:
-            return False
+            if self.raw_add_user(uid, '', password):
+                return True
+
+    def set_user(self, uid, name = ''):
+        """ Set values ona user by uid """       
+        ids = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
+        if len(ids) > 0:
+            for accid in ids:
+                acc = ids[accid]
+                self.mumblectl.setRegistration(self.settings['mumble_server_id'], acc['userid'], name, acc['email'], acc['pw'])
+            return True
 
     def reset_password(self, uid, password):
         """ Reset the user's password """

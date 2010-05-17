@@ -26,10 +26,25 @@ from zlib		import compress, decompress, error
 
 from mctl		import MumbleCtlBase
 
-from utils		import ObjectInfo
-
 import Ice, IcePy, tempfile
 
+class ObjectInfo( object ):
+    """ Wraps arbitrary information to be easily accessed. """
+
+    def __init__( self, **kwargs ):
+        self.__dict__ = kwargs;
+
+    def __str__( self ):
+        return unicode( self );
+
+    def __repr__( self ):
+        return unicode( self );
+
+    def __unicode__( self ):
+        return unicode( self.__dict__ );
+
+    def __getitem__(self, key):
+        return self.__dict__[key]
 
 def protectDjangoErrPage( func ):
 	""" Catch and reraise Ice exceptions to prevent the Django page from failing.
