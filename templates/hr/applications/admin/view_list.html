@@ -3,7 +3,13 @@
 {% block title %}Applications{% endblock %}
 
 {% block content %}
-<p>This list shows all current applications open for review.</p>
+
+<h3>Search All Applications</h3>
+<form method="GET" action="{% url hr.views.admin_applications %}">
+<input type="text" name="q" />
+<input type="submit" value="Search" />
+</form>
+
 {% if apps %}
 <table>
 <tr><th>Application ID</th><th>Character</th><th>Corporation</th><th>Application Status</th></tr>
@@ -16,7 +22,7 @@
 {% endfor %}
 </table>
 {% else %}
-<p>No current open applications</p>
+<p>No applications found.</p>
 {% endif %}
 
 {% endblock %}
