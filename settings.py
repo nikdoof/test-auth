@@ -79,7 +79,6 @@ INSTALLED_APPS = (
     'registration',
     'eve_proxy',
     'eve_api',
-    'mumble',
     'reddit',
     'hr',
     'sso',
@@ -114,12 +113,6 @@ REDDIT_USER = 'DredditVerification'
 
 # Password for validatio account
 REDDIT_PASSWD = ''
-
-### Mumble Service Settings
-
-DEFAULT_CONN = 'Meta:tcp -h 127.0.0.1 -p 6502'
-MUMBLE_DEFAULT_PORT = 64740
-SLICE = 'Murmur.ice'
 
 ### HR Settings
 

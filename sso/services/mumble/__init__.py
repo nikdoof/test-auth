@@ -1,16 +1,22 @@
 from mumble.models import Mumble, MumbleUser
 from sso.services import BaseService
+from MumbleCtlIce import MumbleCtlIce
 
 class MumbleService(BaseService):
 
     settings = { 'require_user': True,
                  'require_password': True,
                  'provide_login': False, 
-                 'mumble_server_id': 1,
-                 'name_format': r'%(alliance)s-%(corporation)s-%(name)s' }
+                 'mumble_server_id': 2,
+                 'name_format': r'%(alliance)s - %(corporation)s - %(name)s' 
+                 'connection_string': 'Meta:tcp -h 127.0.0.1 -p 6502'
+                 'ice_file': 'Murmur.ice' }
 
-    def _get_server(self):
-        return Mumble.objects.get(id=self.settings['mumble_server_id'])
+    @property
+    def mumblectl(self):
+        if not hasattr(self, '_mumblectl'):
+            self._mumblectl = MumbleCtlIce(self.settings['connection_string'], self.settings['ice_file'])
+        return self._mumblectl
 
     def add_user(self, username, password, **kwargs):
         """ Add a user, returns a UID for that user """
@@ -21,36 +27,28 @@ class MumbleService(BaseService):
 
         username = self.settings['name_format'] % details
 
-        return self.raw_add_user(username, password)
+        return self.raw_add_user(username, kwargs['user'].email, password)
 
-    def raw_add_user(self, username, password):
-        mumbleuser = MumbleUser()
-        mumbleuser.name = username
-        mumbleuser.password = password
-        mumbleuser.server = self._get_server()
+    def raw_add_user(self, username, email, password):
+        if self.mumblectl.registerPlayer(self.settings['mumble_server_id'], username, email, password):
+            return username
 
-        mumbleuser.save()
-        return mumbleuser.name
+        return False
 
     def check_user(self, username):
         """ Check if the username exists """
-        try:
-            mumbleuser = MumbleUser.objects.get(name=username, server=self._get_server())
-        except MumbleUser.DoesNotExist:
-            return False
-        else:
+        if len(self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], username)):
             return True
+        else:
+            return False
 
     def delete_user(self, uid):
         """ Delete a user by uid """
-        try:
-            mumbleuser = MumbleUser.objects.get(name=uid, server=self._get_server())
-        except MumbleUser.DoesNotExist:
-            return True
-        try:
-            mumbleuser.delete()
-        except:
-            pass
+        ids = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
+        if len(ids) > 0:
+            for acc in ids:
+                self.mumblectl.unregisterPlayer(self.settings['mumble_server_id'], acc['userid'])
+
         return True
 
     def disable_user(self, uid):
@@ -60,13 +58,13 @@ class MumbleService(BaseService):
 
     def enable_user(self, uid, password):
         """ Enable a user by uid """       
-        if self.check_user(uid):
-            mumbleuser = MumbleUser.objects.get(name=uid, server=self._get_server())
-            mumbleuser.password = password
-            mumbleuser.save()
+        ids = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
+        if len(ids) > 0:
+            for acc in ids:
+                self.mumblectl.setRegistration(self.settings['mumble_server_id'], acc['userid'], acc['name'], acc['email'], password)
+            return True
         else:
-            self.raw_add_user(uid, password)
-        return True
+            return False
 
     def reset_password(self, uid, password):
         """ Reset the user's password """
