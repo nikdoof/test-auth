@@ -33,7 +33,7 @@ class EveAPIForm(forms.Form):
 def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
-    services = Service.objects.filter(groups__in=user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=user).values('service')).distinct()
+    services = Service.objects.filter(groups__in=user.groups.all(),active=1).exclude(id__in=ServiceAccount.objects.filter(user=user).values('service')).distinct()
     chars = EVEPlayerCharacter.objects.filter(eveaccount__user=user)
 
     print len(services)
