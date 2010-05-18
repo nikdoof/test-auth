@@ -56,7 +56,7 @@
 </thead>
 <tbody>
 {% for acc in reddits %}
-<tr><td>{{ acc.username }}</td>
+<tr><td><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a></td>
     <td>{{ acc.date_created }}</td>
     <td>{% if acc.validated %}Yes{% else %}No{% endif %}</td>
 </tr>
