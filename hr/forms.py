@@ -31,6 +31,10 @@ def CreateApplicationForm(user):
         corporation = forms.ModelChoiceField(queryset=corporations, required=True, empty_label=None)
 
         def clean(self):
+ 
+            if not 'character' in self.cleaned_data or not self.cleaned_data['character']:
+                raise forms.ValidationError("Please select a character to apply with")
+
             if len(Application.objects.filter(character=self.cleaned_data['character'], status__in=[APPLICATION_STATUS_NOTSUBMITTED, APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_QUERY])):
                 raise forms.ValidationError("This character already has a open application")
 
