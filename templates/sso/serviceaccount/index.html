@@ -9,6 +9,10 @@ then provide select a username you wish to use create the account for<br/>
 <br/>
 For details on how to connect to each service, please consult the <a 
 href="http://wiki.dredd.it">wiki</a></p>
+
+<p>If you are missing some services, please check that your API key is 
+up to date, if so use the "Refresh" function.</p>
+
 <form action="{% url sso.views.service_add %}" method="post">
 <table>
 {{ form.as_table }}
