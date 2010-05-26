@@ -26,6 +26,7 @@ class JabberService(BaseService):
         if res['res'] == 0:
             if 'character' in kwargs:
                 self.exec_xmlrpc('set_nickname', user=username, host=self.settings['jabber_server'], nickname=kwargs['character'].name)
+                self.exec_xmlrpc('set_vcard2', user=username, host=self.settings['jabber_server'], name='ORG', subname='ORGNAME', content=kwargs['character'].corporation.name)
             return "%s@%s" % (username, self.settings['jabber_server'])
         else:
             return False
