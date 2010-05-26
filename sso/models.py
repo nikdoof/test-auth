@@ -64,7 +64,7 @@ class SSOUser(models.Model):
         # Create a list of Char groups
         chargroups = []
         for eacc in EVEAccount.objects.filter(user=self.user):
-            if eacc.api_status == 1:
+            if eacc.api_status in [1,3]:
                 for char in eacc.characters.all():
                     if char.corporation.group:
                         chargroups.append(char.corporation.group)
@@ -75,6 +75,8 @@ class SSOUser(models.Model):
         # Generate the list of groups to add/remove
         delgroups = set(set(self.user.groups.all()) & set(corpgroups)) - set(chargroups)
         addgroups = set(chargroups) - set(set(self.user.groups.all()) & set(corpgroups))
+
+        print "Add: ", addgroups, "Del:", delgroups, "Current:", self.user.groups.all()
         
         for g in delgroups:
             self.user.groups.remove(g)

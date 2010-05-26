@@ -55,6 +55,11 @@ def import_eve_account(api_key, user_id):
             return
 
         error = enode[0].getAttribute('code')
+
+        if int(error) >= 900:
+            # API disabled, down or rejecting, return without changes
+            return
+
         if error == '211':
             account.api_status = API_STATUS_ACC_EXPIRED
         else:
