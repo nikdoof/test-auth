@@ -1,7 +1,7 @@
 import csv
 from django.db.models.loading import get_model
 
-def dump(qs, outfile_path):
+def dump(qs, outfile_path, model=None):
 	"""
 	Takes in a Django queryset and spits out a CSV file.
 	
@@ -17,7 +17,9 @@ def dump(qs, outfile_path):
 		http://www.djangosnippets.org/snippets/790/
 	
 	"""
-        model = qs.model
+
+        if not model:
+            model = qs.model
 	writer = csv.writer(open(outfile_path, 'w'))
 	
 	headers = []
