@@ -1,0 +1,1 @@
+A message regarding your application to {{ app.corporation }}.

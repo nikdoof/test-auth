@@ -1,0 +1,13 @@
+Hi {{ app.character }},
+
+A message was sent to you regarding your current application to {{ app.corporation }}:
+
+{% if note %}
+{{ note }}
+{% endif %}
+
+If you have any further questions regarding your application, please contact {{ app.corporation }} via the normal channels.
+
+Regards,
+
+{{ app.corporation }} HR Bot

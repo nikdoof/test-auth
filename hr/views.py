@@ -191,6 +191,19 @@ def add_note(request, applicationid):
     form = NoteForm()
     return render_to_response('hr/applications/add_note.html', locals(), context_instance=RequestContext(request))
 
+def add_message(request, applicationid):
+    if request.method == 'POST':
+        obj = Audit(application=Application.objects.get(id=applicationid), user=request.user, event=AUDIT_EVENT_MESSAGE)
+        form = NoteForm(request.POST, instance=obj)
+        if form.is_valid():
+            form.save()
+            send_message(obj.application, 'message', note=obj.text)
+            return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
+
+    form = NoteForm()
+    return render_to_response('hr/applications/add_message.html', locals(), context_instance=RequestContext(request))
+
+
 @login_required
 def reject_application(request, applicationid):   
     if request.method == 'POST':

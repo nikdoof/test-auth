@@ -21,7 +21,8 @@
 <a href="{% url hr.views.update_application app.id 1 %}">Submit Application</a>,&nbsp;
 {% endif %}
 {% if hrstaff %}
-<a href="{% url hr.views.add_note app.id %}">Add Note</a>,
+<a href="{% url hr.views.add_note app.id %}">Add Note</a>,&nbsp;
+<a href="{% url hr.views.add_message app.id %}">Send Message to Applicant</a>,
 {% if app.status < 2 or app.status = 4 %}
 <a href="{% url hr.views.reject_application app.id %}">Reject Application</a>,&nbsp; 
 <a href="{% url hr.views.accept_application app.id %}">Accept Application</a>,&nbsp;

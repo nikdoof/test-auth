@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     (r'^application/(?P<applicationid>\d+)/$', views.view_application),
     (r'^application/(?P<applicationid>\d+)/update/(?P<status>\d+)/$', views.update_application),
     (r'^application/(?P<applicationid>\d+)/note/$', views.add_note),
+    (r'^application/(?P<applicationid>\d+)/message/$', views.add_message),
     (r'^application/(?P<applicationid>\d+)/reject/$', views.reject_application),
     (r'^application/(?P<applicationid>\d+)/accept/$', views.accept_application),
 
