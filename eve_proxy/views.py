@@ -25,7 +25,7 @@ def retrieve_xml(request):
         # If they don't provide any kind of query, shoot a quick error message.
         return HttpResponse('No API query specified.')
     
-    if not 'service' in params:
+    if 'userID' in params and not 'service' in params:
         return HttpResponse('No Service ID provided.')
 
     # The query system will retrieve a cached_doc that was either previously
