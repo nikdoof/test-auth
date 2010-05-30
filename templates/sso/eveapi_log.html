@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}EVE API Access Logs{% endblock %}
+
+{% block content %}
+
+<h1>Access Logs for API Key {{ userid }}</h1>
+
+<table>
+<tr><th>Service ID</th><th>Date / Time</th><th>API</th></tr>
+{% for log in logs %}
+<tr><td>{{ log.service }}</td>
+    <td>{{ log.time_access }}</td>
+    <td>{{ log.document }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

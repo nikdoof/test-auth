@@ -69,6 +69,7 @@ setup.</p>
     <td>{{ acc.api_status_description }}</td>
     <td>{{ acc.api_last_updated|naturaltimediff }}</td>
     <td><a href="{% url sso.views.eveapi_refresh acc.api_user_id %}">Refresh</a>,&nbsp;
+        <a href="{% url sso.views.eveapi_log acc.api_user_id %}">Logs</a>,&nbsp;
         <a href="{% url sso.views.eveapi_del acc.api_user_id %}">Delete</a></td>
 </tr>
 </tbody>

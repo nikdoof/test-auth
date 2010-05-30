@@ -12,6 +12,8 @@ from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 from eve_api.api_puller.accounts import import_eve_account
 from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter
 
+from eve_proxy.models import ApiAccessLog
+
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
 from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetForm, RedditAccountForm, UserLookupForm
 
@@ -131,6 +133,21 @@ def eveapi_refresh(request, userid=0):
             request.user.message_set.create(message="Key %s has been refreshed from the EVE API." % acc.api_user_id)
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
+
+@login_required
+def eveapi_log(request, userid=0):
+    if userid > 0 :
+
+        try:
+            acc = EVEAccount.objects.get(id=userid)
+        except:
+            pass
+
+        if acc and (acc.user == request.user or request.user.is_staff):
+            logs = ApiAccessLog.objects.filter(userid=userid)[:50]
+            return render_to_response('sso/eveapi_log.html', locals(), context_instance=RequestContext(request))
+
+        return HttpResponseRedirect(reverse('sso.views.profile'))
 
 @login_required
 def service_add(request):
