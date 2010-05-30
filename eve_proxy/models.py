@@ -61,6 +61,16 @@ class CachedDocumentManager(models.Manager):
                                     the query: userID=1&characterID=xxxxxxxx
         """
 
+        # If we have a service ID, store and strip it from the query string.
+        if 'service' in params:
+            service = params['service']
+            del params['service']
+        else:
+            service = 'auth'
+
+        if 'userID' in params:
+            userid = params['userID']
+
         paramstr = urllib.urlencode(params)
 
         if params == None or paramstr.strip() == '':
@@ -83,16 +93,6 @@ class CachedDocumentManager(models.Manager):
     
         # EVE uses UTC.
         current_eve_time = datetime.utcnow()
-
-        # If we have a service ID, store and strip it from the query string.
-        if 'service' in params:
-            service = params['service']
-            del params['service']
-        else:
-            service = 'auth'
-
-        if 'userID' in params:
-            userid = params['userID']
 
         # Figure out if we need hit EVE API and re-cache, or just pull from
         # the local cache (based on cached_until).
