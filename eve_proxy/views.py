@@ -23,14 +23,18 @@ def retrieve_xml(request):
 
     if url_path == '/' or url_path == '':
         # If they don't provide any kind of query, shoot a quick error message.
-        return HttpResponse('No API query specified.')
+        return HttpResponseNotFound('No API query specified.')
     
     if 'userID' in params and not 'service' in params:
         return HttpResponse('No Service ID provided.')
 
     # The query system will retrieve a cached_doc that was either previously
     # or newly cached depending on cache intervals.
-    cached_doc = CachedDocument.objects.api_query(url_path, params)
+    try:
+        cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
+    except:
+        return HttpResponseServerError()
+
     # Return the document's body as XML.
 
     if cached_doc:

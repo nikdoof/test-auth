@@ -48,7 +48,7 @@ class CachedDocumentManager(models.Manager):
 
         return dom
     
-    def api_query(self, url_path, params=None, no_cache=False):
+    def api_query(self, url_path, params=None, no_cache=False, exceptions=True):
         """
         Transparently handles querying EVE API or retrieving the document from
         the cache.
@@ -119,10 +119,9 @@ class CachedDocumentManager(models.Manager):
         # Check for the presence errors. Only check the bare minimum,
         # generic stuff that applies to most or all queries. User-level code
         # should check for the more specific errors.
-
         if dom:
             error_node = dom.getElementsByTagName('error')
-            if error_node:
+            if error_node and exceptions:
                 error_code = error_node[0].getAttribute('code')
                 # User specified an invalid userid and/or auth key.
                 if error_code == '203':
