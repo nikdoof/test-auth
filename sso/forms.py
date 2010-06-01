@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 import settings
-from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter
+from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 from sso.models import ServiceAccount, Service
 from reddit.models import RedditAccount
 
@@ -51,16 +51,17 @@ def UserServiceAccountForm(user):
                 self.fields['password'] = self.password
 
         def clean(self):
+            # If the service's assigned groups are linked to corps, do a character/corp check
+            if len(EVEPlayerCorporation.objects.filter(group__in=self.cleaned_data['service'].groups.all())):
+                corp_group = self.cleaned_data['character'].corporation.group
+                if self.cleaned_data['character'].corporation.alliance:
+                    alliance_group = self.cleaned_data['character'].corporation.alliance.group
+                else:
+                    alliance_group = None
+                service_groups = self.cleaned_data['service'].groups.all()
 
-            corp_group = self.cleaned_data['character'].corporation.group
-            if self.cleaned_data['character'].corporation.alliance:
-                alliance_group = self.cleaned_data['character'].corporation.alliance.group
-            else:
-                alliance_group = None
-            service_groups = self.cleaned_data['service'].groups.all()
-
-            if not (corp_group in service_groups or alliance_group in service_groups):
-                raise forms.ValidationError("%s is not in a corporation or alliance allowed to register for %s" % (self.cleaned_data['character'].name, self.cleaned_data['service']))
+                if not (corp_group in service_groups or alliance_group in service_groups):
+                    raise forms.ValidationError("%s is not in a corporation or alliance allowed to register for %s" % (self.cleaned_data['character'].name, self.cleaned_data['service']))
 
             return self.cleaned_data
 
