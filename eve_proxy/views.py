@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError
 from eve_proxy.models import CachedDocument
 
 def retrieve_xml(request):
@@ -28,14 +28,7 @@ def retrieve_xml(request):
     if 'userID' in params and not 'service' in params:
         return HttpResponse('No Service ID provided.')
 
-    # The query system will retrieve a cached_doc that was either previously
-    # or newly cached depending on cache intervals.
-    try:
-        cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
-    except:
-        return HttpResponseServerError()
-
-    # Return the document's body as XML.
+    cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
 
     if cached_doc:
         return HttpResponse(cached_doc.body, mimetype='text/xml')
