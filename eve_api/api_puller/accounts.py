@@ -18,7 +18,7 @@ from eve_api.app_defines import *
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 
-def import_eve_account(api_key, user_id):
+def import_eve_account(api_key, user_id, force_cache=False):
     """
     Imports an account from the API into the EVEAccount model.
     """
@@ -27,7 +27,7 @@ def import_eve_account(api_key, user_id):
     try:
         account_doc = CachedDocument.objects.api_query('/account/Characters.xml.aspx',
                                                    params=auth_params,
-                                                   no_cache=False)
+                                                   no_cache=force_cache)
     except APIAuthException:
         try:
             account = EVEAccount.objects.get(id=user_id)
