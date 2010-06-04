@@ -27,7 +27,7 @@ class JabberService(BaseService):
             if 'character' in kwargs:
                 self.exec_xmlrpc('set_nickname', user=username, host=self.settings['jabber_server'], nickname=kwargs['character'].name)
                 self.exec_xmlrpc('set_vcard2', user=username, host=self.settings['jabber_server'], name='ORG', subname='ORGNAME', content=kwargs['character'].corporation.name)
-            uid = "%s@%s" % (username, self.settings['jabber_server'])
+            uid = "%s@%s" % (username, self.settings['jabber_server']).lower()
             if 'user' in kwargs:
                 self.update_groups(uid, kwargs['user'].groups.all())
             return uid
