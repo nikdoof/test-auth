@@ -97,7 +97,7 @@ class JabberService(BaseService):
 
         for group in groups:
             groupname = group.name.lower().replace(' ', '-')
-            self.exec_xmlrpc('srg_create', group=groupname, host=server, name=group.name, description='', display='all')
+            self.exec_xmlrpc('srg_create', group=groupname, host=server, name=group.name, description='', display='')
             self.exec_xmlrpc('srg_user_add', user=username, host=server, group=groupname, grouphost=server)
             valid_groups.append(groupname)
 
