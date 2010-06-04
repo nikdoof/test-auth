@@ -51,7 +51,7 @@ class CachedDocumentManager(models.Manager):
         conn.request(method, url_path, paramstr, headers)
         response = conn.getresponse()
         
-        print url_path, paramstr, response.status
+        print service, url_path, paramstr, response.status
 
         if response.status == 200:
             doc_id = self.get_document_id(url_path, params)
@@ -68,7 +68,7 @@ class CachedDocumentManager(models.Manager):
                 cached_doc.cached_until = dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue           
 
             # If this is user related, write a log instance
-            if params and 'userID' in params and params['userID'].isdigit():
+            if params and 'userID' in params and type(params['userID']) == long:
                 log = ApiAccessLog()
                 log.userid = params['userID']
                 log.service = service

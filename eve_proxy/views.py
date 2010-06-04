@@ -31,7 +31,7 @@ def retrieve_xml(request):
     try:
         cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
     except:
-        return HttpResponseServerError
+        return HttpResponseServerError('Error occured')
 
     if cached_doc:
         return HttpResponse(cached_doc.body, mimetype='text/xml')
