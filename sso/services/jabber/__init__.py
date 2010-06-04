@@ -82,7 +82,7 @@ class JabberService(BaseService):
         username, server = uid.split("@")
         srvgrp = self.exec_xmlrpc('srg_list', host=server)
         for grp in srvgrp['groups']:
-            members = self.exec_xmlrpc('srg_list', group=grp['id'], host=server)
+            members = self.exec_xmlrpc('srg_get_members', group=grp['id'], host=server)
             members = map(lambda x: x['member'], members['members'])
             if uid in members:
                 grouplist.append(grp['id'])
