@@ -16,8 +16,8 @@ class CachedDocumentManager(models.Manager):
     """
 
     def get_document_id(self, url_path, params):
-        p = params.copy()
-        if p:
+        if params:
+            p = params.copy()
             if 'service' in p:
                 del p['service']
             paramstr = urllib.urlencode(p)
@@ -35,14 +35,12 @@ class CachedDocumentManager(models.Manager):
 
         method = 'GET'
         paramstr = ''
+        service = 'auth'
 
-        print params
         if params:
             if 'service' in params:
                 service = params['service']
                 del params['service']
-            else:
-                service = 'auth'
             paramstr = urllib.urlencode(params)
 
         if len(paramstr.strip()) > 0:
@@ -52,8 +50,6 @@ class CachedDocumentManager(models.Manager):
         conn = httplib.HTTPConnection(API_URL)
         conn.request(method, url_path, paramstr, headers)
         response = conn.getresponse()
-        
-        print service, url_path, paramstr, response.status
 
         if response.status == 200:
             doc_id = self.get_document_id(url_path, params)
