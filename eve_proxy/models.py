@@ -25,7 +25,7 @@ class CachedDocumentManager(models.Manager):
 
         return hashlib.sha1('%s?%s' % (url_path, paramstr)).hexdigest()
 
-    def cache_from_eve_api(self, url_path, params, no_cache=False):
+    def cache_from_eve_api(self, url_path, params):
         """
         Connect to the EVE API server, send the request, and cache it to
         a CachedDocument. This is typically not something you want to call
@@ -77,9 +77,8 @@ class CachedDocumentManager(models.Manager):
                 log.save()
 
             # Finish up and return the resulting document just in case.
-            if no_cache == False:
-                cached_doc.save()
-                cached_doc = self.get(id=cached_doc.pk)
+            cached_doc.save()
+            cached_doc = self.get(id=cached_doc.pk)
 
             return cached_doc
     
@@ -109,7 +108,7 @@ class CachedDocumentManager(models.Manager):
         current_eve_time = datetime.utcnow()
 
         if not doc or current_eve_time > doc.cached_until:
-            doc = self.cache_from_eve_api(url_path, params, no_cache=no_cache)
+            doc = self.cache_from_eve_api(url_path, params)
 
         if doc:
             dom = minidom.parseString(doc.body.encode('utf-8'))
