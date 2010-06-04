@@ -16,10 +16,11 @@ class CachedDocumentManager(models.Manager):
     """
 
     def get_document_id(self, url_path, params):
-        if params:
-            if 'service' in params:
-                del params['service']
-            paramstr = urllib.urlencode(params)
+        p = params.copy()
+        if p:
+            if 'service' in p:
+                del p['service']
+            paramstr = urllib.urlencode(p)
         else:
             paramstr = ''
 
@@ -35,6 +36,7 @@ class CachedDocumentManager(models.Manager):
         method = 'GET'
         paramstr = ''
 
+        print params
         if params:
             if 'service' in params:
                 service = params['service']
@@ -68,13 +70,19 @@ class CachedDocumentManager(models.Manager):
                 cached_doc.cached_until = dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue           
 
             # If this is user related, write a log instance
-            if params and 'userID' in params and type(params['userID']) == long:
-                log = ApiAccessLog()
-                log.userid = params['userID']
-                log.service = service
-                log.time_access = cached_doc.time_retrieved
-                log.document = url_path
-                log.save()
+            if params and 'userID' in params:
+                try:
+                    v = int(params['userID'])
+                except ValueError:
+                    pass
+                else:
+                    print 'Adding Access Log'
+                    log = ApiAccessLog()
+                    log.userid = v
+                    log.service = service
+                    log.time_access = cached_doc.time_retrieved
+                    log.document = url_path
+                    log.save()
 
             # Finish up and return the resulting document just in case.
             cached_doc.save()
