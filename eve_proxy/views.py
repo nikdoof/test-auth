@@ -19,6 +19,8 @@ def retrieve_xml(request):
     # Convert the QuerySet object into a dict
     params = {}
     for key,value in p.items():
+        if value.isdigits():
+            value = long(value)
         params[key] = value
 
     if url_path == '/' or url_path == '':
