@@ -15,7 +15,10 @@ class MediawikiService(BaseDBService):
                  'provide_login': False,
                  'database_name': 'dreddit_wiki' }
 
-    SQL_ADD_USER = r"INSERT INTO user (user_name, user_password, user_newpassword, user_email, user_options) VALUES (%s, %s, '', %s, '')"
+    default_options = 'rows=80\ncols=50'
+
+
+    SQL_ADD_USER = r"INSERT INTO user (user_name, user_password, user_newpassword, user_email, user_options) VALUES (%s, %s, '', %s, %s)"
     SQL_DIS_USER = r"UPDATE user SET user_password = '', user_email = '', user_token = %s WHERE user_name = %s"
     SQL_DIS_GROUP = r"INSERT INTO user_groups (ug_user, ug_group) VALUES ((SELECT user_id FROM user WHERE user_name = %s), 'Disabled')"
     SQL_ENABLE_USER = r"UPDATE user SET user_password = %s WHERE user_name = %s"
@@ -49,7 +52,7 @@ class MediawikiService(BaseDBService):
         else:
             email = ''
         pwhash = self._gen_mw_hash(password)
-        self.dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email])
+        self.dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email, self.default_options])
         self.db.connection.commit()
         return self._clean_username(username)
 
