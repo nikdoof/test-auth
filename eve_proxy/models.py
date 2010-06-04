@@ -68,7 +68,7 @@ class CachedDocumentManager(models.Manager):
                 cached_doc.cached_until = dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue           
 
             # If this is user related, write a log instance
-            if params and 'userID' in params:
+            if params and 'userID' in params and params['userID'].isdigit():
                 log = ApiAccessLog()
                 log.userid = params['userID']
                 log.service = service
