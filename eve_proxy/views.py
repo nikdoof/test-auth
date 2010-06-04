@@ -28,7 +28,10 @@ def retrieve_xml(request):
     if 'userID' in params and not 'service' in params:
         return HttpResponse('No Service ID provided.')
 
-    cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
+    try:
+        cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
+    except:
+        return HttpResponseServerError
 
     if cached_doc:
         return HttpResponse(cached_doc.body, mimetype='text/xml')
