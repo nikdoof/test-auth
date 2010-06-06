@@ -72,7 +72,6 @@ class CachedDocumentManager(models.Manager):
                 except ValueError:
                     pass
                 else:
-                    print 'Adding Access Log'
                     log = ApiAccessLog()
                     log.userid = v
                     log.service = service
