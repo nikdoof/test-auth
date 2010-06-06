@@ -144,7 +144,7 @@ def eveapi_log(request, userid=0):
             pass
 
         if acc and (acc.user == request.user or request.user.is_staff):
-            logs = ApiAccessLog.objects.filter(userid=userid)[:50]
+            logs = ApiAccessLog.objects.filter(userid=userid).order_by('-time_access')[:50]
             return render_to_response('sso/eveapi_log.html', locals(), context_instance=RequestContext(request))
 
         return HttpResponseRedirect(reverse('sso.views.profile'))
