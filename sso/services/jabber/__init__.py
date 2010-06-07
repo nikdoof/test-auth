@@ -13,12 +13,13 @@ class JabberService(BaseService):
 
     def exec_xmlrpc(self, func, **kwargs):
         """ Send a XMLRPC request """
-        server = xmlrpclib.Server(self.settings['jabber_xmlrpc_url'])
+        if not hasattr(self, '_server'):
+            self._server = xmlrpclib.Server(self.settings['jabber_xmlrpc_url'])
         params = {}
         for i in kwargs:
             params[i] = kwargs[i]
 
-        return getattr(server, func)(params)
+        return getattr(self._server, func)(params)
 
     def add_user(self, username, password, **kwargs):
         """ Add user to service """
