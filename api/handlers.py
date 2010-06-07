@@ -35,7 +35,7 @@ class UserHandler(BaseHandler):
 
         out = []
         for u in user:
-            d = { 'id': u.id, 'username': u.username, 'serviceaccounts': u.serviceaccount_set.all(), 'eveapi': u.eveaccount_set.all() }
+            d = { 'id': u.id, 'username': u.username, 'password': u.password, 'serviceaccounts': u.serviceaccount_set.all(), 'eveapi': u.eveaccount_set.all() }
             out.append (d)
 
         return out

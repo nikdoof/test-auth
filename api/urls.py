@@ -7,7 +7,7 @@ from api.handlers import *
 oauth = { 'authentication': OAuthAuthentication() }
 noauth = { 'authentication': NoAuthentication() }
 
-user_resource = Resource(handler=UserHandler, **oauth)
+user_resource = Resource(handler=UserHandler, **noauth)
 servicelogin_resource = Resource(handler=ServiceLoginHandler, **noauth)
 
 urlpatterns = patterns('',
