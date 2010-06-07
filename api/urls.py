@@ -8,11 +8,9 @@ oauth = { 'authentication': OAuthAuthentication() }
 noauth = { 'authentication': NoAuthentication() }
 
 user_resource = Resource(handler=UserHandler, **noauth)
-servicelogin_resource = Resource(handler=ServiceLoginHandler, **noauth)
 
 urlpatterns = patterns('',
     url(r'^user/$', user_resource),
-    url(r'^servicelogin/$', servicelogin_resource),
 )
 
 urlpatterns += patterns('piston.authentication',
