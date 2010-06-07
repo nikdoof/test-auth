@@ -14,14 +14,13 @@ class UserHandler(BaseHandler):
     def read(self, request, id=None):
         if id:
             try:
-                user = User.objects.filter(id=id)
+                u = User.objects.filter(id=id)
             except (User.DoesNotExist, ValueError):
                 return rc.NOT_HERE
 
         if 'user' in request.GET:
             try:
-                user = User.objects.filter(username=request.GET['user'])
-                print user
+                u = User.objects.filter(username=request.GET['user'])
             except User.DoesNotExist:
                 return rc.NOT_HERE
 
@@ -30,15 +29,12 @@ class UserHandler(BaseHandler):
                 sa = ServiceAccount.objects.filter(service_uid=request.get['serviceuid'])
             except ServiceAccount.DoesNotExist:
                 return rc.NOT_HERE
-            user = sa.user
+            u = sa.user
 
 
-        out = []
-        for u in user:
-            d = { 'id': u.id, 'username': u.username, 'password': u.password, 'serviceaccounts': u.serviceaccount_set.all(), 'eveapi': u.eveaccount_set.all() }
-            out.append (d)
-
-        return out
+        d = { 'id': u.id, 'username': u.username, 'password': u.password, 'serviceaccounts': u.serviceaccount_set.all(), 
+                  'eveapi': u.eveaccount_set.all(), 'email': u.email }
+        return d
 
 
 class ServiceLoginHandler(BaseHandler):
