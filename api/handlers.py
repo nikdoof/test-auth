@@ -66,7 +66,7 @@ class ServiceLoginHandler(BaseHandler):
                 displayname = userobj.username
 
 
-            return { 'auth': 'ok', 'id': userobj.id, 'username': userobj.username, 'email': userobj.email
+            return { 'auth': 'ok', 'id': userobj.id, 'username': userobj.username, 'email': userobj.email,
                      'display-username': displayname, 'eveapi': userobj.eveaccount_set.all() }
 
         return { 'auth': 'fail' }
