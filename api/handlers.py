@@ -45,20 +45,28 @@ class ServiceLoginHandler(BaseHandler):
     allowed_methods = ('GET')
 
     def read(self, request):
-        if not 'user' in request.GET or not 'pass' in request.GET or not 'service' in request.GET:
+        if not 'user' in request.GET or not 'pass' in request.GET:
             return rc.BAD_REQUEST
 
         userobj = authenticate(username=request.GET['user'], password=request.GET['pass'])
         if userobj and userobj.is_active:
-            try:
-                serv = Service.objects.get(id=request.GET['service'])
-            except:
-                print 'bad service'
-                return rc.BAD_REQUEST
 
-            srvacct = userobj.serviceaccount_set.filter(service=serv)
-            if len(srvacct):
-                return { 'auth': 'ok', 'id': userobj.id, 'username': userobj.username, 
-                         'display-username': srvacct[0].service_uid, 'eveapi': userobj.eveaccount_set.all() }
+            if 'service' in request.GET:
+                try:
+                    serv = Service.objects.get(id=request.GET['service'])
+                except:
+                    return rc.BAD_REQUEST
+
+                srvacct = userobj.serviceaccount_set.filter(service=serv)
+                if len(srvacct):
+                    displayname = srvacct[0].service_uid
+                else:
+                    displayname = userobj.username
+            else:
+                displayname = userobj.username
+
+
+            return { 'auth': 'ok', 'id': userobj.id, 'username': userobj.username, 'email': userobj.email
+                     'display-username': displayname, 'eveapi': userobj.eveaccount_set.all() }
 
         return { 'auth': 'fail' }
