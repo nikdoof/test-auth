@@ -82,6 +82,6 @@ class AllianceUpdate():
             return self.__logger
 
         def job(self):
-            from eve_api.api_puller.alliances import __start_full_import
-            __start_full_import()
+            from eve_api.api_puller.alliances import __start_full_import as alliance_import
+            alliance_import()
 
