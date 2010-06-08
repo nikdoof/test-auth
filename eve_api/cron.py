@@ -69,3 +69,19 @@ class CorpManagementUpdate():
                 #api = director.eveaccount
                 api = EVEAccount.objects.get(characters__in=[director])
                 pull_corp_members(api.api_key, api.api_user_id, director.id)
+
+class AllianceUpdate():
+        """
+        Pulls the AllianceList.xml.aspx and updates the alliance objects
+        """
+
+        @property
+        def _logger(self):
+            if not hasattr(self, '__logger'):
+                self.__logger = logging.getLogger(__name__)
+            return self.__logger
+
+        def job(self):
+            from eve_api.api_puller.alliances import __start_full_import
+            __start_full_import()
+
