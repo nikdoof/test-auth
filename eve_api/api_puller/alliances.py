@@ -73,7 +73,7 @@ def __start_full_import():
     print "Querying /eve/AllianceList.xml.aspx/"
     alliance_doc = CachedDocument.objects.api_query('/eve/AllianceList.xml.aspx')
     print "Parsing..."
-    dom = minidom.parseString(alliance_doc.body)
+    dom = minidom.parseString(alliance_doc.body.encode('utf-8'))
     result_node_children = dom.getElementsByTagName('result')[0].childNodes
     
     # This will hold a reference to the <rowset name="alliances> Element.
