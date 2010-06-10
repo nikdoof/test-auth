@@ -12,7 +12,7 @@ login_resource = Resource(handler=LoginHandler, **noauth)
 
 urlpatterns = patterns('',
     url(r'^user/$', user_resource),
-    url(r'^login/$, login_resource),
+    url(r'^login/$', login_resource),
 )
 
 urlpatterns += patterns('piston.authentication',
