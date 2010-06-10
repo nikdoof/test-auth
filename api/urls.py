@@ -7,10 +7,12 @@ from api.handlers import *
 oauth = { 'authentication': OAuthAuthentication() }
 noauth = { 'authentication': NoAuthentication() }
 
-user_resource = Resource(handler=UserHandler, **noauth)
+user_resource = Resource(handler=UserHandler, **oauth)
+login_resource = Resource(handler=LoginHandler, **noauth)
 
 urlpatterns = patterns('',
     url(r'^user/$', user_resource),
+    url(r'^login/$, login_resource),
 )
 
 urlpatterns += patterns('piston.authentication',
