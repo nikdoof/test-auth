@@ -13,23 +13,6 @@ from api.models import AuthAPIKey, AuthAPILog
 from eve_api.models import EVEAccount
 from sso.models import ServiceAccount, Service
 
-def apikey_required(meth):
-    def new(*args, **kwargs):
-
-        if 'request' in kwargs:
-            url = kwargs['request'].META['QUERY_STRING']
-            try:
-                key = AuthAPIKey.objects.get(key=kwargs['request'].GET['apikey'])
-            except AuthAPIKey.DoesNotExist:
-                pass
-
-            if key and key.active:
-                AuthAPILog(key=key, url=url, access_datetime=datetime.utcnow()).save()
-                return meth(*args, **kwargs)
-
-            return rc.NOT_HERE
-
-    return new
 
 class UserHandler(BaseHandler):
     allowed_methods = ('GET')
@@ -63,6 +46,7 @@ class UserHandler(BaseHandler):
 
         return d
 
+
 class LoginHandler(BaseHandler):
     allowed_methods = ('GET')
 
@@ -87,10 +71,15 @@ class LoginHandler(BaseHandler):
 
         return { 'auth': 'failed' }
 
+
 class EveAPIHandler(BaseHandler):
     allowed_methods = ('GET')
 
-    @apikey_required
-    def read(self, request, id=None):
-       return get_object_or_404(EVEAccount, pk=id)
+    def read(self, request):
+       if request.GET.get('id', None):
+           return get_object_or_404(EVEAccount, pk=id)
+       elif request.GET.get('corpid', None):
+           return EVEAccount.objects.filter(characters__corporation__id=request.GET['corpid'])
+       elif request.GET.get('allianceid', None):
+           return EVEAccount.objects.filter(characters__corporation__alliance__id=request.GET['allianceid'])
 
