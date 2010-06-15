@@ -98,6 +98,11 @@ DISABLE_SERVICES = False
 # Services API generates a new password for the user
 GENERATE_SERVICE_PASSWORD = False
 
+AUTHENTICATION_BACKENDS = (
+    'sso.backends.SimpleHashModelBackend',
+)
+
+
 AUTH_PROFILE_MODULE = 'sso.SSOUser'
 LOGIN_REDIRECT_URL = "/profile"
 LOGIN_URL = "/login"

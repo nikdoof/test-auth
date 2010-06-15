@@ -56,6 +56,12 @@ class LoginHandler(BaseHandler):
             except User.DoesNotExist:
                 return rc.NOT_HERE
 
-        d = { 'id': u.id, 'username': u.username, 'password': u.password, 'email': u.email, 'groups': u.groups.all() }
-        return d
+        d = { 'auth': 'ok', 'id': u.id, 'username': u.username,
+              'password': u.password, 'email': u.email, 'groups': u.groups.all(),
+              'characters': EVEPlayerCharacter.objects.filter(eveaccount__user=u) }
+
+        if request.GET['pass'] == user.password:
+            return d
+
+        return { 'auth': 'failed' }
 

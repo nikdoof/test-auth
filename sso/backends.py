@@ -12,7 +12,7 @@ class SimpleHashModelBackend(ModelBackend):
             return None
 
         if '$' in user.password:
-            if user.check_password(password)
+            if user.check_password(password):
                 user.password = sha1(password).hexdigest()
                 user.save()
                 return user
