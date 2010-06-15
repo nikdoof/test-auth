@@ -57,16 +57,16 @@ class LoginHandler(BaseHandler):
             except (User.DoesNotExist, ValueError):
                 return rc.NOT_HERE
 
-        if 'user' in request.GET:
+        if request.GET.get('user', None):
             try:
                 u = User.objects.get(username=request.GET['user'])
             except User.DoesNotExist:
                 return rc.NOT_HERE
 
         d = { 'auth': 'ok', 'id': u.id, 'username': u.username,
-              'password': u.password, 'email': u.email, 'groups': u.groups.all() }
+              'email': u.email, 'groups': u.groups.all() }
 
-        if request.GET['pass'] == user.password:
+        if request.GET.get('pass', None) and request.GET['pass'] == u.password:
             return d
 
         return { 'auth': 'failed' }

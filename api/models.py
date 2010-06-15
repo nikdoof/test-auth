@@ -10,7 +10,7 @@ class AuthAPIKey(models.Model):
     key = models.CharField("API Key", max_length=200)
 
     def save(self, *args, **kwargs):
-        if not key or key = '':
+        if not key or key == '':
             self.key = uuid.uuid4()
 
         models.Model.save(self, *args, **kwargs)
