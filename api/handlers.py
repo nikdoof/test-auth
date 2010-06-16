@@ -64,7 +64,8 @@ class LoginHandler(BaseHandler):
                 return rc.NOT_HERE
 
         d = { 'auth': 'ok', 'id': u.id, 'username': u.username,
-              'email': u.email, 'groups': u.groups.all() }
+              'email': u.email, 'groups': u.groups.all(),
+              'staff': u.is_staff, 'superuser': u.is_superuser }
 
         if request.GET.get('pass', None) and request.GET['pass'] == u.password:
             return d
