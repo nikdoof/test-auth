@@ -80,7 +80,7 @@ class EveAPIHandler(BaseHandler):
        if request.GET.get('id', None):
            return get_object_or_404(EVEAccount, pk=id)
        elif request.GET.get('corpid', None):
-           return EVEAccount.objects.filter(characters__corporation__id=request.GET['corpid'])
+           return { 'keys': EVEAccount.objects.filter(characters__corporation__id=request.GET['corpid']) }
        elif request.GET.get('allianceid', None):
-           return EVEAccount.objects.filter(characters__corporation__alliance__id=request.GET['allianceid'])
+           return { 'keys': EVEAccount.objects.filter(characters__corporation__alliance__id=request.GET['allianceid']) }
 
