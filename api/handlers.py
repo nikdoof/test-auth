@@ -42,7 +42,7 @@ class UserHandler(BaseHandler):
 
         d = { 'id': u.id, 'username': u.username, 'email': u.email,
               'serviceaccounts': u.serviceaccount_set.all(), 'characters': chars,
-              'groups': u.groups.all() }
+              'groups': u.groups.all(), 'staff': u.is_staff, 'superadmin': u.is_superadmin }
 
         return d
 
