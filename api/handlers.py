@@ -7,9 +7,11 @@ from piston.utils import rc, throttle
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 
 from api.models import AuthAPIKey, AuthAPILog
+from eve_proxy.models import CachedDocument
 from eve_api.models import EVEAccount
 from sso.models import ServiceAccount, Service
 
@@ -75,12 +77,34 @@ class LoginHandler(BaseHandler):
 
 class EveAPIHandler(BaseHandler):
     allowed_methods = ('GET')
+    exclude = ('api_key')
 
     def read(self, request):
        if request.GET.get('id', None):
-           return get_object_or_404(EVEAccount, pk=id)
+           s = get_object_or_404(EVEAccount, pk=id)
        elif request.GET.get('corpid', None):
-           return { 'keys': EVEAccount.objects.filter(characters__corporation__id=request.GET['corpid']) }
+           s = EVEAccount.objects.filter(characters__corporation__id=request.GET['corpid'])
        elif request.GET.get('allianceid', None):
-           return { 'keys': EVEAccount.objects.filter(characters__corporation__alliance__id=request.GET['allianceid']) }
+           s = EVEAccount.objects.filter(characters__corporation__alliance__id=request.GET['allianceid'])
+
+       return { 'keys': s.values('id', 'user_id', 'api_status', 'api_last_updated') }
+
+class EveAPIProxyHandler(BaseHandler):
+    allowed_methods = ('GET')
+
+    def read(self, request):
+        url_path = request.META['PATH_INFO'].replace(reverse('api-eveapiproxy'),"/")
+
+        params = {}
+        for key,value in request.GET.items():
+            params[key] = value
+
+        if request.GET.get('userid', None):
+            obj = get_object_or_404(EVEAccount, pk=request.GET.get('userid', None))
+            params['apikey'] = obj.api_key
+
+        print params
+        cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
+
+        return cached_doc
 
