@@ -136,13 +136,14 @@ class OpTimerHandler(BaseHandler):
        
         for node in events_node_children:
             if node.nodeType == 1:
-                ownerID = node.getAttribute('ownerID')
-                print ownerID
+                ownerID = node.getAttribute('ownerID')                
                 if ownerID != '1':
                     date = node.getAttribute('eventDate')                
                     dt = datetime.strptime(date,'%Y-%m-%d %H:%M:%S')                
                     now = datetime.utcnow()                
-                    startsIn = int(dt.strftime('%s')) - int(now.strftime('%s'))                
+                    startsIn = int(dt.strftime('%s')) - int(now.strftime('%s'))
+                    if startsIn < 0:
+                        startsIn = 0              
                     event = {
                         'startsIn': startsIn,
                         'eventID': node.getAttribute('eventID'),
