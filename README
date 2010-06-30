@@ -1,0 +1,15 @@
+REQUIREMENTS
+------------
+
+Use ./setup-env.sh to setup the virtualenv for Auth, you'll also need the following packages (as named on Debian):
+
+python-zeroc-ice (ZeroC ICE Bindings for Python)
+python-imaging (PIL)
+python-mysqldb (MySQL connectors for Python)
+
+RUNNING
+-------
+
+For live envs, use ./start.sh, which runs a FCGI instance on port 9981.
+
+For dev, use ./manage.py runserver <ip>:<port>, after loading the virtualenv
