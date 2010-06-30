@@ -61,7 +61,7 @@
 <ul>
 {% for acc in eveacc %}
 {% for char in acc.characters.all %}
-<li><a href="{% url sso.views.characters char.id %}">{{ char.name }}</a> - {{ char.corporation }} / {{ char.corporation.alliance }} - {{ char.balance|intcomma }} ISK, {{ char.total_sp|intcomma }} SP <button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button></li>
+<li><a href="{% url sso.views.characters char.id %}">{{ char.name }}</a> - {{ char.corporation }} / {{ char.corporation.alliance }} - {{ char.balance|intcomma }} ISK, {{ char.total_sp|intcomma }} SP <button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button> - <a href="https://gate.eveonline.com/Profile/{{ char.name }}/">EveGate Profile</a></li>
 {% endfor %}
 {% endfor %}
 </ul>
