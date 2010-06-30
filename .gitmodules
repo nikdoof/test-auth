@@ -1,3 +1,0 @@
-[submodule "django_jsonfield"]
-	path = django_jsonfield
-	url = http://github.com/bradjasper/django-jsonfield.git
