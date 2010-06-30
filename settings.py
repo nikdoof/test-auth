@@ -123,4 +123,8 @@ REDDIT_PASSWD = ''
 
 HR_STAFF_GROUP = 'HR Staff'
 
-from settingslocal import *
+# try and import local settings
+try:
+    from settingslocal import *
+except:
+    pass
