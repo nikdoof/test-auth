@@ -13,3 +13,15 @@ RUNNING
 For live envs, use ./start.sh, which runs a FCGI instance on port 9981.
 
 For dev, use ./manage.py runserver <ip>:<port>, after loading the virtualenv
+
+DB SETUP
+--------
+
+Copy over dbsettings.py.example and modify to your needs.
+
+
+MUMBLE SETUP
+------------
+
+If you are using the Mumble SSO connector, then please copy over your Murmur.ice file to the root of the directory, if this 
+doesnt match the current running Mumble server it'll cause a world of pain.
