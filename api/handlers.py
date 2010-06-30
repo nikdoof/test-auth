@@ -16,6 +16,11 @@ from eve_proxy.models import CachedDocument
 from eve_api.models import EVEAccount
 from sso.models import ServiceAccount, Service
 
+from settings import FULL_API_USER_ID
+from settings import FULL_API_CHARACTER_ID
+
+from xml.dom import minidom
+
 
 class UserHandler(BaseHandler):
     allowed_methods = ('GET')
@@ -110,4 +115,45 @@ class EveAPIProxyHandler(BaseHandler):
         cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
 
         return HttpResponse(cached_doc.body)
+    
+class OpTimerHandler(BaseHandler):
+    allowed_methods = ('GET')
+
+    def read(self, request, id=None):
+        obj = get_object_or_404(EVEAccount, user=FULL_API_USER_ID)
+            
+        params = {'userID':obj.id,'apiKey':obj.api_key,'characterID':FULL_API_CHARACTER_ID}
+        
+        cached_doc = CachedDocument.objects.api_query('/char/UpcomingCalendarEvents.xml.aspx', params, exceptions=False)
+                
+        dom = minidom.parseString(cached_doc.body.encode('utf-8'))
+        enode = dom.getElementsByTagName('error')
+        if enode:
+            return {'error':True}
+        
+        events = []
+        events_node_children = dom.getElementsByTagName('rowset')[0].childNodes
+       
+        for node in events_node_children:
+            if node.nodeType == 1:
+                ownerID = node.getAttribute('ownerID')
+                print ownerID
+                if ownerID != '1':
+                    date = node.getAttribute('eventDate')                
+                    dt = datetime.strptime(date,'%Y-%m-%d %H:%M:%S')                
+                    now = datetime.utcnow()                
+                    startsIn = int(dt.strftime('%s')) - int(now.strftime('%s'))                
+                    event = {
+                        'startsIn': startsIn,
+                        'eventID': node.getAttribute('eventID'),
+                        'ownerName': node.getAttribute('ownerName'),
+                        'eventDate': date,
+                        'eventTitle': node.getAttribute('eventTitle'),
+                        'duration': node.getAttribute('duration'),
+                        'isImportant': node.getAttribute('importance'),
+                        'eventText': node.getAttribute('eventText')
+                    }                
+                    events.append(event)
+        
+        return {'ops':events}
 

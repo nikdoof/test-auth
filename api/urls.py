@@ -13,12 +13,14 @@ user_resource = Resource(handler=UserHandler, **oauth)
 login_resource = Resource(handler=LoginHandler, **noauth)
 eveapi_resource = Resource(handler=EveAPIHandler, **apikeyauth)
 eveapiproxy_resource = Resource(handler=EveAPIProxyHandler, **apikeyauth)
+optimer_resource = Resource(handler=OpTimerHandler, **apikeyauth)
 
 urlpatterns = patterns('',
     url(r'^user/$', user_resource),
     url(r'^login/$', login_resource),
     url(r'^eveapi/$', eveapi_resource),
     url(r'^eveapi/', eveapiproxy_resource, name='api-eveapiproxy'),
+    url(r'^optimer/$', optimer_resource),
 )
 
 urlpatterns += patterns('piston.authentication',

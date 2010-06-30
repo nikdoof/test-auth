@@ -123,6 +123,9 @@ REDDIT_PASSWD = ''
 
 HR_STAFF_GROUP = 'HR Staff'
 
+FULL_API_USER_ID = 1
+FULL_API_CHARACTER_ID = 217608501
+
 # try and import local settings
 try:
     from settingslocal import *
