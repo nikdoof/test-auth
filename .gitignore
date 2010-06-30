@@ -8,3 +8,4 @@ piston
 django_evolution
 logs/
 settingslocal.py
+env

@@ -8,7 +8,7 @@ from django.db.models import signals
 from django.contrib.auth.models import User, UserManager, Group
 from django.utils import simplejson as json
 
-from django_jsonfield.fields import JSONField
+from nosj.fields import JSONField
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
 from reddit.models import RedditAccount
 
