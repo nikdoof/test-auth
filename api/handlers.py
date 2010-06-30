@@ -7,6 +7,7 @@ from piston.utils import rc, throttle
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 
+from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 
@@ -82,6 +83,8 @@ class EveAPIHandler(BaseHandler):
     def read(self, request):
        if request.GET.get('id', None):
            s = get_object_or_404(EVEAccount, pk=id)
+       elif request.GET.get('userid', None):
+           s = EVEAccount.objects.filter(user=request.GET['userid'])
        elif request.GET.get('corpid', None):
            s = EVEAccount.objects.filter(characters__corporation__id=request.GET['corpid'])
        elif request.GET.get('allianceid', None):
@@ -106,5 +109,5 @@ class EveAPIProxyHandler(BaseHandler):
         print params
         cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
 
-        return cached_doc
+        return HttpResponse(cached_doc.body)
 
