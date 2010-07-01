@@ -105,10 +105,10 @@ class EveAPIProxyHandler(BaseHandler):
 
         params = {}
         for key,value in request.GET.items():
-            params[key] = value
+            params[key.lower()] = value
 
-        if request.GET.get('userid', None):
-            obj = get_object_or_404(EVEAccount, pk=request.GET.get('userid', None))
+        if 'userid' in params:
+            obj = get_object_or_404(EVEAccount, pk=params['userid'])
             params['apikey'] = obj.api_key
 
         print params
@@ -120,7 +120,7 @@ class OpTimerHandler(BaseHandler):
     allowed_methods = ('GET')
 
     def read(self, request, id=None):
-        obj = get_object_or_404(EVEAccount, user=FULL_API_USER_ID)
+        obj = get_object_or_404(EVEAccount, id=FULL_API_USER_ID)
             
         params = {'userID':obj.id,'apiKey':obj.api_key,'characterID':FULL_API_CHARACTER_ID}
         
