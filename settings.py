@@ -74,6 +74,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.humanize',
+    'south',
     'piston',
     'registration',
     'eve_proxy',
