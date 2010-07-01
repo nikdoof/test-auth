@@ -125,11 +125,21 @@ class OpTimerHandler(BaseHandler):
         params = {'userID':obj.id,'apiKey':obj.api_key,'characterID':FULL_API_CHARACTER_ID}
         
         cached_doc = CachedDocument.objects.api_query('/char/UpcomingCalendarEvents.xml.aspx', params, exceptions=False)
-                
+        print cached_doc.body
         dom = minidom.parseString(cached_doc.body.encode('utf-8'))
         enode = dom.getElementsByTagName('error')
         if enode:
-            return {'error':True}
+            return {'ops':[{
+                'startsIn': -1,
+                'eventID': 0,
+                'ownerName': '',
+                'eventDate': '',
+                'eventTitle': '<div style="text-align:center">The EVE API is currently down</div>',
+                'duration': 0,
+                'isImportant': 0,
+                'eventText': 'Fuck CCP tbqh imho srsly',
+                'endsIn':-1
+            }]}
         
         events = []
         events_node_children = dom.getElementsByTagName('rowset')[0].childNodes
@@ -162,6 +172,18 @@ class OpTimerHandler(BaseHandler):
                             'endsIn':endsIn
                         }                
                         events.append(event)
-        
-        return {'ops':events}
+        if len(events) == 0:
+            return {'ops':[{
+                'startsIn': -1,
+                'eventID': 0,
+                'ownerName': '',
+                'eventDate': '',
+                'eventTitle': '<div style="text-align:center">No ops are currently scheduled</div>',
+                'duration': 0,
+                'isImportant': 0,
+                'eventText': 'Add ops using EVE-Gate or the in-game calendar',
+                'endsIn':-1
+            }]}
+        else:
+            return {'ops':events}
 
