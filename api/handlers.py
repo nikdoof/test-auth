@@ -143,6 +143,9 @@ class OpTimerHandler(BaseHandler):
                     now = datetime.utcnow()                
                     startsIn = int(dt.strftime('%s')) - int(now.strftime('%s'))
                     duration = int(node.getAttribute('duration'))
+                    #In case people forget to set a duration, we'll give a default of 1 hour
+                    if duration == 0:
+                        duration = 3600
                     endsIn = startsIn + (duration * 60)
                     if startsIn < 0:
                         startsIn = 0
