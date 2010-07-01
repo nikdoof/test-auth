@@ -107,8 +107,8 @@ class EveAPIProxyHandler(BaseHandler):
         for key,value in request.GET.items():
             params[key.lower()] = value
 
-        if request.GET.get('userid', None):
-            obj = get_object_or_404(EVEAccount, pk=request.GET.get('userid', None))
+        if 'userid' in params:
+            obj = get_object_or_404(EVEAccount, pk=params['userid'])
             params['apikey'] = obj.api_key
 
         print params

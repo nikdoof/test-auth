@@ -6,10 +6,13 @@ class APIKeyAuthentication(object):
 
     def is_authenticated(self, request):
 
-        apikey = request.GET.get('apikey', None)
-        if apikey:
+        params = {}
+        for key,value in request.GET.items():
+            params[key.lower()] = value
+
+        if params['apikey']:
             try:
-                keyobj = AuthAPIKey.objects.get(key=apikey)
+                keyobj = AuthAPIKey.objects.get(key=params['apikey'])
             except:
                 keyobj = None
 
