@@ -142,19 +142,23 @@ class OpTimerHandler(BaseHandler):
                     dt = datetime.strptime(date,'%Y-%m-%d %H:%M:%S')                
                     now = datetime.utcnow()                
                     startsIn = int(dt.strftime('%s')) - int(now.strftime('%s'))
+                    duration = node.getAttribute('duration')
+                    endsIn = startsIn + (duration * 60)
                     if startsIn < 0:
-                        startsIn = 0              
-                    event = {
-                        'startsIn': startsIn,
-                        'eventID': node.getAttribute('eventID'),
-                        'ownerName': node.getAttribute('ownerName'),
-                        'eventDate': date,
-                        'eventTitle': node.getAttribute('eventTitle'),
-                        'duration': node.getAttribute('duration'),
-                        'isImportant': node.getAttribute('importance'),
-                        'eventText': node.getAttribute('eventText')
-                    }                
-                    events.append(event)
+                        startsIn = 0
+                    if endsIn > 0:
+                        event = {
+                            'startsIn': startsIn,
+                            'eventID': node.getAttribute('eventID'),
+                            'ownerName': node.getAttribute('ownerName'),
+                            'eventDate': date,
+                            'eventTitle': node.getAttribute('eventTitle'),
+                            'duration': duration,
+                            'isImportant': node.getAttribute('importance'),
+                            'eventText': node.getAttribute('eventText'),
+                            'endsIn':endsIn
+                        }                
+                        events.append(event)
         
         return {'ops':events}
 
