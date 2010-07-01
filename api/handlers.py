@@ -142,7 +142,7 @@ class OpTimerHandler(BaseHandler):
                     dt = datetime.strptime(date,'%Y-%m-%d %H:%M:%S')                
                     now = datetime.utcnow()                
                     startsIn = int(dt.strftime('%s')) - int(now.strftime('%s'))
-                    duration = node.getAttribute('duration')
+                    duration = int(node.getAttribute('duration'))
                     endsIn = startsIn + (duration * 60)
                     if startsIn < 0:
                         startsIn = 0
