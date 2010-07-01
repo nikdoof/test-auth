@@ -22,6 +22,40 @@ class Application(models.Model):
             if choice[0] == int(self.status):
                 return choice[1]
 
+    def blacklisted(self):
+        if len(self.blacklist_values) > 0:
+            return True
+        return False
+
+    def blacklist_values(self):
+        """
+        Returns a list of blacklist values that apply to the application
+        """
+
+        blacklist = []
+
+        # Check Reddit blacklists
+        reddit_uids = map(lambda x: x[0].lower(), self.user.redditaccount_set.all().values_list('username'))
+        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_REDDIT, value__in=reddit_uids)
+        blacklist.append(objs)
+
+        # Check Character blacklists
+        chars = map(lambda x: x[0].lower(), EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('name'))
+        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_CHARACTER, value__in=chars)
+        blacklist.append(objs)
+
+        # Check Corporation blacklists
+        corps = map(lambda x: x[0].lower(), EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('corporation__name'))
+        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_CORPORATION, value__in=corps)
+        blacklist.append(objs)
+
+        # Check Character blacklists
+        alliances = map(lambda x: x[0].lower(), EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('corporation__alliance__name'))
+        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_ALLIANCE, value__in=alliances)
+        blacklist.append(objs)
+
+        return blacklist
+
     def save(self, *args, **kwargs):
         try:
             old_instance = Application.objects.get(id=self.id)
@@ -70,3 +104,15 @@ class Audit(models.Model):
 
     def event_description(self):
         return AUDIT_EVENT_LOOKUP[self.event]
+
+class Blacklist(models.Model):
+    type = models.IntegerField(choices=BLACKLIST_TYPE_CHOICES,
+                                     verbose_name="Blacklisted Type",
+                                     help_text="Type of entity to be blacklisted")
+    value = models.CharField("Blacklisted Value", max_length=255, blank=False)
+    reason = models.TextField(blank=False, verbose_name="Reason",
+                                     help_text="Reason that the entity was blacklisted")
+
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
+    created_by = models.ForeignKey(User, blank=False, verbose_name="Created By")
+
