@@ -1,5 +1,4 @@
 Django==1.1.2
-django-evolution==0.5
 django-piston==0.2.2
 django-registration==0.7
 yolk==0.4.1
