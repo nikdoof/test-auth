@@ -11,7 +11,8 @@
 <ul>
 <li>Applying Auth User: <a href="{% url sso.views.user_view app.user %}">{{ app.user }}</a></li>
 <li>Applying Character: {{ app.character }} <button type="button" onclick="CCPEVE.showInfo('1377//{{ app.character.id }}')">Show In Eve</button></li>
-<li>Application Status: <b>{{ app.status_description }}</b></li>
+<li>Application Status: <b>{{ app.get_status_display }}</b></li>
+<li>Blacklist Status: <b>{% if app.blacklisted %}<span color='red'>BLACKLISTED</span>{% else %}OK{% endif %}</b></li>
 </ul>
 
 {% ifnotequal app.status 5 %}
@@ -24,8 +25,10 @@
 <a href="{% url hr.views.add_note app.id %}">Add Note</a>,&nbsp;
 <a href="{% url hr.views.add_message app.id %}">Send Message to Applicant</a>,
 {% if app.status < 2 or app.status = 4 %}
-<a href="{% url hr.views.reject_application app.id %}">Reject Application</a>,&nbsp; 
+<a href="{% url hr.views.reject_application app.id %}">Reject Application</a>,&nbsp;
+{% ifequal app.blacklisted 0 %}
 <a href="{% url hr.views.accept_application app.id %}">Accept Application</a>,&nbsp;
+{% endifequal %}
 {% ifnotequal app.status 4 %}
 <a href="{% url hr.views.update_application app.id 4 %}">Mark as In Query</a>,&nbsp;
 {% endifnotequal %}
@@ -43,6 +46,16 @@
 <tr><th>Event Type</th><th>Changed By</th><th>Changed Date</th><th>Event Details</th></tr>
 {% for a in audit %}
 <tr><td>{{ a.event_description }}</td><td>{{ a.user }}</td><td>{{ a.date }}</td><td>{{ a.text }}</td></tr>
+{% endfor %}
+</table>
+{% endif %}
+
+{% if app.blacklisted %}
+<h3>Blacklist Triggers</h3>
+<table>
+<tr><th>Blacklist Type</th><th>Blacklisted Value</th><th>Reason</th></tr>
+{% for a in app.blacklist_values %}
+<tr><td>{{ a.get_type_display }}</td><td>{{ a.value }}</td><td>{{ a.reason }}</td></tr>
 {% endfor %}
 </table>
 {% endif %}

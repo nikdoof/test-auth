@@ -11,7 +11,7 @@
 <tr><td><a href="{% url hr.views.view_application app.id %}">{{ app.id }}</a></td>
     <td>{{ app.character }}</td>
     <td>{{ app.corporation }}</td>
-    <td>{{ app.status_description }}</td>
+    <td>{{ app.get_status_display }}</td>
 </tr>
 {% endfor %}
 </table>

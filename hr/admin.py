@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
-from hr.models import Application, Recommendation, Audit
+from hr.models import Application, Recommendation, Audit, Blacklist
 
 class ApplicationAdmin(admin.ModelAdmin):
     list_display = ('user', 'character', 'status', 'recommendations')
@@ -27,4 +27,9 @@ class AuditAdmin(admin.ModelAdmin):
     list_display = ('application', 'event', 'date')
 
 admin.site.register(Audit, AuditAdmin)
+
+class BlacklistAdmin(admin.ModelAdmin):
+    list_display = ('type', 'value', 'created_date', 'created_by')
+
+admin.site.register(Blacklist, BlacklistAdmin)
 

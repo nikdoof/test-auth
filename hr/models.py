@@ -17,16 +17,12 @@ class Application(models.Model):
                                      help_text="Current status of this application request.")
 
     @property
-    def status_description(self):
-        for choice in APPLICATION_STATUS_CHOICES:
-            if choice[0] == int(self.status):
-                return choice[1]
-
     def blacklisted(self):
         if len(self.blacklist_values) > 0:
             return True
         return False
 
+    @property
     def blacklist_values(self):
         """
         Returns a list of blacklist values that apply to the application
@@ -35,24 +31,32 @@ class Application(models.Model):
         blacklist = []
 
         # Check Reddit blacklists
-        reddit_uids = map(lambda x: x[0].lower(), self.user.redditaccount_set.all().values_list('username'))
-        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_REDDIT, value__in=reddit_uids)
-        blacklist.append(objs)
+        reddit_uids = self.user.redditaccount_set.all().values_list('username')
+        reddit = [a[0].lower() for a in reddit_uids if a and a[0]]
+
+        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_REDDIT, value__in=reddit)
+        blacklist.extend(objs)
 
         # Check Character blacklists
-        chars = map(lambda x: x[0].lower(), EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('name'))
+        chars_list = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('name')
+        chars = [a[0].lower() for a in chars_list if a and a[0]]
+
         objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_CHARACTER, value__in=chars)
-        blacklist.append(objs)
+        blacklist.extend(objs)
 
         # Check Corporation blacklists
-        corps = map(lambda x: x[0].lower(), EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('corporation__name'))
-        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_CORPORATION, value__in=corps)
-        blacklist.append(objs)
+        corp_list = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('corporation__name')
+        corps = [a[0].lower() for a in corp_list if a and a[0]]
 
-        # Check Character blacklists
-        alliances = map(lambda x: x[0].lower(), EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('corporation__alliance__name'))
+        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_CORPORATION, value__in=corps)
+        blacklist.extend(objs)
+
+        # Check Alliance blacklists
+        alliance_list = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('corporation__alliance__name')
+        alliances = [a[0].lower() for a in alliance_list if a and a[0]]
+
         objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_ALLIANCE, value__in=alliances)
-        blacklist.append(objs)
+        blacklist.extend(objs)
 
         return blacklist
 
@@ -65,7 +69,7 @@ class Application(models.Model):
                     event.user = kwargs['user']
                 event.event = AUDIT_EVENT_STATUSCHANGE
 
-                event.text = "Status changed from %s to %s" % (old_instance.status_description, self.status_description)
+                event.text = "Status changed from %s to %s" % (old_instance.get_status_display(), self.get_status_display())
                 event.save()
         except:
             pass

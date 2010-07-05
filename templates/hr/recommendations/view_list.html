@@ -14,7 +14,7 @@ soon as the recommended user submits their application your recommendation will 
 {% for rec in recs %}
 <tr><td>{{ rec.user_character }}</td>
     <td>{{ rec.application }}</td>
-    <td>{{ rec.application.status_description }}</td>
+    <td>{{ rec.application.get_status_display }}</td>
 </tr>
 </tbody>
 {% endfor %}
