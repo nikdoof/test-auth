@@ -55,8 +55,12 @@ class BaseService():
         """ Reset the user's password """
         return True
 
-    def login(uid):
+    def login(self, uid):
         """ Login the user and provide cookies back """ 
+        pass
+
+    def update_groups(self, uid, groups):
+        """" Update the UID's groups based on the provided list """
         pass
 
 
