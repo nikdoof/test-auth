@@ -30,32 +30,32 @@ class Application(models.Model):
 
         blacklist = []
 
+        bl_items = Blacklist.objects.filter( models.Q(expiry_date__gt=datetime.now()) | models.Q(expiry_date=None) )
+
         # Check Reddit blacklists
         reddit_uids = self.user.redditaccount_set.all().values_list('username')
         reddit = [a[0].lower() for a in reddit_uids if a and a[0]]
 
-        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_REDDIT, value__in=reddit)
+        objs = bl_items.filter(type=BLACKLIST_TYPE_REDDIT, value__in=reddit)
         blacklist.extend(objs)
 
-        # Check Character blacklists
-        chars_list = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('name')
-        chars = [a[0].lower() for a in chars_list if a and a[0]]
+        # Check EVE Related blacklists
+        evechars = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).select_related('corporation__alliance')
 
-        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_CHARACTER, value__in=chars)
+        # Check Character blacklists
+        chars = [a[0].lower() for a in evechars.values_list('name') if a and a[0]]
+        objs = bl_items.filter(type=BLACKLIST_TYPE_CHARACTER, value__in=chars)
         blacklist.extend(objs)
 
         # Check Corporation blacklists
-        corp_list = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('corporation__name')
-        corps = [a[0].lower() for a in corp_list if a and a[0]]
-
-        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_CORPORATION, value__in=corps)
+        corps = [a[0].lower() for a in evechars.values_list('corporation__name') if a and a[0]]
+        objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__in=corps)
         blacklist.extend(objs)
 
         # Check Alliance blacklists
-        alliance_list = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).values_list('corporation__alliance__name')
-        alliances = [a[0].lower() for a in alliance_list if a and a[0]]
+        alliances = [a[0].lower() for a in evechars.values_list('corporation__alliance__name') if a and a[0]]
 
-        objs = Blacklist.objects.filter(type=BLACKLIST_TYPE_ALLIANCE, value__in=alliances)
+        objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__in=alliances)
         blacklist.extend(objs)
 
         return blacklist
@@ -117,6 +117,14 @@ class Blacklist(models.Model):
     reason = models.TextField(blank=False, verbose_name="Reason",
                                      help_text="Reason that the entity was blacklisted")
 
+    expiry_date = models.DateTimeField(verbose_name="Expiry Date", blank=False, null=True,
+                                     help_text="Date to expire this entry")
+
     created_date = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
     created_by = models.ForeignKey(User, blank=False, verbose_name="Created By")
 
+    def __unicode__(self):
+        return u'%s: %s' % (self.get_type_display(), self.value)
+
+    def __str__(self):
+        return self.__unicode__()
