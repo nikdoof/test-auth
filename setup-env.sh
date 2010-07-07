@@ -1,3 +1,3 @@
-virtualenv --distribute env
+virtualenv -q --distribute env
 . ./env/bin/activate
-pip install -r requirements.txt
+pip install -q -r requirements.txt
