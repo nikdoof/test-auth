@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 """Executes a Django cronjob"""
 
+# Activate the virtualenv
+activate_this = 'env/bin/activate_this.py'
+execfile(activate_this, dict(__file__=activate_this))
+
 import sys
 import logging
 from django.core.management import setup_environ
