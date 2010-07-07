@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 """Executes a Django cronjob"""
 
+import os
+
 # Activate the virtualenv
-activate_this = 'env/bin/activate_this.py'
+path = os.path.dirname(os.path.abspath( __file__ ))
+activate_this = os.path.join(path, 'env/bin/activate_this.py')
 execfile(activate_this, dict(__file__=activate_this))
 
 import sys
