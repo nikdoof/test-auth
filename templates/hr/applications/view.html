@@ -45,7 +45,7 @@
 <table>
 <tr><th>Event Type</th><th>Changed By</th><th>Changed Date</th><th>Event Details</th></tr>
 {% for a in audit %}
-<tr><td>{{ a.event_description }}</td><td>{{ a.user }}</td><td>{{ a.date }}</td><td>{{ a.text }}</td></tr>
+<tr><td>{{ a.get_event_display }}</td><td>{{ a.user }}</td><td>{{ a.date }}</td><td>{{ a.text }}</td></tr>
 {% endfor %}
 </table>
 {% endif %}

@@ -111,8 +111,6 @@ class Audit(models.Model):
 
     date = models.DateTimeField(auto_now_add=True, verbose_name="Event Date")
 
-    def event_description(self):
-        return AUDIT_EVENT_LOOKUP[self.event]
 
 class Blacklist(models.Model):
     type = models.IntegerField(choices=BLACKLIST_TYPE_CHOICES,
