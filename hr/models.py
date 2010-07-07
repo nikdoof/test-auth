@@ -35,9 +35,14 @@ class Application(models.Model):
         # Check Reddit blacklists
         reddit_uids = self.user.redditaccount_set.all().values_list('username')
         reddit = [a[0].lower() for a in reddit_uids if a and a[0]]
-
         objs = bl_items.filter(type=BLACKLIST_TYPE_REDDIT, value__in=reddit)
         blacklist.extend(objs)
+
+        # Check email blacklists
+        blacklist.extend(bl_items.filter(type=BLACKLIST_TYPE_EMAIL, value=self.user.email.lower()))
+
+        # Check Auth blacklists
+        blacklist.extend(bl_items.filter(type=BLACKLIST_TYPE_AUTH, value=self.user.username.lower()))
 
         # Check EVE Related blacklists
         evechars = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).select_related('corporation__alliance')
