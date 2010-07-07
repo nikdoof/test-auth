@@ -5,3 +5,5 @@ yolk==0.4.1
 -e hg+http://bitbucket.org/schinckel/django-jsonfield#egg=django-jsonfield
 xmlrpclib==1.0.1
 South==0.7.1
+fabric==0.9.1
+flup

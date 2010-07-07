@@ -70,7 +70,7 @@ def start():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('./start.sh')
+        run('screen -d -m "./start.sh"')
 
 def stop():
     require('hosts')
@@ -80,7 +80,7 @@ def stop():
         run('kill `cat auth.pid`')
         run('rm -f auth.pid')
 
-def restart()
+def restart():
     stop()
     start()
 
