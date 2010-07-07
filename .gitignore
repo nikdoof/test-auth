@@ -1,11 +1,8 @@
 *.pyc
 *~
 *.db
-django/
-registration/
 dbsettings.py
-piston
-django_evolution
 logs/
 settingslocal.py
 env
+*.pid
