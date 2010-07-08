@@ -4,14 +4,26 @@ from fabric.api import *
 env.repo = 'git://dev.dredd.it/dreddit-auth.git'
 
 def production():
+    "Use the production enviroment on Web1"
     env.hosts = ['matalok@web1.dredd.it']
     env.path = '/home/matalok/auth'
 
 def test():
+    "Use the test enviroment on Web2"
     env.hosts = ['auth@web2.dredd.it']
     env.path = '/home/auth'
 
+def deploy():
+    """
+    Do a fresh deployment to a new or clean server
+     """
+    setup()
+
 def setup():
+    """
+    Deploy the files to the server and setup virtualenv and a simple
+    SQlite DB setup
+    """
     require('hosts')
     require('path')
 
@@ -22,6 +34,9 @@ def setup():
     setup_db()
 
 def push():
+    """
+    Push the latest revision to the server and update the enviroment
+    """
     require('hosts')
     require('path')
 
@@ -30,12 +45,18 @@ def push():
     migrate()
 
 def setup_virtualenv():
+    """
+    Generate the virtualenv enviroment
+    """
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
         run('./setup-env.sh' % env)
 
 def setup_db():
+    """
+    Setup a simple SQlite DB using the default settings
+    """
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
@@ -43,6 +64,9 @@ def setup_db():
         run('env/bin/python manage.py syncdb --noinput --migrate')
 
 def deploy_repo():
+    """
+    Do the initial repository checkout
+    """
     require('hosts')
     require('path')
 
@@ -51,6 +75,9 @@ def deploy_repo():
         run('git clone %(repo)s' % env)
         
 def update_repo():
+    """
+    Pulls the latest commits to the repository
+    """
     require('hosts')
     require('path')
 
@@ -58,6 +85,9 @@ def update_repo():
         run('git pull')
 
 def migrate():
+    """
+    Do any South database migrations
+    """
     require('hosts')
     require('path')
 
@@ -66,6 +96,9 @@ def migrate():
 
 
 def start():
+    """
+    Start the FastCGI server
+    """
     require('hosts')
     require('path')
 
@@ -73,6 +106,9 @@ def start():
         run('screen -d -m "./start.sh"')
 
 def stop():
+    """
+    Stop any running FCGI instance
+    """
     require('hosts')
     require('path')
 
@@ -81,6 +117,9 @@ def stop():
         run('rm -f auth.pid')
 
 def restart():
+    """
+    Restart the FCGI server
+    """
     stop()
     start()
 
