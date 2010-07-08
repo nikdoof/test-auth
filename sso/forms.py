@@ -92,7 +92,8 @@ class UserLookupForm(forms.Form):
 
     choices = [ (1, "Auth Username"),
                 (2, "Character"),
-                (3, "Reddit ID") ]
+                (3, "Reddit ID"),
+                (4, "Email Address"), ]
 
     type = forms.ChoiceField(label = u'Search type', choices = choices)
     username = forms.CharField(label = u'User ID', max_length=64)

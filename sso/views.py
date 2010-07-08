@@ -326,6 +326,8 @@ def user_lookup(request):
                 uid = RedditAccount.objects.filter(username__icontains=form.cleaned_data['username']).values('user')
                 for u in uid: uids.append(u['user'])
                 users = User.objects.filter(id__in=uids)
+            elif form.cleaned_data['type'] == '4':
+                users = User.objects.filter(email__icontains=form.cleaned_data['username'])
             else:
                 request.user.message_set.create(message="Error parsing form, Type: %s, Value: %s" % (form.cleaned_data['type'], form.cleaned_data['username']))
                 return HttpResponseRedirect(reverse('sso.views.user_lookup'))
