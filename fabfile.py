@@ -6,7 +6,7 @@ env.repo = 'git://dev.dredd.it/dreddit-auth.git'
 def production():
     "Use the production enviroment on Web1"
     env.hosts = ['matalok@web1.dredd.it']
-    env.path = '/home/matalok/auth'
+    env.path = '/home/matalok'
 
 def test():
     "Use the test enviroment on Web2"
@@ -60,7 +60,7 @@ def setup_db():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('cp dbsettings.py.example dbsettings.py' % env)
+        run('if [ ! -e dbsettings.py ]; then cp dbsettings.py.example dbsettings.py; fi' % env)
         run('env/bin/python manage.py syncdb --noinput --migrate')
 
 def deploy_repo():
@@ -73,6 +73,9 @@ def deploy_repo():
     run('mkdir -p %(path)s' % env)
     with cd(env.path):
         run('git clone %(repo)s' % env)
+
+    with cd('%(path)s/dreddit-auth/' % env):
+        run('mkdir logs')
         
 def update_repo():
     """
