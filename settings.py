@@ -111,6 +111,9 @@ FORCE_SCRIPT_NAME=""
 DEFAULT_FROM_EMAIL = "bot@auth.dredd.it"
 ACCOUNT_ACTIVATION_DAYS = 14
 
+# Slice File Location
+SLICE = os.path.join(os.path.dirname(os.path.abspath( __file__ )),'Murmur.ice')
+
 ### Reddit Settings
 
 # Username to validate accounts from
