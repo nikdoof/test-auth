@@ -66,22 +66,30 @@ class Application(models.Model):
         return blacklist
 
     def save(self, *args, **kwargs):
+
+        user = None
+        if 'user' in kwargs:
+            user = kwargs['user']
+            del kwargs['user']
+
         try:
             old_instance = Application.objects.get(id=self.id)
             if not (old_instance.status == int(self.status)):
                 event = Audit(application=self)
-                if 'user' in kwargs:
-                    event.user = kwargs['user']
+                event.user = user
                 event.event = AUDIT_EVENT_STATUSCHANGE
 
-                event.text = "Status changed from %s to %s" % (old_instance.get_status_display(), self.get_status_display())
+                # Save the application so we can get a up to date status
+                super(Application, self).save(*args, **kwargs)
+                new_instance = Application.objects.get(id=self.id)
+
+                event.text = "Status changed from %s to %s" % (old_instance.get_status_display(), new_instance.get_status_display())
                 event.save()
         except:
             pass
 
-        if 'user' in kwargs:
-            del kwargs['user']
         super(Application, self).save(*args, **kwargs)
+
 
     def __unicode__(self):
         return self.character.name
