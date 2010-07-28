@@ -125,7 +125,7 @@ class SSOUser(models.Model):
                 cls.update_groups(acc.service_uid, instance.groups.all())
 
 signals.post_save.connect(SSOUser.create_user_profile, sender=User)
-signals.post_save.connect(SSOUser.update_service_groups, sender=User)
+#signals.post_save.connect(SSOUser.update_service_groups, sender=User)
 
 class Service(models.Model):
     """
