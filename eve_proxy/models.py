@@ -110,7 +110,7 @@ class CachedDocumentManager(models.Manager):
         # EVE uses UTC.
         current_eve_time = datetime.utcnow()
 
-        if not doc or current_eve_time > doc.cached_until:
+        if not doc or not doc.cached_until or current_eve_time > doc.cached_until:
             doc = self.cache_from_eve_api(url_path, params)
 
         if doc:
