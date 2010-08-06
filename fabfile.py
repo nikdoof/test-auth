@@ -5,8 +5,8 @@ env.repo = 'git://dev.dredd.it/dreddit-auth.git'
 
 def production():
     "Use the production enviroment on Web1"
-    env.hosts = ['matalok@web1.dredd.it']
-    env.path = '/home/matalok'
+    env.hosts = ['dreddit@syndicate.tensixtyone.com']
+    env.path = '/home/dreddit/apps'
 
 def test():
     "Use the test enviroment on Web2"
