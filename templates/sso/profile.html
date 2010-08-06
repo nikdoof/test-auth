@@ -13,9 +13,13 @@
 <b>Email:</b> {{ user.email }}<br/>
 </p>
 
+<h2>External API Auth Services</h2>
+<p>To reset your External API Auth Services password, which is used to access tools and websites which use Auth's API, click the link below</p>
+<p><a href="{% url sso.views.set_apipasswd %}">Reset Auth Services Password</a></p>
+
 {% if eveaccounts %}
-<h2>External Service Accounts</h2>
-<p>This is a list of all your current external service accounts, to 
+<h2>External non-API Service Accounts</h2>
+<p>This is a list of all your current non-api external service accounts, to
 create a login for a service click the Add Service link</p>
 {% if srvaccounts %}
 <table>
@@ -51,10 +55,10 @@ create a login for a service click the Add Service link</p>
 {% endif %}
 
 <h2>Eve API Keys</h2>
-<p>Adding a Eve API key will allow you to access any services allowed for your 
-corporation. Limited keys are accepted for service validation. API keys 
-are stored for on-going authentication. As the assigned owner of a key you may 
-remove them at any time, but this may affect any existing services you have 
+<p>Adding an Eve API key will allow you to access any services allowed for your
+corporation. Limited keys are accepted for service validation. API keys
+are stored for on-going authentication. As the assigned owner of a key you may
+remove them at any time, but this may affect any existing services you have
 setup.</p>
 {% if eveaccounts %}
 <table>
@@ -104,7 +108,7 @@ setup.</p>
 <a href="{% url sso.views.reddit_add %}">Add a Reddit account</a>
 </p>
 
-<p>If you encounter any errors during using this service, copy the massive 
-error message into <a href="http://pastebin.com/">Pastebin</a> and give 
-Matalok a good kicking on IRC/Jabber/Email or on the Forums.</p>
+<p>If you encounter any errors during using this service, copy the massive
+error message into <a href="http://pastebin.com/">Pastebin</a> and give
+Matalok/Aevum Decessus a good kicking on IRC/Jabber/Email or on the Forums.</p>
 {% endblock %}
