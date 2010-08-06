@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     (r'^profile/log/eveapi/(?P<userid>\d+)/$', views.eveapi_log),
     (r'^profile/characters$', views.characters),
     (r'^profile/characters/(?P<charid>.*)/$', views.characters),
+    (r'^profile/apipassword/', views.set_apipassword),
     (r'^users/(?P<username>.*)/$', views.user_view),
     (r'^users/$', views.user_lookup),
 )

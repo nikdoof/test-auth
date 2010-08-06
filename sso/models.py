@@ -32,14 +32,7 @@ class SSOUser(models.Model):
 
     user = models.ForeignKey(User, unique=True, related_name='profile')
 
-    default_service_passwd = models.CharField("Default Service Password", max_length=200, blank=True)
-    default_service_username = models.CharField("Default Service Username", max_length=200, blank=True)
-    
-    website = models.CharField("Website URL", max_length=200, blank=True)
-    aim = models.CharField("AIM", max_length=64, blank=True)
-    msn = models.CharField("MSN", max_length=200, blank=True)
-    icq = models.CharField("ICQ", max_length=15, blank=True)
-    xmpp = models.CharField("XMPP", max_length=200, blank=True)
+    api_service_password = models.CharField("API Services Password", max_length=200, blank=True)
 
     @property
     def _log(self):

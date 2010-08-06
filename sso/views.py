@@ -15,7 +15,7 @@ from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter
 from eve_proxy.models import ApiAccessLog
 
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
-from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetForm, RedditAccountForm, UserLookupForm
+from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetForm, RedditAccountForm, UserLookupForm, APIPasswordForm
 
 from reddit.models import RedditAccount
 
@@ -341,3 +341,17 @@ def user_lookup(request):
                 return HttpResponseRedirect(reverse('sso.views.user_lookup'))
             
     return render_to_response('sso/lookup/userlookup.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required
+def set_apipasswd(request):
+    if request.method == 'POST':
+        form = APIPasswordForm(request.POST)
+        if form.is_valid():
+            request.user.message_set.create(message="Your API Services password has been set.")
+            return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
+    else:
+        form = APIPasswordForm(defaults) # An unbound form
+
+    return render_to_response('sso/apipassword.html', locals(), context_instance=RequestContext(request))
+

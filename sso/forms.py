@@ -117,3 +117,8 @@ class UserLookupForm(forms.Form):
                 raise forms.ValidationError("Account doesn't exist")
 
         return self.cleaned_data
+
+class APIPasswordForm(forms.Form):
+
+    password = forms.CharField(widget=forms.PasswordInput, label="Password" )
+
