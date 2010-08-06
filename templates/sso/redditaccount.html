@@ -3,14 +3,15 @@
 {% block title %}Add Reddit Account{% endblock %}
 
 {% block content %}
-<p>This will bind a Reddit account to your Auth Gateway login, this is usually required for application to the 
+<p>This will bind a Reddit account to your Auth Gateway login, this is usually required for application to the
 corporation</p>
-<p>Please note, you will be forever tied to this account and posts and comments made on this account will be checked 
+<p>Please note, you will be forever tied to this account and posts and comments made on this account will be checked
 on from time to time</p>
 <form action="{% url sso.views.reddit_add %}" method="post">
 <table>
 {{ form.as_table }}
 </table>
+<br />
 <input type="submit" value="Add Account" />
 </form>
 {% endblock %}
