@@ -348,10 +348,13 @@ def set_apipasswd(request):
     if request.method == 'POST':
         form = APIPasswordForm(request.POST)
         if form.is_valid():
+            profile = request.user.get_profile()
+            profile.api_service_password = hashlib.sha1(form.cleaned_data['password']).hexdigest()
+            profile.save()
             request.user.message_set.create(message="Your API Services password has been set.")
             return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
     else:
-        form = APIPasswordForm(defaults) # An unbound form
+        form = APIPasswordForm() # An unbound form
 
     return render_to_response('sso/apipassword.html', locals(), context_instance=RequestContext(request))
 
