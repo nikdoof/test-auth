@@ -48,6 +48,8 @@ class RedditAccount(models.Model):
         self.last_update = datetime.now()
 
     def recent_posts(self):
+        """ Returns the first page of posts visible on the user's profile page """
+
         try:
             jsondoc = json.load(urllib.urlopen("http://reddit.com/user/%s.json" % self.username))
         except:
