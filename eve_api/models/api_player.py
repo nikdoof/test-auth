@@ -90,18 +90,6 @@ class EVEPlayerCharacter(EVEAPIModel):
     
     objects = EVEPlayerCharacterManager()
     
-    @property
-    def gender_description(self):
-        for choice in API_GENDER_CHOICES:
-            if choice[0] == self.gender:
-                return choice[1]
-
-    @property
-    def race_description(self):
-        for choice in API_RACES_CHOICES:
-            if choice[0] == self.race:
-                return choice[1]
-
     def __unicode__(self):
         if self.name:
             return "%s (%d)" % (self.name, self.id)

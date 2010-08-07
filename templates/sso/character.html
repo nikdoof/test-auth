@@ -12,8 +12,8 @@
 
 
 <ul>
-<li>Race: {{ character.race_description }}</li>
-<li>Gender: {{ character.gender_description }}</li>
+<li>Race: {{ character.get_race_display }}</li>
+<li>Gender: {{ character.get_gender_display }}</li>
 <li>Corporation: {{ character.corporation.name }}</li>
 <li>Alliance: {{ character.corporation.alliance.name }}</li>
 <li>Total SP: {{ character.total_sp|intcomma }}</li>
