@@ -111,7 +111,6 @@ class EveAPIProxyHandler(BaseHandler):
             obj = get_object_or_404(EVEAccount, pk=params['userid'])
             params['apikey'] = obj.api_key
 
-        print params
         cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
 
         return HttpResponse(cached_doc.body)

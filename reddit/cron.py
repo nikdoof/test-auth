@@ -21,7 +21,6 @@ class UpdateAPIs():
     def job(self):
         delta = datetime.timedelta(seconds=self.last_update_delay)
 
-        print delta
         self._logger.debug("Updating accounts older than %s" % (datetime.datetime.now() - delta))
 
         for acc in RedditAccount.objects.filter(last_update__lt=(datetime.datetime.now() - delta)):

@@ -157,7 +157,6 @@ def admin_applications(request):
             limit = request.get['l']
         else:
             limit = 10
-        print query, limit
         apps = Application.objects.filter(character__name__icontains=query)[:limit]
     else:
         view_status = [APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY]
