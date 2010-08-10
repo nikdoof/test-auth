@@ -68,9 +68,7 @@ class SSOUser(models.Model):
         # Generate the list of groups to add/remove
         delgroups = set(set(self.user.groups.all()) & set(corpgroups)) - set(chargroups)
         addgroups = set(chargroups) - set(set(self.user.groups.all()) & set(corpgroups))
-
-        print "Add: ", addgroups, "Del:", delgroups, "Current:", self.user.groups.all()
-        
+       
         for g in delgroups:
             self.user.groups.remove(g)
 

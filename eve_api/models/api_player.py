@@ -39,11 +39,6 @@ class EVEAccount(EVEAPIModel):
                                      verbose_name="API Status",
                                      help_text="End result of the last attempt at updating this object from the API.")
 
-    @property
-    def api_status_description(self):
-        for choice in API_STATUS_CHOICES:
-            if choice[0] == self.api_status:
-                return choice[1]
 
     def in_corp(self, corpid):
         for char in self.characters.all():
@@ -90,18 +85,6 @@ class EVEPlayerCharacter(EVEAPIModel):
     
     objects = EVEPlayerCharacterManager()
     
-    @property
-    def gender_description(self):
-        for choice in API_GENDER_CHOICES:
-            if choice[0] == self.gender:
-                return choice[1]
-
-    @property
-    def race_description(self):
-        for choice in API_RACES_CHOICES:
-            if choice[0] == self.race:
-                return choice[1]
-
     def __unicode__(self):
         if self.name:
             return "%s (%d)" % (self.name, self.id)

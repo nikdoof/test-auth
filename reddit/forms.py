@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from reddit.models import RedditAccount
 
 class RedditAccountForm(forms.ModelForm):
+    """ Basic Reddit account input form """
+
     user = forms.ModelChoiceField(queryset=User.objects.order_by('username')) 
     username = forms.CharField(label = u'Reddit Username', max_length=64)
 

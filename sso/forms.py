@@ -36,8 +36,6 @@ def UserServiceAccountForm(user):
     services = Service.objects.filter(groups__in=user.groups.all(),active=1).exclude(id__in=ServiceAccount.objects.filter(user=user).values('service')).distinct()
     chars = EVEPlayerCharacter.objects.filter(eveaccount__user=user)
 
-    print len(services)
-
     class ServiceAccountForm(forms.Form):
         """ Service Account Form """
 

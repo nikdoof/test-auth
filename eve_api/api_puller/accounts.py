@@ -157,7 +157,11 @@ def import_eve_character(api_key, user_id, character_id):
     else:
         pchar.gender = 2
 
-    pchar.race = API_RACES[values['race']]
+    for v in API_RACES_CHOICES:
+        val, race = v
+        if race == values['race']:
+            pchar.race = val
+            break
 
     total = 0
     for skill in values['skills']:
