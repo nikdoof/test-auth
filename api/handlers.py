@@ -30,17 +30,17 @@ class UserHandler(BaseHandler):
             try:
                 u = User.objects.get(id=id)
             except (User.DoesNotExist, ValueError):
-                return rc.NOT_HERE
+                return { 'auth': 'missing', 'missing': 'userid'}
         elif 'user' in request.GET:
             try:
                 u = User.objects.get(username=request.GET['user'])
             except User.DoesNotExist:
-                return rc.NOT_HERE
+                return { 'auth': 'missing', 'missing': 'username'}
         elif 'serviceuid' in request.GET:
             try:
                 u = ServiceAccount.objects.get(service_uid=request.get['serviceuid']).user
             except ServiceAccount.DoesNotExist:
-                return rc.NOT_HERE
+                return { 'auth': 'missing', 'missing': 'ServiceAccount'}
         elif request.user:
             u = request.user
 
@@ -63,13 +63,13 @@ class LoginHandler(BaseHandler):
             try:
                 u = User.objects.get(id=id)
             except (User.DoesNotExist, ValueError):
-                return rc.NOT_HERE
+                return { 'auth': 'missing', 'missing': 'UserID'}
 
         if request.GET.get('user', None):
             try:
                 u = User.objects.get(username=request.GET['user'])
             except User.DoesNotExist:
-                return rc.NOT_HERE
+                return { 'auth': 'missing', 'missing': 'Username'}
 
         d = { 'auth': 'ok', 'id': u.id, 'username': u.username,
               'email': u.email, 'groups': u.groups.all(),
