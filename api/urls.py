@@ -9,7 +9,7 @@ oauth = { 'authentication': OAuthAuthentication() }
 noauth = { 'authentication': NoAuthentication() }
 apikeyauth = { 'authentication': APIKeyAuthentication() }
 
-user_resource = Resource(handler=UserHandler, **oauth)
+user_resource = Resource(handler=UserHandler, **apikeyauth)
 login_resource = Resource(handler=LoginHandler, **noauth)
 eveapi_resource = Resource(handler=EveAPIHandler, **apikeyauth)
 eveapiproxy_resource = Resource(handler=EveAPIProxyHandler, **apikeyauth)
