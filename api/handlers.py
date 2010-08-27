@@ -60,6 +60,7 @@ class LoginHandler(BaseHandler):
 
     def read(self, request, id=None):
 
+        u = None
         if id:
             try:
                 u = User.objects.get(id=id)
