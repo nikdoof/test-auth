@@ -59,26 +59,28 @@ class LoginHandler(BaseHandler):
     allowed_methods = ('GET')
 
     def read(self, request, id=None):
+
         if id:
             try:
                 u = User.objects.get(id=id)
             except (User.DoesNotExist, ValueError):
-                return { 'auth': 'missing', 'missing': 'UserID'}
+                return { 'auth': 'missing', 'missing': 'UserID' }
 
         if request.GET.get('user', None):
             try:
                 u = User.objects.get(username=request.GET['user'])
             except User.DoesNotExist:
-                return { 'auth': 'missing', 'missing': 'Username'}
+                return { 'auth': 'missing', 'missing': 'Username' }
 
-        d = { 'auth': 'ok', 'id': u.id, 'username': u.username,
-              'email': u.email, 'groups': u.groups.all(),
-              'staff': u.is_staff, 'superuser': u.is_superuser }
+        if u:
+            if request.GET.get('pass', None) and request.GET['pass'] == u.get_profile().api_service_password:
+                return { 'auth': 'ok', 'id': u.id, 'username': u.username,
+                         'email': u.email, 'groups': u.groups.all(),
+                         'staff': u.is_staff, 'superuser': u.is_superuser }
+            else:
+                return { 'auth': 'failed' }
 
-        if request.GET.get('pass', None) and request.GET['pass'] == u.get_profile().api_service_password:
-            return d
-
-        return { 'auth': 'failed' }
+        return { 'auth': 'missing', 'missing': 'all' }
 
 
 class EveAPIHandler(BaseHandler):
