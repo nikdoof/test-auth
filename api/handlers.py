@@ -38,11 +38,9 @@ class UserHandler(BaseHandler):
                 return { 'auth': 'missing', 'missing': 'username'}
         elif 'serviceuid' in request.GET:
             try:
-                u = ServiceAccount.objects.get(service_uid=request.get['serviceuid']).user
+                u = ServiceAccount.objects.get(service_uid=request.GET['serviceuid']).user
             except ServiceAccount.DoesNotExist:
                 return { 'auth': 'missing', 'missing': 'ServiceAccount'}
-        elif request.user:
-            u = request.user
 
         chars = []
         for a in u.eveaccount_set.all():
