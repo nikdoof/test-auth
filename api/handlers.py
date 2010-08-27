@@ -44,7 +44,7 @@ class UserHandler(BaseHandler):
 
         chars = []
         for a in u.eveaccount_set.all():
-            chars.append(a.characters.all())
+            chars.extend(a.characters.all())
 
         d = { 'id': u.id, 'username': u.username, 'email': u.email,
               'serviceaccounts': u.serviceaccount_set.all(), 'characters': chars,
