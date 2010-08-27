@@ -10,7 +10,7 @@ class APIKeyAuthentication(object):
         for key,value in request.GET.items():
             params[key.lower()] = value
 
-        if params['apikey']:
+        if 'apikey' in params:
             try:
                 keyobj = AuthAPIKey.objects.get(key=params['apikey'])
             except:
