@@ -157,7 +157,7 @@ class OpTimerHandler(BaseHandler):
 
                     fid = re.search('topic=[\d]+', node.getAttribute('eventText'))
                     if fid:
-                        forumlink = 'http://forum.pleaseignore.com/index.php?%s' % id
+                        forumlink = 'http://forum.pleaseignore.com/index.php?topic=%s' % fid.group(0)
                     else:
                         forumlink = ''
                     #In case people forget to set a duration, we'll give a default of 1 hour
