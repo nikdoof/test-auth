@@ -138,7 +138,8 @@ class OpTimerHandler(BaseHandler):
                 'duration': 0,
                 'isImportant': 0,
                 'eventText': 'Fuck CCP tbqh imho srsly',
-                'endsIn':-1
+                'endsIn':-1,
+                'forumLink': ''
             }]}
         
         events = []
@@ -169,7 +170,8 @@ class OpTimerHandler(BaseHandler):
                             'duration': duration,
                             'isImportant': node.getAttribute('importance'),
                             'eventText': node.getAttribute('eventText'),
-                            'endsIn':endsIn
+                            'endsIn':endsIn,
+                            'forumLink': 'http://forum.pleaseignore.com/index.php?%s' % re.search('topic=[\d]+', node.getAttribute('eventText'))
                         }                
                         events.append(event)
         if len(events) == 0:
@@ -182,7 +184,8 @@ class OpTimerHandler(BaseHandler):
                 'duration': 0,
                 'isImportant': 0,
                 'eventText': 'Add ops using EVE-Gate or the in-game calendar',
-                'endsIn':-1
+                'endsIn':-1,
+                'forumLink': ''
             }]}
         else:
             return {'ops':events}
