@@ -154,6 +154,12 @@ class OpTimerHandler(BaseHandler):
                     now = datetime.utcnow()                
                     startsIn = int(dt.strftime('%s')) - int(now.strftime('%s'))
                     duration = int(node.getAttribute('duration'))
+
+                    fid = re.search('topic=[\d]+', node.getAttribute('eventText'))
+                    if fid:
+                        forumlink = 'http://forum.pleaseignore.com/index.php?%s' % id
+                    else:
+                        forumlink = ''
                     #In case people forget to set a duration, we'll give a default of 1 hour
                     if duration == 0:
                         duration = 60
@@ -171,7 +177,7 @@ class OpTimerHandler(BaseHandler):
                             'isImportant': node.getAttribute('importance'),
                             'eventText': node.getAttribute('eventText'),
                             'endsIn':endsIn,
-                            'forumLink': 'http://forum.pleaseignore.com/index.php?%s' % re.search('topic=[\d]+', node.getAttribute('eventText'))
+                            'forumLink': forumlink
                         }                
                         events.append(event)
         if len(events) == 0:
