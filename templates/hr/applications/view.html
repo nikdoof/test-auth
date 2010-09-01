@@ -20,6 +20,8 @@
 <p>
 {% if app.status < 1 %}
 <a href="{% url hr.views.update_application app.id 1 %}">Submit Application</a>,&nbsp;
+{% else %}
+<a href="{% url hr.views.update_application app.id 0 %}">Withdraw Application</a>,&nbsp;
 {% endif %}
 {% if hrstaff %}
 <a href="{% url hr.views.add_note app.id %}">Add Note</a>,&nbsp;
