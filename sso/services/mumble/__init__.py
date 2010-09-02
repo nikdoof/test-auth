@@ -1,5 +1,6 @@
 from sso.services import BaseService
 from MumbleCtlIce import MumbleCtlIce
+import Ice
 
 class MumbleService(BaseService):
 
