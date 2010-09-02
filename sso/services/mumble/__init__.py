@@ -85,5 +85,29 @@ class MumbleService(BaseService):
         """ Login the user and provide cookies back """ 
         pass
 
+    def update_groups(self, uid, groups):
+        """" Update the UID's groups based on the provided list """
+        
+        # Get the User ID
+        user = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid).values()[0]
+        if not user:
+            return False
+
+        acls = self.mumblectl.getACL(self.settings['mumble_server_id'], 0)
+
+        for agroup in groups:
+            gid = 0
+            for mgroup in acls[1]:
+                if mgroup.name = agroup.name.replace(' ', '').lower():
+                    if not user['userid'] in acls[1][gid].members:
+                        acls[1][gid].add.append(user['userid'])
+                        acls[1][gid].members.append(user['userid'])
+                else:
+                    if user['userid'] in acls[1][gid].members:
+                        acls[1][gid].remove.append(user['userid'])
+                        acls[1][gid].remove.remove(user['userid'])
+                gid = gid + 1
+
+        self.mumblectl.setACL(self.settings['mumble_server_id'], 0, acls[0], acls[1], acls[2])      
 
 ServiceClass = 'MumbleService'
