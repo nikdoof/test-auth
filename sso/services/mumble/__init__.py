@@ -104,6 +104,9 @@ class MumbleService(BaseService):
             if not agroup.name.replace(' ', '').lower() in glist:
                 group = self.mur.Group()
                 group.name = group.name.replace(' ', '').lower()
+                group.members = []
+                group.add = []
+                group.remove = []
                 group.inheritable = True
                 group.inherit = True
                 group.inherited = False
