@@ -32,7 +32,11 @@ class MumbleService(BaseService):
 
         username = self.settings['name_format'] % details
 
-        return self.raw_add_user(username, kwargs['user'].email, password)
+        if self.raw_add_user(username, kwargs['user'].email, password):
+            self.update_groups(username, kwargs['user'].groups.all())
+            return True
+        else:
+            return False
 
     def raw_add_user(self, username, email, password):
         if self.mumblectl.registerPlayer(self.settings['mumble_server_id'], username, email, password):
@@ -101,9 +105,9 @@ class MumbleService(BaseService):
 
         newgroups = False
         for agroup in groups:
-            if not agroup.name.replace(' ', '').lower() in glist:
+            if not str(agroup.name.replace(' ', '').lower()) in glist:
                 group = self.mur.Group()
-                group.name = agroup.name.replace(' ', '').lower()
+                group.name = str(agroup.name.replace(' ', '').lower())
                 group.members = []
                 group.add = []
                 group.remove = []
