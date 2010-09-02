@@ -103,7 +103,7 @@ class MumbleService(BaseService):
         for agroup in groups:
             if not agroup.name.replace(' ', '').lower() in glist:
                 group = self.mur.Group()
-                group.name = group.name.replace(' ', '').lower()
+                group.name = agroup.name.replace(' ', '').lower()
                 group.members = []
                 group.add = []
                 group.remove = []
