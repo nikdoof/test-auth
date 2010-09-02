@@ -15,6 +15,7 @@ class MumbleService(BaseService):
     def __init__(self):
         Ice.loadSlice(self.settings['ice_file'])
         import Murmur
+        self.mur = Murmur
 
     @property
     def mumblectl(self):
@@ -101,7 +102,7 @@ class MumbleService(BaseService):
         newgroups = False
         for agroup in groups:
             if not agroup.name.replace(' ', '').lower() in glist:
-                group = Murmur.Group()
+                group = self.mur.Group()
                 group.name = group.name.replace(' ', '').lower()
                 group.inheritable = True
                 group.inherit = True
@@ -112,6 +113,8 @@ class MumbleService(BaseService):
         if newgroups:
             self.mumblectl.setACL(self.settings['mumble_server_id'], 0, acls[0], acls[1], acls[2])
 
+        return acls
+
     def update_groups(self, uid, groups):
         """ Update the UID's groups based on the provided list """
         
@@ -120,9 +123,8 @@ class MumbleService(BaseService):
         if not user:
             return False
 
-        self._create_groups(groups)
-
-        acls = self.mumblectl.getACL(self.settings['mumble_server_id'], 0)
+        acls = self._create_groups(groups)
+        #acls = self.mumblectl.getACL(self.settings['mumble_server_id'], 0)
 
         for agroup in groups:
             gid = 0
