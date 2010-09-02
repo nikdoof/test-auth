@@ -179,6 +179,11 @@ class MumbleCtlIce_118(MumbleCtlBase):
 		self.proxy  = connstring;
 		self.meta   = meta;
 	
+    @protectDjangoErrPage
+    def getMurmurObj(self, objname):
+        if hasattr(Murmur, objname):
+            return getattr(Murmur, objname)
+
 	@protectDjangoErrPage
 	def _getIceServerObject(self, srvid):
 		return self.meta.getServer(srvid);

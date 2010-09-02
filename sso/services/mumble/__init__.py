@@ -97,7 +97,7 @@ class MumbleService(BaseService):
         newgroups = False
         for agroup in groups:
             if not agroup.name.replace(' ', '').lower() in glist:
-                group = Murmur.Group()     
+                group = self.mumblectl.getMurmurObj('Group')
                 group.name = group.name.replace(' ', '').lower()
                 group.inheritable = True
                 group.inherit = True
