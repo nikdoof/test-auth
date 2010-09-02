@@ -11,6 +11,10 @@ class MumbleService(BaseService):
                  'connection_string': 'Meta:tcp -h 127.0.0.1 -p 6502',
                  'ice_file': 'Murmur.ice' }
 
+    def __init__(self):
+        Ice.loadSlice(self.settings['ice_file'])
+        import Murmur
+
     @property
     def mumblectl(self):
         if not hasattr(self, '_mumblectl'):
@@ -87,7 +91,6 @@ class MumbleService(BaseService):
 
     def _create_groups(self, groups):
         """ Processes a list of groups and makes sure that related mumble groups exist """
-        import Murmur
 
         acls = self.mumblectl.getACL(self.settings['mumble_server_id'], 0)
         glist = []
@@ -97,7 +100,7 @@ class MumbleService(BaseService):
         newgroups = False
         for agroup in groups:
             if not agroup.name.replace(' ', '').lower() in glist:
-                group = self.mumblectl.getMurmurObj('Group')
+                group = Murmur.Group()
                 group.name = group.name.replace(' ', '').lower()
                 group.inheritable = True
                 group.inherit = True
