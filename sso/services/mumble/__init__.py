@@ -85,20 +85,45 @@ class MumbleService(BaseService):
         """ Login the user and provide cookies back """ 
         pass
 
+    def _create_groups(self, groups):
+        """ Processes a list of groups and makes sure that related mumble groups exist """
+        import Murmur
+
+        acls = self.mumblectl.getACL(self.settings['mumble_server_id'], 0)
+        glist = []
+        for mgroup in acls[1]:
+            glist.append(mgroup.name)
+
+        newgroups = False
+        for agroup in groups:
+            if not agroup.name.replace(' ', '').lower() in glist:
+                group = Murmur.Group()     
+                group.name = group.name.replace(' ', '').lower()
+                group.inheritable = True
+                group.inherit = True
+                group.inherited = False
+                acls[1].append(group)
+                newgroups = True           
+
+        if newgroups:
+            self.mumblectl.setACL(self.settings['mumble_server_id'], 0, acls[0], acls[1], acls[2])
+
     def update_groups(self, uid, groups):
-        """" Update the UID's groups based on the provided list """
+        """ Update the UID's groups based on the provided list """
         
         # Get the User ID
         user = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid).values()[0]
         if not user:
             return False
 
+        self._create_groups(groups)
+
         acls = self.mumblectl.getACL(self.settings['mumble_server_id'], 0)
 
         for agroup in groups:
             gid = 0
             for mgroup in acls[1]:
-                if mgroup.name = agroup.name.replace(' ', '').lower():
+                if mgroup.name == agroup.name.replace(' ', '').lower():
                     if not user['userid'] in acls[1][gid].members:
                         acls[1][gid].add.append(user['userid'])
                         acls[1][gid].members.append(user['userid'])
