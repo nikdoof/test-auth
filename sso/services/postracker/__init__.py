@@ -40,7 +40,7 @@ class POSTrackerService(BaseDBService):
         else:
             eveid = None
 
-        self.dbcursor.execute(self.SQL_ADD_USER, [eveid, username, "%s%s" (salt, pwhash) , email])
+        self.dbcursor.execute(self.SQL_ADD_USER, [eveid, username, "%s%s" % (salt, pwhash) , email])
         self.db.connection.commit()
         return username
 
@@ -67,7 +67,7 @@ class POSTrackerService(BaseDBService):
     def enable_user(self, uid, password):
         """ Enable a user """
         pwhash, salt = self._gen_pwhash(password)
-        self.dbcursor.execute(self.SQL_ENABLE_USER, ["%s%s" (salt, pwhash), uid])
+        self.dbcursor.execute(self.SQL_ENABLE_USER, ["%s%s" % (salt, pwhash), uid])
         self.db.connection.commit()
         return True
 
