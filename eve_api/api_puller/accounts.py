@@ -90,6 +90,24 @@ def import_eve_account(api_key, user_id, force_cache=False):
             # This must be a Text node, ignore it.
             continue
 
+    # Check API keytype if we have a character and a unknown key status
+    if account.api_keytype == API_KEYTYPE_UNKNOWN and len(account.characters.all()):
+        auth_params['characterID'] = account.characters.all()[0].id
+        keycheck = CachedDocument.objects.api_query('/char/AccountBalance.xml.aspx', params=auth_params, no_cache=True)
+
+        if keycheck:
+            dom = minidom.parseString(keycheck.body.encode('utf-8'))
+            enode = dom.getElementsByTagName('error')
+
+            if enode and int(enode[0].getAttribute('code')) == 200:
+                account.api_keytype = API_KEYTYPE_LIMITED
+            elif not enode:
+                account.api_keytype = API_KEYTYPE_FULL
+            else:
+                account.api_keytype = API_KEYTYPE_UNKNOWN
+        else:
+            account.api_keytype = API_KEYTYPE_UNKNOWN
+
     account.api_last_updated = datetime.utcnow()
     account.save()
     return account

@@ -16,6 +16,16 @@ API_STATUS_CHOICES = (
     (API_STATUS_ACC_EXPIRED, 'Account Expired'),
 )
 
+API_KEYTYPE_UNKNOWN = 0
+API_KEYTYPE_LIMITED = 1
+API_KEYTYPE_FULL = 2
+
+API_KEYTYPE_CHOICES = (
+    (API_KEYTYPE_UNKNOWN, 'Unknown'),
+    (API_KEYTYPE_LIMITED, 'Limited'),
+    (API_KEYTYPE_FULL, 'Full'),
+)
+
 API_GENDER_CHOICES = (
     (1, 'Male'),
     (2, 'Female'),

@@ -63,13 +63,14 @@ setup.</p>
 {% if eveaccounts %}
 <table>
 <thead>
-<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Active</th><th>Last Updated</th><th>Actions</th></tr>
+<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th><th>Actions</th></tr>
 </thead>
 <tbody>
 {% for acc in eveaccounts %}
 <tr><td>{{ acc.api_user_id }}</td>
     <td>{{ acc.api_key }}</td>
     <td>{{ acc.description }}</td>
+    <td>{{ acc.get_api_keytype_display }}</td>
     <td>{{ acc.get_api_status_display }}</td>
     <td>{{ acc.api_last_updated|naturaltimediff }}</td>
     <td><a href="{% url sso.views.eveapi_refresh acc.api_user_id %}">Refresh</a>,&nbsp;

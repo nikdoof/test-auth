@@ -6,6 +6,7 @@ import eve_api.api_puller.accounts
 from eve_api.api_puller.alliances import __start_full_import as alliance_import
 from eve_api.api_puller.corp_management import pull_corp_members
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
+from eve_api.app_defines import *
 
 class UpdateAPIs():
         """
@@ -63,13 +64,13 @@ class CorpManagementUpdate():
             return self.__logger
 
         def job(self):
-            directors = EVEPlayerCharacter.objects.filter(director_update=True)
+            directors = EVEPlayerCharacter.objects.filter(director=True)
 
             for director in directors:
-                self._logger.info("Updating: %s / %s" % (director, director.corporation))
-                #api = director.eveaccount
                 api = EVEAccount.objects.get(characters__in=[director])
-                pull_corp_members(api.api_key, api.api_user_id, director.id)
+                if api.api_type == API_KEYTYPE_FULL:
+                    self._logger.info("Updating: %s / %s" % (director, director.corporation))
+                    pull_corp_members(api.api_key, api.api_user_id, director.id)
 
 class AllianceUpdate():
         """

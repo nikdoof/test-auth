@@ -7,7 +7,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from eve_proxy.models import CachedDocument
 from eve_api.managers import EVEPlayerCorporationManager, EVEPlayerAllianceManager, EVEPlayerCharacterManager
-from eve_api.app_defines import API_STATUS_CHOICES, API_STATUS_PENDING, API_RACES_CHOICES, API_GENDER_CHOICES
+from eve_api.app_defines import *
 
 class EVEAPIModel(models.Model):
     """
@@ -39,6 +39,10 @@ class EVEAccount(EVEAPIModel):
                                      verbose_name="API Status",
                                      help_text="End result of the last attempt at updating this object from the API.")
 
+    api_keytype = models.IntegerField(choices=API_KEYTYPE_CHOICES,
+                                     default=API_KEYTYPE_UNKNOWN,
+                                     verbose_name="API Key Type",
+                                     help_text="Type of API key")
 
     def in_corp(self, corpid):
         for char in self.characters.all():
@@ -79,9 +83,9 @@ class EVEPlayerCharacter(EVEAPIModel):
                                             verbose_name="Last Logoff Date/Time",
                                             help_text="The last time this character logged off EVE")
 
-    director_update = models.BooleanField(blank=False, default=False,
-                                            verbose_name="Director Update",
-                                            help_text="This character is a Director of the associated corporation and should be used for updates")
+    director = models.BooleanField(blank=False, default=False,
+                                            verbose_name="Director",
+                                            help_text="This character is a Director of the associated corporation")
     
     objects = EVEPlayerCharacterManager()
     
