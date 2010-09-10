@@ -40,12 +40,13 @@
 <h2>Eve API Keys</h2>
 {% if eveaccounts %}
 <table>
-<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Active</th></tr>
+<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Key Type</th><th>Active</th></tr>
 {% for acc in eveaccounts %}
 <tr><td>{{ acc.api_user_id }}</td>
     <td>{{ acc.api_key }}</td>
     <td>{{ acc.description }}</td>
-    <td>{{ acc.api_status_description }}</td>
+    <td>{{ acc.get_api_keytype_description }}</td>
+    <td>{{ acc.get_api_status_description }}</td>
 </tr>
 {% endfor %}
 </table>
