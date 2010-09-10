@@ -170,6 +170,17 @@ def import_eve_character(api_key, user_id, character_id):
     pchar.attrib_willpower = values['attributes']['willpower']
     pchar.attrib_memory = values['attributes']['memory']
 
+    # Check if the character is a director
+    pchar.director = False
+    roles = values.get('corporationRoles', None)
+    print roles
+    if roles and len(roles):
+        for r in roles:
+            print r
+            if r['roleName'] == 'roleDirector':
+                pchar.director = True
+                break
+
     if values['gender'] == 'Male':
         pchar.gender = 1
     else:
