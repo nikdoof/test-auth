@@ -173,10 +173,8 @@ def import_eve_character(api_key, user_id, character_id):
     # Check if the character is a director
     pchar.director = False
     roles = values.get('corporationRoles', None)
-    print roles
     if roles and len(roles):
         for r in roles:
-            print r
             if r['roleName'] == 'roleDirector':
                 pchar.director = True
                 break
