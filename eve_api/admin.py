@@ -13,7 +13,7 @@ def account_api_update(modeladmin, request, queryset):
 account_api_update.short_description = "Update account from the EVE API"
 
 class EVEAccountAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'api_status', 'api_last_updated')
+    list_display = ('id', 'user', 'api_keytype', 'api_status', 'api_last_updated')
     search_fields = ['id']
 
     actions = [account_api_update]
