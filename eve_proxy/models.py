@@ -2,6 +2,7 @@ import httplib
 import urllib
 import xml
 import hashlib
+import socket
 from datetime import datetime, timedelta
 from xml.dom import minidom
 from django.db import models
@@ -47,7 +48,10 @@ class CachedDocumentManager(models.Manager):
             method = 'POST'
 
         headers = {"Content-type": "application/x-www-form-urlencoded"}
-        conn = httplib.HTTPConnection(API_URL)
+        try:
+            conn = httplib.HTTPConnection(API_URL)
+        except socket.error:
+            return None
         conn.request(method, url_path, paramstr, headers)
         response = conn.getresponse()
 
