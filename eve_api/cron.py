@@ -30,7 +30,7 @@ class UpdateAPIs():
             delta = datetime.timedelta(seconds=self.last_update_delay)
             self._logger.debug("Updating APIs older than %s" % (datetime.datetime.now() - delta))
 
-            accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.datetime.now() - delta)).exclude(api_status=API_STATUS_ACC_EXPIRED).order_by('api_last_updated')[:self.batches]
+            accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.datetime.now() - delta)).exclude(api_status=API_STATUS_ACC_EXPIRED).exclude(api_status=API_STATUS_AUTH_ERROR).order_by('api_last_updated')[:self.batches]
             self._logger.debug("%s account(s) to update" % len(accounts))
             for acc in accounts:
                self._logger.info("Updating UserID %s" % acc.api_user_id)
