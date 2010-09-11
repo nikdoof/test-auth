@@ -172,10 +172,11 @@ def import_eve_character(api_key, user_id, character_id):
 
     # Process the character's roles
     pchar.director = False
+    pchar.roles.clear()
     roles = values.get('corporationRoles', None)
     if roles and len(roles):
         for r in roles:
-            role, created = EVEPlayerCharacterRole.objects.get_or_create(id=r['roleID'], name=r['roleName'])
+            role, created = EVEPlayerCharacterRole.objects.get_or_create(id=int(r['roleID']), name=r['roleName'])
             pchar.roles.add(role)
             if r['roleName'] == 'roleDirector':
                 pchar.director = True
