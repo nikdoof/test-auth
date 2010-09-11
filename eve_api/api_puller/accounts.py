@@ -16,7 +16,7 @@ from django.conf import settings
 from eve_proxy.models import CachedDocument
 from eve_api.app_defines import *
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
-from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
+from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCharacterRole, EVEPlayerCorporation
 
 def import_eve_account(api_key, user_id, force_cache=False):
     """
@@ -170,14 +170,15 @@ def import_eve_character(api_key, user_id, character_id):
     pchar.attrib_willpower = values['attributes']['willpower']
     pchar.attrib_memory = values['attributes']['memory']
 
-    # Check if the character is a director
+    # Process the character's roles
     pchar.director = False
     roles = values.get('corporationRoles', None)
     if roles and len(roles):
         for r in roles:
+            role, created = EVEPlayerCharacterRole.objects.get_or_create(id=r['roleID'], name=r['roleName'])
+            pchar.roles.add(role)
             if r['roleName'] == 'roleDirector':
                 pchar.director = True
-                break
 
     if values['gender'] == 'Male':
         pchar.gender = 1

@@ -86,6 +86,9 @@ class EVEPlayerCharacter(EVEAPIModel):
     director = models.BooleanField(blank=False, default=False,
                                             verbose_name="Director",
                                             help_text="This character is a Director of the associated corporation")
+
+    roles = models.ManyToManyField("EVEPlayerCharacterRole", blank=True,
+                                            null=True)
     
     objects = EVEPlayerCharacterManager()
     
@@ -102,6 +105,18 @@ class EVEPlayerCharacter(EVEAPIModel):
         app_label = 'eve_api'
         verbose_name = 'Player Character'
         verbose_name_plural = 'Player Characters'
+
+class EVEPlayerCharacterRole(EVEAPIModel):
+    """
+    Represents a role which can be applied to a character
+    """
+
+    name = models.CharField(max_length=255, blank=False, null=False)
+
+    class Meta:
+        app_label = 'eve_api'
+        verbose_name = 'Player Role'
+        verbose_name_plural = 'Player Roles'
 
 class EVEPlayerAlliance(EVEAPIModel):
     """
