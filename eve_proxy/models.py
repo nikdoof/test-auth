@@ -48,11 +48,11 @@ class CachedDocumentManager(models.Manager):
             method = 'POST'
 
         headers = {"Content-type": "application/x-www-form-urlencoded"}
+        conn = httplib.HTTPConnection(API_URL)
         try:
-            conn = httplib.HTTPConnection(API_URL)
+            conn.request(method, url_path, paramstr, headers)
         except socket.error:
             return None
-        conn.request(method, url_path, paramstr, headers)
         response = conn.getresponse()
 
         if response.status == 200:
