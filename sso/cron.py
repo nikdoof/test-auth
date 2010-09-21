@@ -2,7 +2,7 @@ import logging
 
 from django.contrib.auth.models import User, Group
 from eve_api.models import EVEAccount
-from sso.models import ServiceAccount
+from sso.models import ServiceAccount, Service
 
 class RemoveInvalidUsers():
         """
