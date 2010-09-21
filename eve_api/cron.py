@@ -72,7 +72,7 @@ class CorpManagementUpdate():
                     if api.api_keytype == API_KEYTYPE_FULL:
                         self._logger.info("Updating: %s / %s" % (director, director.corporation))
                         pull_corp_members(api.api_key, api.api_user_id, director.id)
-                       director.corporation.query_and_update_corp()
+                        director.corporation.query_and_update_corp()
 
 class AllianceUpdate():
         """
