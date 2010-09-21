@@ -71,7 +71,7 @@ class UpdateServiceGroups():
                     #try:
                     ret = api.update_groups(servacc.service_uid, servacc.user.groups.all())
                     if not ret:
-                        if not api.check_user(servacc.service_uid):
+                        if not api.check_uid(servacc.service_uid):
                             self._logger.error('%s not setup on %s, deleting ServiceAccount record' % (servacc.service_uid, serv))
                             servacc.delete()
                     #except:

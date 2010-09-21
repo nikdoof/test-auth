@@ -39,6 +39,10 @@ class BaseService():
         """ Check if the username exists """
         return False
 
+    def check_uid(self, uid):
+        """ Check if a UID exists """
+        return self.check_user(uid)
+
     def delete_user(self, uid):
         """ Delete a user by uid """
         return True
