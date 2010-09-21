@@ -125,10 +125,11 @@ class MumbleService(BaseService):
     def update_groups(self, uid, groups):
         """ Update the UID's groups based on the provided list """
         
-        # Get the User ID
-        user = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid).values()[0]
+        user = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
         if not user:
             return False
+
+        user = user.values()[0]
 
         acls = self._create_groups(groups)
         #acls = self.mumblectl.getACL(self.settings['mumble_server_id'], 0)
@@ -146,6 +147,7 @@ class MumbleService(BaseService):
                         acls[1][gid].remove.remove(user['userid'])
                 gid = gid + 1
 
-        self.mumblectl.setACL(self.settings['mumble_server_id'], 0, acls[0], acls[1], acls[2])      
+        self.mumblectl.setACL(self.settings['mumble_server_id'], 0, acls[0], acls[1], acls[2])
+        return True
 
 ServiceClass = 'MumbleService'
