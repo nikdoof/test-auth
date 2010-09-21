@@ -50,7 +50,11 @@ class JabberService(BaseService):
 
     def check_user(self, username):
         """ Check if the username exists """
-        res = self.exec_xmlrpc('check_account', user=username, host=self.settings['jabber_server'])
+        if '@' in username:
+            username, server = username.split("@")
+        else:
+            server = self.settings['jabber_server']
+        res = self.exec_xmlrpc('check_account', user=username, host=server)
         if res['res'] == 0:
             return True
         else:
