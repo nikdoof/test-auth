@@ -67,11 +67,13 @@ class MiningBuddyService(BaseDBService):
         """ Delete a user """
         self.dbcursor.execute(self.SQL_DEL_USER, [uid])
         self.db.connection.commit()
+        return True
 
     def disable_user(self, uid):
         """ Disable a user """
         self.dbcursor.execute(self.SQL_DIS_USER, [uid])
         self.db.connection.commit()
+        return True
 
     def enable_user(self, uid, password):
         """ Enable a user """
