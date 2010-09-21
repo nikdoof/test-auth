@@ -30,9 +30,9 @@ cron_class = getattr(mod, sys.argv[2])()
 
 log.info("Starting Job %s in %s" % (sys.argv[2], sys.argv[1]))
 
-#try:
-cron_class.job()
-#except:
-#    log.error("Error executing job, aborting.")
+try:
+    cron_class.job()
+except KeyboardInterrupt:
+    log.error("aborting.")
 
 log.info("Job complete")
