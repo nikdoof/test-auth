@@ -46,3 +46,30 @@ class ValidateDisabledUsers():
                 api.settings = servacc.service.settings
                 if not api.disable_user(servacc.service_uid):
                     self._logger.error('Error disabling %s on %s' % (servacc, servacc.service))
+
+
+class UpdateServiceGroups():
+        """
+        Cycles through all service accounts and updates group access.
+        """
+
+        # run daily
+        run_every = 84600
+
+        @property
+        def _logger(self):
+            if not hasattr(self, '__logger'):
+                self.__logger = logging.getLogger(__name__)
+            return self.__logger
+
+        def job(self):
+            for serv in Service.objects.filter(active=1):
+                self._logger.info('Updating %s service' % serv)
+                api = serv.api_class
+                for servacc in ServiceAccount.objects.filter(active=1, service=serv):
+                    self._logger.info('Processing %s' % servacc)
+                    try:
+                        api.update_groups(servacc.service_uid, servacc.user.groups.all())
+                    except:
+                        self._logger.error('Error updating %s' % servacc)
+
