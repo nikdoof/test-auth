@@ -68,8 +68,12 @@ class UpdateServiceGroups():
                 api = serv.api_class
                 for servacc in ServiceAccount.objects.filter(active=1, service=serv):
                     self._logger.info('Processing %s' % servacc)
-                    try:
-                        api.update_groups(servacc.service_uid, servacc.user.groups.all())
-                    except:
-                        self._logger.error('Error updating %s' % servacc)
+                    #try:
+                    ret = api.update_groups(servacc.service_uid, servacc.user.groups.all())
+                    if not ret:
+                        if not api.check_user(servacc.service_uid):
+                            self._logger.error('%s not setup on %s, deleting ServiceAccount record' % (servacc.service_uid, serv))
+                            servacc.delete()
+                    #except:
+                    #    self._logger.error('Error updating %s' % servacc)
 
