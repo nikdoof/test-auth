@@ -17,17 +17,17 @@
 <p>To reset your External API Auth Services password, which is used to access tools and websites which use Auth's API, click the link below</p>
 <p><a href="{% url sso.views.set_apipasswd %}">Reset External API Auth Services Password</a></p>
 
-{% if eveaccounts %}
+{% if user.eveaccount_set.all %}
 <h2>External non-API Service Accounts</h2>
 <p>This is a list of all your current non-api external service accounts, to
 create a login for a service click the Add Service link</p>
-{% if srvaccounts %}
+{% if user.serviceaccount_set.all %}
 <table>
 <thead>
 <tr><th>Service</th><th>Username</th><th>URL</th><th>Active</th><th>Actions</th></tr>
 </thead>
 <tbody>
-{% for acc in srvaccounts %}
+{% for acc in user.serviceaccount_set.all %}
 <tr><td>{{ acc.service }}</td>
     <td>{{ acc.service_uid }}</td>
     <td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td>
@@ -60,13 +60,13 @@ corporation. Limited keys are accepted for service validation. API keys
 are stored for on-going authentication. As the assigned owner of a key you may
 remove them at any time, but this may affect any existing services you have
 setup.</p>
-{% if eveaccounts %}
+{% if user.eveaccount_set.all %}
 <table>
 <thead>
 <tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th><th>Actions</th></tr>
 </thead>
 <tbody>
-{% for acc in eveaccounts %}
+{% for acc in user.eveaccount_set.all %}
 <tr><td>{{ acc.api_user_id }}</td>
     <td>{{ acc.api_key }}</td>
     <td>{{ acc.description }}</td>
@@ -89,14 +89,14 @@ setup.</p>
 
 <h2>Reddit Accounts</h2>
 <p>This is a list of all your current linked Reddit accounts</p>
-{% if redditaccounts %}
+{% if user.redditaccount_set.all %}
 <p>To validate your Reddit account, login on Reddit then click the link next to the account, fill in some text in the message and click send.</p>
 <table>
 <thead>
 <tr><th>Username</th><th>Created Date</th><th>Validated</th></tr>
 </thead>
 <tbody>
-{% for acc in redditaccounts %}
+{% for acc in user.redditaccount_set.all %}
 <tr><td>{{ acc.username }}</td>
     <td>{{ acc.date_created }}</td>
     <td>{% if acc.validated %}Yes{% else %}No (<a href="http://www.reddit.com/message/compose/?to=DredditVerification&subject=Validation%3a%20{{user.username}}" target="_blank">Validate</a>){% endif %}</td>

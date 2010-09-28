@@ -37,21 +37,6 @@ def profile(request):
         profile = SSOUser(user=request.user)
         profile.save()
 
-    try:
-        srvaccounts = ServiceAccount.objects.filter(user=request.user).all()
-    except ServiceAccount.DoesNotExist:
-        srvaccounts = None
-
-    try:
-        redditaccounts = RedditAccount.objects.filter(user=request.user).all()
-    except ServiceAccount.DoesNotExist:
-        redditaccounts = None
-    
-    try:
-        eveaccounts = EVEAccount.objects.filter(user=request.user).all()
-    except EVEAccount.DoesNotExist:
-        eveaccounts = None
-
     return render_to_response('sso/profile.html', locals(), context_instance=RequestContext(request))
 
 @login_required
