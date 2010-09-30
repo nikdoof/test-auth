@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
-from sso.models import Service, ServiceAccount, SSOUser
+from sso.models import Service, ServiceAccount, SSOUser, SSOUserNote
 
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('name', 'url', 'api', 'active')
@@ -28,3 +28,9 @@ class SSOUserAdmin(UserAdmin):
 # Re-register UserAdmin
 admin.site.unregister(User)
 admin.site.register(User, SSOUserAdmin)
+
+class SSOUserNoteAdmin(admin.ModelAdmin):
+    list_display = ('user', 'note', 'date_created', 'created_by')
+
+admin.site.register(SSOUserNote, SSOUserNoteAdmin)
+
