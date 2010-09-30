@@ -11,12 +11,9 @@ from django.template import RequestContext
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 from eve_api.api_puller.accounts import import_eve_account
 from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter
-
 from eve_proxy.models import ApiAccessLog
-
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
 from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetForm, RedditAccountForm, UserLookupForm, APIPasswordForm
-
 from reddit.models import RedditAccount
 
 import settings
@@ -41,7 +38,6 @@ def profile(request):
 
 @login_required
 def characters(request, charid=0):
-
     if charid:
         try:
             character = EVEPlayerCharacter.objects.get(id=charid)
@@ -55,7 +51,6 @@ def characters(request, charid=0):
             chars = acc.characters.all()
             for char in chars:
                 characters.append({'id': char.id, 'name': char.name, 'corp': char.corporation.name})
-
     except EVEAccount.DoesNotExist:
         characters = []
 
@@ -94,7 +89,6 @@ def eveapi_add(request):
 def eveapi_del(request, userid=0):
 
     if userid > 0 :
-
         try:
             acc = EVEAccount.objects.get(id=userid)
         except EVEAccount.DoesNotExist:
@@ -122,7 +116,6 @@ def eveapi_refresh(request, userid=0):
 @login_required
 def eveapi_log(request, userid=0):
     if userid > 0 :
-
         try:
             acc = EVEAccount.objects.get(id=userid)
         except:
