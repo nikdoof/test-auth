@@ -128,6 +128,11 @@ class SSOUserNote(models.Model):
                                             verbose_name="Date/Time the note was added",
                                             help_text="Shows the date and time the note was added to the account")
 
+    class Meta:
+        verbose_name = 'User Note'
+        verbose_name_plural = 'User Notes'
+        ordering = ['date_created']
+
 
 class Service(models.Model):
     """
@@ -141,6 +146,11 @@ class Service(models.Model):
     api = models.CharField("API", max_length=200)
     groups = models.ManyToManyField(Group, blank=False)
     settings_json = JSONField("Service Settings", blank=True)
+
+    class Meta:
+        verbose_name = 'Service'
+        verbose_name_plural = 'Services'
+        ordering = ['id']
 
     @property
     def provide_login(self):
@@ -196,6 +206,11 @@ class ServiceAccount(models.Model):
     character = None
     username = None
     password = None
+
+    class Meta:
+        verbose_name = 'Service Account'
+        verbose_name_plural = 'Service Accounts'
+        ordering = ['user']
 
     def __str__(self):
         return "%s: %s (%s)" % (self.service.name, self.user.username, self.service_uid)
