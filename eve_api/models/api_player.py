@@ -114,6 +114,15 @@ class EVEPlayerCharacterRole(EVEAPIModel):
     roleid = models.CharField(max_length=64, blank=False, null=False)
     name = models.CharField(max_length=255, blank=False, null=False)
 
+    def __unicode__(self):
+        if self.name:
+            return self.name
+        else:
+            return self.id
+
+    def __str__(self):
+        return self.__unicode__()
+
     class Meta:
         app_label = 'eve_api'
         verbose_name = 'Player Role'
