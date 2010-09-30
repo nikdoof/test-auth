@@ -11,9 +11,9 @@ class Migration(SchemaMigration):
         # Adding model 'SSOUserNote'
         db.create_table('sso_ssousernote', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='notes', to_field='User', to=orm['auth.User'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='notes', to=orm['auth.User'])),
             ('note', self.gf('django.db.models.fields.TextField')()),
-            ('created_by', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], to_field='Created By')),
+            ('created_by', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
             ('date_created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
         ))
         db.send_create_signal('sso', ['SSOUserNote'])
@@ -88,11 +88,11 @@ class Migration(SchemaMigration):
         },
         'sso.ssousernote': {
             'Meta': {'object_name': 'SSOUserNote'},
-            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'to_field': "'Created By'"}),
+            'created_by': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"}),
             'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'note': ('django.db.models.fields.TextField', [], {}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'notes'", 'to_field': "'User'", 'to': "orm['auth.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'notes'", 'to': "orm['auth.User']"})
         }
     }
 

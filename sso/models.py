@@ -121,9 +121,9 @@ signals.post_save.connect(SSOUser.create_user_profile, sender=User)
 class SSOUserNote(models.Model):
     """ Notes bound to a user's account. Used to store information regarding the user """
 
-    user = models.ForeignKey(User, "User", blank=False, null=False, related_name='notes')
+    user = models.ForeignKey(User, blank=False, null=False, related_name='notes')
     note = models.TextField("Note", blank=False, null=False)
-    created_by = models.ForeignKey(User, "Created By", blank=False, null=False)
+    created_by = models.ForeignKey(User, blank=False, null=False)
     date_created = models.DateTimeField(auto_now_add=True, blank=False, null=False,
                                             verbose_name="Date/Time the note was added",
                                             help_text="Shows the date and time the note was added to the account")
