@@ -259,7 +259,10 @@ def reddit_del(request, redditid=0):
 @login_required
 def user_view(request, username=None):
     if username:
-       user = User.objects.get(username=username)
+       try:
+           user = User.objects.get(username=username)
+       except User.DoesNotExist:
+           return HttpResponseRedirect(reverse('sso.views.user_lookup'))
     else:
        return HttpResponseRedirect(reverse('sso.views.user_lookup'))
 
