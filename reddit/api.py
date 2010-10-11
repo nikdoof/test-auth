@@ -2,6 +2,7 @@ import simplejson as json
 import urllib2
 import urllib
 from datetime import datetime
+import unicodedata 
 
 class NotLoggedIn(Exception):
     pass
@@ -106,7 +107,7 @@ class Inbox():
             self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
             urllib2.install_opener(self._opener)
 
-        req = urllib2.Request( url, urllib.urlencode(data))
+        req = urllib2.Request(url, urllib.urlencode(data))
         return self._opener.open(req)
 
     def __len__(self):
@@ -123,8 +124,8 @@ class Inbox():
             raise NotLoggedIn
 
         data = { 'to': to,
-                 'subject': subject,
-                 'text': text, 
+                 'subject': subject.encode('utf-8'),
+                 'text': text.encode('utf-8'), 
                  'uh': self.modhash,
                  'thing_id': '' }
         url = "%s" % (self.REDDIT_API_COMPOSE)
