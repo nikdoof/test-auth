@@ -125,10 +125,11 @@ class OpTimerHandler(BaseHandler):
         params = {'userID':obj.id,'apiKey':obj.api_key,'characterID':FULL_API_CHARACTER_ID}
         
         cached_doc = CachedDocument.objects.api_query('/char/UpcomingCalendarEvents.xml.aspx', params, exceptions=False)
-        
-        dom = minidom.parseString(cached_doc.body.encode('utf-8'))
-        enode = dom.getElementsByTagName('error')
-        if enode:
+
+        if cached_doc:
+            dom = minidom.parseString(cached_doc.body.encode('utf-8'))
+            enode = dom.getElementsByTagName('error')
+        if not cached_doc or enode:
             return {'ops':[{
                 'startsIn': -1,
                 'eventID': 0,
