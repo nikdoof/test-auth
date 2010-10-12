@@ -38,8 +38,9 @@ def check_permissions(user, application=None):
     """ Check if the user has permissions to view or admin the application """
 
     hrgroup, created = Group.objects.get_or_create(name=settings.HR_STAFF_GROUP)
+    corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=user,corporation__applications=True)
     if not application:
-        if hrgroup in user.groups.all() or user.is_superuser:
+        if hrgroup in user.groups.all() or user.is_superuser or corplist.filter(director=True).count():
             return HR_ADMIN
     else:
         if user.is_superuser:
@@ -48,13 +49,11 @@ def check_permissions(user, application=None):
             return HR_VIEWONLY
         else:
             # Give admin access to directors of the corp
-            corplist = EVEPlayerCharacter.objects.filter(director=True,eveaccount__user=user).values_list('corporation__id', flat=True)
-            if application.corporation.id in corplist:
+            if application.corporation.id in corplist.filter(director=True).values_list('corporation__id', flat=True):
                 return HR_ADMIN
 
             # Give access to none director HR people access
-            corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=user).values_list('corporation__id', flat=True)
-            if application.corporation.id in corplist and hrgroup in user.groups.all():
+            if application.corporation.id in corplist.values_list('corporation__id', flat=True) and hrgroup in user.groups.all():
                 return HR_ADMIN
 
     return HR_NONE
