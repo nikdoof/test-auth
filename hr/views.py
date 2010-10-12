@@ -46,10 +46,17 @@ def check_permissions(user, application=None):
             return HR_ADMIN
         elif application.user == user:
             return HR_VIEWONLY
-        elif hrgroup in user.groups.all():
-            corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=user).values_list('corporation__id', flat=True)
+        else:
+            # Give admin access to directors of the corp
+            corplist = EVEPlayerCharacter.objects.filter(director=True,eveaccount__user=user).values_list('corporation__id', flat=True)
             if application.corporation.id in corplist:
                 return HR_ADMIN
+
+            # Give access to none director HR people access
+            corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=user).values_list('corporation__id', flat=True)
+            if application.corporation.id in corplist and hrgroup in user.groups.all():
+                return HR_ADMIN
+
     return HR_NONE
 
 ### General Views
