@@ -23,9 +23,9 @@
 {% else %}
 <a href="{% url hr.views.update_application app.id 0 %}">Withdraw Application</a>,&nbsp;
 {% endif %}
+<a href="{% url hr.views.add_message app.id %}">Add Message</a>,
 {% if hrstaff %}
-<a href="{% url hr.views.add_note app.id %}">Add Note</a>,&nbsp;
-<a href="{% url hr.views.add_message app.id %}">Send Message to Applicant</a>,
+<a href="{% url hr.views.add_note app.id %}">Add Staff Note</a>,&nbsp;
 {% if app.status < 2 or app.status = 4 %}
 <a href="{% url hr.views.reject_application app.id %}">Reject Application</a>,&nbsp;
 {% ifequal app.blacklisted 0 %}
@@ -45,7 +45,7 @@
 {% if audit %}
 <h3>Event Log</h3>
 <table>
-<tr><th>Event Type</th><th>Changed By</th><th>Changed Date</th><th>Event Details</th></tr>
+<tr><th>Event Type</th><th>User</th><th>Date</th><th>Event Details</th></tr>
 {% for a in audit %}
 <tr><td>{{ a.get_event_display }}</td><td>{{ a.user }}</td><td>{{ a.date }}</td><td>{{ a.text }}</td></tr>
 {% endfor %}
@@ -74,16 +74,17 @@
 {% if hrstaff %}
 <h3>EVE Characters</h3>
 <ul>
-{% for acc in eveacc %}
+{% for acc in app.user.eveaccount_set.all %}
 {% for char in acc.characters.all %}
 <li><a href="{% url sso.views.characters char.id %}">{{ char.name }}</a> - {{ char.corporation }} / {{ char.corporation.alliance }} - {{ char.balance|intcomma }} ISK, {{ char.total_sp|intcomma }} SP <button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button> - <a href="https://gate.eveonline.com/Profile/{{ char.name }}/">EveGate Profile</a></li>
 {% endfor %}
 {% endfor %}
 </ul>
 
+{% if app.user.redditaccount_set.all %}
 <h3>Reddit Accounts</h3>
 <ul>
-{% for acc in redditacc %}
+{% for acc in app.user.redditaccount_set.all %}
 <li><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a>{% if acc.validated %} - Validated{%else %} - <b>NOT VALIDATED</b>{% endif %} - {{ acc.date_created }}</li>
 {% endfor %}
 </ul>
@@ -101,5 +102,6 @@
 {% endifnotequal %}
 {% endfor %}
 </ul>
+{% endif %}
 {% endif %}
 {% endblock %}

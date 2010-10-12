@@ -5,7 +5,6 @@ from hr import views
 urlpatterns = patterns('',
     ('^$', views.index),
     (r'^recommendation/$', views.view_recommendations),
-    (r'^recommendation/(?P<recommendationid>\d+)/$', views.view_recommendation),
     (r'^application/$', views.view_applications),
     (r'^application/(?P<applicationid>\d+)/$', views.view_application),
     (r'^application/(?P<applicationid>\d+)/update/(?P<status>\d+)/$', views.update_application),

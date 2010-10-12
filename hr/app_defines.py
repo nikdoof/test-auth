@@ -1,3 +1,8 @@
+# Permission Levels
+HR_NONE = 0
+HR_VIEWONLY = 1
+HR_ADMIN = 2
+
 # Application Status Codes
 APPLICATION_STATUS_NOTSUBMITTED = 0
 APPLICATION_STATUS_AWAITINGREVIEW = 1
@@ -27,7 +32,7 @@ AUDIT_EVENT_CHOICES = (
     (AUDIT_EVENT_NOTE, 'Staff Note'),
     (AUDIT_EVENT_REJECTION, 'Rejection Reason'),
     (AUDIT_EVENT_ACCEPTED, 'Accepted'),
-    (AUDIT_EVENT_MESSAGE, 'Message to User'),
+    (AUDIT_EVENT_MESSAGE, 'Message'),
 )
 
 # Blacklist Type Codes
