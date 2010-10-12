@@ -162,7 +162,7 @@ def admin_applications(request):
 
     # Get the list of viewable applications by the admin
     corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).values_list('corporation', flat=True)
-    apps = Application.objects.filter(corporation__id__in=corplist)
+    apps = Application.objects.filter(corporation__id__in=list(corplist))
 
     if 'q' in request.GET:
         query = request.GET['q']
