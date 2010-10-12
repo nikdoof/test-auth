@@ -16,7 +16,7 @@ class ClearStaleCache():
                 
         def job(self):
             objs = CachedDocument.objects.filter(cached_until__lt=datetime.utcnow())
-            self._logger.info('Removing %s stale cache documents' % len(objs))
+            self._logger.info('Removing %s stale cache documents' % objs.count())
             objs.delete()
 
 class FlushCache():
@@ -32,6 +32,6 @@ class FlushCache():
                 
         def job(self):
             objs = CachedDocument.objects.all()
-            self._logger.info('Removing %s stale cache documents' % len(objs))
+            self._logger.info('Removing %s stale cache documents' % objs.count())
             objs.delete()
 
