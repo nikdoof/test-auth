@@ -4,7 +4,7 @@
 import os
 
 # Activate the virtualenv
-path = os.path.dirname(os.path.abspath( __file__ ))
+path = os.path.dirname(os.path.realpath( __file__ ))
 os.chdir(path)
 activate_this = os.path.join(path, 'env/bin/activate_this.py')
 execfile(activate_this, dict(__file__=activate_this))
