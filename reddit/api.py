@@ -7,30 +7,30 @@ import unicodedata
 class NotLoggedIn(Exception):
     pass
 
-class Comment:
+class Comment(dict):
     """ Abstraction for comment data provided by JSON 
         Comments can be identifed by Kind = 1 """
 
-    kind = 1
 
     def __init__(self, data):
-        self.id = data['id']
-        self.post = data['link_id'][3:]
-        self.body = data['body']
-        self.ups = data['likes']
-        self.downs = data['downs']
-        self.subreddit_id = data['subreddit_id']
-        self.subreddit = data['subreddit']
-        self.author = data['author']
 
-        self._rawdata = data
+        dict.__init__(self)
+        self['kind'] = 1
+        self['id'] = data['id']
+        self['post'] = data['link_id'][3:]
+        self['body'] = data['body']
+        self['ups'] = data['likes']
+        self['downs'] = data['downs']
+        self['subreddit_id'] = data['subreddit_id']
+        self['subreddit'] = data['subreddit']
+        self['author'] = data['author']
+        self['permalink'] = u'http://reddit.com/comments/%s/c/%s' % (self['post'], self['id'])
 
-    @property
-    def permalink(self):
-        return u'http://reddit.com/comments/%s/c/%s' % (self.post, self.id)
+    def __getattr__(self, name):
+        return dict.__getitem__(self, name)
 
     def __unicode__(self):
-        return u'/r/%s - %s' % (self.subreddit, self.author)
+        return u'/r/%s - %s' % (self['subreddit'], ['self.author'])
 
     def __str__(self):
         return self.__unicode__()
@@ -39,12 +39,13 @@ class Comment:
 class Message(dict):
     """ Abstract for a Reddit Message """
 
-    def __init__(self, dict=None):
-        if dict:
-            self.dictitems = dict
+    def __init__(self, msg=None):
+        if msg:
+            for k in msg.keys():
+                self[k] = msg[k]
 
     def __getattr__(self, name):
-        return self.dictitems[name]
+        return dict.__getitem__(self, name)
 
     def __unicode__(self):
         return u"%s: %s" % (self.author, self.subject)
