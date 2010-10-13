@@ -50,7 +50,7 @@ def characters(request, charid=0):
         for acc in eveaccounts:
             chars = acc.characters.all()
             for char in chars:
-                characters.append({'id': char.id, 'name': char.name, 'corp': char.corporation.name})
+                characters.append({'id': char.id, 'name': char.name, 'corp': char.corporation })
     except EVEAccount.DoesNotExist:
         characters = []
 

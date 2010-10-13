@@ -6,10 +6,11 @@
 
 {% if characters %}
 <table>
-<tr><th>Character Name</th><th>Corp</th></tr>
+<tr><th>Character Name</th><th>Corporation</th><th>Alliance</th></tr>
 {% for char in characters %}
 <tr><td><a href="{% url sso.views.characters char.id %}">{{ char.name }}</a></td>
     <td>{{ char.corp }}</td>
+    <td>{% if char.corp.alliance %}{{ char.corp.alliance }}{% endif %}</td>
 </tr>
 {% endfor %}
 </table>
