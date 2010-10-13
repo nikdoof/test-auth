@@ -142,7 +142,7 @@ def add_recommendation(request):
     if request.method == 'POST': 
         form = clsform(request.POST) 
         if form.is_valid():
-            rec = Recommendation(user=request.user, created_by=request.user, last_updated_by=request.user)
+            rec = Recommendation(user=request.user)
             rec.user_character = form.cleaned_data['character']
             rec.application = form.cleaned_data['application']
             rec.save()
