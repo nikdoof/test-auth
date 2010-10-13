@@ -88,14 +88,15 @@ def view_application(request, applicationid):
     else:
         return HttpResponseRedirect(reverse('hr.views.index'))
 
-    posts = []
-    for acc in app.user.redditaccount_set.all():
-        try: 
-            accposts = acc.recent_posts()
-        except:
-            reddit_error = "Encountered a error while trying to get all Reddit posts"
-            accposts = []
-        posts.extend(accposts)
+    if response.GET.has_key('redditxhr'):
+        posts = []
+        for acc in app.user.redditaccount_set.all():
+            try:
+                accposts = acc.recent_posts()
+            except:
+                accposts = []
+            posts.extend(accposts)
+        return HttpResponse(simplejson.dumps(accposts), mimetype='application/javascript')
 
     return render_to_response('hr/applications/view.html', locals(), context_instance=RequestContext(request))
 
