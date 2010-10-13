@@ -1,6 +1,6 @@
 import datetime
-
-from django.http import HttpResponseRedirect
+import simplejson
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, Group
