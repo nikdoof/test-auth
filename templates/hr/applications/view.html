@@ -73,21 +73,21 @@
 
 {% if hrstaff %}
 <h3>EVE Characters</h3>
-<ul>
-
 <table>
 <tr><th>Character</th><th>Corp / Alliance</th></th><th>ISK</th><th>SP</th><th>Links</th></tr>
 {% for acc in app.user.eveaccount_set.all %}
 {% for char in acc.characters.all %}
 <tr><td><a href="{% url sso.views.characters char.id %}">{{ char.name }}</a></td>
-    <td>{{ char.corporation }} / {{ char.corporation.alliance }}</td>
+    <td><a href="http://evemaps.dotlan.net/corp/{{ char.corporation }}">{{ char.corporation }}</a>{% if char.corporation.alliance %} / 
+        <a href="http://evemaps.dotlan.net/alliance/{{ char.corporation.alliance }}">{{ char.corporation.alliance }}{% endif %}</a>
+    </td>
     <td>{{ char.balance|intcomma }} ISK</td>
     <td>{{ char.total_sp|intcomma }} SP</td>
     <td><button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button> / <a href="https://gate.eveonline.com/Profile/{{ char.name }}/">EveGate Profile</a></td>
 </tr>
 {% endfor %}
 {% endfor %}
-</ul>
+</table>
 
 {% if app.user.redditaccount_set.all %}
 <h3>Reddit Accounts</h3>
