@@ -94,7 +94,7 @@ class EVEPlayerCharacter(EVEAPIModel):
     
     def __unicode__(self):
         if self.name:
-            return "%s (%d)" % (self.name, self.id)
+            return self.name
         else:
             return "(%d)" % self.id
 
@@ -150,7 +150,7 @@ class EVEPlayerAlliance(EVEAPIModel):
     
     def __unicode__(self):
         if self.name:
-            return "%s (%d)" % (self.name, self.id)
+            return self.name
         else:
             return "(#%d)" % self.id
         
