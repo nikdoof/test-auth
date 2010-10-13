@@ -88,7 +88,7 @@ def view_application(request, applicationid):
     else:
         return HttpResponseRedirect(reverse('hr.views.index'))
 
-    if request.GET.has_key('redditxhr'):
+    if request.GET.has_key('redditxhr') and request.is_ajax():
         posts = []
         for acc in app.user.redditaccount_set.all():
             try:

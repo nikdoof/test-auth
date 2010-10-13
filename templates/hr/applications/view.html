@@ -74,12 +74,12 @@
 {% if hrstaff %}
 <h3>EVE Characters</h3>
 <table>
-<tr><th>Character</th><th>Corp / Alliance</th></th><th>ISK</th><th>SP</th><th>Links</th></tr>
+<tr><th>Character</th><th>Corp / Alliance</th><th>ISK</th><th>SP</th><th>Links</th></tr>
 {% for acc in app.user.eveaccount_set.all %}
 {% for char in acc.characters.all %}
 <tr><td><a href="{% url sso.views.characters char.id %}">{{ char.name }}</a></td>
     <td><a href="http://evemaps.dotlan.net/corp/{{ char.corporation }}">{{ char.corporation }}</a>{% if char.corporation.alliance %} / 
-        <a href="http://evemaps.dotlan.net/alliance/{{ char.corporation.alliance }}">{{ char.corporation.alliance }}{% endif %}</a>
+        <a href="http://evemaps.dotlan.net/alliance/{{ char.corporation.alliance }}">{{ char.corporation.alliance }}</a>{% endif %}
     </td>
     <td>{{ char.balance|intcomma }} ISK</td>
     <td>{{ char.total_sp|intcomma }} SP</td>
@@ -102,19 +102,56 @@
 {% endfor %}
 </table>
 
-<h3>Reddit Posts</h3>
-<ul>
-{% if reddit_error %}
-<p><b>{{ reddit_error }}</b></p>
-{% endif %}
-{% for post in posts %}
-{% ifnotequal post.kind 1 %}
-<p><b><a href="http://reddit.com{{ post.permalink }}">{{ post.title }}</a></b> - (/r/{{ post.subreddit }})</p>
-{% else %}
-<p>{{ post.body }} - (/r/{{post.subreddit}}) <a href="{{ post.permalink }}/">Permalink</a></p>
-{% endifnotequal %}
-{% endfor %}
-</ul>
+<h3>Recent Reddit Posts</h3>
+
+<span id="loadlink">
+<a href="javascript:redditposts()">Load recent Reddit posts</a>
+</span>
+
+<script type="text/javascript">
+function createRequestObject() {
+    var ro;
+    var browser = navigator.appName;
+    if(browser == "Microsoft Internet Explorer"){
+        ro = new ActiveXObject("Microsoft.XMLHTTP");
+    }else{
+        ro = new XMLHttpRequest();
+    }
+    return ro;
+}
+
+var http = createRequestObject();
+
+function redditposts(action) {
+    http.open('get', '{% url hr.views.view_application app.id %}?redditxhr');
+    http.onreadystatechange = handleResponse;
+    http.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    http.send(null);
+}
+
+function handleResponse() {
+    if(http.readyState == 4){
+        var response = eval('(' + http.responseText + ')');
+        var update = new Array();
+
+        document.getElementById('loadlink').style.display = 'none';
+
+        var out = '';
+        for (var obj in response) {
+            if (response[obj]['kind'] == 2) {
+                var out = out + "<p><b><a href=\"http://reddit.com" + response[obj]['permalink'] + "\">" + response[obj]['title'] + "</a></b> - (/r/" + response[obj]['subreddit']+ ")</p>";
+            } else {
+                var out = out + "<p>" + response[obj]['body'] + "<br/><b>/r/" + response[obj]['subreddit'] + "</b> <a href=\"" + response[obj]['permalink'] + "\">Permalink</a></p>";
+            }
+        }
+        document.getElementById('redditposts').innerHTML = out;
+    }
+}
+</script>
+
+<div id="redditposts">
+</div>
+
 {% endif %}
 {% endif %}
 {% endblock %}
