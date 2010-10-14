@@ -112,8 +112,7 @@ class SSOUser(models.Model):
     def update_service_groups(sender, instance, created, **kwargs):
         if not created:
             for acc in instance.serviceaccount_set.all():
-                cls = acc.service.api_class
-                cls.update_groups(acc.service_uid, instance.groups.all())
+                acc.service.api_class.update_groups(acc.service_uid, instance.groups.all())
 
 signals.post_save.connect(SSOUser.create_user_profile, sender=User)
 #signals.post_save.connect(SSOUser.update_service_groups, sender=User)
@@ -217,50 +216,20 @@ class ServiceAccount(models.Model):
         return "%s: %s (%s)" % (self.service.name, self.user.username, self.service_uid)
 
     def save(self):
-        """ Override default save to setup accounts as needed """
+        if self.id:
+            org = ServiceAccount.object.get(id=self.pk)
 
-        # Grab the API class and load the settings
-        api = self.service.api_class
-
-        if not self.service_uid:
-            # Create a account if we've not got a UID
-            if self.active:
-                # Force username to be the same as their selected character
-                # Fix unicode first of all
-                name = unicodedata.normalize('NFKD', self.character.name).encode('ASCII', 'ignore')
-
-                # Remove spaces and non-acceptable characters
-                self.username = re.sub('[^a-zA-Z0-9_-]+', '', name)
-
-                if not api.check_user(self.username):
-                    eveapi = None
-                    for eacc in EVEAccount.objects.filter(user=self.user):
-                        if self.character in eacc.characters.all():
-                            eveapi = eacc
-                            break
-
-                    reddit = RedditAccount.objects.filter(user=self.user)
-                    d = api.add_user(self.username, self.password, user=self.user, character=self.character)
-                    if not d:
-                        raise ServiceError('Error occured while trying to create the Service Account, please try again later')
-                    else:
-                        self.service_uid = d['username']
+            if org.active != self.active and self.service_uid:
+                if self.active:
+                    self.service.api_class.enable_user(self.service_uid)
                 else:
-                    raise ExistingUser('Username %s has already been took' % self.username)
-            else:
-                return
+                    self.service.api_class.disable_user(self.service_uid)
 
-        # Disable account marked as inactive
-        if self.service_uid and not self.active:
-            api.disable_user(self.service_uid)
-
-        # All went OK, save to the DB
-        return models.Model.save(self)
+            models.Model.save(self)
 
     @staticmethod
     def pre_delete_listener( **kwargs ):
-        api = kwargs['instance'].service.api_class
-        if not api.delete_user(kwargs['instance'].service_uid):
+        if not kwargs['instance'].service.api_class.delete_user(kwargs['instance'].service_uid):
             raise ServiceError('Unable to delete account on related service')
 
 signals.pre_delete.connect(ServiceAccount.pre_delete_listener, sender=ServiceAccount)

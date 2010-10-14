@@ -134,26 +134,36 @@ def service_add(request):
     if request.method == 'POST': 
         form = clsform(request.POST) 
         if form.is_valid():
-  
+
             acc = ServiceAccount()
             acc.user = request.user
             acc.service = form.cleaned_data['service']
             acc.character = form.cleaned_data['character']
-            if settings.GENERATE_SERVICE_PASSWORD:
-                acc.password = hashlib.sha1('%s%s%s' % (form.cleaned_data['character'].name, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
-            else:
-                acc.password = form.cleaned_data['password']
 
-            try:
-                acc.save()
-            except ExistingUser:
-                error = "User by this name already exists, your account has not been created"
-            except ServiceError:
-                error = "A error occured while trying to create the Service Account, please try again later"
+            if acc.service.settings['require_password']:
+                if settings.GENERATE_SERVICE_PASSWORD:
+                    acc.password = hashlib.sha1('%s%s%s' % (form.cleaned_data['character'].name, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
+                else:
+                    acc.password = form.cleaned_data['password']
             else:
-                error = None
+                acc.password = None
+
+            # Decode unicode and remove invalid characters
+            username = re.sub('[^a-zA-Z0-9_-]+', '', unicodedata.normalize('NFKD', self.character.name).encode('ASCII', 'ignore'))
+
+            if acc.service.api_class.check_user(username):
+                error = "Username already exists on the target service, please contact an admin."
+            else:
+                ret = acc.service.api_class.add_user(username, acc.password, user=request.user, character=acc.character)
+                if ret:
+                    acc.service_uid = ret['username']
+                    acc.save()
+                    error = None
+                else:
+                    error = "Error creating account on the service, please retry or contact an admin if the error persists."
 
             return render_to_response('sso/serviceaccount/created.html', locals(), context_instance=RequestContext(request))
+
     else:
         availserv = Service.objects.filter(groups__in=request.user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=request.user).values('service'))
         if len(availserv) == 0:

@@ -14,8 +14,9 @@ this is incorrect please raise a bug on the tracker.
 <table>
 <tr><td>Service:</td><td>{{ acc.service.name }}</td></tr>
 <tr><td>Service URL:</td><td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td></tr>
-<tr><td>Username:</td><td>{{ acc.service_uid }}</td></tr>
-<tr><td>Password:</td><td>{{ acc.password }}</td></tr>
+{% for key,value in ret.items %}
+<tr><td>{{ key }}:</td><td>{{ value }}</td></tr>
+{% endfor %}
 </table>
 
 <p><a href="{% url sso.views.profile %}">Return to your profile page</a></p>
