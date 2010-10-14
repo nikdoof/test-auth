@@ -4,8 +4,9 @@ from django.contrib.auth.admin import UserAdmin
 from hr.models import Application, Recommendation, Audit, Blacklist
 
 class ApplicationAdmin(admin.ModelAdmin):
-    list_display = ('user', 'character', 'status', 'recommendations')
+    list_display = ('user', 'character', 'corporation', 'status', 'recommendations')
     search_fields = ['user', 'character', 'status']
+    list_filter = ('status',)
 
     def recommendations(self, obj):
         return len(obj.recommendation_set.all())
@@ -25,11 +26,13 @@ admin.site.register(Recommendation, RecommendationAdmin)
 
 class AuditAdmin(admin.ModelAdmin):
     list_display = ('application', 'event', 'date')
+    list_filter = ('event',)
 
 admin.site.register(Audit, AuditAdmin)
 
 class BlacklistAdmin(admin.ModelAdmin):
     list_display = ('type', 'value', 'created_date', 'created_by')
+    list_filter = ('type',)
 
 admin.site.register(Blacklist, BlacklistAdmin)
 
