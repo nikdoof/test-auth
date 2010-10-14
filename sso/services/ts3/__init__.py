@@ -34,6 +34,7 @@ class TS3Service(BaseService):
                     'alliance': kwargs['character'].corporation.alliance.ticker,
                     'corporation': kwargs['character'].corporation.ticker }
 
+        self._create_groups(kwargs['user'].groups.all())
         username = self.settings['name_format'] % details
         ret = self._conn.send_command('tokenadd', {'tokentype': 0, 'tokenid1': self.settings['authed_sgid'], 'tokenid2': 0, 'tokendescription': "Auth Token for %s" % username, 'tokencustomset': "ident=sso_uid value=%s" % username })
 
@@ -79,6 +80,16 @@ class TS3Service(BaseService):
         """ Login the user and provide cookies back """ 
         pass
 
+    def _group_by_name(self, groupname):
+        if not hasattr(self, '__group_cache') or not self.__group_cache:
+            self.__group_cache = self._conn.send_command('servergrouplist')
+
+        for group in self.__group_cache:
+            if group['keys']['name'] == groupname:
+                return group['keys']['sgid']
+
+        return None
+
     def _get_userid(self, uid):
         """ Finds the TS3 ID of a user from their UID """
 
@@ -86,27 +97,26 @@ class TS3Service(BaseService):
         if ret and type(ret) == type(list):
             return ret[0]['cldbid']
 
+    def _create_group(groupname)
+        """ Creates a Server Group and returns the SGID """
+        sgid = self._group_by_name(groupname)
+        if not sgid:
+            ret = self._conn.send_command('servergroupadd', { 'name': g })
+            self.__group_cache = None
+            sgid = ret['keys']['sgid']
+        return sgid
+
     def _create_groups(self, groups):
-        agroups = groups.values_list('name')
-        ngroups = agroups.copy()
-        for tsg in self._conn.send_command('servergrouplist'):
-                ngroups.remove(tsg['keys']['name'])
-
-        if len(ngroups):
-            for g in ngroups:
-                self._conn.send_command('servergroupadd', { 'name': g })
-
-        ret = []
-        for tsg in self._conn.send_command('servergrouplist'):
-            if tsg['keys']['name'] in agroups:
-                ret.append(tsg['keys'])
-        return ret
+        """ Creates groups from a list """
+        for g in groups:
+            ouput.append(self._create_group(g))
+        return output
 
     def update_groups(self, uid, groups):
         """ Update the UID's groups based on the provided list """
 
         if groups.count():
-            addgroups = self._create_groups(groups)          
+            addgroups = self._create_groups(groups.values_list('name'))
             user = self._get_userid(uid)
             for g in addgroups:
                 ret = self._conn.send_command('servergroupaddclient', {'sgid': g['sgid'], 'cldbid': user })
