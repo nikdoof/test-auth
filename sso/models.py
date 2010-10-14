@@ -143,8 +143,8 @@ class Service(models.Model):
     url = models.CharField("Service URL", max_length=200, blank=True)
     active = models.BooleanField(default=True)
     api = models.CharField("API", max_length=200)
-    groups = models.ManyToManyField(Group, blank=False)
-    settings_json = JSONField("Service Settings", blank=True)
+    groups = models.ManyToManyField(Group, blank=True)
+    settings_json = JSONField("Service Settings", blank=True, default={})
 
     class Meta:
         verbose_name = 'Service'
@@ -165,7 +165,7 @@ class Service(models.Model):
         return self.name
 
     def save(self):
-        if not self.settings_json:
+        if not self.settings_json or self.settings_json == {}:
             if self.api:
                 self.settings_json = self.settings
             else:
@@ -225,7 +225,7 @@ class ServiceAccount(models.Model):
                 else:
                     self.service.api_class.disable_user(self.service_uid)
 
-            models.Model.save(self)
+        models.Model.save(self)
 
     @staticmethod
     def pre_delete_listener( **kwargs ):

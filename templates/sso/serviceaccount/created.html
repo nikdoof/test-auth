@@ -15,7 +15,7 @@ this is incorrect please raise a bug on the tracker.
 <tr><td>Service:</td><td>{{ acc.service.name }}</td></tr>
 <tr><td>Service URL:</td><td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td></tr>
 {% for key,value in ret.items %}
-<tr><td>{{ key }}:</td><td>{{ value }}</td></tr>
+<tr><td>{{ key|title }}:</td><td>{{ value }}</td></tr>
 {% endfor %}
 </table>
 
