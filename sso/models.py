@@ -194,6 +194,7 @@ class Service(models.Model):
 
         return setdict
 
+
 class ServiceAccount(models.Model):
     """
     ServiceAccount represents the user's account on a Service.
@@ -239,7 +240,7 @@ class ServiceAccount(models.Model):
                             break
 
                     reddit = RedditAccount.objects.filter(user=self.user)
-                    d = api.add_user(self.username, self.password, user=self.user, character=self.character, eveapi=eveapi, reddit=reddit)
+                    d = api.add_user(self.username, self.password, user=self.user, character=self.character)
                     if not d:
                         raise ServiceError('Error occured while trying to create the Service Account, please try again later')
                     else:
