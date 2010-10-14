@@ -32,8 +32,8 @@ class BaseService():
                  'provide_login': False }
 
     def add_user(self, username, password, **kwargs):
-        """ Add a user, returns a UID for that user """
-        return username
+        """ Add a user, returns a dict for that user """
+        return { 'username': username, 'password': password }
 
     def check_user(self, username):
         """ Check if the username exists """

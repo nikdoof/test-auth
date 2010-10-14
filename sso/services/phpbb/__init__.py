@@ -44,7 +44,7 @@ class PhpBBService(BaseDBService):
         self._db.connection.commit()
 
         self.update_groups(username)
-        return username
+        return { 'username': username, 'password': password }
 
     def update_groups(self, username):
         self._dbcursor.execute(self.SQL_CHECK_USER, [self._clean_username(username)])

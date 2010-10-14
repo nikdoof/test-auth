@@ -31,7 +31,7 @@ class JabberService(BaseService):
             uid = "%s@%s" % (username.lower(), self.settings['jabber_server'])
             if 'user' in kwargs:
                 self.update_groups(uid, kwargs['user'].groups.all())
-            return uid
+            return { 'username': uid, 'password': password }
         else:
             return False
 

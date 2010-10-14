@@ -53,7 +53,7 @@ class MiningBuddyService(BaseDBService):
             self.dbcursor.execute(self.SQL_ADD_API, [userid, int(time.time()), kwargs['eveapi'].api_user_id, kwargs['eveapi'].api_key, kwargs['character'].id])
             self.db.connection.commit()
 
-        return self._clean_username(username)
+        return { 'username': self._clean_username(username), 'password': password }
 
     def check_user(self, username):
         """ Check if the username exists """

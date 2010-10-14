@@ -42,7 +42,7 @@ class POSTrackerService(BaseDBService):
 
         self.dbcursor.execute(self.SQL_ADD_USER, [eveid, username, "%s%s" % (salt, pwhash) , email])
         self.db.connection.commit()
-        return username
+        return { 'username': username, 'password': password }
 
     def check_user(self, username):
         """ Check if the username exists """

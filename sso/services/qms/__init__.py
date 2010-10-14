@@ -36,7 +36,7 @@ class QMSService(BaseDBService):
         pwhash, salt, cert = self._gen_pwhash(password)
         self.dbcursor.execute(self.SQL_ADD_USER, [username, username, pwhash, salt, email, cert])
         self.db.connection.commit()
-        return username
+        return { 'username': username, 'password': password }
 
     def check_user(self, username):
         """ Check if the username exists """

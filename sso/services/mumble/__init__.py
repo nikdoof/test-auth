@@ -34,7 +34,7 @@ class MumbleService(BaseService):
 
         if self.raw_add_user(username, kwargs['user'].email, password):
             self.update_groups(username, kwargs['user'].groups.all())
-            return username
+            return { 'username': username, 'password': password }
         else:
             return False
 

@@ -54,7 +54,7 @@ class MediawikiService(BaseDBService):
         pwhash = self._gen_mw_hash(password)
         self.dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email, self.default_options])
         self.db.connection.commit()
-        return self._clean_username(username)
+        return { 'username': self._clean_username(username), 'password': password }
 
     def check_user(self, username):
         """ Check if the username exists """
