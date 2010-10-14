@@ -49,7 +49,8 @@ class MiningBuddyService(BaseDBService):
         self.db.connection.commit()
 
         userid = self.dbcursor.lastrowid
-        self.dbcursor.execute(self.SQL_ADD_API, [userid, int(time.time()), kwargs['character'].eveaccount.api_user_id, kwargs['character'].eveaccount.api_key, kwargs['character'].id])
+        api = kwargs['character'].eveaccount_set.all()[0]
+        self.dbcursor.execute(self.SQL_ADD_API, [userid, int(time.time()), api.api_user_id, api.api_key, kwargs['character'].id])
         self.db.connection.commit()
 
         return { 'username': self._clean_username(username), 'password': password }

@@ -34,7 +34,7 @@ class POSTrackerService(BaseDBService):
         """ Add a user """
         email = kwargs['user'].email
         pwhash, salt = self._gen_pwhash(password)
-        eveid = kwargs['character'].eveaccount.api_user_id
+        eveid = kwargs['character'].eveaccount_set.all()[0].api_user_id
 
         self.dbcursor.execute(self.SQL_ADD_USER, [eveid, username, "%s%s" % (salt, pwhash) , email])
         self.db.connection.commit()
