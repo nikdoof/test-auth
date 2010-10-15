@@ -1,3 +1,4 @@
+import time
 import socket
 import logging
 
@@ -46,6 +47,7 @@ class TS3Proto():
 
         data = self._sockfile.readline()
         if data.strip() == "TS3":
+            self._sockfile.readline()
             self._connected = True
             return True
 
@@ -58,6 +60,7 @@ class TS3Proto():
 
     def send_command(self, command, keys=None, opts=None):
         cmd = self.construct_command(command, keys=keys, opts=opts)
+        print cmd
         self.send('%s\n' % cmd)
 
         data = []
