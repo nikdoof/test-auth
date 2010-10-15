@@ -13,7 +13,8 @@ class TS3Service(BaseService):
                  'sa_password': '',
                  'vhost_id': 0,
                  'authed_sgid': 12,
-                 'name_format': '%(alliance)s - %(corporation)s - %(name)s'}
+                 'name_format': '%(alliance)s - %(corporation)s - %(name)s',
+                 'bookmark_name': 'TEST Alliance TS3'}
 
     def __init__(self):
         pass
@@ -40,7 +41,7 @@ class TS3Service(BaseService):
 
         if 'keys' in ret and 'token' in ret['keys']:
             token = ret['keys']['token']
-            url = "<a href='ts3server://%s?%s/'>Register</a>" % (self.settings['host'], urllib.urlencode({'nickname': username, 'addbookmark': 'TEST Alliance TS3', 'token': token}))
+            url = "<a href='ts3server://%s?%s/'>Register</a>" % (self.settings['host'], urllib.urlencode({'nickname': urllib.quote(username), 'addbookmark': urllib.quote(self.settings['bookmark_name'], 'token': token}))
             return { 'username': username, 'permission token': token, 'registration url': url }
 
         return None
