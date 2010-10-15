@@ -37,12 +37,11 @@ class TS3Service(BaseService):
 
         self._create_groups(kwargs['user'].groups.all().values_list('name', flat=True))
         username = self.settings['name_format'] % details
-        ret = self.conn.send_command('tokenadd', {'tokentype': 0, 'tokenid1': self.settings['authed_sgid'], 'tokenid2': 0, 'tokendescription': "Auth Token for %s" % username, 'tokencustomset': "ident=sso_uid value=%s" % username })
-
+        ret = self.conn.send_command('tokenadd', {'tokentype': 0, 'tokenid1': self.settings['authed_sgid'], 'tokenid2': 0, 'tokendescription': "Auth Token for %s" % username, 'tokencustomset': "ident=sso_uid value=%s|ident=sso_userid value=%s|ident=eve_charid value=%s" % (kwargs['character'].name, kwargs['user'].id, kwargs['character'].id) })
         if 'keys' in ret and 'token' in ret['keys']:
             token = ret['keys']['token']
             url = "<a href='ts3server://%s?nickname=%s&addbookmark=%s&token=%s'>Register</a>" % (self.settings['host'], username, self.settings['bookmark_name'], token)
-            return { 'username': username, 'permission token': token, 'registration url': url }
+            return { 'username': kwargs['character'].name, 'display name': username, 'permission token': token, 'registration url': url }
 
         return None
 
