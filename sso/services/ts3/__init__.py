@@ -41,7 +41,7 @@ class TS3Service(BaseService):
 
         if 'keys' in ret and 'token' in ret['keys']:
             token = ret['keys']['token']
-            url = "<a href='ts3server://%s?%s/'>Register</a>" % (self.settings['host'], urllib.urlencode({'nickname': urllib.quote(username), 'addbookmark': urllib.quote(self.settings['bookmark_name']), 'token': token}))
+            url = "<a href='ts3server://%s?nickname=%s&addbookmark=%s&token=%s'>Register</a>" % (self.settings['host'], username, self.settings['bookmark_name'], token)
             return { 'username': username, 'permission token': token, 'registration url': url }
 
         return None
