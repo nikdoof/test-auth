@@ -97,7 +97,7 @@ class TS3Service(BaseService):
         if ret and type(ret) == type(list):
             return ret[0]['cldbid']
 
-    def _create_group(groupname)
+    def _create_group(groupname):
         """ Creates a Server Group and returns the SGID """
         sgid = self._group_by_name(groupname)
         if not sgid:
