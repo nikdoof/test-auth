@@ -40,7 +40,7 @@ class TS3Service(BaseService):
         ret = self.conn.send_command('tokenadd', {'tokentype': 0, 'tokenid1': self.settings['authed_sgid'], 'tokenid2': 0, 'tokendescription': "Auth Token for %s" % username, 'tokencustomset': "ident=sso_uid value=%s|ident=sso_userid value=%s|ident=eve_charid value=%s" % (kwargs['character'].name, kwargs['user'].id, kwargs['character'].id) })
         if 'keys' in ret and 'token' in ret['keys']:
             token = ret['keys']['token']
-            url = "<a href='ts3server://%s?token=%s'>Register</a>" % (self.settings['host'], token)
+            url = "<a href='ts3server://%s?addbookmark=1&token=%s'>Register</a>" % (self.settings['host'], token)
             return { 'username': kwargs['character'].name, 'display name': username, 'permission token': token, 'registration url': url }
 
         return None
@@ -93,7 +93,7 @@ class TS3Service(BaseService):
         """ Finds the TS3 ID of a user from their UID """
 
         ret = self.conn.send_command('customsearch', {'ident': 'sso_uid', 'pattern': uid})
-        if ret and type(ret) == type(list):
+        if ret:
             return ret[0]['cldbid']
 
     def _create_group(self, groupname):
