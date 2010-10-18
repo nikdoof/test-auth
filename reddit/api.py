@@ -7,6 +7,9 @@ import unicodedata
 class NotLoggedIn(Exception):
     pass
 
+class LoginError(Exception):
+    pass
+
 class Comment(dict):
     """ Abstraction for comment data provided by JSON 
         Comments can be identifed by Kind = 1 """
@@ -81,11 +84,15 @@ class Inbox():
 
         jsondoc = json.load(self._url_request(url, data))
 
-        self.login_cookie = jsondoc['json']['data']['cookie']
-        self.modhash = jsondoc['json']['data']['modhash']
+        if jsondoc and 'json' in jsondoc:
+            if 'data' in jsondoc['json']:
+                self.login_cookie = jsondoc['json']['data']['cookie']
+                self.modhash = jsondoc['json']['data']['modhash']
+                if self.login_cookie:
+                    return True
+            elif 'errors' in jsondoc['json']:
+                raise LoginError(jsondoc['json']['errors'])
 
-        if self.login_cookie:
-            return True
         return False            
 
     @property
