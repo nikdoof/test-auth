@@ -7,3 +7,4 @@ xmlrpclib==1.0.1
 South==0.7.1
 fabric==0.9.1
 flup
+django-debug-toolbar==0.8.3

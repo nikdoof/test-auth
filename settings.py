@@ -4,6 +4,7 @@ import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+INTERNAL_IPS = ('127.0.0.1','91.121.180.45')
 
 ADMINS = (
      ('Andrew Williams', 'andy@tensixtyone.com'),
@@ -59,6 +60,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -77,6 +79,7 @@ INSTALLED_APPS = (
     'south',
     'piston',
     'registration',
+    'debug_toolbar',
     'eve_proxy',
     'eve_api',
     'reddit',
