@@ -37,11 +37,11 @@ class TS3Service(BaseService):
 
         self._create_groups(kwargs['user'].groups.all().values_list('name', flat=True))
         username = self.settings['name_format'] % details
-        ret = self.conn.send_command('tokenadd', {'tokentype': 0, 'tokenid1': self.settings['authed_sgid'], 'tokenid2': 0, 'tokendescription': "Auth Token for %s" % username, 'tokencustomset': "ident=sso_uid value=%s|ident=sso_userid value=%s|ident=eve_charid value=%s" % (kwargs['character'].name, kwargs['user'].id, kwargs['character'].id) })
+        ret = self.conn.send_command('tokenadd', {'tokentype': 0, 'tokenid1': self.settings['authed_sgid'], 'tokenid2': 0, 'tokendescription': "Auth Token for %s" % username, 'tokencustomset': "ident=sso_uid value=%s|ident=sso_userid value=%s|ident=eve_charid value=%s" % (kwargs['character'].name.replace(' ', ''), kwargs['user'].id, kwargs['character'].id) })
         if 'keys' in ret and 'token' in ret['keys']:
             token = ret['keys']['token']
-            url = "<a href='ts3server://%s?addbookmark=1&token=%s'>Register</a>" % (self.settings['host'], token)
-            return { 'username': kwargs['character'].name, 'display name': username, 'permission token': token, 'registration url': url }
+            url = "<a href='ts3server://%s?token=%s'>Register</a>" % (self.settings['host'], token)
+            return { 'username': kwargs['character'].name.replace(' ', ''), 'display name': username, 'permission token': token, 'registration url': url }
 
         return None
 
@@ -93,16 +93,17 @@ class TS3Service(BaseService):
         """ Finds the TS3 ID of a user from their UID """
 
         ret = self.conn.send_command('customsearch', {'ident': 'sso_uid', 'pattern': uid})
-        if ret:
-            return ret[0]['cldbid']
+        if ret and 'keys' in ret and 'cldbid' in ret['keys']:
+            return ret['keys']['cldbid']
 
     def _create_group(self, groupname):
         """ Creates a Server Group and returns the SGID """
         sgid = self._group_by_name(groupname)
         if not sgid:
-            ret = self._conn.send_command('servergroupadd', { 'name': groupname })
+            ret = self.conn.send_command('servergroupadd', { 'name': groupname })
             self.__group_cache = None
             sgid = ret['keys']['sgid']
+            self.conn.send_command('servergroupaddperm', { 'sgid': sgid, 'permsid': 'i_group_needed_modify_power', 'permvalue': 75, 'permnegated': 0, 'permskip': 0 })
         return sgid
 
     def _create_groups(self, groups):
@@ -115,10 +116,27 @@ class TS3Service(BaseService):
     def update_groups(self, uid, groups):
         """ Update the UID's groups based on the provided list """
 
-        if groups.count():
-            addgroups = self._create_groups(groups.values_list('name', flat=True))
-            user = self._get_userid(uid)
-            for g in addgroups:
-                ret = self.conn.send_command('servergroupaddclient', {'sgid': g['sgid'], 'cldbid': user })
+        cldbid = self._get_userid(uid)
+
+        if cldbid:
+            tsglist = self.conn.send_command('servergroupsbyclientid', {'cldbid': cldbid })
+            donelist = []
+            print tsglist
+            if type(tsglist) == type(list()):
+                for g in tsglist:
+                    donelist.append(g['keys']['sgid'])
+            else:
+                donelist.append(tsglist['keys']['sgid'])
+
+            if groups.count():
+                addgroups = self._create_groups(groups.values_list('name', flat=True))
+                for g in addgroups:
+                    if not g in donelist:
+                        ret = self.conn.send_command('servergroupaddclient', {'sgid': g, 'cldbid': cldbid })
+
+                #remv = set(donelist) - set(addgroups)
+                #if int(self.settings['authed_sgid']) in remv:
+                #     ret = self.conn.send_command('servergroupdelclient', {'sgid': g, 'cldbid': cldbid })
+        return True
 
 ServiceClass = 'TS3Service'
