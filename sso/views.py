@@ -279,23 +279,9 @@ def user_view(request, username=None):
     profile = user.get_profile()
     is_admin = request.user.is_staff
     if is_admin:
-        try:
-            services = ServiceAccount.objects.filter(user=user).all()
-        except ServiceAccount.DoesNotExist:
-            services = None
-        try:
-            reddits = RedditAccount.objects.filter(user=user).all()
-        except ServiceAccount.DoesNotExist:
-            reddits = None
-        try:
-            eveaccounts = EVEAccount.objects.filter(user=user).all()
-            characters = []
-            for acc in eveaccounts:
-                chars = acc.characters.all()
-                for char in chars:
-                    characters.append({'id': char.id, 'name': char.name, 'corp': char.corporation.name})
-        except EVEAccount.DoesNotExist:
-            eveaccounts = None
+        services = ServiceAccount.objects.select_related('service').filter(user=user).only('service__name', 'service_uid', 'active')
+        reddits = RedditAccount.objects.filter(user=user).all()
+        characters = EVEPlayerCharacter.objects.select_related('corporation').filter(eveaccount__user=user).only('id', 'name', 'corporation__name')
 
     return render_to_response('sso/lookup/user.html', locals(), context_instance=RequestContext(request))
 
