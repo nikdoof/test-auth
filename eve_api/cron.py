@@ -24,7 +24,7 @@ class UpdateAPIs():
                 self.__logger = logging.getLogger(__name__)
             return self.__logger
                 
-        def job(self):
+        def job(self, args):
             # Update all the eve accounts and related corps
 
             delta = datetime.timedelta(seconds=self.last_update_delay)
@@ -63,7 +63,7 @@ class CorpManagementUpdate():
                 self.__logger = logging.getLogger(__name__)
             return self.__logger
 
-        def job(self):
+        def job(self, args):
             directors = EVEPlayerCharacter.objects.filter(director=True)
 
             for director in directors:
@@ -85,6 +85,6 @@ class AllianceUpdate():
                 self.__logger = logging.getLogger(__name__)
             return self.__logger
 
-        def job(self):
+        def job(self, args):
             alliance_import()
 

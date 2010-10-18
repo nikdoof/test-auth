@@ -19,7 +19,7 @@ class RemoveInvalidUsers():
                 self.__logger = logging.getLogger(__name__)
             return self.__logger
                 
-        def job(self):
+        def job(self, args):
             for user in User.objects.all():
                 # For each user, update access list based on Corp details
                 user.get_profile().update_access()
@@ -38,8 +38,14 @@ class UpdateServiceGroups():
                 self.__logger = logging.getLogger(__name__)
             return self.__logger
 
-        def job(self):
-            for serv in Service.objects.filter(active=1):
+        def job(self, args):
+
+            if args and len(args) == 1:
+                services = Service.objects.filter(active=1, id=args[0])
+            else:
+                services = Service.objects.filter(active=1)
+
+            for serv in services:
                 self._logger.info('Updating %s service' % serv)
                 api = serv.api_class
                 for servacc in ServiceAccount.objects.filter(active=1, service=serv):

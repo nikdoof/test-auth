@@ -31,7 +31,11 @@ cron_class = getattr(mod, sys.argv[2])()
 log.info("Starting Job %s in %s" % (sys.argv[2], sys.argv[1]))
 
 try:
-    cron_class.job()
+    if len(sys.argv) >= 3:
+        args = sys.argv[3:]
+    else:
+        args = []
+    cron_class.job(args)
 except KeyboardInterrupt:
     log.error("aborting.")
 

@@ -18,7 +18,7 @@ class UpdateAPIs():
 
     last_update_delay = 604800
             
-    def job(self):
+    def job(self, args):
         delta = datetime.timedelta(seconds=self.last_update_delay)
 
         self._logger.debug("Updating accounts older than %s" % (datetime.datetime.now() - delta))
@@ -63,7 +63,7 @@ class ProcessValidations():
             self.__logger = logging.getLogger(__name__)
         return self.__logger
 
-    def job(self):
+    def job(self, args):
         inbox = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWD)
 
         for msg in inbox:
