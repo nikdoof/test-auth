@@ -4,7 +4,7 @@ import re
 import unicodedata
 
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -41,21 +41,10 @@ def profile(request):
 @login_required
 def characters(request, charid=0):
     if charid:
-        try:
-            character = EVEPlayerCharacter.objects.get(id=charid)
-        except EVEPlayerCharacter.DoesNotExist:
-            return HttpResponseRedirect(reverse('sso.views.profile'))
+        character = get_object_or_404(EVEPlayerCharacter, id=charid)
         return render_to_response('sso/character.html', locals(), context_instance=RequestContext(request))
-    try:
-        eveaccounts = EVEAccount.objects.filter(user=request.user).all()
-        characters = []
-        for acc in eveaccounts:
-            chars = acc.characters.all()
-            for char in chars:
-                characters.append({'id': char.id, 'name': char.name, 'corp': char.corporation })
-    except EVEAccount.DoesNotExist:
-        characters = []
 
+    characters = EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=request.user).only('id', 'name', 'corporation__name', 'corporation__alliance__name')
     return render_to_response('sso/characterlist.html', locals(), context_instance=RequestContext(request))
 
 @login_required
