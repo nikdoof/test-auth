@@ -217,11 +217,11 @@ class ServiceAccount(models.Model):
 
     def save(self):
         if self.id:
-            org = ServiceAccount.object.get(id=self.pk)
+            org = ServiceAccount.objects.get(id=self.pk)
 
             if org.active != self.active and self.service_uid:
                 if self.active:
-                    self.service.api_class.enable_user(self.service_uid)
+                    self.service.api_class.enable_user(self.service_uid, '')
                 else:
                     self.service.api_class.disable_user(self.service_uid)
 
