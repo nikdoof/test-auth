@@ -3,8 +3,8 @@ import random
 import re
 import unicodedata
 
-from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -41,7 +41,10 @@ def profile(request):
 @login_required
 def characters(request, charid=0):
     if charid:
-        character = get_object_or_404(EVEPlayerCharacter, id=charid)
+        try:
+            character = EVEPlayerCharacter.objects.select_related('corporation', 'corporation__aliance').get(id=charid)
+        except EVEPlayerCharacter.DoesNotExist:
+            raise Http404('Character does not exist')
         return render_to_response('sso/character.html', locals(), context_instance=RequestContext(request))
 
     characters = EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=request.user).only('id', 'name', 'corporation__name', 'corporation__alliance__name')
