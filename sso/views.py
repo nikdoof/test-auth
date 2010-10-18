@@ -308,17 +308,17 @@ def user_lookup(request):
             users = None
             uids = []
             if form.cleaned_data['type'] == '1':
-                users = User.objects.filter(username__icontains=form.cleaned_data['username'])
+                users = User.objects.filter(username__icontains=form.cleaned_data['username']).only('username')
             elif form.cleaned_data['type'] == '2':
                 uid = EVEAccount.objects.filter(characters__name__icontains=form.cleaned_data['username']).values('user')
                 for u in uid: uids.append(u['user'])
-                users = User.objects.filter(id__in=uids)
+                users = User.objects.filter(id__in=uids).only('username')
             elif form.cleaned_data['type'] == '3':
                 uid = RedditAccount.objects.filter(username__icontains=form.cleaned_data['username']).values('user')
                 for u in uid: uids.append(u['user'])
-                users = User.objects.filter(id__in=uids)
+                users = User.objects.filter(id__in=uids).only('username')
             elif form.cleaned_data['type'] == '4':
-                users = User.objects.filter(email__icontains=form.cleaned_data['username'])
+                users = User.objects.filter(email__icontains=form.cleaned_data['username']).only('username')
             else:
                 request.user.message_set.create(message="Error parsing form, Type: %s, Value: %s" % (form.cleaned_data['type'], form.cleaned_data['username']))
                 return HttpResponseRedirect(reverse('sso.views.user_lookup'))
