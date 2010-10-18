@@ -8,9 +8,9 @@ class RedditAccountAdmin(admin.ModelAdmin):
     list_display = ('username', 'user', 'date_created', 'link_karma', 'comment_karma', 'last_update', 'validated', 'is_valid')
     search_fields = ['username']
 
-    fields = ('user', 'username')
+    fields = ('user', 'username', 'validated')
 
-    form = RedditAccountForm
+    #form = RedditAccountForm
 
     def is_valid(self, obj):
         if not obj.date_created:
@@ -32,7 +32,8 @@ class RedditAccountAdmin(admin.ModelAdmin):
 
 
     def save_model(self, request, obj, form, change):
-        obj.api_update()
+        if not obj.pk:
+            obj.api_update()
         obj.save()
 
 admin.site.register(RedditAccount, RedditAccountAdmin)
