@@ -62,10 +62,10 @@
 </table>
 {% endif %}
 
-{% if recs %}
+{% if app.recommendation_set.all %}
 <h3>Recommendations</h3>
 <ul>
-{% for rec in recs %}
+{% for rec in app.recommendation_set.all %}
 <li><a href="{% url sso.views.user_view rec.user %}">{{ rec.user }}</a> / {{ rec.user_character }} - {{ rec.user_character.corporation }}</li>
 {% endfor %}
 </ul>
