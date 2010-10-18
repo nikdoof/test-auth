@@ -29,9 +29,13 @@ def send_message(application, message_type, note=None):
         pass
 
     if len(application.user.redditaccount_set.all()) > 0:
-        from reddit.api import Inbox
-        ib = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWD)
-        ib.send(application.user.redditaccount_set.all()[0].username, subject, message)
+        from reddit.api import Inbox, LoginError
+        try:
+            ib = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWD)
+        except LoginError:
+            pass
+        else:
+            ib.send(application.user.redditaccount_set.all()[0].username, subject, message)
 
 
 def check_permissions(user, application=None):
