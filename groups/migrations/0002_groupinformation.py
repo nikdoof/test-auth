@@ -7,8 +7,11 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        for group in orm.Group.objects.all():
-            obj = orm.GroupInformation(group=group)
+        for group in orm['auth.Group'].objects.all():
+            try:
+                obj = orm.GroupInformation.objects.get(group=group)
+            except orm['auth.Group'].DoesNotExist:
+                obj = orm.GroupInformation(group=group)
             obj.save()
         
     def backwards(self, orm):

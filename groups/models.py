@@ -9,7 +9,7 @@ class GroupInformation(models.Model):
 
     group = models.OneToOneField(Group)
 
-    type = models.IntegerField("Group Type", choices=GROUP_TYPE_CHOICES, default=GROUP_TYPE_BUILTIN)
+    type = models.IntegerField("Group Type", choices=GROUP_TYPE_CHOICES, default=GROUP_TYPE_PERMISSION)
     admins = models.ManyToManyField(User)
     public = models.BooleanField("Public", default=False)
     requestable = models.BooleanField("Requestable", default=False)
