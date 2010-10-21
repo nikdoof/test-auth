@@ -11,10 +11,10 @@ class GroupInformation(models.Model):
 
     type = models.IntegerField("Group Type", choices=GROUP_TYPE_CHOICES, default=GROUP_TYPE_PERMISSION)
     admins = models.ManyToManyField(User)
-    public = models.BooleanField("Public", default=False)
-    requestable = models.BooleanField("Requestable", default=False)
+    public = models.BooleanField("Public", default=False, help_text="Indicates if the group is visible to all")
+    requestable = models.BooleanField("Requestable", default=False, help_text="Indicates if people can request to join this group")
 
-    description = models.TextField()
+    description = models.TextField(help_text="Description of the group and its permissions")
 
     def save(self):
         if self.group and (self.group.eveplayercorporation_set.count() or self.group.eveplayeralliance_set.count()):
