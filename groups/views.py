@@ -28,11 +28,18 @@ def group_list(request):
     group_list = []
     for group in groups:
         if request.user in group.groupinformation.admins.all():
-            group_list.append((group.id, group.name, 'Admin', group.groupinformation.requestable))
+            status = "Admin"
         elif request.user in group.user_set.all():
-            group_list.append((group.id, group.name, 'Member', group.groupinformation.requestable))
+            status = "Member"
         else:
-            group_list.append((group.id, group.name, None, group.groupinformation.requestable))
+            status = None
+
+        if group.groupinformation.requestable and not group.groupinformation.type == GROUP_TYPE_MANAGED:
+            requestable = True
+        else:
+            requestable = False
+
+        group_list.append((group.id, group.name, status, requestable))
 
     return render_to_response('groups/group_list.html', locals(), context_instance=RequestContext(request))
 
