@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Groups List</h1>
+
+<p>This is the list of your current groups, and groups you can request to be a member of.</p>
+
+<table>
+{% if group_list %}
+<tr><th>Group Name</th><th>Status</th><th>Actions</th></tr>
+{% for id, group, status, requestable in group_list %}
+<tr><td>{{ group }}</td>
+    <td>{{ status }}</td>
+    <td>{% ifequal status None %}{% if requestable %}<a href="{% url groups.views.create_request id %}">Request Membership</a>{% endif %}{% endifequal %}</td>
+</tr>
+{% endfor %}
+</table>
+{% else %}
+<b>No groups are available.</b>
+{% endif %}
+
+{% endblock %}

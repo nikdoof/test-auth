@@ -16,6 +16,7 @@ urlpatterns = patterns('',
     (r'^eveapi/', include('eve_proxy.urls')),
     (r'^api/', include('api.urls')),
     (r'^hr/', include('hr.urls')),
+    (r'^groups/', include('groups.urls')),
 )
 
 urlpatterns += patterns('',

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Create a Membership Request{% endblock %}
+
+{% block content %}
+<p>Please fill in a reason why you like to be a member of this group and any supporting evidence as requested by the group adminship</p>
+
+<form action="{% url groups.views.create_request groupid %}" method="post">
+<table>
+{{ form.as_table }}
+</table>
+<input type="submit" value="Create Request" />
+</form>
+{% endblock %}

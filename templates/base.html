@@ -16,20 +16,23 @@
 	</div>
 	<div id="navigation">
 		<ul>
-			<li><a href="{% url sso.views.index %}">Home</a></li>
+		  <li><a href="{% url sso.views.index %}">Home</a></li>
             {% if request.user %}
-			    <li><a href="{% url sso.views.profile %}">Profile</a></li>
-                {% if "hr"|installed %}
-                <li><a href="{% url hr.views.index %}">HR</a></li>
+	           <li><a href="{% url sso.views.profile %}">Profile</a></li>
+                {% if "groups"|installed %}
+                    <li><a href="{% url groups.views.index %}">Groups</a></li>
                 {% endif %}
-                <li><a href="{% url sso.views.characters %}">Characters</a></li>
+                {% if "hr"|installed %}
+                    <li><a href="{% url hr.views.index %}">HR</a></li>
+                {% endif %}
+                    <li><a href="{% url sso.views.characters %}">Characters</a></li>
                 {% if request.user.is_staff %}
                     <li><a href="{% url sso.views.user_lookup %}">Lookup User</a></li>
                     <li><a href="/admin">Admin</a></li>
                 {% endif %}
-                 <li><a href="{% url django.contrib.auth.views.logout %}">Logout</a></li>
+                    <li><a href="{% url django.contrib.auth.views.logout %}">Logout</a></li>
             {% else %}
-                 <li><a href="{% url django.contrib.auth.views.login %}">Login</a></li>
+                    <li><a href="{% url django.contrib.auth.views.login %}">Login</a></li>
             {% endif %}
 		</ul>
 	</div>
