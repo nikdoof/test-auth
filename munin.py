@@ -5,7 +5,7 @@ import os
 os.nice(20)
 
 # Activate the virtualenv
-path = os.path.dirname(os.path.realpath( __file__ ))
+path = os.path.dirname(os.path.realpath(__file__))
 activate_this = os.path.join(path, 'env/bin/activate_this.py')
 execfile(activate_this, dict(__file__=activate_this))
 
@@ -25,10 +25,13 @@ from hr.models import Application
 
 from eve_proxy.models import CachedDocument
 
-accepted_names = ['munin.py', 'auth_apikeys', 'auth_hrapplications', 'auth_eveapicache']
+accepted_names = ['munin.py', 'auth_apikeys', 'auth_hrapplications',
+                  'auth_eveapicache']
+
 
 class Usage(Exception):
     pass
+
 
 def main(argv=None):
     if argv is None:
@@ -38,16 +41,16 @@ def main(argv=None):
         execname = os.path.basename(argv[0])
     else:
         print argv[0]
-        print >>sys.stderr, "Invalid symlink name, check the source" 
+        print >> sys.stderr, "Invalid symlink name, check the source"
         return 2
     try:
         try:
             opts, args = getopt.getopt(argv[1:], "", ["config"])
         except getopt.error, msg:
-             raise Usage(msg)
+            raise Usage(msg)
         # more code, unchanged
     except Usage, err:
-        print >>sys.stderr, "Invalid usage"
+        print >> sys.stderr, "Invalid usage"
         return 2
 
     for arg in args:
@@ -78,9 +81,11 @@ def main(argv=None):
 
 
     if execname == 'auth_apikeys':
-        print "keys.value %s" % EVEAccount.objects.filter(api_status=API_STATUS_OK).count()
+        key_count = EVEAccount.objects.filter(api_status=API_STATUS_OK).count()
+        print "keys.value %s" % key_count
     elif execname == 'auth_hrapplications':
-        view_status = [APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY]
+        view_status = [APPLICATION_STATUS_AWAITINGREVIEW,
+                       APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY]
         apps = Application.objects.filter(status__in=view_status)
         print "apps.value %s" % apps.count()
     elif execname == 'auth_eveapicache':
