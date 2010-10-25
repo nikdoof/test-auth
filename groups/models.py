@@ -26,6 +26,12 @@ class GroupInformation(models.Model):
         if created:
             profile, created = GroupInformation.objects.get_or_create(group=instance)
 
+    class Meta:
+        verbose_name = 'Group Information'
+        verbose_name_plural = 'Group Information'
+        ordering = ['group']
+
+
 signals.post_save.connect(GroupInformation.create_group, sender=Group)
 
 
@@ -41,3 +47,8 @@ class GroupRequest(models.Model):
     changed_date = models.DateTimeField("Changed Date/Time", auto_now=True)
 
     created_date = models.DateTimeField("Created Date/Time", auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Group Access Request'
+        verbose_name_plural = 'Group Access Requests'
+        ordering = ['created_date']
