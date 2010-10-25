@@ -9,7 +9,6 @@ GROUP_TYPE_CHOICES = (
     (GROUP_TYPE_MANAGED, 'Managed'),
 )
 
-
 # Request Status Codes
 REQUEST_PENDING = 0
 REQUEST_ACCEPTED = 1
