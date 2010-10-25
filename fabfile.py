@@ -3,21 +3,25 @@ from fabric.api import *
 
 env.repo = 'git://dev.dredd.it/dreddit-auth.git'
 
+
 def production():
     "Use the production enviroment on Web1"
     env.hosts = ['dreddit@web1.pleaseignore.com']
     env.path = '/home/dreddit/apps'
+
 
 def test():
     "Use the test enviroment on Web2"
     env.hosts = ['dreddit@web2.pleaseignore.com']
     env.path = '/home/dreddit/apps'
 
+
 def deploy():
     """
     Do a fresh deployment to a new or clean server
      """
     setup()
+
 
 def setup():
     """
@@ -27,11 +31,11 @@ def setup():
     require('hosts')
     require('path')
 
-    #sudo('aptitude install python-virtualenv')
     deploy_repo()
 
     setup_virtualenv()
     setup_db()
+
 
 def push():
     """
@@ -44,6 +48,7 @@ def push():
     setup_virtualenv()
     migrate()
 
+
 def setup_virtualenv():
     """
     Generate the virtualenv enviroment
@@ -52,6 +57,7 @@ def setup_virtualenv():
 
     with cd('%(path)s/dreddit-auth/' % env):
         run('./setup-env.sh' % env)
+
 
 def setup_db():
     """
@@ -62,6 +68,7 @@ def setup_db():
     with cd('%(path)s/dreddit-auth/' % env):
         run('if [ ! -e dbsettings.py ]; then cp dbsettings.py.example dbsettings.py; fi' % env)
         run('env/bin/python manage.py syncdb --noinput --migrate')
+
 
 def deploy_repo():
     """
@@ -76,7 +83,8 @@ def deploy_repo():
 
     with cd('%(path)s/dreddit-auth/' % env):
         run('mkdir logs')
-        
+
+
 def update_repo():
     """
     Pulls the latest commits to the repository
@@ -86,6 +94,7 @@ def update_repo():
 
     with cd('%(path)s/dreddit-auth/' % env):
         run('git pull')
+
 
 def migrate():
     """
@@ -108,6 +117,7 @@ def start():
     with cd('%(path)s/dreddit-auth/' % env):
         run('screen -d -m "./start.sh"')
 
+
 def stop():
     """
     Stop any running FCGI instance
@@ -119,12 +129,10 @@ def stop():
         run('kill `cat auth.pid`')
         run('rm -f auth.pid')
 
+
 def restart():
     """
     Restart the FCGI server
     """
     stop()
     start()
-
-
-
