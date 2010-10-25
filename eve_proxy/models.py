@@ -144,6 +144,11 @@ class CachedDocument(models.Model):
     # The custom manager handles the querying.
     objects = CachedDocumentManager()
 
+    class Meta:
+        verbose_name = 'Cached Document'
+        verbose_name_plural = 'Cached Documents'
+        ordering = ['time_retrieved']
+
 class ApiAccessLog(models.Model):
     """
     Provides a list of API accesses made by applications or Auth
@@ -152,3 +157,8 @@ class ApiAccessLog(models.Model):
     service = models.CharField(max_length=255)
     time_access = models.DateTimeField()
     document = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = 'API Access Log'
+        verbose_name_plural = 'API Access Logs'
+        ordering = ['time_access']
