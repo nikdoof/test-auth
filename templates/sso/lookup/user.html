@@ -38,10 +38,10 @@
 
 <br/>
 <h2>Eve API Keys</h2>
-{% if eveaccounts %}
+{% if user.eveaccount_set.all %}
 <table>
 <tr><th>User ID</th><th>API Key</th><th>Description</th><th>Key Type</th><th>Active</th></tr>
-{% for acc in eveaccounts %}
+{% for acc in user.eveaccount_set.all %}
 <tr><td>{{ acc.api_user_id }}</td>
     <td>{{ acc.api_key }}</td>
     <td>{{ acc.description }}</td>
