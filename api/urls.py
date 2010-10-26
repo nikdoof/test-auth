@@ -5,9 +5,9 @@ from piston.authentication import HttpBasicAuthentication, OAuthAuthentication, 
 from api.auth import APIKeyAuthentication
 from api.handlers import *
 
-oauth = { 'authentication': OAuthAuthentication() }
-noauth = { 'authentication': NoAuthentication() }
-apikeyauth = { 'authentication': APIKeyAuthentication() }
+oauth = {'authentication': OAuthAuthentication() }
+noauth = {'authentication': NoAuthentication() }
+apikeyauth = {'authentication': APIKeyAuthentication() }
 
 user_resource = Resource(handler=UserHandler, **apikeyauth)
 login_resource = Resource(handler=LoginHandler, **noauth)
@@ -28,4 +28,3 @@ urlpatterns += patterns('piston.authentication',
     url(r'^oauth/authorize/$','oauth_user_auth'),
     url(r'^oauth/access_token/$','oauth_access_token'),
 )
-

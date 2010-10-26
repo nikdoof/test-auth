@@ -1,8 +1,9 @@
 import uuid
-
 from django.db import models
 
+
 class AuthAPIKey(models.Model):
+    """ Auth API Key storage model """
 
     name = models.CharField("Service Name", max_length=200)
     url = models.CharField("Service URL", max_length=200, blank=True)
@@ -25,7 +26,9 @@ class AuthAPIKey(models.Model):
         verbose_name = 'API Key'
         verbose_name_plural = "API Keys"
 
+
 class AuthAPILog(models.Model):
+    """ Auth API Access Log """
 
     access_datetime = models.DateTimeField("Date/Time Accessed")
     key = models.ForeignKey(AuthAPIKey)

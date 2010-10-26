@@ -30,25 +30,25 @@ class UserHandler(BaseHandler):
             try:
                 u = User.objects.get(id=id)
             except (User.DoesNotExist, ValueError):
-                return { 'auth': 'missing', 'missing': 'userid'}
+                return {'auth': 'missing', 'missing': 'userid'}
         elif 'user' in request.GET:
             try:
                 u = User.objects.get(username=request.GET['user'])
             except User.DoesNotExist:
-                return { 'auth': 'missing', 'missing': 'username'}
+                return {'auth': 'missing', 'missing': 'username'}
         elif 'serviceuid' in request.GET:
             try:
                 u = ServiceAccount.objects.get(service_uid=request.GET['serviceuid']).user
             except ServiceAccount.DoesNotExist:
-                return { 'auth': 'missing', 'missing': 'ServiceAccount'}
+                return {'auth': 'missing', 'missing': 'ServiceAccount'}
 
         chars = []
         for a in u.eveaccount_set.all():
             chars.extend(a.characters.all())
 
-        d = { 'id': u.id, 'username': u.username, 'email': u.email,
-              'serviceaccounts': u.serviceaccount_set.all(), 'characters': chars,
-              'groups': u.groups.all(), 'staff': u.is_staff, 'superuser': u.is_superuser }
+        d = {'id': u.id, 'username': u.username, 'email': u.email,
+             'serviceaccounts': u.serviceaccount_set.all(), 'characters': chars,
+             'groups': u.groups.all(), 'staff': u.is_staff, 'superuser': u.is_superuser}
 
         return d
 
@@ -63,23 +63,23 @@ class LoginHandler(BaseHandler):
             try:
                 u = User.objects.get(id=id)
             except (User.DoesNotExist, ValueError):
-                return { 'auth': 'missing', 'missing': 'UserID' }
+                return {'auth': 'missing', 'missing': 'UserID'}
 
         if request.GET.get('user', None):
             try:
                 u = User.objects.get(username=request.GET['user'])
             except User.DoesNotExist:
-                return { 'auth': 'missing', 'missing': 'Username' }
+                return {'auth': 'missing', 'missing': 'Username'}
 
         if u:
             if request.GET.get('pass', None) and request.GET['pass'] == u.get_profile().api_service_password:
-                return { 'auth': 'ok', 'id': u.id, 'username': u.username,
-                         'email': u.email, 'groups': u.groups.all(),
-                         'staff': u.is_staff, 'superuser': u.is_superuser }
+                return {'auth': 'ok', 'id': u.id, 'username': u.username,
+                        'email': u.email, 'groups': u.groups.all(),
+                        'staff': u.is_staff, 'superuser': u.is_superuser}
             else:
-                return { 'auth': 'failed' }
+                return {'auth': 'failed'}
 
-        return { 'auth': 'missing', 'missing': 'all' }
+        return {'auth': 'missing', 'missing': 'all'}
 
 
 class EveAPIHandler(BaseHandler):
@@ -87,25 +87,26 @@ class EveAPIHandler(BaseHandler):
     exclude = ('api_key')
 
     def read(self, request):
-       if request.GET.get('id', None):
-           s = get_object_or_404(EVEAccount, pk=id)
-       elif request.GET.get('userid', None):
-           s = EVEAccount.objects.filter(user=request.GET['userid'])
-       elif request.GET.get('corpid', None):
-           s = EVEAccount.objects.filter(characters__corporation__id=request.GET['corpid'])
-       elif request.GET.get('allianceid', None):
-           s = EVEAccount.objects.filter(characters__corporation__alliance__id=request.GET['allianceid'])
+        if request.GET.get('id', None):
+            s = get_object_or_404(EVEAccount, pk=id)
+        elif request.GET.get('userid', None):
+            s = EVEAccount.objects.filter(user=request.GET['userid'])
+        elif request.GET.get('corpid', None):
+            s = EVEAccount.objects.filter(characters__corporation__id=request.GET['corpid'])
+        elif request.GET.get('allianceid', None):
+            s = EVEAccount.objects.filter(characters__corporation__alliance__id=request.GET['allianceid'])
 
-       return { 'keys': s.values('id', 'user_id', 'api_status', 'api_last_updated') }
+        return {'keys': s.values('id', 'user_id', 'api_status', 'api_last_updated')}
+
 
 class EveAPIProxyHandler(BaseHandler):
     allowed_methods = ('GET')
 
     def read(self, request):
-        url_path = request.META['PATH_INFO'].replace(reverse('api-eveapiproxy'),"/")
+        url_path = request.META['PATH_INFO'].replace(reverse('api-eveapiproxy'), "/")
 
         params = {}
-        for key,value in request.GET.items():
+        for key, value in request.GET.items():
             params[key.lower()] = value
 
         if 'userid' in params:
@@ -115,22 +116,23 @@ class EveAPIProxyHandler(BaseHandler):
         cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
 
         return HttpResponse(cached_doc.body)
-    
+
+
 class OpTimerHandler(BaseHandler):
     allowed_methods = ('GET')
 
     def read(self, request, id=None):
         obj = get_object_or_404(EVEAccount, id=FULL_API_USER_ID)
-            
-        params = {'userID':obj.id,'apiKey':obj.api_key,'characterID':FULL_API_CHARACTER_ID}
-        
+
+        params = {'userID': obj.id, 'apiKey': obj.api_key, 'characterID': FULL_API_CHARACTER_ID}
+
         cached_doc = CachedDocument.objects.api_query('/char/UpcomingCalendarEvents.xml.aspx', params, exceptions=False)
 
         if cached_doc:
             dom = minidom.parseString(cached_doc.body.encode('utf-8'))
             enode = dom.getElementsByTagName('error')
         if not cached_doc or enode:
-            return {'ops':[{
+            return {'ops': [{
                 'startsIn': -1,
                 'eventID': 0,
                 'ownerName': '',
@@ -140,8 +142,7 @@ class OpTimerHandler(BaseHandler):
                 'isImportant': 0,
                 'eventText': 'Fuck CCP tbqh imho srsly',
                 'endsIn':-1,
-                'forumLink': ''
-            }]}
+                'forumLink': ''}]}
         
         events = []
         events_node_children = dom.getElementsByTagName('rowset')[0].childNodes
@@ -151,7 +152,7 @@ class OpTimerHandler(BaseHandler):
                 ownerID = node.getAttribute('ownerID')                
                 if ownerID != '1':
                     date = node.getAttribute('eventDate')                
-                    dt = datetime.strptime(date,'%Y-%m-%d %H:%M:%S')                
+                    dt = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')                
                     now = datetime.utcnow()                
                     startsIn = int(dt.strftime('%s')) - int(now.strftime('%s'))
                     duration = int(node.getAttribute('duration'))
@@ -178,8 +179,7 @@ class OpTimerHandler(BaseHandler):
                             'isImportant': node.getAttribute('importance'),
                             'eventText': node.getAttribute('eventText'),
                             'endsIn':endsIn,
-                            'forumLink': forumlink
-                        }                
+                            'forumLink': forumlink}                
                         events.append(event)
         if len(events) == 0:
             return {'ops':[{
@@ -192,8 +192,6 @@ class OpTimerHandler(BaseHandler):
                 'isImportant': 0,
                 'eventText': 'Add ops using EVE-Gate or the in-game calendar',
                 'endsIn':-1,
-                'forumLink': ''
-            }]}
+                'forumLink': ''}]}
         else:
             return {'ops':events}
-
