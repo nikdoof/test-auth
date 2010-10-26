@@ -22,11 +22,11 @@ def group_list(request):
     else:
         groups = Group.objects.select_related('groupinformation').filter(Q(groupinformation__public=True) | 
                                                                          Q(groupinformation__admins__in=[request.user]) | 
-                                                                         Q(user_set__in=[request.user]))
+                                                                         Q(user__in=[request.user]))
 
     # Process the query into a list of tuples including status
     group_list = []
-    for group in groups:
+    for group in set(groups):
         if request.user in group.groupinformation.admins.all():
             status = "Admin"
         elif request.user in group.user_set.all():

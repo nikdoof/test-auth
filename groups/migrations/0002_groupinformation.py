@@ -10,7 +10,7 @@ class Migration(DataMigration):
         for group in orm['auth.Group'].objects.all():
             try:
                 obj = orm.GroupInformation.objects.get(group=group)
-            except orm['auth.Group'].DoesNotExist:
+            except orm.GroupInformation.DoesNotExist:
                 obj = orm.GroupInformation(group=group)
             obj.save()
         
