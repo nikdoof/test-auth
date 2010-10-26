@@ -37,10 +37,10 @@ class TS3Service(BaseService):
 
         self._create_groups(kwargs['user'].groups.all().values_list('name', flat=True))
         username = self.settings['name_format'] % details
-        ret = self.conn.send_command('tokenadd', {'tokentype': 0, 'tokenid1': self.settings['authed_sgid'], 'tokenid2': 0, 'tokendescription': "Auth Token for %s" % username, 'tokencustomset': "ident=sso_uid value=%s|ident=sso_userid value=%s|ident=eve_charid value=%s" % (kwargs['character'].name.replace(' ', ''), kwargs['user'].id, kwargs['character'].id) })
+        ret = self.conn.send_command('tokenadd', {'tokentype': 0, 'tokenid1': self.settings['authed_sgid'], 'tokenid2': 0, 'tokendescription': kwargs['character'].name.replace(' ', ''), 'tokencustomset': "ident=sso_uid value=%s|ident=sso_userid value=%s|ident=eve_charid value=%s" % (kwargs['character'].name.replace(' ', ''), kwargs['user'].id, kwargs['character'].id) })
         if 'keys' in ret and 'token' in ret['keys']:
             token = ret['keys']['token']
-            url = "<a href='ts3server://%s?token=%s'>Register</a>" % (self.settings['host'], token)
+            url = "<a href='ts3server://%s?token=%s'>Click this link to connect and register on TS3</a>" % (self.settings['host'], token)
             return { 'username': kwargs['character'].name.replace(' ', ''), 'display name': username, 'permission token': token, 'registration url': url }
 
         return None
@@ -54,6 +54,11 @@ class TS3Service(BaseService):
         """ Delete a user by uid """
         user = self._get_userid(uid)
         if user:
+
+            for client in self.conn.send_command('clientlist'):
+                if client['keys']['client_database_id'] == user:
+                    self.conn.send_command('clientkick', {'clid': client['keys']['clid'], 'reasonid': 5, 'reasonmsg': 'Auth service deleted'})
+
             ret = self.conn.send_command('clientdbdelete', {'cldbid': user })
         return True
 
@@ -121,7 +126,6 @@ class TS3Service(BaseService):
         if cldbid:
             tsglist = self.conn.send_command('servergroupsbyclientid', {'cldbid': cldbid })
             donelist = []
-            print tsglist
             if type(tsglist) == type(list()):
                 for g in tsglist:
                     donelist.append(g['keys']['sgid'])
