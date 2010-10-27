@@ -94,6 +94,7 @@ def eveapi_del(request, userid=0):
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
+@login_required
 def eveapi_refresh(request, userid=0):
     if userid > 0 :
         try:
@@ -277,6 +278,7 @@ def user_view(request, username=None):
 
     return render_to_response('sso/lookup/user.html', locals(), context_instance=RequestContext(request))
 
+@login_required
 def user_lookup(request):
     form = UserLookupForm()
 
