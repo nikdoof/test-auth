@@ -8,6 +8,7 @@ from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter, EVEPlayerC
 from sso.models import ServiceAccount, Service
 from reddit.models import RedditAccount
 
+
 class EveAPIForm(forms.Form):
     """ EVE API input form """
 
@@ -30,6 +31,7 @@ class EveAPIForm(forms.Form):
         else:
             raise forms.ValidationError("This API User ID is already registered")
 
+
 def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
@@ -49,14 +51,23 @@ def UserServiceAccountForm(user):
                 self.fields['password'] = self.password
 
         def clean(self):
+
+            form_data = self.cleaned_data
+            service = form_data.get('service')
+            character = form_data.get('character')
+
+            if not service or not character:
+                raise forms.ValidationError('Error while processing the form, please try again')
+
+            service_groups = service.groups.all()
+
             # If the service's assigned groups are linked to corps, do a character/corp check
-            if len(EVEPlayerCorporation.objects.filter(group__in=self.cleaned_data['service'].groups.all())):
-                corp_group = self.cleaned_data['character'].corporation.group
-                if self.cleaned_data['character'].corporation.alliance:
-                    alliance_group = self.cleaned_data['character'].corporation.alliance.group
+            if len(EVEPlayerCorporation.objects.filter(group__in=service_groups)):
+                corp_group = character.corporation.group
+                if character.corporation.alliance:
+                    alliance_group = character.corporation.alliance.group
                 else:
                     alliance_group = None
-                service_groups = self.cleaned_data['service'].groups.all()
 
                 if not (corp_group in service_groups or alliance_group in service_groups):
                     raise forms.ValidationError("%s is not in a corporation or alliance allowed to register for %s" % (self.cleaned_data['character'].name, self.cleaned_data['service']))
@@ -65,12 +76,14 @@ def UserServiceAccountForm(user):
 
     return ServiceAccountForm
 
+
 class ServiceAccountResetForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(ServiceAccountResetForm, self).__init__(*args, **kwargs)
         if not settings.GENERATE_SERVICE_PASSWORD:
             self.password = forms.CharField(widget=forms.PasswordInput, label="Password" )
             self.fields['password'] = self.password
+
 
 class RedditAccountForm(forms.Form):
     """ Reddit Account Form """
@@ -115,6 +128,7 @@ class UserLookupForm(forms.Form):
                 raise forms.ValidationError("Account doesn't exist")
 
         return self.cleaned_data
+
 
 class APIPasswordForm(forms.Form):
 
