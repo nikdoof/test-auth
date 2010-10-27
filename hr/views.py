@@ -31,7 +31,7 @@ def send_message(application, message_type, note=None):
     if len(application.user.redditaccount_set.all()) > 0:
         from reddit.api import Inbox, LoginError
         try:
-            ib = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWD)
+            ib = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWORD)
         except LoginError:
             pass
         else:

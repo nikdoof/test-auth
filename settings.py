@@ -124,7 +124,7 @@ SLICE = os.path.join(os.path.dirname(os.path.abspath( __file__ )),'Murmur.ice')
 REDDIT_USER = 'DredditVerification'
 
 # Password for validatio account
-REDDIT_PASSWD = ''
+REDDIT_PASSWORD = ''
 
 ### HR Settings
 

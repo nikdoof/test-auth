@@ -64,7 +64,7 @@ class ProcessValidations():
         return self.__logger
 
     def job(self, args):
-        inbox = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWD)
+        inbox = Inbox(settings.REDDIT_USER, settings.REDDIT_PASSWORD)
 
         for msg in inbox:
             if not msg.was_comment:
