@@ -13,14 +13,20 @@ class MumbleService(BaseService):
                  'ice_file': 'Murmur.ice' }
 
     def __init__(self):
-        Ice.loadSlice(self.settings['ice_file'])
-        import Murmur
-        self.mur = Murmur
+        try:
+            Ice.loadSlice(self.settings['ice_file'])
+            import Murmur
+            self.mur = Murmur
+        except:
+            pass
 
     @property
     def mumblectl(self):
         if not hasattr(self, '_mumblectl'):
-            self._mumblectl = MumbleCtlIce(self.settings['connection_string'], self.settings['ice_file'])
+            try:
+                self._mumblectl = MumbleCtlIce(self.settings['connection_string'], self.settings['ice_file'])
+            except:
+                self._mumblectl = None
         return self._mumblectl
 
     def add_user(self, username, password, **kwargs):
@@ -39,25 +45,25 @@ class MumbleService(BaseService):
             return False
 
     def raw_add_user(self, username, email, password):
-        if self.mumblectl.registerPlayer(self.settings['mumble_server_id'], username, email, password):
+        if self.mumblectl and self.mumblectl.registerPlayer(self.settings['mumble_server_id'], username, email, password):
             return username
 
         return False
 
     def check_user(self, username):
         """ Check if the username exists """
-        if len(self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], username)):
+        if self.mumblectl and len(self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], username)):
             return True
-        else:
-            return False
+        return False
 
     def delete_user(self, uid):
         """ Delete a user by uid """
-        ids = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
-        if len(ids) > 0:
-            for accid in ids:
-                acc = ids[accid]
-                self.mumblectl.unregisterPlayer(self.settings['mumble_server_id'], acc['userid'])
+        if self.mumblectl:
+           ids = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
+           if len(ids) > 0:
+                for accid in ids:
+                    acc = ids[accid]
+                    self.mumblectl.unregisterPlayer(self.settings['mumble_server_id'], acc['userid'])
 
         return True
 
@@ -68,24 +74,28 @@ class MumbleService(BaseService):
 
     def enable_user(self, uid, password):
         """ Enable a user by uid """       
-        ids = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
-        if len(ids) > 0:
-            for accid in ids:
-                acc = ids[accid]
-                self.mumblectl.setRegistration(self.settings['mumble_server_id'], acc['userid'], acc['name'], acc['email'], password)
-            return True
-        else:
-            if self.raw_add_user(uid, '', password):
+        if self.mumblectl:
+            ids = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
+            if len(ids) > 0:
+                for accid in ids:
+                    acc = ids[accid]
+                    self.mumblectl.setRegistration(self.settings['mumble_server_id'], acc['userid'], acc['name'], acc['email'], password)
                 return True
+            else:
+                if self.raw_add_user(uid, '', password):
+                    return True
+        return False
 
     def set_user(self, uid, name = ''):
         """ Set values ona user by uid """       
-        ids = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
-        if len(ids) > 0:
-            for accid in ids:
-                acc = ids[accid]
-                self.mumblectl.setRegistration(self.settings['mumble_server_id'], acc['userid'], name, acc['email'], acc['pw'])
-            return True
+        if self.mumblectl:
+            ids = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)
+            if len(ids) > 0:
+                for accid in ids:
+                    acc = ids[accid]
+                    self.mumblectl.setRegistration(self.settings['mumble_server_id'], acc['userid'], name, acc['email'], acc['pw'])
+                return True
+        return False
 
     def reset_password(self, uid, password):
         """ Reset the user's password """
