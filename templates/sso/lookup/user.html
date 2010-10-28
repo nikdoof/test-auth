@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load naturaltimediff %}
+
 {% block content %}
 
 <h1>{{user.username}}'s Profile</h1>
@@ -40,14 +42,19 @@
 <h2>Eve API Keys</h2>
 {% if user.eveaccount_set.all %}
 <table>
-<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Key Type</th><th>Active</th></tr>
+<thead>
+<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th></tr>
+</thead>
+<tbody>
 {% for acc in user.eveaccount_set.all %}
 <tr><td>{{ acc.api_user_id }}</td>
     <td>{{ acc.api_key }}</td>
     <td>{{ acc.description }}</td>
     <td>{{ acc.get_api_keytype_display }}</td>
     <td>{{ acc.get_api_status_display }}</td>
+    <td>{{ acc.api_last_updated|naturaltimediff }}</td>
 </tr>
+</tbody>
 {% endfor %}
 </table>
 {% endif %}
