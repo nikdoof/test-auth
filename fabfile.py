@@ -1,4 +1,5 @@
 from __future__ import with_statement
+import time
 from fabric.api import *
 
 env.repo = 'git://dev.dredd.it/dreddit-auth.git'
@@ -137,4 +138,5 @@ def restart():
     Restart the FCGI server
     """
     stop()
+    time.sleep(2)
     start()
