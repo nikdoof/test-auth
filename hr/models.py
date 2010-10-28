@@ -1,16 +1,18 @@
 from datetime import datetime
-
 from django.db import models
 from django.contrib.auth.models import User
-
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
-
 from hr.app_defines import *
 
+
 class Application(models.Model):
+    """ Person's application to a corporation """
+
     user = models.ForeignKey(User, blank=False, verbose_name="User")
-    character = models.ForeignKey(EVEPlayerCharacter, blank=False, verbose_name="Character")
-    corporation = models.ForeignKey(EVEPlayerCorporation, blank=False, verbose_name="Applying to Corporation")
+    character = models.ForeignKey(EVEPlayerCharacter, blank=False,
+                                  verbose_name="Character")
+    corporation = models.ForeignKey(EVEPlayerCorporation, blank=False,
+                                    verbose_name="Applying to Corporation")
     status = models.IntegerField(choices=APPLICATION_STATUS_CHOICES,
                                      default=APPLICATION_STATUS_NOTSUBMITTED,
                                      verbose_name="Status",
@@ -29,13 +31,11 @@ class Application(models.Model):
         """
 
         blacklist = []
-
-        bl_items = Blacklist.objects.filter( models.Q(expiry_date__gt=datetime.now()) | models.Q(expiry_date=None) )
+        bl_items = Blacklist.objects.filter(models.Q(expiry_date__gt=datetime.now()) | models.Q(expiry_date=None))
 
         # Check Reddit blacklists
-        reddit_uids = self.user.redditaccount_set.all().values_list('username')
-        reddit = [a[0].lower() for a in reddit_uids if a and a[0]]
-        objs = bl_items.filter(type=BLACKLIST_TYPE_REDDIT, value__in=reddit)
+        reddit_uids = self.user.redditaccount_set.all().values_list('username', flat=True)
+        objs = bl_items.filter(type=BLACKLIST_TYPE_REDDIT, value__in=reddit_uids)
         blacklist.extend(objs)
 
         # Check email blacklists
@@ -48,17 +48,17 @@ class Application(models.Model):
         evechars = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).select_related('corporation__alliance')
 
         # Check Character blacklists
-        chars = [a[0].lower() for a in evechars.values_list('name') if a and a[0]]
-        objs = bl_items.filter(type=BLACKLIST_TYPE_CHARACTER, value__in=chars)
+        characters = evechars.values_list('name', flat=True)
+        objs = bl_items.filter(type=BLACKLIST_TYPE_CHARACTER, value__in=characters)
         blacklist.extend(objs)
 
         # Check Corporation blacklists
-        corps = [a[0].lower() for a in evechars.values_list('corporation__name') if a and a[0]]
-        objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__in=corps)
+        corporations = evechars.values_list('corporation__name', flat=True)
+        objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__in=corporations)
         blacklist.extend(objs)
 
         # Check Alliance blacklists
-        alliances = [a[0].lower() for a in evechars.values_list('corporation__alliance__name') if a and a[0]]
+        alliances = evechars.values_list('corporation__alliance__name', flat=True)
         objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__in=alliances)
         blacklist.extend(objs)
 
@@ -94,14 +94,16 @@ class Application(models.Model):
 
         super(Application, self).save(*args, **kwargs)
 
-
     def __unicode__(self):
         return self.character.name
 
     def __str__(self):
         return self.__unicode__()
 
+
 class Recommendation(models.Model):
+    """ User recommendation for a application """
+
     user = models.ForeignKey(User, blank=False, verbose_name="User")
     user_character = models.ForeignKey(EVEPlayerCharacter, blank=False, verbose_name="Recommender")
     application = models.ForeignKey(Application, blank=False, verbose_name="Recommended Application")
@@ -112,7 +114,10 @@ class Recommendation(models.Model):
     def __str__(self):
         return self.__unicode__()
 
+
 class Audit(models.Model):
+    """ Auditing information regarding a application """
+
     application = models.ForeignKey(Application, blank=False, verbose_name="Application")
     user = models.ForeignKey(User, blank=True, verbose_name="User")
     event = models.IntegerField(choices=AUDIT_EVENT_CHOICES,
@@ -120,26 +125,24 @@ class Audit(models.Model):
                                      help_text="Type of audit event")
     text = models.TextField(blank=False, verbose_name="Event Text",
                                      help_text="Detailed event text")
-
     date = models.DateTimeField(auto_now_add=True, verbose_name="Event Date")
 
 
 class Blacklist(models.Model):
+    """ Blacklisted entries, stops people who match the criteria from applying """
+
     type = models.IntegerField(choices=BLACKLIST_TYPE_CHOICES,
                                      verbose_name="Blacklisted Type",
                                      help_text="Type of entity to be blacklisted")
     value = models.CharField("Blacklisted Value", max_length=255, blank=False)
     reason = models.TextField(blank=False, verbose_name="Reason",
                                      help_text="Reason that the entity was blacklisted")
-
     expiry_date = models.DateTimeField(verbose_name="Expiry Date", blank=False, null=True,
                                      help_text="Date to expire this entry")
-
     source = models.IntegerField(choices=BLACKLIST_SOURCE_CHOICES,
                                      verbose_name="Blacklist Source",
                                      help_text="Source of the blacklisted item",
                                      default=BLACKLIST_SOURCE_INTERNAL)
-
     created_date = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
     created_by = models.ForeignKey(User, blank=False, verbose_name="Created By")
 
