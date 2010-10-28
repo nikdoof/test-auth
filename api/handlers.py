@@ -203,7 +203,7 @@ class BlacklistHandler(BaseHandler):
 
     def read(self, request):
         if request.GET.get('value'):
-            obj = Blacklist.objects.filter(value=request.GET.get('value'))
+            obj = Blacklist.objects.filter(value__icontains=request.GET.get('value'))
             if obj.count() and request.GET.get('type'):
                 obj = obj.filter(type=request.GET.get('type'))
         else:
