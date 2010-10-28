@@ -8,3 +8,4 @@ South==0.7.1
 fabric==0.9.1
 flup
 django-debug-toolbar==0.8.3
+simplejson
