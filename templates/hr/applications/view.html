@@ -55,9 +55,9 @@
 {% if app.blacklisted %}
 <h3>Blacklist Triggers</h3>
 <table>
-<tr><th>Blacklist Type</th><th>Blacklisted Value</th><th>Reason</th></tr>
+<tr><th>Blacklist Type</th><th>Blacklisted Value</th><th>Reason</th><th>Source</th></tr>
 {% for a in app.blacklist_values %}
-<tr><td>{{ a.get_type_display }}</td><td>{{ a.value }}</td><td>{{ a.reason }}</td></tr>
+<tr><td>{{ a.get_type_display }}</td><td>{{ a.value }}</td><td>{{ a.reason }}</td><td>{{ a.get_source_display }}</td></tr>
 {% endfor %}
 </table>
 {% endif %}
