@@ -44,9 +44,11 @@ def push():
     require('hosts')
     require('path')
 
+    stop()
     update_repo()
     setup_virtualenv()
     migrate()
+    start()
 
 
 def setup_virtualenv():
@@ -115,7 +117,7 @@ def start():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('screen -d -m "./start.sh"')
+        run('./start.sh')
 
 
 def stop():
