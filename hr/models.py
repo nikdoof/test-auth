@@ -132,6 +132,7 @@ class BlacklistSource(models.Model):
     """ Blacklist Source """
 
     name =  models.CharField("Blacklist Source Name", max_length=255, blank=False)
+    ticker = models.CharField("Blacklist Source Ticker", max_length=255, blank=False)
 
     def __unicode__(self):
         return self.name

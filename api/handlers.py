@@ -201,7 +201,7 @@ class OpTimerHandler(BaseHandler):
 class BlacklistHandler(BaseHandler):
     model = Blacklist
     allowed_methods = ('GET')
-    fields = ('type', 'value', 'source', ('name'), 'created_date', 'expiry_date', 'reason')
+    fields = ('type', 'value', 'source', ('name', 'ticker'), 'created_date', 'expiry_date', 'reason')
 
     def read(self, request):
         if request.GET.get('value'):
