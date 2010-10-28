@@ -15,6 +15,7 @@ from api.models import AuthAPIKey, AuthAPILog
 from eve_proxy.models import CachedDocument
 from eve_api.models import EVEAccount
 from sso.models import ServiceAccount, Service
+from hr.models import Blacklist
 
 from settings import FULL_API_USER_ID
 from settings import FULL_API_CHARACTER_ID
@@ -195,3 +196,17 @@ class OpTimerHandler(BaseHandler):
                 'forumLink': ''}]}
         else:
             return {'ops':events}
+
+
+class BlacklistHandler(BaseHandler):
+    allowed_methods = ('GET')
+
+    def read(self, request):
+        if request.GET.get('value'):
+            obj = Blacklist.objects.filter(value=request.GET.get('value'))
+            if obj.count() and request.GET.get('type'):
+                obj = obj.filter(type=request.GET.get('type'))
+        else:
+            obj = []
+
+        return obj
