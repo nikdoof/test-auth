@@ -59,8 +59,12 @@ class Application(models.Model):
 
         # Check Alliance blacklists
         alliances = [a[0].lower() for a in evechars.values_list('corporation__alliance__name') if a and a[0]]
-
         objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__in=alliances)
+        blacklist.extend(objs)
+
+        # Check API Key blacklists
+        keys = self.user.eveaccount_set.all().values_list('api_user_id', flat=True)
+        objs = bl_items.filter(type=BLACKLIST_TYPE_APIUSERID, value__in=keys)
         blacklist.extend(objs)
 
         return blacklist
