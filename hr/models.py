@@ -128,6 +128,18 @@ class Audit(models.Model):
     date = models.DateTimeField(auto_now_add=True, verbose_name="Event Date")
 
 
+class BlacklistSource(models.Model):
+    """ Blacklist Source """
+
+    name =  models.CharField("Blacklist Source Name", max_length=255, blank=False)
+
+    def __unicode__(self):
+        return self.name
+
+    def __str__(self):
+        return self.__unicode__()
+
+
 class Blacklist(models.Model):
     """ Blacklisted entries, stops people who match the criteria from applying """
 
@@ -139,10 +151,7 @@ class Blacklist(models.Model):
                                      help_text="Reason that the entity was blacklisted")
     expiry_date = models.DateTimeField(verbose_name="Expiry Date", blank=False, null=True,
                                      help_text="Date to expire this entry")
-    source = models.IntegerField(choices=BLACKLIST_SOURCE_CHOICES,
-                                     verbose_name="Blacklist Source",
-                                     help_text="Source of the blacklisted item",
-                                     default=BLACKLIST_SOURCE_INTERNAL)
+    source = models.ForeignKey(BlacklistSource, blank=False, verbose_name="Source")
     created_date = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
     created_by = models.ForeignKey(User, blank=False, verbose_name="Created By")
 
