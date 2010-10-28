@@ -3,9 +3,10 @@ REQUIREMENTS
 
 Use ./setup-env.sh to setup the virtualenv for Auth, you'll also need the following packages (as named on Debian):
 
-python-zeroc-ice (ZeroC ICE Bindings for Python)
+python-zeroc-ice (ZeroC ICE Bindings for Python, only needed if you are using Mumble connecitivty)
 python-imaging (PIL)
 python-mysqldb (MySQL connectors for Python)
+python-crypto (SSL and related stuff for Django)
 
 RUNNING
 -------
