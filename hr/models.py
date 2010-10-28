@@ -131,6 +131,11 @@ class Blacklist(models.Model):
     expiry_date = models.DateTimeField(verbose_name="Expiry Date", blank=False, null=True,
                                      help_text="Date to expire this entry")
 
+    source = models.IntegerField(choices=BLACKLIST_SOURCE_CHOICES,
+                                     verbose_name="Blacklist Source",
+                                     help_text="Source of the blacklisted item",
+                                     default=BLACKLIST_SOURCE_INTERNAL)
+
     created_date = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
     created_by = models.ForeignKey(User, blank=False, verbose_name="Created By")
 
