@@ -129,8 +129,8 @@ def stop():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('kill `cat auth.pid`')
-        run('rm -f auth.pid')
+        run('kill `cat ./logs/auth.pid`')
+        run('rm -f ./logs/auth.pid')
 
 
 def restart():
