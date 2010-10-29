@@ -3,12 +3,13 @@ import random
 import re
 import unicodedata
 
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
+from django.core import serializers
 
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 from eve_api.api_puller.accounts import import_eve_account
@@ -96,6 +97,7 @@ def eveapi_del(request, userid=0):
 
 @login_required
 def eveapi_refresh(request, userid=0):
+
     if userid > 0 :
         try:
             acc = EVEAccount.objects.get(id=userid)
@@ -104,7 +106,13 @@ def eveapi_refresh(request, userid=0):
         else:
             import_eve_account(acc.api_key, acc.api_user_id, force_cache=True)
             request.user.get_profile().update_access()
-            request.user.message_set.create(message="Key %s has been refreshed from the EVE API." % acc.api_user_id)
+
+            print request.GET
+            if request.is_ajax():
+                acc = EVEAccount.objects.get(id=userid)
+                return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
+            else:
+                request.user.message_set.create(message="Key %s has been refreshed from the EVE API." % acc.api_user_id)
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
