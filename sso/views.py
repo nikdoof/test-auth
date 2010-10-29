@@ -106,7 +106,7 @@ def eveapi_refresh(request, userid=0):
         else:
             if acc.user == request.user or request.user.is_superuser:
                 import_eve_account(acc.api_key, acc.api_user_id, force_cache=True)
-                request.user.get_profile().update_access()
+                acc.user.get_profile().update_access()
 
                 if request.is_ajax():
                     acc = EVEAccount.objects.get(id=userid)
