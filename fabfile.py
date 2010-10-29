@@ -98,6 +98,16 @@ def update_repo():
     with cd('%(path)s/dreddit-auth/' % env):
         run('git pull')
 
+def reset_repo():
+    """
+    Does a hard reset on the remote repo
+    """
+    require('hosts')
+    require('path')
+
+    with cd('%(path)s/dreddit-auth/' % env):
+        run('git reset --hard')
+
 
 def migrate():
     """
