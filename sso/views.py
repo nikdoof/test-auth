@@ -107,7 +107,6 @@ def eveapi_refresh(request, userid=0):
             import_eve_account(acc.api_key, acc.api_user_id, force_cache=True)
             request.user.get_profile().update_access()
 
-            print request.GET
             if request.is_ajax():
                 acc = EVEAccount.objects.get(id=userid)
                 return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')

@@ -6,6 +6,19 @@
 
 {% block content %}
 
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.js"></script>
+<script type="text/javascript">
+
+function refresh_apikey(key) {
+    $("#api-time-" + key).html("<center><img src='/static/img/spinner.gif'/></center>");  
+    $.getJSON("/profile/refresh/eveapi/" + key + "/", function(json) {
+            $("#api-time-" + json[0].fields.api_user_id).html("a moment ago");
+    });
+}
+
+</script>
+
+
 <h1>Your Profile</h1>
 
 <p>
@@ -72,8 +85,9 @@ setup.</p>
     <td>{{ acc.description }}</td>
     <td>{{ acc.get_api_keytype_display }}</td>
     <td>{{ acc.get_api_status_display }}</td>
-    <td>{{ acc.api_last_updated|naturaltimediff }}</td>
-    <td><a href="{% url sso.views.eveapi_refresh acc.api_user_id %}">Refresh</a>,&nbsp;
+    <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
+    <td><a href="javascript:refresh_apikey({{ acc.api_user_id }})">Refresh (AJAX)</a>,&nbsp;
+        <a href="{% url sso.views.eveapi_refresh acc.api_user_id %}">Refresh</a>,&nbsp;
         <a href="{% url sso.views.eveapi_log acc.api_user_id %}">Logs</a>,&nbsp;
         <a href="{% url sso.views.eveapi_del acc.api_user_id %}">Delete</a></td>
 </tr>
