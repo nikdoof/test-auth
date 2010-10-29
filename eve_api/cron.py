@@ -101,6 +101,6 @@ class CorporationUpdate():
             return self.__logger
 
         def job(self, args):
-            for corp in EVEPlayerCorporation.objects.filter(eveplayercharacter__in=EVEPlayerCharacter.objects.all()):
+            for corp in set(EVEPlayerCorporation.objects.filter(eveplayercharacter__in=EVEPlayerCharacter.objects.all())):
                 print corp
                 corp.query_and_update_corp()
