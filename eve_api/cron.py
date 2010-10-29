@@ -88,3 +88,19 @@ class AllianceUpdate():
         def job(self, args):
             alliance_import()
 
+
+class CorporationUpdate():
+        """
+        Updates all corporate objects in Auth
+        """
+
+        @property
+        def _logger(self):
+            if not hasattr(self, '__logger'):
+                self.__logger = logging.getLogger(__name__)
+            return self.__logger
+
+        def job(self, args):
+            for corp in EVEPlayerCorporation.objects.filter(eveplayercharacter__in=EVEPlayerCharacter.objects.all()):
+                print corp
+                corp.query_and_update_corp()
