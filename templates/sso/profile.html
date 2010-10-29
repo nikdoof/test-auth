@@ -10,9 +10,28 @@
 <script type="text/javascript">
 
 function refresh_apikey(key) {
+    $("#api-status-" + key).html("<center><img src='/static/img/spinner.gif'/></center>");
     $("#api-time-" + key).html("<center><img src='/static/img/spinner.gif'/></center>");  
     $.getJSON("/profile/refresh/eveapi/" + key + "/", function(json) {
             $("#api-time-" + json[0].fields.api_user_id).html("a moment ago");
+
+            switch(json[0].fields.api_status) {
+                case 0:
+                    $("#api-status-" + json[0].fields.api_user_id).html("Unknown");
+                    break;
+                case 1:
+                    $("#api-status-" + json[0].fields.api_user_id).html("OK");
+                    break;
+                case 2:
+                    $("#api-status-" + json[0].fields.api_user_id).html("Other Error");
+                    break;
+                case 3:
+                    $("#api-status-" + json[0].fields.api_user_id).html("Account Expired");
+                    break;
+                default:
+                    $("#api-status-" + json[0].fields.api_user_id).html("Error");
+                    break;
+            }
     });
 }
 
@@ -84,7 +103,7 @@ setup.</p>
     <td>{{ acc.api_key }}</td>
     <td>{{ acc.description }}</td>
     <td>{{ acc.get_api_keytype_display }}</td>
-    <td>{{ acc.get_api_status_display }}</td>
+    <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
     <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
     <td><a href="javascript:refresh_apikey({{ acc.api_user_id }})">Refresh</a>,&nbsp;
         <a href="{% url sso.views.eveapi_log acc.api_user_id %}">Logs</a>,&nbsp;
