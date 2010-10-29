@@ -104,14 +104,15 @@ def eveapi_refresh(request, userid=0):
         except EVEAccount.DoesNotExist:
             pass
         else:
-            import_eve_account(acc.api_key, acc.api_user_id, force_cache=True)
-            request.user.get_profile().update_access()
+            if acc.user == request.user or request.user.is_superuser:
+                import_eve_account(acc.api_key, acc.api_user_id, force_cache=True)
+                request.user.get_profile().update_access()
 
-            if request.is_ajax():
-                acc = EVEAccount.objects.get(id=userid)
-                return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
-            else:
-                request.user.message_set.create(message="Key %s has been refreshed from the EVE API." % acc.api_user_id)
+                if request.is_ajax():
+                    acc = EVEAccount.objects.get(id=userid)
+                    return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
+                else:
+                    request.user.message_set.create(message="Key %s has been refreshed from the EVE API." % acc.api_user_id)
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
