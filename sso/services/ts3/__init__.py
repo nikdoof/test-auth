@@ -109,6 +109,8 @@ class TS3Service(BaseService):
             self.__group_cache = None
             sgid = ret['keys']['sgid']
             self.conn.send_command('servergroupaddperm', { 'sgid': sgid, 'permsid': 'i_group_needed_modify_power', 'permvalue': 75, 'permnegated': 0, 'permskip': 0 })
+            self.conn.send_command('servergroupaddperm', { 'sgid': sgid, 'permsid': 'i_group_needed_member_add_power', 'permvalue': 100, 'permnegated': 0, 'permskip': 0 })
+            self.conn.send_command('servergroupaddperm', { 'sgid': sgid, 'permsid': 'i_group_needed_member_remove_power', 'permvalue': 100, 'permnegated': 0, 'permskip' })
         return sgid
 
     def _create_groups(self, groups):
