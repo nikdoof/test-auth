@@ -42,6 +42,11 @@ class UserHandler(BaseHandler):
                 u = ServiceAccount.objects.get(service_uid=request.GET['serviceuid']).user
             except ServiceAccount.DoesNotExist:
                 return {'auth': 'missing', 'missing': 'ServiceAccount'}
+        elif 'apiuserid' in request.GET:
+            try:
+                u = EVEAccount.objects.get(api_user_id=request.GET['apiuserid']).user
+            except EVEAccount.DoesNotExist:
+                return {'auth': 'missing', 'missing': 'apiuserid'}
 
         chars = []
         for a in u.eveaccount_set.all():
