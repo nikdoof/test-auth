@@ -9,7 +9,7 @@ from django.contrib.auth.models import User, UserManager, Group
 from django.utils import simplejson as json
 
 from jsonfield.fields import JSONField
-from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
+from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance, EVEPlayerCharacter
 from reddit.models import RedditAccount
 
 from services import get_api
@@ -203,7 +203,7 @@ class ServiceAccount(models.Model):
     service_uid = models.CharField("Service UID", max_length=200, blank=False)
     active = models.BooleanField(default=True)
 
-    character = None
+    character = models.ForeignKey(EVEPlayerCharacter, null=True)
     username = None
     password = None
 
