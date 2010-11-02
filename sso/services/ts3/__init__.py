@@ -14,7 +14,8 @@ class TS3Service(BaseService):
                  'vhost_id': 0,
                  'authed_sgid': 12,
                  'name_format': '%(alliance)s - %(corporation)s - %(name)s',
-                 'bookmark_name': 'TEST Alliance TS3'}
+                 'bookmark_name': 'TEST Alliance TS3',
+                 'ignore_groups': [6]}
 
     def __init__(self):
         pass
@@ -35,7 +36,6 @@ class TS3Service(BaseService):
                     'alliance': kwargs['character'].corporation.alliance.ticker,
                     'corporation': kwargs['character'].corporation.ticker }
 
-        self._create_groups(kwargs['user'].groups.all().values_list('name', flat=True))
         username = self.settings['name_format'] % details
         ret = self.conn.send_command('tokenadd', {'tokentype': 0, 'tokenid1': self.settings['authed_sgid'], 'tokenid2': 0, 'tokendescription': kwargs['character'].name.replace(' ', ''), 'tokencustomset': "ident=sso_uid value=%s|ident=sso_userid value=%s|ident=eve_charid value=%s" % (kwargs['character'].name.replace(' ', ''), kwargs['user'].id, kwargs['character'].id) })
         if 'keys' in ret and 'token' in ret['keys']:
@@ -54,20 +54,21 @@ class TS3Service(BaseService):
         """ Delete a user by uid """
         user = self._get_userid(uid)
         if user:
-
             for client in self.conn.send_command('clientlist'):
                 if client['keys']['client_database_id'] == user:
                     self.conn.send_command('clientkick', {'clid': client['keys']['clid'], 'reasonid': 5, 'reasonmsg': 'Auth service deleted'})
 
             ret = self.conn.send_command('clientdbdelete', {'cldbid': user })
-        return True
+            if ret['id'] == 0:
+                return True
 
     def disable_user(self, uid):
         """ Disable a user by uid """
         user = self._get_userid(uid)
         if user:
             ret = self.conn.send_command('servergroupdelclient', {'sgid': self.settings['authed_sgid'], 'cldbid': user })
-        return True
+            if ret['id'] == 0:
+                return True
 
     def enable_user(self, uid, password):
         """ Enable a user by uid """
@@ -75,7 +76,8 @@ class TS3Service(BaseService):
         user = self._get_userid(uid)
         if user:
             ret = self.conn.send_command('servergroupaddclient', {'sgid': self.settings['authed_sgid'], 'cldbid': user })
-        return True
+            if ret['id'] == 0:
+                return True
 
     def reset_password(self, uid, password):
         """ Reset the user's password """
@@ -103,6 +105,7 @@ class TS3Service(BaseService):
 
     def _create_group(self, groupname):
         """ Creates a Server Group and returns the SGID """
+
         sgid = self._group_by_name(groupname)
         if not sgid:
             ret = self.conn.send_command('servergroupadd', { 'name': groupname })
@@ -113,12 +116,25 @@ class TS3Service(BaseService):
             self.conn.send_command('servergroupaddperm', { 'sgid': sgid, 'permsid': 'i_group_needed_member_remove_power', 'permvalue': 100, 'permnegated': 0, 'permskip': 0 })
         return sgid
 
-    def _create_groups(self, groups):
-        """ Creates groups from a list """
-        output = []
-        for g in groups:
-            output.append(self._create_group(g))
-        return output
+    def _group_list(self):
+        """ List of all groups on the TS server """
+
+        if not hasattr(self, '__group_cache') or not self.__group_cache:
+            self.__group_cache = self.conn.send_command('servergrouplist')
+        outlist = {}
+        for group in self.__group_cache:
+            outlist[group['keys']['name']] = group['keys']['sgid']
+        return outlist
+
+    def _user_group_list(self, cldbid):
+        """ List of all groups assigned to a user """
+
+        groups = self.conn.send_command('servergroupsbyclientid', {'cldbid': cldbid })
+        outlist = {}
+        for group in groups:
+            outlist[group['keys']['name']] = group['keys']['sgid']
+        return outlist
+
 
     def update_groups(self, uid, groups):
         """ Update the UID's groups based on the provided list """
@@ -126,23 +142,28 @@ class TS3Service(BaseService):
         cldbid = self._get_userid(uid)
 
         if cldbid:
-            tsglist = self.conn.send_command('servergroupsbyclientid', {'cldbid': cldbid })
-            donelist = []
-            if type(tsglist) == type(list()):
-                for g in tsglist:
-                    donelist.append(g['keys']['sgid'])
-            else:
-                donelist.append(tsglist['keys']['sgid'])
+            tsgrplist = self._group_list()
+            usrgrplist = self._user_group_list(cldbid)
 
+            # Add groups
             if groups.count():
-                addgroups = self._create_groups(groups.values_list('name', flat=True))
-                for g in addgroups:
-                    if not g in donelist:
-                        ret = self.conn.send_command('servergroupaddclient', {'sgid': g, 'cldbid': cldbid })
+                for g in groups:
+                    if not g.name in tsgrplist:
+                        tsgrplist[g.name] = self._create_group(g.name)
+                    if not group.name in usrgrplist:
+                        self.conn.send_command('servergroupaddclient', {'sgid': tsgrplist[g.name], 'cldbid': cldbid })
+                        usrgrplist[g.name] = tsgrplist[g.name]
 
-                #remv = set(donelist) - set(addgroups)
-                #if int(self.settings['authed_sgid']) in remv:
-                #     ret = self.conn.send_command('servergroupdelclient', {'sgid': g, 'cldbid': cldbid })
+            # Remove OKed groups from the delete list
+            for g in groups:
+                if g.name in usrgrplist:
+                    del usrgrplist[g.name]
+
+            # Remove ignored and admin groups
+            for k, v in usrgrplist.items():
+                if not v == self.settings['auth_sgid'] and not v in self.settings['ignore_groups']:
+                    self.conn.send_command('servergroupdelclient', {'sgid': v, 'cldbid': cldbid })
+
         return True
 
 ServiceClass = 'TS3Service'
