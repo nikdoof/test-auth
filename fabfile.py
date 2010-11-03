@@ -35,7 +35,6 @@ def setup():
     deploy_repo()
 
     setup_virtualenv()
-    setup_db()
 
 
 def push():
@@ -128,6 +127,7 @@ def start():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
+        run('rm -f off.html')
         run('./start.sh')
 
 
@@ -139,6 +139,7 @@ def stop():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
+        run('ln -s templates/off.html')
         run('kill `cat ./logs/auth.pid`')
         run('rm -f ./logs/auth.pid')
 
