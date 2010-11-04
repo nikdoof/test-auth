@@ -1,6 +1,6 @@
 import hashlib
 import random
-from django.db import load_backend, transaction, IntegrityError
+from django.db import transaction, IntegrityError
 from sso.services import BaseDBService
 import settings
 
@@ -37,7 +37,7 @@ class POSTrackerService(BaseDBService):
         eveid = kwargs['character'].eveaccount_set.all()[0].api_user_id
 
         self.dbcursor.execute(self.SQL_ADD_USER, [eveid, username, "%s%s" % (salt, pwhash) , email])
-        self.db.connection.commit()
+        transaction.set_dirty()
         return { 'username': username, 'password': password }
 
     def check_user(self, username):
@@ -51,20 +51,20 @@ class POSTrackerService(BaseDBService):
     def delete_user(self, uid):
         """ Delete a user """
         self.dbcursor.execute(self.SQL_DEL_USER, [uid])
-        self.db.connection.commit()
+        transaction.set_dirty()
         return True
 
     def disable_user(self, uid):
         """ Disable a user """
         self.dbcursor.execute(self.SQL_DIS_USER, [uid])
-        self.db.connection.commit()
+        transaction.set_dirty()
         return True
 
     def enable_user(self, uid, password):
         """ Enable a user """
         pwhash, salt = self._gen_pwhash(password)
         self.dbcursor.execute(self.SQL_ENABLE_USER, ["%s%s" % (salt, pwhash), uid])
-        self.db.connection.commit()
+        transaction.set_dirty()
         return True
 
     def reset_password(self, uid, password):

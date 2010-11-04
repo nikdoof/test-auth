@@ -1,7 +1,7 @@
 import crypt
 import random
 import time
-from django.db import load_backend, transaction
+from django.db import transaction
 from sso.services import BaseDBService
 import settings
 
@@ -46,12 +46,12 @@ class MiningBuddyService(BaseDBService):
             email = ''
 
         self.dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email])
-        self.db.connection.commit()
+        transaction.set_dirty()
 
         userid = self.dbcursor.lastrowid
         api = kwargs['character'].eveaccount_set.all()[0]
         self.dbcursor.execute(self.SQL_ADD_API, [userid, int(time.time()), api.api_user_id, api.api_key, kwargs['character'].id])
-        self.db.connection.commit()
+        transaction.set_dirty()
 
         return { 'username': self._clean_username(username), 'password': password }
 
@@ -66,20 +66,20 @@ class MiningBuddyService(BaseDBService):
     def delete_user(self, uid):
         """ Delete a user """
         self.dbcursor.execute(self.SQL_DEL_USER, [uid])
-        self.db.connection.commit()
+        transaction.set_dirty()
         return True
 
     def disable_user(self, uid):
         """ Disable a user """
         self.dbcursor.execute(self.SQL_DIS_USER, [uid])
-        self.db.connection.commit()
+        transaction.set_dirty()
         return True
 
     def enable_user(self, uid, password):
         """ Enable a user """
         pwhash = self._gen_mb_hash(password)
         self.dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
-        self.db.connection.commit()
+        transaction.set_dirty()
         return True
 
     def reset_password(self, uid, password):

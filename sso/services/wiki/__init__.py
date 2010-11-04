@@ -53,7 +53,7 @@ class MediawikiService(BaseDBService):
             email = ''
         pwhash = self._gen_mw_hash(password)
         self.dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email, self.default_options])
-        self.db.connection.commit()
+        transaction.set_dirty()
         return { 'username': self._clean_username(username), 'password': password }
 
     def check_user(self, username):
@@ -68,7 +68,7 @@ class MediawikiService(BaseDBService):
         """ Delete a user """
         self.dbcursor.execute(self.SQL_DEL_REV, [uid])
         self.dbcursor.execute(self.SQL_DEL_USER, [uid])
-        self.db.connection.commit()
+        transaction.set_dirty()
         return True
 
     def disable_user(self, uid):
@@ -79,16 +79,15 @@ class MediawikiService(BaseDBService):
         except IntegrityError:
             # Record already exists, skip it
             pass
-        self.db.connection.commit()
+        transaction.set_dirty()
         return True
 
     def enable_user(self, uid, password):
         """ Enable a user """
         pwhash = self._gen_mw_hash(password)
         self.dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
-        self.db.connection.commit()
         self.dbcursor.execute(self.SQL_ENABLE_GROUP, [uid])
-        self.db.connection.commit()
+        transaction.set_dirty()
         return True
 
     def reset_password(self, uid, password):
