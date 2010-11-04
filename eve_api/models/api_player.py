@@ -14,6 +14,7 @@ class EVEAPIModel(models.Model):
     A simple abstract base class to set some consistent fields on the models
     that are updated from the EVE API.
     """
+    id = models.BigIntegerField(primary_key=True)
     api_last_updated = models.DateTimeField(blank=True, null=True,
                                             verbose_name="Time last updated from API",
                                             help_text="When this object was last updated from the EVE API.")
@@ -31,7 +32,7 @@ class EVEAccount(EVEAPIModel):
     description = models.CharField(max_length=50, blank=True,
                                    help_text="User-provided description.")
     api_key = models.CharField(max_length=64, verbose_name="API Key")
-    api_user_id = models.IntegerField(verbose_name="API User ID")
+    api_user_id = models.BigIntegerField(verbose_name="API User ID")
     characters = models.ManyToManyField("EVEPlayerCharacter", blank=True,
                                         null=True)
     api_status = models.IntegerField(choices=API_STATUS_CHOICES,
