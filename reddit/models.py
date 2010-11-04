@@ -17,7 +17,7 @@ class RedditAccount(models.Model):
     >>> mod.username = 'nik_doof'
     >>> mod.api_update()
     >>> mod.reddit_id
-    '1axok'
+    u'1axok'
     """
 
     user = models.ForeignKey(User, blank=True, null=True)
