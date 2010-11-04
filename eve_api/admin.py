@@ -26,8 +26,8 @@ class EVEPlayerCharacterAdmin(admin.ModelAdmin):
 admin.site.register(EVEPlayerCharacter, EVEPlayerCharacterAdmin)
 
 class EVEPlayerCharacterRoleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'roleid', 'name')
-    search_fields = ['roleid', 'name']
+    list_display = ('id', 'name')
+    search_fields = ['id', 'name']
 admin.site.register(EVEPlayerCharacterRole, EVEPlayerCharacterRoleAdmin)
 
 class EVEPlayerCorporationInline(admin.TabularInline):
