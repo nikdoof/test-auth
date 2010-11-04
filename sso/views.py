@@ -6,6 +6,7 @@ import unicodedata
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
@@ -62,15 +63,15 @@ def eveapi_add(request):
                 return HttpResponseRedirect(reverse('sso.views.profile'))
 
             if not acc:
-                request.user.message_set.create(message="A error was encountered while adding your API key, try again later. If the issue persists, contact a Admin.")
+                messages.add_message(request, messages.ERROR, "A error was encountered while adding your API key, try again later. If the issue persists, contact a Admin.")
                 return HttpResponseRedirect(reverse('sso.views.profile'))
 
             acc.user = request.user
             acc.description = form.cleaned_data['description']
             acc.save()
-            request.user.message_set.create(message="EVE API successfully added.")
+            messages.add_message(request, messages.INFO, "EVE API successfully added.")
             if len(ServiceAccount.objects.filter(user=request.user, active=0)) > 0:
-                request.user.message_set.create(message="It can take up to 10 minutes for inactive accounts to be reenabled, please check back later.")
+                messages.add_message(request, messages.INFO, "It can take up to 10 minutes for inactive accounts to be reenabled, please check back later.")
 
             request.user.get_profile().update_access()
 
@@ -91,7 +92,7 @@ def eveapi_del(request, userid=0):
 
         if acc.user == request.user:
             acc.delete()
-            request.user.message_set.create(message="EVE API key successfully deleted.")
+            messages.add_message(request, messages.INFO, "EVE API key successfully deleted.")
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
@@ -112,7 +113,7 @@ def eveapi_refresh(request, userid=0):
                     acc = EVEAccount.objects.get(id=userid)
                     return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
                 else:
-                    request.user.message_set.create(message="Key %s has been refreshed from the EVE API." % acc.api_user_id)
+                    messages.add_message(request, messages.INFO,"Key %s has been refreshed from the EVE API." % acc.api_user_id)
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
@@ -190,9 +191,9 @@ def service_del(request, serviceid=0):
                 try:
                     acc.delete()
                 except ServiceError:
-                    request.user.message_set.create(message="Error deleting the service account, try again later.")
+                    messages.add_message(request, messages.ERROR, "Error deleting the service account, try again later.")
                 else:
-                    request.user.message_set.create(message="Service account successfully deleted.")
+                    messages.add_message(request, messages.INFO, "Service account successfully deleted.")
         else:
             return render_to_response('sso/serviceaccount/deleteconfirm.html', locals(), context_instance=RequestContext(request))
 
@@ -241,11 +242,11 @@ def reddit_add(request):
             try:
                 acc.api_update()
             except RedditAccount.DoesNotExist:
-                request.user.message_set.create(message="Error, user %s does not exist on Reddit" % acc.username )
+                messages.add_message(request, messages.ERROR, "Error, user %s does not exist on Reddit" % acc.username )
                 return render_to_response('sso/redditaccount.html', locals(), context_instance=RequestContext(request))
             acc.save()
 
-            request.user.message_set.create(message="Reddit account %s successfully added." % acc.username)
+            messages.add_message(request, messages.INFO, "Reddit account %s successfully added." % acc.username)
             return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
     else:
         defaults = { 'username': request.user.username, }
@@ -263,7 +264,7 @@ def reddit_del(request, redditid=0):
 
         if acc.user == request.user:
             acc.delete()
-            request.user.message_set.create(message="Reddit account successfully deleted.")
+            messages.add_message(request, messages.INFO, "Reddit account successfully deleted.")
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
 
@@ -308,7 +309,7 @@ def user_lookup(request):
             elif form.cleaned_data['type'] == '4':
                 users = User.objects.filter(email__icontains=form.cleaned_data['username']).only('username')
             else:
-                request.user.message_set.create(message="Error parsing form, Type: %s, Value: %s" % (form.cleaned_data['type'], form.cleaned_data['username']))
+                messages.add_message(request, messages.ERROR, "Error parsing form, Type: %s, Value: %s" % (form.cleaned_data['type'], form.cleaned_data['username']))
                 return HttpResponseRedirect(reverse('sso.views.user_lookup'))
 
             if users and len(users) == 1:
@@ -316,7 +317,7 @@ def user_lookup(request):
             elif users and len(users) > 1:
                 return render_to_response('sso/lookup/lookuplist.html', locals(), context_instance=RequestContext(request))
             else:
-                request.user.message_set.create(message="No results found")
+                messages.add_message(request, messages.INFO, "No results found")
                 return HttpResponseRedirect(reverse('sso.views.user_lookup'))
             
     return render_to_response('sso/lookup/userlookup.html', locals(), context_instance=RequestContext(request))
@@ -330,7 +331,7 @@ def set_apipasswd(request):
             profile = request.user.get_profile()
             profile.api_service_password = hashlib.sha1(form.cleaned_data['password']).hexdigest()
             profile.save()
-            request.user.message_set.create(message="Your API Services password has been set.")
+            messages.add_message(request, messages.INFO, "Your API Services password has been set.")
             return HttpResponseRedirect(reverse('sso.views.profile')) # Redirect after POST
     else:
         form = APIPasswordForm() # An unbound form

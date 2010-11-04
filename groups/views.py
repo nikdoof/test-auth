@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
+from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 
@@ -63,7 +64,7 @@ def create_request(request, groupid):
             obj.group = group
             obj.changed_by = request.user
             obj.save()
-            request.user.message_set.create(message="You membership request has been created.")
+            messages.add_message(request, messages.INFO, "You membership request has been created.")
             return HttpResponseRedirect(reverse('groups.views.index')) # Redirect after POST
     else:
         form = GroupRequestForm() # An unbound form

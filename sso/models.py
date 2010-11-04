@@ -90,14 +90,12 @@ class SSOUser(models.Model):
                     servacc.active = 0
                     servacc.save()
                     self._log.debug("Disabled - User %s, Acc %s" % (self.user, servacc.service))
-                    servacc.user.message_set.create(message="Your %s account has been disabled due to lack of permissions. If this is incorrect, check your API keys to see if they are valid" % (servacc.service))
                     pass
             else:
                 if not servacc.active:
                     servacc.active = 1
                     servacc.save()
                     self._log.debug("Enabled - User %s, Acc %s" % (self.user, servacc.service))
-                    servacc.user.message_set.create(message="Your %s account has been re-enabled, you may need to reset your password to access this service again" % (servacc.service))
                     pass
 
     def __str__(self):

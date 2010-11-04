@@ -3,6 +3,7 @@ import simplejson
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
@@ -114,13 +115,13 @@ def add_application(request):
         if form.is_valid():
 
             if form.cleaned_data['character'].corporation == form.cleaned_data['corporation']:
-                request.user.message_set.create(message="This character is already a member of %s" % form.cleaned_data['corporation'])
+                messages.add_message(request, messages.WARNING, "This character is already a member of %s" % form.cleaned_data['corporation'])
                 return HttpResponseRedirect(reverse('hr.views.view_applications'))
 
             app = Application(user=request.user, character=form.cleaned_data['character'], corporation=form.cleaned_data['corporation'])
             app.save()
 
-            request.user.message_set.create(message="Your application to %s has been created." % app.corporation)
+            messages.add_message(request, messages.INFO, "Your application to %s has been created." % app.corporation)
             return HttpResponseRedirect(reverse('hr.views.view_application', args=[app.id]))
             
     else:
@@ -152,7 +153,7 @@ def add_recommendation(request):
             rec.application = form.cleaned_data['application']
             rec.save()
 
-            request.user.message_set.create(message="Recommendation added to %s's application" % rec.application )
+            messages.add_message(request, messages.INFO, "Recommendation added to %s's application" % rec.application )
             return HttpResponseRedirect(reverse('hr.views.view_recommendations'))
             
     else:
