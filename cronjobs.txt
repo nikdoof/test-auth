@@ -4,7 +4,5 @@ ROOT=/home/matalok/auth/auth
 */10	*	*	*	*	$ROOT/run-cron.py reddit.cron ProcessValidations > $ROOT/logs/reddit-validations.log 2>&1
 */5     *	*	*	*	$ROOT/run-cron.py eve_api.cron UpdateAPIs > $ROOT/logs/eveapi-update.log 2>&1
 @hourly					$ROOT/run-cron.py sso.cron RemoveInvalidUsers > $ROOT/logs/auth-update.log 2>&1
-@daily					$ROOT/run-cron.py eve_api.cron CorpManagementUpdate > $ROOT/logs/corpman-update.log 2>&1
 0	*/6	*	*	*	$ROOT/run-cron.py eve_api.cron AllianceUpdate > $ROOT/logs/alliance-update.log 2>&1
 @daily                                  $ROOT/run-cron.py eve_proxy.cron ClearStaleCache > $ROOT/logs/cache-clear.log 2>&1
-0       1	*       *       5       $ROOT/run-cron.py eve_api.cron CorporationUpdate > $ROOT/logs/corporation-update.log 2>&1
