@@ -112,6 +112,7 @@ class EVEPlayerCharacterRole(EVEAPIModel):
     Represents a role which can be applied to a character
     """
 
+    roleid = models.CharField(max_length=64, blank=False, null=False)
     name = models.CharField(max_length=255, blank=False, null=False)
 
     def __unicode__(self):
