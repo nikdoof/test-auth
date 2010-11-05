@@ -40,9 +40,13 @@ class UpdateAPIs():
                eve_api.api_puller.accounts.import_eve_account(acc.api_key, acc.api_user_id)
                if acc.api_status == API_STATUS_OK:
                    if acc.api_keytype == API_KEYTYPE_FULL and acc.characters.filter(director=1).count():
+                       donecorps = []
                        for char in acc.characters.filter(director=1):
-                           pull_corp_members(acc.api_key, acc.api_user_id, char.id)
-                           char.corporation.query_and_update_corp()
+                           if not char.corporation.id in donecorps:
+                               self._logger.info("Updating Corp %s" % char.corporation)
+                               pull_corp_members(acc.api_key, acc.api_user_id, char.id)
+                               char.corporation.query_and_update_corp()
+                               donecorps.append(char.corporation.id)
 
                    if self.settings['update_corp']:
                        for char in acc.characters.all():
