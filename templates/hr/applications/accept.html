@@ -7,6 +7,7 @@
 <form action="{% url hr.views.accept_application applicationid %}" method="post">
 <table>
 {{ form.as_table }}
+{% csrf_token %}
 </table>
 <input type="submit" value="Apply" />
 </form>

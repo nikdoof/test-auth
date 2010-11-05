@@ -12,6 +12,7 @@ page</a> and a optional description.</p>
 {{ form.as_table }}
 </table>
 <br />
+{% csrf_token %}
 <input type="submit" value="Add Key" />
 </form>
 <p>Once you have added your EVE API key, don't forget to apply in game, as well as add an application through our
