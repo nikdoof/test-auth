@@ -42,7 +42,7 @@ class UpdateAPIs():
                    if acc.api_keytype == API_KEYTYPE_FULL and acc.characters.filter(director=1).count():
                        for char in acc.characters.filter(director=1):
                            pull_corp_members(acc.api_key, acc.api_user_id, char.id)
-                           director.corporation.query_and_update_corp()
+                           char.corporation.query_and_update_corp()
 
                    if self.settings['update_corp']:
                        for char in acc.characters.all():
