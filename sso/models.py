@@ -107,13 +107,13 @@ class SSOUser(models.Model):
             profile, created = SSOUser.objects.get_or_create(user=instance) 
 
     @staticmethod
-    def update_service_groups(sender, instance, created, **kwargs):
-        if not created:
+    def update_service_groups(sender, instance, action, **kwargs):
+        if action in ['post_add', 'post_remove']:
             for acc in instance.serviceaccount_set.all():
                 acc.service.api_class.update_groups(acc.service_uid, instance.groups.all())
 
 signals.post_save.connect(SSOUser.create_user_profile, sender=User)
-#signals.post_save.connect(SSOUser.update_service_groups, sender=User)
+signals.m2m_changed.connect(SSOUser.update_service_groups, sender=User.groups.through)
 
 class SSOUserNote(models.Model):
     """ Notes bound to a user's account. Used to store information regarding the user """
