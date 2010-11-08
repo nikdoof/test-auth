@@ -156,6 +156,13 @@ try:
 except:
     pass
 
-
-
 djcelery.setup_loader()
+
+### Celery Schedule
+
+CELERYBEAT_SCHEDULE = {
+    "reddit-validations": {
+        "task": "reddit.tasks.process_validations",
+        "schedule": timedelta(minutes=10),
+    },
+}
