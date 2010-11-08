@@ -16,13 +16,13 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
             for char in acc.characters.filter(director=1):
                 if not char.corporation.id in donecorps:
                     import_corp_members.delay(api_key=acc.api_key, api_userid=acc.api_user_id, character_id=char.id)
-                    char.corporation.query_and_update_corp()
+                    import_corp_details.delay(corp_id=char.corporation.id)
                     donecorps.append(char.corporation.id)
 
         for char in acc.characters.all():
             try:
                 if char.corporation.id not in donecorps:
-                    char.corporation.query_and_update_corp()
+                    import_corp_details.delay(corp_id=char.corporation.id)
                     donecorps.append(char.corporation.id)
             except:
                 continue
@@ -33,6 +33,14 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
 
     return acc
 
+
 @task(ignore_result=True)
 def import_corp_members(api_userid, api_key, character_id):
     pull_corp_members(api_key, api_userid, character_id)
+
+
+@task(ignore_result=True)
+def import_corp_details(corp_id):
+    corp = EVEPlayerCorporation.objects.get_or_create(id=corp_id)
+    corp.query_and_update_corp()
+    corp.save()
