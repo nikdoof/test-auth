@@ -63,6 +63,6 @@ def import_corp_members(api_userid, api_key, character_id):
 
 @task(ignore_result=True)
 def import_corp_details(corp_id):
-    corp = EVEPlayerCorporation.objects.get_or_create(id=corp_id)
+    corp, created = EVEPlayerCorporation.objects.get_or_create(id=corp_id)
     corp.query_and_update_corp()
     corp.save()

@@ -1,6 +1,5 @@
 from celery.decorators import task
 from eve_api.models import *
-from sso.models import ServiceAccount
 
 @task()
 def update_user_access(user):
@@ -61,6 +60,8 @@ def update_user_access(user):
 
 @tasks(ignore_result=True)
 def update_service_groups(user_id):
+    from sso.models import ServiceAccount
+
     for service in ServiceAccount.objects.filter(user=user_id, active=True):
         api = service.api_class
         api.update_groups(service.service_uid, service.user.groups.all())
