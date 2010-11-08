@@ -58,7 +58,7 @@ def update_user_access(user):
 
     update_service_groups.delay(user_id=user.id)
 
-@tasks(ignore_result=True)
+@task(ignore_result=True)
 def update_service_groups(user_id):
     from sso.models import ServiceAccount
 
