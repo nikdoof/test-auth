@@ -33,6 +33,7 @@ def index(request):
 
 @login_required
 def profile(request):
+    """ Displays the user's profile page """
 
     user = request.user
     try:
@@ -45,6 +46,8 @@ def profile(request):
 
 @login_required
 def characters(request, charid=0):
+    """ Provide a list of characters, or a indivdual character sheet """
+
     if charid:
         character = get_object_or_404(EVEPlayerCharacter.objects.select_related('corporation', 'corporation__aliance'), id=charid)
         return render_to_response('sso/character.html', locals(), context_instance=RequestContext(request))
@@ -54,6 +57,8 @@ def characters(request, charid=0):
 
 @login_required
 def eveapi_add(request):
+    """ Add a EVE API key to a user's account """
+
     if request.method == 'POST': 
         form = EveAPIForm(request.POST) 
         if form.is_valid():
@@ -75,6 +80,7 @@ def eveapi_add(request):
 
 @login_required
 def eveapi_del(request, userid=0):
+    """ Delete a EVE API key from a account """
 
     if userid > 0 :
         try:
@@ -89,6 +95,7 @@ def eveapi_del(request, userid=0):
 
 @login_required
 def eveapi_refresh(request, userid=0):
+    """ Force refresh a EVE API key """
 
     if userid > 0 :
         try:
@@ -112,6 +119,7 @@ def eveapi_refresh(request, userid=0):
 
 @login_required
 def eveapi_log(request, userid=0):
+    """ Provides a list of access logs for a specific EVE API key """
     if userid > 0 :
         try:
             acc = EVEAccount.objects.get(id=userid)
@@ -126,6 +134,8 @@ def eveapi_log(request, userid=0):
 
 @login_required
 def service_add(request):
+    """ Add a service to a user's account """
+
     clsform = UserServiceAccountForm(request.user)
 
     if request.method == 'POST': 
@@ -170,6 +180,8 @@ def service_add(request):
 
 @login_required
 def service_del(request, serviceid=0):
+    """ Delete a service from a user's account """
+
     if serviceid > 0 :
         try:
             acc = ServiceAccount.objects.get(id=serviceid)
@@ -194,6 +206,8 @@ def service_del(request, serviceid=0):
 
 @login_required
 def service_reset(request, serviceid=0):
+    """ Reset a user's password on a service """
+
     if serviceid > 0 :
         try:
             acc = ServiceAccount.objects.get(id=serviceid)
@@ -226,6 +240,8 @@ def service_reset(request, serviceid=0):
 
 @login_required
 def reddit_add(request):
+    """ Add a Reddit account to a user's account """
+
     if request.method == 'POST': 
         form = RedditAccountForm(request.POST) 
         if form.is_valid(): 
@@ -249,6 +265,8 @@ def reddit_add(request):
 
 @login_required
 def reddit_del(request, redditid=0):
+    """ Delete a Reddit account from a user's account """
+
     if redditid > 0 :
         try:
             acc = RedditAccount.objects.get(id=redditid)
@@ -263,6 +281,8 @@ def reddit_del(request, redditid=0):
 
 @login_required
 def user_view(request, username=None):
+    """ View a user's profile as a admin """
+
     if username:
        try:
            user = User.objects.get(username=username)
@@ -282,6 +302,8 @@ def user_view(request, username=None):
 
 @login_required
 def user_lookup(request):
+    """ Lookup a user's account by providing a matching criteria """
+
     form = UserLookupForm()
 
     if request.method == 'POST':
@@ -318,6 +340,8 @@ def user_lookup(request):
 
 @login_required
 def set_apipasswd(request):
+    """ Sets the user's auth API password """
+
     if request.method == 'POST':
         form = APIPasswordForm(request.POST)
         if form.is_valid():
