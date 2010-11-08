@@ -52,7 +52,7 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
 
         acc.save()
         if acc.user:
-             update_user_access.delay(user=acc.user)
+             update_user_access.delay(user=acc.user.id)
 
     return acc
 
