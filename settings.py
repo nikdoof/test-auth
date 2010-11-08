@@ -168,7 +168,7 @@ CELERYBEAT_SCHEDULE = {
     },
     "eveapi-update": {
         "task": "eve_api.tasks.queue_apikey_updates",
-        "schedule": timedelta(minutes=5),
+        "schedule": timedelta(minutes=10),
     },
 
 }
