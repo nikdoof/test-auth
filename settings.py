@@ -165,4 +165,9 @@ CELERYBEAT_SCHEDULE = {
         "task": "reddit.tasks.process_validations",
         "schedule": timedelta(minutes=10),
     },
+    "eveapi-update": {
+        "task": "eve_api.tasks.queue_apikey_updates",
+        "schedule": timedelta(minutes=5),
+    },
+
 }
