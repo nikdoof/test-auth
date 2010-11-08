@@ -162,8 +162,11 @@ def stop():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
+        run('rm -f off.html')
         run('ln -s templates/off.html')
+        run('kill `cat ./logs/celeryd.pid`')
         run('kill `cat ./logs/auth.pid`')
+        run('rm -f ./logs/celeryd.pid')
         run('rm -f ./logs/auth.pid')
 
 
