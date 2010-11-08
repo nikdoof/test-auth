@@ -1,5 +1,6 @@
 from __future__ import with_statement
 import time
+import os
 from fabric.api import *
 from hashlib import sha1
 
