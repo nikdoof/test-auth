@@ -1,9 +1,30 @@
 from celery.decorators import task
-from eve_api.models import EVEPlayerCorporation
+from eve_api.models import EVEAccount, EVEPlayerCorporation
 from eve_api.api_puller.accounts import import_eve_account
 from eve_api.api_puller.corp_management import pull_corp_members
 from eve_api.app_defines import *
 from sso.tasks import update_user_access
+
+@task(ignore_result=True)
+def queue_apikey_updates(update_delay=86400, batch_size=50):
+    """
+    Updates all Eve API elements in the database
+    """
+
+    log = queue_apikey_updates.get_logger()
+    # Update all the eve accounts and related corps
+    delta = datetime.timedelta(seconds=update_delay)
+    log.info("Updating APIs older than %s" % (datetime.datetime.now() - delta))
+
+    accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.datetime.now() - delta)).exclude(api_status=API_STATUS_ACC_EXPIRED).exclude(api_status=API_STATUS_AUTH_ERROR).order_by('api_last_updated')[:batch_size]
+    log.info("%s account(s) to update" % accounts.count())
+    for acc in accounts:
+        log.debug("Queueing UserID %s for update" % acc.api_user_id)
+        if not acc.user:
+            acc.delete()
+            continue
+        import_apikey.delay(api_key=acc.api_key, api_userid=acc.api_user_id)
+
 
 @task()
 def import_apikey(api_userid, api_key, user=None, force_cache=False):
