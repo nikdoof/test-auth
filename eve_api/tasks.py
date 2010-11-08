@@ -1,4 +1,3 @@
-import logging
 from celery.decorators import task
 from eve_api.api_puller.accounts import import_eve_account
 from eve_api.app_defines import *
@@ -6,7 +5,8 @@ from sso.tasks import update_user_access
 
 @task()
 def import_apikey(api_userid, api_key, user=None, force_cache=False):
-    l = logging.getLogger('import_apikey')
+
+    log = import_apikey.get_logger()
     l.info("Importing %s/%s" % (api_userid, api_key))
     acc = import_eve_account(api_key, api_userid, force_cache=force_cache)
     donecorps = []
