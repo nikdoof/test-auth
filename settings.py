@@ -1,5 +1,6 @@
 import os
 import djcelery
+from datetime import timedelta
 
 # Django settings for login project.
 
