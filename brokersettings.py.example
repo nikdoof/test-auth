@@ -1,0 +1,6 @@
+BROKER_HOST = "localhost"
+BROKER_PORT = 5673
+BROKER_USER = "%(user)s"
+BROKER_PASSWORD = "%(password)s"
+BROKER_VHOST = "%(vhost)s"
+
