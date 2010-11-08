@@ -44,6 +44,12 @@ class EVEAccount(EVEAPIModel):
                                      verbose_name="API Key Type",
                                      help_text="Type of API key")
 
+    def __unicode__(self):
+        return u"%s" % self.id
+
+    def __str__(self):
+        return self.__unicode__()
+
     def in_corp(self, corpid):
         for char in self.characters.all():
             if char.corporation_id == corpid:
