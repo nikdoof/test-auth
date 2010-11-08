@@ -92,9 +92,7 @@ def setup_rabbitmq():
     sudo('rabbitmqctl add_vhost %s' % env.vhost, shell=False)
     sudo('rabbitmqctl set_permissions -p %s %s ".*" ".*" ".*"' % (env.vhost, env.user), shell=False)
 
-    with cd('%(path)s/dreddit-auth/' % env):
-        put('brokersettings.py', '.')
-
+    put('brokersettings.py', '%(path)s/dreddit-auth/')
     os.unlink('brokersettings.py')
 
 def deploy_repo():
