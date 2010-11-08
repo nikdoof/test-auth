@@ -91,7 +91,9 @@ def eveapi_del(request, userid=0):
             return HttpResponseRedirect(reverse('sso.views.profile'))
 
         if acc.user == request.user:
+            user = acc.user
             acc.delete()
+            user.get_profile().update_access()
             messages.add_message(request, messages.INFO, "EVE API key successfully deleted.")
 
     return HttpResponseRedirect(reverse('sso.views.profile'))
