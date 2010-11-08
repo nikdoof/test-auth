@@ -75,9 +75,7 @@ def import_eve_account(api_key, user_id, force_cache=False):
 
     # Create or retrieve the account last to make sure everything
     # before here is good to go.
-    account, created = EVEAccount.objects.get_or_create(id=user_id)
-    account.api_key = api_key
-    account.api_user_id = user_id
+    account, created = EVEAccount.objects.get_or_create(id=user_id, api_user_id=user_id, api_key=api_key)
     account.api_status = API_STATUS_OK
     account.save()
 
