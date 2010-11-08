@@ -1,3 +1,4 @@
+import datetime
 from celery.decorators import task
 from eve_api.models import EVEAccount, EVEPlayerCorporation
 from eve_api.api_puller.accounts import import_eve_account
