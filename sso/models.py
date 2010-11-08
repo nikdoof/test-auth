@@ -8,6 +8,7 @@ from django.db.models import signals
 from django.contrib.auth.models import User, UserManager, Group
 from django.utils import simplejson as json
 
+from sso.tasks import update_user_access
 from jsonfield.fields import JSONField
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance, EVEPlayerCharacter
 from reddit.models import RedditAccount
@@ -34,70 +35,6 @@ class SSOUser(models.Model):
 
     api_service_password = models.CharField("API Services Password", max_length=200, blank=True)
 
-    @property
-    def _log(self):
-        if not hasattr(self, '__log'):
-            self.__log = logging.getLogger(self.__class__.__name__)
-        return self.__log
-
-    def update_access(self):
-        """ Steps through each Eve API registered to the user and updates their group 
-            access accordingly """
-
-        self._log.debug("Update - User %s" % self.user)
-        # Create a list of all Corp and Alliance groups
-        corpgroups = []
-        for corp in EVEPlayerCorporation.objects.filter(group__isnull=False):
-            if corp.group:
-                corpgroups.append(corp.group)  
-        for alliance in EVEPlayerAlliance.objects.filter(group__isnull=False):
-            if alliance.group:
-                corpgroups.append(alliance.group)  
-        
-        # Create a list of Char groups
-        chargroups = []
-        for eacc in EVEAccount.objects.filter(user=self.user):
-            if eacc.api_status in [1,3]:
-                for char in eacc.characters.all():
-                    if char.corporation.group:
-                        chargroups.append(char.corporation.group)
-                    if char.corporation.alliance:
-                        if char.corporation.alliance.group:
-                            chargroups.append(char.corporation.alliance.group)
-                
-        # Generate the list of groups to add/remove
-        delgroups = set(set(self.user.groups.all()) & set(corpgroups)) - set(chargroups)
-        addgroups = set(chargroups) - set(set(self.user.groups.all()) & set(corpgroups))
-       
-        for g in delgroups:
-            self.user.groups.remove(g)
-
-        for g in addgroups:
-            self.user.groups.add(g)
-
-        # For users set to not active, delete all accounts
-        if not self.user.is_active:
-            self._log.debug("Inactive - User %s" % (self.user))
-            for servacc in ServiceAccount.objects.filter(user=self.user):
-                servacc.active = 0
-                servacc.save()
-                pass
-
-        # For each of the user's services, check they're in a valid group for it and enable/disable as needed.
-        for servacc in ServiceAccount.objects.filter(user=self.user):
-            if not (set(self.user.groups.all()) & set(servacc.service.groups.all())):
-                if servacc.active:
-                    servacc.active = 0
-                    servacc.save()
-                    self._log.debug("Disabled - User %s, Acc %s" % (self.user, servacc.service))
-                    pass
-            else:
-                if not servacc.active:
-                    servacc.active = 1
-                    servacc.save()
-                    self._log.debug("Enabled - User %s, Acc %s" % (self.user, servacc.service))
-                    pass
-
     def __str__(self):
         return self.user.__str__()
 
@@ -112,8 +49,14 @@ class SSOUser(models.Model):
             for acc in instance.serviceaccount_set.all():
                 acc.service.api_class.update_groups(acc.service_uid, instance.groups.all())
 
+    @staticmethod
+    def eveapi_deleted(sender, instance, **kwargs):
+        if instance.user:
+            update_user_access.delay(user=instance.user)
+
 signals.post_save.connect(SSOUser.create_user_profile, sender=User)
 signals.m2m_changed.connect(SSOUser.update_service_groups, sender=User.groups.through)
+signals.post_delete.connect(SSOUser.eveapi_deleted, sender=EVEAccount)
 
 class SSOUserNote(models.Model):
     """ Notes bound to a user's account. Used to store information regarding the user """

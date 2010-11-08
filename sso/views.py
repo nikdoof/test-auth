@@ -66,7 +66,6 @@ def eveapi_add(request):
                 pass    
             else:
                 messages.add_message(request, messages.INFO, "EVE API successfully added.")
-                request.user.get_profile().update_access()
 
             return redirect('sso.views.profile')
     else:
@@ -82,11 +81,8 @@ def eveapi_del(request, userid=0):
             acc = EVEAccount.objects.get(id=userid)
         except EVEAccount.DoesNotExist:
             return redirect('sso.views.profile')
-
         if acc.user == request.user:
-            user = acc.user
             acc.delete()
-            user.get_profile().update_access()
             messages.add_message(request, messages.INFO, "EVE API key successfully deleted.")
 
     return redirect('sso.views.profile')

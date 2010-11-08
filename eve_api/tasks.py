@@ -1,6 +1,7 @@
 from celery.decorators import task
 from eve_api.api_puller.accounts import import_eve_account
 from eve_api.app_defines import *
+from sso.tasks import update_user_access
 
 @task()
 def import_apikey(api_userid, api_key, user=None, force_cache=False):
@@ -27,6 +28,6 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
 
         acc.save()
         if acc.user:
-            acc.user.get_profile().update_access()
+             update_user_access.delay(user=acc.user)
 
     return acc
