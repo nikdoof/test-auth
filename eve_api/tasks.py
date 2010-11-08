@@ -1,4 +1,5 @@
 from celery.decorators import task
+from eve_api.models import EVEPlayerCorporation
 from eve_api.api_puller.accounts import import_eve_account
 from eve_api.api_puller.corp_management import pull_corp_members
 from eve_api.app_defines import *
