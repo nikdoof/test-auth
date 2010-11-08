@@ -5,9 +5,6 @@ from sso.tasks import update_user_access
 
 @task()
 def import_apikey(api_userid, api_key, user=None, force_cache=False):
-
-    log = import_apikey.get_logger()
-    l.info("Importing %s/%s" % (api_userid, api_key))
     acc = import_eve_account(api_key, api_userid, force_cache=force_cache)
     donecorps = []
     if acc and acc.api_status == API_STATUS_OK:
