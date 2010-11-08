@@ -8,6 +8,8 @@ from eve_api.api_puller.corp_management import pull_corp_members
 from eve_api.api_exceptions import APIAuthException, APINoUserIDException
 from eve_api.app_defines import *
 
+from eve_api.tasks import *
+
 class UpdateAPIs():
         """
         Updates all Eve API elements in the database
@@ -33,28 +35,11 @@ class UpdateAPIs():
             accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.datetime.now() - delta)).exclude(api_status=API_STATUS_ACC_EXPIRED).exclude(api_status=API_STATUS_AUTH_ERROR).order_by('api_last_updated')[:self.batches]
             self._logger.debug("%s account(s) to update" % len(accounts))
             for acc in accounts:
-               self._logger.info("Updating UserID %s" % acc.api_user_id)
+               self._logger.info("Queueing UserID %s for update" % acc.api_user_id)
                if not acc.user:
                    acc.delete()
                    continue
-               eve_api.api_puller.accounts.import_eve_account(acc.api_key, acc.api_user_id)
-               if acc.api_status == API_STATUS_OK:
-                   if acc.api_keytype == API_KEYTYPE_FULL and acc.characters.filter(director=1).count():
-                       donecorps = []
-                       for char in acc.characters.filter(director=1):
-                           if not char.corporation.id in donecorps:
-                               self._logger.info("Updating Corp %s" % char.corporation)
-                               pull_corp_members(acc.api_key, acc.api_user_id, char.id)
-                               char.corporation.query_and_update_corp()
-                               donecorps.append(char.corporation.id)
-
-                   if self.settings['update_corp']:
-                       for char in acc.characters.all():
-                        try:
-                            char.corporation.query_and_update_corp()
-                        except:
-                            self._logger.error('Error updating %s' % corp)
-                        continue
+               import_apikey.delay(api_key=acc.api_key, api_userid=acc.api_user_id)
 
 class AllianceUpdate():
         """

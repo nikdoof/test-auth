@@ -9,3 +9,4 @@ fabric==0.9.1
 flup
 django-debug-toolbar==0.8.3
 simplejson
+django-celery

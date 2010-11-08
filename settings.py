@@ -1,4 +1,5 @@
 import os
+import djcelery
 
 # Django settings for login project.
 
@@ -90,6 +91,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'south',
     'piston',
+    'djcelery',
     'registration',
     'debug_toolbar',
     'eve_proxy',
@@ -145,8 +147,18 @@ HR_STAFF_GROUP = 'HR Staff'
 FULL_API_USER_ID = 415631
 FULL_API_CHARACTER_ID = 246102445
 
+### Celery Broker
+
+BROKER_HOST = "localhost"
+BROKER_PORT = 5672
+BROKER_USER = "guest"
+BROKER_PASSWORD = "guest"
+BROKER_VHOST = "/"
+
 # try and import local settings
 try:
     from settingslocal import *
 except:
     pass
+
+djcelery.setup_loader()

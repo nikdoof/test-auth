@@ -16,7 +16,7 @@ import settings
 
 setup_environ(settings)
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 log = logging.getLogger('runcron')
 
 try:

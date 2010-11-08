@@ -2,6 +2,7 @@ import hashlib
 import random
 import re
 import unicodedata
+import celery
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
@@ -19,6 +20,8 @@ from eve_proxy.models import ApiAccessLog
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
 from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetForm, RedditAccountForm, UserLookupForm, APIPasswordForm
 from reddit.models import RedditAccount
+
+from eve_api.tasks import import_apikey
 
 import settings
 
@@ -54,23 +57,16 @@ def eveapi_add(request):
     if request.method == 'POST': 
         form = EveAPIForm(request.POST) 
         if form.is_valid():
-            try: 
-                acc = import_eve_account(form.cleaned_data['api_key'], form.cleaned_data['user_id'])
-            except APIAuthException:
-                return redirect('sso.views.profile')
 
-            if not acc:
-                messages.add_message(request, messages.ERROR, "A error was encountered while adding your API key, try again later. If the issue persists, contact a Admin.")
-                return redirect('sso.views.profile')
-
-            acc.user = request.user
-            acc.description = form.cleaned_data['description']
-            acc.save()
-            messages.add_message(request, messages.INFO, "EVE API successfully added.")
-            if len(ServiceAccount.objects.filter(user=request.user, active=0)) > 0:
-                messages.add_message(request, messages.INFO, "It can take up to 10 minutes for inactive accounts to be reenabled, please check back later.")
-
-            request.user.get_profile().update_access()
+            task = import_apikey.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['user_id'], user=request.user)
+            try:
+                acc = task.wait(5)
+            except celery.exceptions.TimeoutError:
+                messages.add_message(request, messages.INFO, "The addition of your API key is still processing, please check back in a minute or so")
+                pass    
+            else:
+                messages.add_message(request, messages.INFO, "EVE API successfully added.")
+                request.user.get_profile().update_access()
 
             return redirect('sso.views.profile')
     else:
@@ -105,14 +101,16 @@ def eveapi_refresh(request, userid=0):
             pass
         else:
             if acc.user == request.user or request.user.is_superuser:
-                import_eve_account(acc.api_key, acc.api_user_id, force_cache=True)
-                acc.user.get_profile().update_access()
+                task = import_apikey.delay(api_key=acc.api_key, api_userid=acc.api_user_id, force_cache=True, user=request.user)
 
                 if request.is_ajax():
-                    acc = EVEAccount.objects.get(id=userid)
-                    return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
+                    try:
+                        acc = task.wait(60)
+                        return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
+                    except celery.exceptions.TimeoutError:
+                        return HttpResponse(serializers.serialize('json', [None]), mimetype='application/javascript')
                 else:
-                    messages.add_message(request, messages.INFO,"Key %s has been refreshed from the EVE API." % acc.api_user_id)
+                    messages.add_message(request, messages.INFO,"Key %s has been queued to be refreshed from the API" % acc.api_user_id)
 
     return redirect('sso.views.profile')
 
