@@ -44,18 +44,11 @@ class SSOUser(models.Model):
             profile, created = SSOUser.objects.get_or_create(user=instance) 
 
     @staticmethod
-    def update_service_groups(sender, instance, action, **kwargs):
-        if action in ['post_add', 'post_remove']:
-            for acc in instance.serviceaccount_set.all():
-                acc.service.api_class.update_groups(acc.service_uid, instance.groups.all())
-
-    @staticmethod
     def eveapi_deleted(sender, instance, **kwargs):
         if instance.user:
             update_user_access.delay(user=instance.user)
 
 signals.post_save.connect(SSOUser.create_user_profile, sender=User)
-signals.m2m_changed.connect(SSOUser.update_service_groups, sender=User.groups.through)
 signals.post_delete.connect(SSOUser.eveapi_deleted, sender=EVEAccount)
 
 class SSOUserNote(models.Model):
