@@ -45,7 +45,10 @@ def import_eve_account(api_key, user_id, force_cache=False):
         except EVEAccount.DoesNotExist:
             return
 
-    dom = minidom.parseString(account_doc.body.encode('utf-8'))
+    if account_doc and account_doc.body:
+        dom = minidom.parseString(account_doc.body.encode('utf-8'))
+    else:
+        return
 
     enode = dom.getElementsByTagName('error')
     if enode:
