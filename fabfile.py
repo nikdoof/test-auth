@@ -10,7 +10,9 @@ def production():
     "Use the production enviroment on Web1"
     env.hosts = ['dreddit@web1.pleaseignore.com']
     env.path = '/home/dreddit/apps'
-
+    env.user = 'auth'
+    env.vhost = 'auth'
+    env.password = sha1('%s-%s' % (env.user, env.vhost)).hexdigest()
 
 def test():
     "Use the test enviroment on Web2"
