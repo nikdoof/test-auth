@@ -1,6 +1,7 @@
 from __future__ import with_statement
 import time
 from fabric.api import *
+from hashlib import sha1
 
 env.repo = 'git://dev.dredd.it/dreddit-auth.git'
 
@@ -15,7 +16,9 @@ def test():
     "Use the test enviroment on Web2"
     env.hosts = ['dreddit@web2.pleaseignore.com']
     env.path = '/home/dreddit/apps'
-
+    env.user = 'auth'
+    env.vhost = 'auth'
+    env.password = sha1('%s-%s' % (env.user, env.vhost)).hexdigest()
 
 def deploy():
     """
@@ -71,6 +74,25 @@ def setup_db():
         run('if [ ! -e dbsettings.py ]; then cp dbsettings.py.example dbsettings.py; fi' % env)
         run('env/bin/python manage.py syncdb --noinput --migrate')
 
+def setup_rabbitmq():
+    """ 
+    Setup the RabbitMQ instance on the system (requires sudo access)
+    """
+
+    require('path')
+
+    cnf = open('brokersettings.py.example', 'r').read()
+    out = open('brokersettings.py', 'w')
+    out.write(cnf % env)
+
+    sudo('rabbitmqctl add_user %s %s' % (env.user, env.password), shell=False)
+    sudo('rabbitmqctl add_vhost %s' % env.vhost, shell=False)
+    sudo('rabbitmqctl set_permissions -p %s %s ".*" ".*" ".*"' % (env.vhost, env.user), shell=False)
+
+    with cd('%(path)s/dreddit-auth/' % env):
+        put('brokersettings.py', '.')
+
+    os.unlink('brokersettings.py')
 
 def deploy_repo():
     """

@@ -16,6 +16,9 @@ MANAGERS = ADMINS
 # Import db settings from dbsettings.py
 from dbsettings import *
 
+# Import the Broker settings
+from brokersettings.py import *
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -147,18 +150,12 @@ HR_STAFF_GROUP = 'HR Staff'
 FULL_API_USER_ID = 415631
 FULL_API_CHARACTER_ID = 246102445
 
-### Celery Broker
-
-BROKER_HOST = "localhost"
-BROKER_PORT = 5672
-BROKER_USER = "guest"
-BROKER_PASSWORD = "guest"
-BROKER_VHOST = "/"
-
 # try and import local settings
 try:
     from settingslocal import *
 except:
     pass
+
+
 
 djcelery.setup_loader()
