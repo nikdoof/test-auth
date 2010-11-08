@@ -128,7 +128,7 @@ class Inbox():
         return self._inbox_data.__iter__()
 
     def send(self, to, subject, text):
-        if not self.login_cookie:
+        if not hasattr(self, 'login_cookie') or not self.login_cookie:
             raise NotLoggedIn
 
         data = { 'to': to,
