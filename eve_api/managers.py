@@ -82,13 +82,11 @@ class EVEPlayerCorporationManager(models.Manager):
         
         # Convert incoming data to UTF-8.
         dom = minidom.parseString(corp_doc.body.encode('utf-8'))
-        
         error_node = dom.getElementsByTagName('error')
         
         # If there's an error, see if it's because the corp doesn't exist.
         if error_node:
-            error_code = error_node[0].getAttribute('code')
-            if error_code == '523':
+            if error_node[0].getAttribute('code') == '523':
                 raise InvalidCorpID(id)
         
         return dom

@@ -22,28 +22,12 @@ def import_eve_account(api_key, user_id, force_cache=False):
     """
     Imports an account from the API into the EVEAccount model.
     """
-    auth_params = {'userID': user_id, 'apiKey': api_key}
 
+    auth_params = {'userid': user_id, 'apikey': api_key}
     try:
-        account_doc = CachedDocument.objects.api_query('/account/Characters.xml.aspx',
-                                                   params=auth_params,
-                                                   no_cache=force_cache)
-    except APIAuthException:
-        try:
-            account = EVEAccount.objects.get(id=user_id)
-        except EVEAccount.DoesNotExist:
-            return
-        if api_key == account.api_key:
-            account.api_status = API_STATUS_AUTH_ERROR
-            account.api_last_updated = datetime.utcnow()
-            account.save()
-            return
-    except APINoUserIDException:
-        try:
-            account = EVEAccount.objects.get(id=user_id)
-            account.delete()
-        except EVEAccount.DoesNotExist:
-            return
+        account_doc = CachedDocument.objects.api_query('/account/Characters.xml.aspx', params=auth_params, no_cache=force_cache)
+    except:
+        return
 
     if account_doc and account_doc.body:
         dom = minidom.parseString(account_doc.body.encode('utf-8'))
@@ -59,11 +43,12 @@ def import_eve_account(api_key, user_id, force_cache=False):
 
         error = enode[0].getAttribute('code')
 
-        if int(error) >= 900:
+        if int(error) >= 500:
             # API disabled, down or rejecting, return without changes
             return
-
-        if error == '211':
+        elif error in ['202', '203', '204', '205', '212']:
+            account.api_status = API_STATUS_AUTH_ERROR
+        elif error == '211':
             account.api_status = API_STATUS_ACC_EXPIRED
         else:
             account.api_status = API_STATUS_OTHER_ERROR

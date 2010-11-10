@@ -1,95 +1,46 @@
-import httplib
-import urllib
+import urllib, urllib2
 import xml
 import hashlib
 import socket
 from datetime import datetime, timedelta
 from xml.dom import minidom
 from django.db import models
-from eve_api.api_exceptions import APIAuthException, APINoUserIDException
+from eve_proxy.exceptions import *
+import settings
 
 # You generally never want to change this unless you have a very good reason.
-API_URL = 'api.eve-online.com'
+
+try:
+    API_URL = getattr(settings, 'EVE_API_URL')
+except AttributeError:
+    API_URL = 'http://api.eve-online.com'
+
+# Errors to rollback if we have a cached version of the document
+# Errors 500-999 at the moment, this can be trimmed down as needed
+ROLLBACK_ERRORS = range(500, 999)
 
 class CachedDocumentManager(models.Manager):
     """
     This manager handles querying or retrieving CachedDocuments.
     """
 
-    def get_document_id(self, url_path, params):
-        if params:
-            p = params.copy()
-            if 'service' in p:
-                del p['service']
-            paramstr = urllib.urlencode(p)
+    def construct_url(self, url_path, params):
+
+         # Valid arguments for EVE API Calls
+        allowed_params = ['userid', 'apikey', 'characterid', 'version', 'names', 'ids', 'corporationid', 'beforerefid', 'accountkey']
+
+        if len(params):
+            for k, v in params.items():
+                del params[k]
+                if k.lower() in allowed_params:
+                   params[k.lower()] = v
+            url = "%s%s?%s" % (API_URL, url_path, urllib.urlencode(params))
         else:
-            paramstr = ''
+            url = "%s%s" % (API_URL, url_path)
 
-        return hashlib.sha1('%s?%s' % (url_path, paramstr)).hexdigest()
+        return url
 
-    def cache_from_eve_api(self, url_path, params):
-        """
-        Connect to the EVE API server, send the request, and cache it to
-        a CachedDocument. This is typically not something you want to call
-        directly. Use api_query().
-        """
-
-        method = 'GET'
-        paramstr = ''
-        service = 'auth'
-
-        if params:
-            if 'service' in params:
-                service = params['service']
-                del params['service']
-            paramstr = urllib.urlencode(params)
-
-        if len(paramstr.strip()) > 0:
-            method = 'POST'
-
-        headers = {"Content-type": "application/x-www-form-urlencoded"}
-        conn = httplib.HTTPConnection(API_URL)
-        try:
-            conn.request(method, url_path, paramstr, headers)
-        except socket.error:
-            return None
-        response = conn.getresponse()
-
-        if response.status == 200:
-            doc_id = self.get_document_id(url_path, params)
-            cached_doc, created = self.get_or_create(url_path=doc_id)
-            cached_doc.body = unicode(response.read(), 'utf-8')
-            cached_doc.time_retrieved = datetime.utcnow()
-
-            try:
-                # Parse the response via minidom
-                dom = minidom.parseString(cached_doc.body.encode('utf-8'))
-            except xml.parsers.expat.ExpatError:
-                cached_doc.cached_until = datetime.utcnow()
-            else:
-                cached_doc.cached_until = dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue           
-
-            # If this is user related, write a log instance
-            if params and 'userID' in params:
-                try:
-                    v = int(params['userID'])
-                except ValueError:
-                    pass
-                else:
-                    log = ApiAccessLog()
-                    log.userid = v
-                    log.service = service
-                    log.time_access = cached_doc.time_retrieved
-                    log.document = url_path
-                    log.save()
-
-            # Finish up and return the resulting document just in case.
-            cached_doc.save()
-            cached_doc = self.get(id=cached_doc.pk)
-
-            return cached_doc
-    
-    def api_query(self, url_path, params=None, no_cache=False, exceptions=True):
+    def api_query(self, url_path, params={}, no_cache=False, exceptions=True):
         """
         Transparently handles querying EVE API or retrieving the document from
         the cache.
@@ -102,35 +53,59 @@ class CachedDocumentManager(models.Manager):
                                     the query: userID=1&characterID=xxxxxxxx
         """
 
-        doc_id = self.get_document_id(url_path, params)
+        url = self.construct_url(url_path, params)
      
-        doc = None
         if not no_cache:
             try:
-                doc = super(CachedDocumentManager, self).get_query_set().get(url_path=doc_id)
+                doc = super(CachedDocumentManager, self).get_query_set().get(url_path=url)
             except self.model.DoesNotExist:
-                pass
-    
-        # EVE uses UTC.
-        current_eve_time = datetime.utcnow()
+                doc = None
+        else:
+            doc = None
 
-        if not doc or not doc.cached_until or current_eve_time > doc.cached_until:
-            doc = self.cache_from_eve_api(url_path, params)
+        if not doc or not doc.cached_until or datetime.utcnow() > doc.cached_until:
 
-        if doc:
-            dom = minidom.parseString(doc.body.encode('utf-8'))
-            
-            if dom:
-                error_node = dom.getElementsByTagName('error')
-                if error_node and exceptions:
-                    error_code = error_node[0].getAttribute('code')
-                    # User specified an invalid userid and/or auth key.
-                    if error_code == '203':
-                        raise APIAuthException()
-                    elif error_code == '106':
-                        raise APINoUserIDException()
+            req = urllib2.Request(url)
+            req.add_header('CCP-Contact', 'matalok@pleaseignore.com')
+            try:
+                conn = urllib2.urlopen(req)
+            except urllib2.HTTPError, e:
+                raise DocumentRetrievalError(e.code)
+            except urllib2.URLError, e:
+                raise DocumentRetrievalError(e.reason)
 
-            return doc
+            cached_doc, created = self.get_or_create(url_path=url)
+            cached_doc.body = unicode(conn.read(), 'utf-8')
+            cached_doc.time_retrieved = datetime.utcnow()
+
+            try:
+                # Parse the response via minidom
+                dom = minidom.parseString(cached_doc.body.encode('utf-8'))
+            except xml.parsers.expat.ExpatError:
+                cached_doc.cached_until = datetime.utcnow()
+            else:
+                cached_doc.cached_until = dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue
+                enode = dom.getElementsByTagName('error')
+                if enode:
+                   error = enode[0].getAttribute('code')
+                else:
+                   error = 0
+
+            # If we have a error in the ignored error list use the cached doc, otherwise return the new doc
+            if not doc or (not error or not error in ROLLBACK_ERRORS):
+                cached_doc.save()
+                doc = self.get(id=cached_doc.pk)
+
+            # If this is user related, write a log instance
+            if params and params.get('userid', None):
+                try:
+                    v = int(params.get('userid', None))
+                except:
+                    pass
+                else:
+                    ApiAccessLog(userid=v, service='Unknown', time_access=cached_doc.time_retrieved, document=url).save()
+
+        return doc
 
 class CachedDocument(models.Model):
     """

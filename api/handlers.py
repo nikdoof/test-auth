@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404
 
 from api.models import AuthAPIKey, AuthAPILog
 from eve_proxy.models import CachedDocument
+from eve_proxy.exceptions import *
 from eve_api.models import EVEAccount
 from sso.models import ServiceAccount, Service
 from hr.models import Blacklist
@@ -119,9 +120,12 @@ class EveAPIProxyHandler(BaseHandler):
             obj = get_object_or_404(EVEAccount, pk=params['userid'])
             params['apikey'] = obj.api_key
 
-        cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
-
-        return HttpResponse(cached_doc.body)
+        try:
+            cached_doc = CachedDocument.objects.api_query(url_path, params)
+        except DocumentRetrievalError:
+            return HttpResponse(status=500)
+        else:
+            return HttpResponse(cached_doc.body)
 
 
 class OpTimerHandler(BaseHandler):
@@ -132,28 +136,19 @@ class OpTimerHandler(BaseHandler):
 
         params = {'userID': obj.id, 'apiKey': obj.api_key, 'characterID': FULL_API_CHARACTER_ID}
 
-        cached_doc = CachedDocument.objects.api_query('/char/UpcomingCalendarEvents.xml.aspx', params, exceptions=False)
+        error_doc = {'ops': [{'startsIn': -1, 'eventID': 0, 'ownerName': '', 'eventDate': '', 'eventTitle': '<div style="text-align:center">The EVE API calendar is unavailable</div>', 'duration': 0, 'isImportant': 0, 'eventText': 'Fuck CCP tbqh imho srsly', 'endsIn':-1, 'forumLink': ''}]}
 
-        if cached_doc:
-            dom = minidom.parseString(cached_doc.body.encode('utf-8'))
-            enode = dom.getElementsByTagName('error')
-        if not cached_doc or enode:
-            return {'ops': [{
-                'startsIn': -1,
-                'eventID': 0,
-                'ownerName': '',
-                'eventDate': '',
-                'eventTitle': '<div style="text-align:center">The EVE API is currently down</div>',
-                'duration': 0,
-                'isImportant': 0,
-                'eventText': 'Fuck CCP tbqh imho srsly',
-                'endsIn':-1,
-                'forumLink': ''}]}
-        
+        try:
+            cached_doc = CachedDocument.objects.api_query('/char/UpcomingCalendarEvents.xml.aspx', params)
+        except DocumentRetrievalError:
+            return error_doc
+        dom = minidom.parseString(cached_doc.body.encode('utf-8'))
+        if dom.getElementsByTagName('error'):
+            error_doc['raw_xml'] = cached_doc.body
+            return error_doc
+
         events = []
-        events_node_children = dom.getElementsByTagName('rowset')[0].childNodes
-       
-        for node in events_node_children:
+        for node in dom.getElementsByTagName('rowset')[0].childNodes:
             if node.nodeType == 1:
                 ownerID = node.getAttribute('ownerID')                
                 if ownerID != '1':
@@ -200,7 +195,7 @@ class OpTimerHandler(BaseHandler):
                 'endsIn':-1,
                 'forumLink': ''}]}
         else:
-            return {'ops':events}
+            return {'ops': events, 'doc_time': cached_doc.time_retrieved, 'cache_until': cached_doc.cached_until, 'current_time': datetime.utcnow() }
 
 
 class BlacklistHandler(BaseHandler):
