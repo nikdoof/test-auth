@@ -27,7 +27,7 @@ def queue_apikey_updates(update_delay=86400, batch_size=50):
         import_apikey.delay(api_key=acc.api_key, api_userid=acc.api_user_id)
 
 
-@task()
+@task(rate_limit='50/m')
 def import_apikey(api_userid, api_key, user=None, force_cache=False):
     acc = import_eve_account(api_key, api_userid, force_cache=force_cache)
     donecorps = []
@@ -39,13 +39,16 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
             for char in acc.characters.filter(director=1):
                 if not char.corporation.id in donecorps:
                     import_corp_members.delay(api_key=acc.api_key, api_userid=acc.api_user_id, character_id=char.id)
-                    import_corp_details.delay(corp_id=char.corporation.id)
+
+                    if char.corporation.api_last_updated < (datetime.datetime.now() - datetime.timedelta(hours=12)):
+                        import_corp_details.delay(corp_id=char.corporation.id)
                     donecorps.append(char.corporation.id)
 
         for char in acc.characters.all():
             try:
                 if char.corporation.id not in donecorps:
-                    import_corp_details.delay(corp_id=char.corporation.id)
+                    if char.corporation.api_last_updated < (datetime.datetime.now() - datetime.timedelta(hours=12)):
+                        import_corp_details.delay(corp_id=char.corporation.id)
                     donecorps.append(char.corporation.id)
             except:
                 continue
@@ -57,12 +60,12 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
     return acc
 
 
-@task(ignore_result=True)
+@task(ignore_result=True, rate_limit='5/m')
 def import_corp_members(api_userid, api_key, character_id):
     pull_corp_members(api_key, api_userid, character_id)
 
 
-@task(ignore_result=True)
+@task(ignore_result=True, rate_limit='10/m')
 def import_corp_details(corp_id):
     corp, created = EVEPlayerCorporation.objects.get_or_create(id=corp_id)
     corp.query_and_update_corp()
