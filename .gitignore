@@ -6,3 +6,4 @@ logs/
 settingslocal.py
 env
 *.pid
+brokersettings.py
