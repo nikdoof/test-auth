@@ -1,6 +1,0 @@
-ROOT=/home/matalok/auth/auth
-
-@daily					$ROOT/run-cron.py reddit.cron UpdateAPIs > $ROOT/logs/redditapi-update.log 2>&1
-*/5     *	*	*	*	$ROOT/run-cron.py eve_api.cron UpdateAPIs > $ROOT/logs/eveapi-update.log 2>&1
-0	*/6	*	*	*	$ROOT/run-cron.py eve_api.cron AllianceUpdate > $ROOT/logs/alliance-update.log 2>&1
-@daily                                  $ROOT/run-cron.py eve_proxy.cron ClearStaleCache > $ROOT/logs/cache-clear.log 2>&1

@@ -168,7 +168,10 @@ CELERYBEAT_SCHEDULE = {
         "task": "eve_api.tasks.queue_apikey_updates",
         "schedule": timedelta(minutes=10),
     },
-
+    "alliance-update": {
+        "task": "import_alliance_details",
+        "schedule": timedelta(hours=6),
+    },
 }
 
 CELERY_SEND_TASK_ERROR_EMAILS = True
