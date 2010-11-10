@@ -157,8 +157,6 @@ try:
 except:
     pass
 
-djcelery.setup_loader()
-
 ### Celery Schedule
 
 CELERYBEAT_SCHEDULE = {
@@ -172,3 +170,8 @@ CELERYBEAT_SCHEDULE = {
     },
 
 }
+
+CELERY_SEND_TASK_ERROR_EMAILS = True
+
+# Load the Celery tasks
+djcelery.setup_loader()
