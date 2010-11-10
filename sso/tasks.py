@@ -1,5 +1,16 @@
 from celery.decorators import task
-from eve_api.models import *
+from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
+from sso.models import ServiceAccount
+from django.contrib.auth.models import User
+from django.db.models import signals
+
+# Signals that the tasks need to listen for
+def eveapi_deleted(sender, instance, **kwargs):
+    if instance.user:
+        update_user_access.delay(user=instance.user)
+
+signals.post_delete.connect(eveapi_deleted, sender=EVEAccount)
+
 
 @task()
 def update_user_access(user):
@@ -34,8 +45,6 @@ def update_user_access(user):
     for g in addgroups:
         user.groups.add(g)
 
-    from sso.models import ServiceAccount
-
     # For users set to not active, delete all accounts
     if not user.is_active:
         for servacc in ServiceAccount.objects.filter(user=user):
@@ -60,8 +69,6 @@ def update_user_access(user):
 
 @task(ignore_result=True)
 def update_service_groups(user_id):
-    from sso.models import ServiceAccount
-
     for service in ServiceAccount.objects.filter(user=user_id, active=True).select_related('service__api'):
         api = service.service.api_class
         api.update_groups(service.service_uid, service.user.groups.all())

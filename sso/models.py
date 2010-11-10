@@ -8,7 +8,6 @@ from django.db.models import signals
 from django.contrib.auth.models import User, UserManager, Group
 from django.utils import simplejson as json
 
-from sso.tasks import update_user_access
 from jsonfield.fields import JSONField
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance, EVEPlayerCharacter
 from reddit.models import RedditAccount
@@ -43,13 +42,7 @@ class SSOUser(models.Model):
         if created:   
             profile, created = SSOUser.objects.get_or_create(user=instance) 
 
-    @staticmethod
-    def eveapi_deleted(sender, instance, **kwargs):
-        if instance.user:
-            update_user_access.delay(user=instance.user)
-
 signals.post_save.connect(SSOUser.create_user_profile, sender=User)
-signals.post_delete.connect(SSOUser.eveapi_deleted, sender=EVEAccount)
 
 class SSOUserNote(models.Model):
     """ Notes bound to a user's account. Used to store information regarding the user """
