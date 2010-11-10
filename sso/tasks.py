@@ -16,6 +16,8 @@ signals.post_delete.connect(eveapi_deleted, sender=EVEAccount)
 def update_user_access(user):
     """ Process all corporate and alliance entries and correct access groups """
 
+    user = User.objects.get(id=user)
+
     # Create a list of all Corp and Alliance groups
     corpgroups = []
     for corp in EVEPlayerCorporation.objects.filter(group__isnull=False):
