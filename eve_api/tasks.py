@@ -60,7 +60,7 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
     return acc
 
 
-@task(ignore_result=True, rate_limit='10/d')
+@task(ignore_result=True, rate_limit='1/h')
 def import_alliance_details():
     from eve_api.api_puller.alliances import __start_full_import as alliance_import
     alliance_import()

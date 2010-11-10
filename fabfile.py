@@ -77,16 +77,26 @@ def setup_db():
         run('if [ ! -e dbsettings.py ]; then cp dbsettings.py.example dbsettings.py; fi' % env)
         run('env/bin/python manage.py syncdb --noinput --migrate')
 
-def setup_rabbitmq():
-    """ 
-    Setup the RabbitMQ instance on the system (requires sudo access)
+def generate_brokersettings():
+    """
+    Generates the brokersettings file
     """
 
-    require('path')
+    require('hosts')
 
     cnf = open('brokersettings.py.example', 'r').read()
     out = open('brokersettings.py', 'w')
     out.write(cnf % env)
+
+def setup_rabbitmq():
+    """
+    Setup the RabbitMQ instance on the system (requires sudo access)
+    """
+
+    require('hosts')
+    require('path')
+
+    generate_brokersettings() 
 
     sudo('rabbitmqctl add_user %s %s' % (env.user, env.password), shell=False)
     sudo('rabbitmqctl add_vhost %s' % env.vhost, shell=False)
