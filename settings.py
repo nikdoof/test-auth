@@ -151,6 +151,10 @@ HR_STAFF_GROUP = 'HR Staff'
 FULL_API_USER_ID = 415631
 FULL_API_CHARACTER_ID = 246102445
 
+## Email Registration
+
+BANNED_EMAIL_DOMAINS = ['att.net']
+
 # try and import local settings
 try:
     from settingslocal import *

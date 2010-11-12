@@ -4,12 +4,12 @@ from django.contrib.auth.views import login
 import settings
 
 from registration.views import register
-from registration.forms import RegistrationFormUniqueEmail
+from sso.forms import RegistrationFormUniqueEmailBlocked
 
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    (r'^register/$', register, {'form_class' :RegistrationFormUniqueEmail }),
+    (r'^register/$', register, {'form_class': RegistrationFormUniqueEmailBlocked}),
     (r'^admin/', include(admin.site.urls)),
     ('', include('registration.urls')),
     ('', include('sso.urls')),

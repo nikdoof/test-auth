@@ -7,7 +7,29 @@ import settings
 from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 from sso.models import ServiceAccount, Service
 from reddit.models import RedditAccount
+from registration.forms import RegistrationForm
+from settings import BANNED_EMAIL_DOMAINS
 
+class RegistrationFormUniqueEmailBlocked(RegistrationForm):
+    """
+    Subclass of ``RegistrationForm`` which disallows registration from certain domains
+    and also makes sure that the email address is unique in the DB
+    """
+
+    def clean_email(self):
+        """
+        Check the supplied email address against a list of known free
+        webmail domains.
+        """
+
+        if User.objects.filter(email__iexact=self.cleaned_data['email']):
+            raise forms.ValidationError(_("This email address is already in use. Please supply a different email address."))
+        return self.cleaned_data['email']
+
+        email_domain = self.cleaned_data['email'].split('@')[1]
+        if email_domain in BANNED_EMAIL_DOMAINS:
+            raise forms.ValidationError(_("Your email provider (%s) is banned from registering, please use a different address."))
+        return self.cleaned_data['email']
 
 class EveAPIForm(forms.Form):
     """ EVE API input form """
