@@ -12,7 +12,7 @@ def production():
     env.hosts = ['dreddit@web1.pleaseignore.com']
     env.path = '/home/dreddit/apps'
     env.user = 'auth'
-    env.vhost = 'auth'
+    env.vhost = '/auth'
     env.password = sha1('%s-%s' % (env.user, env.vhost)).hexdigest()
 
 def test():
@@ -20,7 +20,7 @@ def test():
     env.hosts = ['dreddit@web2.pleaseignore.com']
     env.path = '/home/dreddit/apps'
     env.user = 'auth'
-    env.vhost = 'auth'
+    env.vhost = '/auth'
     env.password = sha1('%s-%s' % (env.user, env.vhost)).hexdigest()
 
 def deploy():
@@ -98,11 +98,14 @@ def setup_rabbitmq():
 
     generate_brokersettings() 
 
+    with settings(warn_only=True):
+        sudo('rabbitmqctl delete_user %s' % env.user, shell=False)
+        sudo('rabbitmqctl delete_vhost %s' % env.vhost, shell=False)
     sudo('rabbitmqctl add_user %s %s' % (env.user, env.password), shell=False)
     sudo('rabbitmqctl add_vhost %s' % env.vhost, shell=False)
     sudo('rabbitmqctl set_permissions -p %s %s ".*" ".*" ".*"' % (env.vhost, env.user), shell=False)
 
-    put('brokersettings.py', '%(path)s/dreddit-auth/')
+    put('./brokersettings.py', '%(path)s/dreddit-auth/' % env)
     os.unlink('brokersettings.py')
 
 def deploy_repo():
