@@ -173,12 +173,14 @@ CELERYBEAT_SCHEDULE = {
         "schedule": timedelta(minutes=10),
     },
     "alliance-update": {
-        "task": "import_alliance_details",
+        "task": "eve_api.tasks.import_alliance_details",
         "schedule": timedelta(hours=6),
     },
 }
 
 CELERY_SEND_TASK_ERROR_EMAILS = True
+CELERY_RESULT_BACKEND = "amqp"
+CELERY_DISABLE_RATE_LIMITS = True
 
 # Load the Celery tasks
 djcelery.setup_loader()
