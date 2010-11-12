@@ -6,7 +6,7 @@ class DocumentRetrievalError(Exception):
         self.value = value
 
     def __str__(self):
-        return self.__doc_ % value_
+        return self.__doc__ % value
 
 class InvalidDocument(Exception):
     """

@@ -54,47 +54,53 @@ class CachedDocumentManager(models.Manager):
         """
 
         url = self.construct_url(url_path, params)
-     
-        if not no_cache:
-            try:
-                doc = super(CachedDocumentManager, self).get_query_set().get(url_path=url)
-            except self.model.DoesNotExist:
-                doc = None
-        else:
-            doc = None
 
-        if not doc or not doc.cached_until or datetime.utcnow() > doc.cached_until:
+        try:
+            doc = super(CachedDocumentManager, self).get_query_set().get(url_path=url)
+            print "Doc found"
+        except self.model.MultipleObjectsReturned:
+            super(CachedDocumentManager, self).get_query_set().filter(url_path=url).delete()
+            doc = CachedDocument(url_path=url)
+            print "Multiple doc"
+        except self.model.DoesNotExist:
+            doc = CachedDocument(url_path=url)
+            print "No doc found"
+
+        if doc.pk and no_cache:
+            doc.delete()
+            doc = CachedDocument(url_path=url)
+
+        if not doc.cached_until or datetime.utcnow() > doc.cached_until:
+            print "Doc expired"
 
             req = urllib2.Request(url)
             req.add_header('CCP-Contact', 'matalok@pleaseignore.com')
             try:
-                conn = urllib2.urlopen(req)
+                conn = urllib2.urlopen(req, timeout=60)
             except urllib2.HTTPError, e:
                 raise DocumentRetrievalError(e.code)
             except urllib2.URLError, e:
                 raise DocumentRetrievalError(e.reason)
 
-            cached_doc, created = self.get_or_create(url_path=url)
-            cached_doc.body = unicode(conn.read(), 'utf-8')
-            cached_doc.time_retrieved = datetime.utcnow()
+            doc.body = unicode(conn.read(), 'utf-8')
+            doc.time_retrieved = datetime.utcnow()
 
+            error = 0
             try:
                 # Parse the response via minidom
-                dom = minidom.parseString(cached_doc.body.encode('utf-8'))
-            except xml.parsers.expat.ExpatError:
-                cached_doc.cached_until = datetime.utcnow()
+                dom = minidom.parseString(doc.body.encode('utf-8'))
+            except:
+                doc.cached_until = datetime.utcnow()
             else:
-                cached_doc.cached_until = dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue
+                doc.cached_until = dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue
                 enode = dom.getElementsByTagName('error')
                 if enode:
                    error = enode[0].getAttribute('code')
-                else:
-                   error = 0
 
             # If we have a error in the ignored error list use the cached doc, otherwise return the new doc
-            if not doc or (not error or not error in ROLLBACK_ERRORS):
-                cached_doc.save()
-                doc = self.get(id=cached_doc.pk)
+            if not error or not error in ROLLBACK_ERRORS:
+                doc.save()
+                doc = self.get(id=doc.pk)
 
             # If this is user related, write a log instance
             if params and params.get('userid', None):
@@ -103,7 +109,7 @@ class CachedDocumentManager(models.Manager):
                 except:
                     pass
                 else:
-                    ApiAccessLog(userid=v, service='Unknown', time_access=cached_doc.time_retrieved, document=url).save()
+                    ApiAccessLog(userid=v, service='Unknown', time_access=doc.time_retrieved, document=url).save()
 
         return doc
 
@@ -111,7 +117,7 @@ class CachedDocument(models.Model):
     """
     This is a cached XML document from the EVE API.
     """
-    url_path = models.CharField(max_length=255)
+    url_path = models.CharField(max_length=255, unique=True)
     body = models.TextField()
     time_retrieved = models.DateTimeField(blank=True, null=True)
     cached_until = models.DateTimeField(blank=True, null=True)
