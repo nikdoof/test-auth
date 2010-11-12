@@ -16,10 +16,10 @@ class GroupInformation(models.Model):
 
     description = models.TextField(help_text="Description of the group and its permissions", blank=True)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.group and (self.group.eveplayercorporation_set.count() or self.group.eveplayeralliance_set.count()):
             self.type = GROUP_TYPE_MANAGED
-        models.Model.save(self)
+        models.Model.save(*args, **kwargs)
 
     @staticmethod
     def create_group(sender, instance, created, **kwargs):
