@@ -24,10 +24,7 @@ def import_eve_account(api_key, user_id, force_cache=False):
     """
 
     auth_params = {'userid': user_id, 'apikey': api_key}
-    try:
-        account_doc = CachedDocument.objects.api_query('/account/Characters.xml.aspx', params=auth_params, no_cache=force_cache)
-    except:
-        return
+    account_doc = CachedDocument.objects.api_query('/account/Characters.xml.aspx', params=auth_params, no_cache=force_cache)
 
     if account_doc and account_doc.body:
         dom = minidom.parseString(account_doc.body.encode('utf-8'))

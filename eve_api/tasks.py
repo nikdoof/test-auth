@@ -29,7 +29,11 @@ def queue_apikey_updates(update_delay=86400, batch_size=50):
 
 @task()
 def import_apikey(api_userid, api_key, user=None, force_cache=False):
+
+    log = import_apikey.get_logger('import_apikey')
+    log.info('Importing %s/%s' % (api_userid, api_key))
     acc = import_eve_account(api_key, api_userid, force_cache=force_cache)
+    log.debug('Completed')
     donecorps = []
     if acc and acc.api_status == API_STATUS_OK:
         if user and not acc.user:
@@ -45,13 +49,10 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
                     donecorps.append(char.corporation.id)
 
         for char in acc.characters.all():
-            try:
-                if char.corporation.id not in donecorps:
-                    if char.corporation.api_last_updated < (datetime.datetime.now() - datetime.timedelta(hours=12)):
-                        import_corp_details.delay(corp_id=char.corporation.id)
-                    donecorps.append(char.corporation.id)
-            except:
-                continue
+            if char.corporation.id not in donecorps:
+                if char.corporation.api_last_updated < (datetime.datetime.now() - datetime.timedelta(hours=12)):
+                    import_corp_details.delay(corp_id=char.corporation.id)
+                donecorps.append(char.corporation.id)
 
         acc.save()
         if acc.user:
