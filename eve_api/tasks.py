@@ -6,7 +6,7 @@ from eve_api.api_puller.corp_management import pull_corp_members
 from eve_api.app_defines import *
 from sso.tasks import update_user_access
 
-@task(ignore_result=True)
+@task(ignore_result=True, expires=120)
 def queue_apikey_updates(update_delay=86400, batch_size=50):
     """
     Updates all Eve API elements in the database
@@ -27,7 +27,7 @@ def queue_apikey_updates(update_delay=86400, batch_size=50):
         import_apikey.delay(api_key=acc.api_key, api_userid=acc.api_user_id)
 
 
-@task(rate_limit='50/m')
+@task()
 def import_apikey(api_userid, api_key, user=None, force_cache=False):
     acc = import_eve_account(api_key, api_userid, force_cache=force_cache)
     donecorps = []
@@ -60,18 +60,18 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
     return acc
 
 
-@task(ignore_result=True, rate_limit='1/h')
+@task(ignore_result=True)
 def import_alliance_details():
     from eve_api.api_puller.alliances import __start_full_import as alliance_import
     alliance_import()
 
 
-@task(ignore_result=True, rate_limit='5/m')
+@task(ignore_result=True)
 def import_corp_members(api_userid, api_key, character_id):
     pull_corp_members(api_key, api_userid, character_id)
 
 
-@task(ignore_result=True, rate_limit='10/m')
+@task(ignore_result=True)
 def import_corp_details(corp_id):
     corp, created = EVEPlayerCorporation.objects.get_or_create(id=corp_id)
     corp.query_and_update_corp()
