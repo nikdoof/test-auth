@@ -63,7 +63,7 @@ def eveapi_add(request):
         form = EveAPIForm(request.POST) 
         if form.is_valid():
 
-            task = import_apikey.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['user_id'], user=request.user)
+            task = import_apikey.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['user_id'], user=request.user.id)
             try:
                 acc = task.wait(5)
             except celery.exceptions.TimeoutError:
@@ -104,7 +104,7 @@ def eveapi_refresh(request, userid=0):
             pass
         else:
             if acc.user == request.user or request.user.is_superuser:
-                task = import_apikey.delay(api_key=acc.api_key, api_userid=acc.api_user_id, force_cache=True, user=request.user)
+                task = import_apikey.delay(api_key=acc.api_key, api_userid=acc.api_user_id, force_cache=True, user=request.user.id)
 
                 if request.is_ajax():
                     try:
