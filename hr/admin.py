@@ -9,7 +9,7 @@ class ApplicationAdmin(admin.ModelAdmin):
     list_filter = ('status',)
 
     def recommendations(self, obj):
-        return len(obj.recommendation_set.all())
+        return obj.recommendation_set.all().count()
 
     recommendations.short_description = '# of Recommendations'
 
@@ -33,6 +33,7 @@ admin.site.register(Audit, AuditAdmin)
 class BlacklistAdmin(admin.ModelAdmin):
     list_display = ('type', 'value', 'source', 'created_date', 'created_by')
     list_filter = ('source', 'type')
+    search_fields = ('value')
 
 admin.site.register(Blacklist, BlacklistAdmin)
 
