@@ -61,6 +61,7 @@ def import_eve_account(api_key, user_id, force_cache=False):
     account.api_status = API_STATUS_OK
     account.save()
 
+    account.characters.clear()
     for node in characters_node_children:
         try:
             char = import_eve_character(api_key, user_id, node.getAttribute('characterID'))
