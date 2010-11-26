@@ -32,8 +32,9 @@ for char in chars:
     if len(char.eveaccount_set.all()) > 0:
         name = unicodedata.normalize('NFKD', char.name).encode('ASCII', 'ignore')
         charname = re.sub('[^a-zA-Z0-9_-]+', '', name)
-        email =  char.eveaccount_set.all()[0].user.email
-        out[charname] = email
+        if char.eveaccount_set.all()[0].user:
+            email =  char.eveaccount_set.all()[0].user.email
+            out[charname.lower()] = email
 
 
 for key in out:
