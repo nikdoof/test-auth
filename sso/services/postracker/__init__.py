@@ -15,7 +15,7 @@ class POSTrackerService(BaseDBService):
                  'provide_login': False, 
                  'database_name': 'dreddit_pos' }
 
-    SQL_ADD_USER = r"INSERT INTO pos3_user (eve_id, name, pass, email, access) VALUES (%s, %s, %s, %s, 1)"
+    SQL_ADD_USER = r"INSERT INTO pos3_user (eve_id, name, pass, email, access, corp, alliance_id) VALUES (%s, %s, %s, %s, 1, %s, %s)"
     SQL_DIS_USER = r"UPDATE pos3_user SET pass = '', away = 1 WHERE name = %s"
     SQL_DEL_USER = r"DELETE FROM pos3_user WHERE name = %s"
     SQL_ENABLE_USER = r"UPDATE pos3_user SET pass = %s, away = 0 WHERE name = %s"
@@ -36,7 +36,13 @@ class POSTrackerService(BaseDBService):
         pwhash, salt = self._gen_pwhash(password)
         eveid = kwargs['character'].eveaccount_set.all()[0].api_user_id
 
-        self.dbcursor.execute(self.SQL_ADD_USER, [eveid, username, "%s%s" % (salt, pwhash) , email])
+        corpname = kwargs['character'].corporation.name
+        if kwargs['character'].corporation and kwargs['character'].corporation.alliance:
+            allianceid = kwargs['character'].corporation.alliance.id
+        else:
+            allianceid = 0
+
+        self.dbcursor.execute(self.SQL_ADD_USER, [eveid, username, "%s%s" % (salt, pwhash) , email, corpname, allianceid])
         transaction.set_dirty()
         return { 'username': username, 'password': password }
 
