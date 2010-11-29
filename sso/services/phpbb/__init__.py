@@ -41,7 +41,6 @@ class PhpBBService(BaseDBService):
         pwhash = self._gen_hash(password)
 
         self._dbcursor.execute(self.SQL_ADD_USER, [username, pwhash, email])
-        transaction.set_dirty()
 
         self.update_groups(username)
         return { 'username': username, 'password': password }
@@ -56,12 +55,10 @@ class PhpBBService(BaseDBService):
             row = self._dbcursor.fetchone()
             if not row:
                 self._dbcursor.execute(self.SQL_ADD_GROUP, [group.name])
-                transaction.set_dirty()
                 self._dbcursor.execute(self.SQL_GET_GROUP, [group.name])
                 row = self._dbcursor.fetchone()
 
             self._dbcursor.execute(self.SQL_ADD_USER_GROUP, [row['group_id'], user_id])
-            transaction.set_dirty()
 
     def check_user(self, username):
         """ Check if the username exists """
@@ -83,7 +80,6 @@ class PhpBBService(BaseDBService):
         except IntegrityError:
             # Record already exists, skip it
             pass
-        transaction.set_dirty()
         return True
 
     def enable_user(self, uid, password):
@@ -91,7 +87,6 @@ class PhpBBService(BaseDBService):
         pwhash = self._gen_mw_hash(password)
         self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
         self._dbcursor.execute(self.SQL_ENABLE_GROUP, [uid])
-        transaction.set_dirty()
         return True
 
     def reset_password(self, uid, password):

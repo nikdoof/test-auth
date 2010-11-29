@@ -59,15 +59,17 @@ class TS3Service(BaseService):
                     self.conn.send_command('clientkick', {'clid': client['keys']['clid'], 'reasonid': 5, 'reasonmsg': 'Auth service deleted'})
 
             ret = self.conn.send_command('clientdbdelete', {'cldbid': user })
-            if ret['id'] == 0:
+            if ret == '0':
                 return True
+        else:
+            return True
 
     def disable_user(self, uid):
         """ Disable a user by uid """
         user = self._get_userid(uid)
         if user:
             ret = self.conn.send_command('servergroupdelclient', {'sgid': self.settings['authed_sgid'], 'cldbid': user })
-            if ret['id'] == 0:
+            if ret == '0':
                 return True
 
     def enable_user(self, uid, password):
@@ -76,7 +78,7 @@ class TS3Service(BaseService):
         user = self._get_userid(uid)
         if user:
             ret = self.conn.send_command('servergroupaddclient', {'sgid': self.settings['authed_sgid'], 'cldbid': user })
-            if ret['id'] == 0:
+            if ret == '0':
                 return True
 
     def reset_password(self, uid, password):
@@ -131,10 +133,14 @@ class TS3Service(BaseService):
 
         groups = self.conn.send_command('servergroupsbyclientid', {'cldbid': cldbid })
         outlist = {}
-        for group in groups:
-            outlist[group['keys']['name']] = group['keys']['sgid']
-        return outlist
 
+        if type(groups) == list:
+            for group in groups:
+                outlist[group['keys']['name']] = group['keys']['sgid']
+        elif type(groups) == dict:
+            outlist[groups['keys']['name']] = groups['keys']['sgid']
+
+        return outlist
 
     def update_groups(self, uid, groups):
         """ Update the UID's groups based on the provided list """
@@ -150,7 +156,7 @@ class TS3Service(BaseService):
                 for g in groups:
                     if not g.name in tsgrplist:
                         tsgrplist[g.name] = self._create_group(g.name)
-                    if not group.name in usrgrplist:
+                    if not g.name in usrgrplist:
                         self.conn.send_command('servergroupaddclient', {'sgid': tsgrplist[g.name], 'cldbid': cldbid })
                         usrgrplist[g.name] = tsgrplist[g.name]
 
@@ -161,7 +167,7 @@ class TS3Service(BaseService):
 
             # Remove ignored and admin groups
             for k, v in usrgrplist.items():
-                if not v == self.settings['auth_sgid'] and not v in self.settings['ignore_groups']:
+                if not int(v) == self.settings['authed_sgid'] and not int(v) in self.settings['ignore_groups']:
                     self.conn.send_command('servergroupdelclient', {'sgid': v, 'cldbid': cldbid })
 
         return True

@@ -46,12 +46,10 @@ class MiningBuddyService(BaseDBService):
             email = ''
 
         self.dbcursor.execute(self.SQL_ADD_USER, [self._clean_username(username), pwhash, email])
-        transaction.set_dirty()
 
         userid = self.dbcursor.lastrowid
         api = kwargs['character'].eveaccount_set.all()[0]
         self.dbcursor.execute(self.SQL_ADD_API, [userid, int(time.time()), api.api_user_id, api.api_key, kwargs['character'].id])
-        transaction.set_dirty()
 
         return { 'username': self._clean_username(username), 'password': password }
 
@@ -66,20 +64,17 @@ class MiningBuddyService(BaseDBService):
     def delete_user(self, uid):
         """ Delete a user """
         self.dbcursor.execute(self.SQL_DEL_USER, [uid])
-        transaction.set_dirty()
         return True
 
     def disable_user(self, uid):
         """ Disable a user """
         self.dbcursor.execute(self.SQL_DIS_USER, [uid])
-        transaction.set_dirty()
         return True
 
     def enable_user(self, uid, password):
         """ Enable a user """
         pwhash = self._gen_mb_hash(password)
         self.dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
-        transaction.set_dirty()
         return True
 
     def reset_password(self, uid, password):

@@ -1,5 +1,5 @@
 import settings
-from django.db import load_backend, transaction, IntegrityError
+from django.db import load_backend, transaction, IntegrityError, connections
 
 def get_api(api):
 

@@ -35,7 +35,6 @@ class QMSService(BaseDBService):
         email = kwargs['user'].email
         pwhash, salt, cert = self._gen_pwhash(password)
         self.dbcursor.execute(self.SQL_ADD_USER, [username, username, pwhash, salt, email, cert])
-        transaction.set_dirty()
         return { 'username': username, 'password': password }
 
     def check_user(self, username):
@@ -50,20 +49,17 @@ class QMSService(BaseDBService):
         """ Delete a user """
         #self.dbcursor.execute(self.SQL_DEL_REV, [uid])
         #self.dbcursor.execute(self.SQL_DEL_USER, [uid])
-        #transaction.set_dirty()
         return True
 
     def disable_user(self, uid):
         """ Disable a user """
         self.dbcursor.execute(self.SQL_DIS_USER, [uid])
-        transaction.set_dirty()
         return True
 
     def enable_user(self, uid, password):
         """ Enable a user """
         pwhash, salt, cert = self._gen_pwhash(password)
         self.dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, salt, cert, uid])
-        transaction.set_dirty()
         return True
 
     def reset_password(self, uid, password):
