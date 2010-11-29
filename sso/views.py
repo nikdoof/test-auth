@@ -65,7 +65,7 @@ def eveapi_add(request):
 
             task = import_apikey.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['user_id'], user=request.user.id)
             try:
-                acc = task.wait(5)
+                task.wait(5)
             except celery.exceptions.TimeoutError:
                 messages.add_message(request, messages.INFO, "The addition of your API key is still processing, please check back in a minute or so")
                 pass    
@@ -108,10 +108,10 @@ def eveapi_refresh(request, userid=0):
 
                 if request.is_ajax():
                     try:
-                        acc = task.wait(60)
+                        acc = task.wait(30)
                         return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
                     except celery.exceptions.TimeoutError:
-                        return HttpResponse(serializers.serialize('json', [None]), mimetype='application/javascript')
+                        return HttpResponse(serializers.serialize('json', []), mimetype='application/javascript')
                 else:
                     messages.add_message(request, messages.INFO,"Key %s has been queued to be refreshed from the API" % acc.api_user_id)
 
