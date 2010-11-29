@@ -5,6 +5,7 @@ from eve_api.api_puller.accounts import import_eve_account
 from eve_api.api_puller.corp_management import pull_corp_members
 from eve_api.app_defines import *
 from sso.tasks import update_user_access
+from django.contrib.auth.models import User
 
 @task(ignore_result=True, expires=120)
 def queue_apikey_updates(update_delay=86400, batch_size=50):
@@ -37,7 +38,7 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
     donecorps = []
     if acc and acc.api_status == API_STATUS_OK:
         if user and not acc.user:
-            acc.user = user
+            acc.user = User.objects.get(id=user)
         if acc.api_keytype == API_KEYTYPE_FULL and acc.characters.filter(director=1).count():
             donecorps = []
             for char in acc.characters.filter(director=1):
