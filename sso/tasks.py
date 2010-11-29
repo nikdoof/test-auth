@@ -7,7 +7,7 @@ from django.db.models import signals
 # Signals that the tasks need to listen for
 def eveapi_deleted(sender, instance, **kwargs):
     if instance.user:
-        update_user_access.delay(user=instance.user)
+        update_user_access.delay(user=instance.user.id)
 
 signals.post_delete.connect(eveapi_deleted, sender=EVEAccount)
 
