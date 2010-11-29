@@ -57,21 +57,17 @@ class CachedDocumentManager(models.Manager):
 
         try:
             doc = super(CachedDocumentManager, self).get_query_set().get(url_path=url)
-            print "Doc found"
         except self.model.MultipleObjectsReturned:
             super(CachedDocumentManager, self).get_query_set().filter(url_path=url).delete()
             doc = CachedDocument(url_path=url)
-            print "Multiple doc"
         except self.model.DoesNotExist:
             doc = CachedDocument(url_path=url)
-            print "No doc found"
 
         if doc.pk and no_cache:
             doc.delete()
             doc = CachedDocument(url_path=url)
 
         if not doc.cached_until or datetime.utcnow() > doc.cached_until:
-            print "Doc expired"
 
             req = urllib2.Request(url)
             req.add_header('CCP-Contact', 'matalok@pleaseignore.com')
