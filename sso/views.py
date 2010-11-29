@@ -328,7 +328,7 @@ def user_lookup(request):
                 return redirect('sso.views.user_lookup')
 
             if users and len(users) == 1:
-                return redirect(user_view, args=[users[0].username])
+                return redirect(user_view, username=users[0].username)
             elif users and len(users) > 1:
                 return render_to_response('sso/lookup/lookuplist.html', locals(), context_instance=RequestContext(request))
             else:
