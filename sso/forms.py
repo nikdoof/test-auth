@@ -23,12 +23,12 @@ class RegistrationFormUniqueEmailBlocked(RegistrationForm):
         """
 
         if User.objects.filter(email__iexact=self.cleaned_data['email']):
-            raise forms.ValidationError(_("This email address is already in use. Please supply a different email address."))
+            raise forms.ValidationError("This email address is already in use. Please supply a different email address.")
         return self.cleaned_data['email']
 
         email_domain = self.cleaned_data['email'].split('@')[1]
         if email_domain in BANNED_EMAIL_DOMAINS:
-            raise forms.ValidationError(_("Your email provider (%s) is banned from registering, please use a different address."))
+            raise forms.ValidationError("Your email provider (%s) is banned from registering, please use a different address.")
         return self.cleaned_data['email']
 
 class EveAPIForm(forms.Form):
