@@ -76,7 +76,7 @@ class CachedDocumentManager(models.Manager):
             req = urllib2.Request(url)
             req.add_header('CCP-Contact', 'matalok@pleaseignore.com')
             try:
-                conn = urllib2.urlopen(req, timeout=60)
+                conn = urllib2.urlopen(req)
             except urllib2.HTTPError, e:
                 raise DocumentRetrievalError(e.code)
             except urllib2.URLError, e:
