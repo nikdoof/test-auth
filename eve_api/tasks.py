@@ -30,7 +30,7 @@ def queue_apikey_updates(update_delay=86400, batch_size=50):
 
 @task(ignore_result=True)
 def import_apikey(api_userid, api_key, user=None, force_cache=False):
-    import_apikey_func(api_userid, api_key, user, force_cache):
+    import_apikey_func(api_userid, api_key, user, force_cache)
 
 @task()
 def import_apikey_result(api_userid, api_key, user=None, force_cache=False):
