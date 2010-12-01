@@ -28,7 +28,7 @@ def queue_apikey_updates(update_delay=86400, batch_size=50):
         import_apikey.delay(api_key=acc.api_key, api_userid=acc.api_user_id)
 
 
-@task()
+@task(ignore_result=True)
 def import_apikey(api_userid, api_key, user=None, force_cache=False):
 
     log = import_apikey.get_logger('import_apikey')
@@ -58,8 +58,6 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
         acc.save()
         if acc.user:
              update_user_access.delay(user=acc.user.id)
-
-    return acc
 
 
 @task(ignore_result=True)
