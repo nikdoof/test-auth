@@ -21,7 +21,7 @@ from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceEr
 from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetForm, RedditAccountForm, UserLookupForm, APIPasswordForm
 from reddit.models import RedditAccount
 
-from eve_api.tasks import import_apikey
+from eve_api.tasks import import_apikey, import_apikey_result
 
 import settings
 
