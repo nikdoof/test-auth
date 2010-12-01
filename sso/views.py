@@ -104,14 +104,13 @@ def eveapi_refresh(request, userid=0):
             pass
         else:
             if acc.user == request.user or request.user.is_superuser:
-                task = import_apikey.delay(api_key=acc.api_key, api_userid=acc.api_user_id, force_cache=True, user=request.user.id)
+                task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, force_cache=True, user=request.user.id)
 
                 if request.is_ajax():
                     try:
-                        task.wait(30)
+                        acc = task.wait(30)
                     except celery.exceptions.TimeoutError:
-                        pass
-                    acc = EVEAccount.objects.get(id=userid)
+                        acc = EVEAccount.objects.get(id=userid)
                     return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
                 else:
                     messages.add_message(request, messages.INFO,"Key %s has been queued to be refreshed from the API" % acc.api_user_id)

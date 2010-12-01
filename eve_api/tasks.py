@@ -30,8 +30,14 @@ def queue_apikey_updates(update_delay=86400, batch_size=50):
 
 @task(ignore_result=True)
 def import_apikey(api_userid, api_key, user=None, force_cache=False):
+    import_apikey_func(api_userid, api_key, user, force_cache):
 
-    log = import_apikey.get_logger('import_apikey')
+@task()
+def import_apikey_result(api_userid, api_key, user=None, force_cache=False):
+    return import_apikey_func(api_userid, api_key, user, force_cache)
+
+def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
+    log = import_apikey.get_logger('import_apikey_result')
     log.info('Importing %s/%s' % (api_userid, api_key))
     acc = import_eve_account(api_key, api_userid, force_cache=force_cache)
     log.debug('Completed')
@@ -58,6 +64,8 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
         acc.save()
         if acc.user:
              update_user_access.delay(user=acc.user.id)
+
+        return acc
 
 
 @task(ignore_result=True)
