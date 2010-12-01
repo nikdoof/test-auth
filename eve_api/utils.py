@@ -15,6 +15,12 @@ def basic_xml_parse(nodes):
                             d = {}
                             for e in nd.attributes.keys():
                                 d[e] = nd.attributes[e].value
+
+                            if len(nd.childNodes) > 0:
+                                p = basic_xml_parse(nd.childNodes)
+                                for i in p.keys():
+                                    d[i] = p[i]
+
                             rset.append(d)
                     values[node.attributes['name'].value] = rset
                 else:

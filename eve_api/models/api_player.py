@@ -213,8 +213,6 @@ class EVEPlayerCorporation(EVEAPIModel):
         EVE API service.
         """
 
-        from eve_api.api_puller.accounts import import_eve_character
-
         # Pull XML from the EVE API via eve_proxy.
         dom = EVEPlayerCorporation.objects.api_corp_sheet_xml(self.id)
         
@@ -248,6 +246,8 @@ class EVEPlayerCorporation(EVEAPIModel):
             except IndexError:
                 # Something weird has happened
                 continue
+
+        from eve_api.tasks import import_eve_character
 
         ceoid = dom.getElementsByTagName('ceoID')[0].firstChild.nodeValue
         self.ceo_character = import_eve_character(ceoid)

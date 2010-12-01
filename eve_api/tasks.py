@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from xml.dom import minidom
 
 from celery.decorators import task
-from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerCharacterRole
+from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerCharacterRole, EVEPlayerAlliance
 from eve_api.api_puller.corp_management import pull_corp_members
 from eve_api.app_defines import *
 from eve_api.utils import basic_xml_parse
@@ -204,10 +204,38 @@ def import_eve_character(character_id, api_key=None, user_id=None):
 
 @task(ignore_result=True)
 def import_alliance_details():
-    from eve_api.api_puller.alliances import __start_full_import as alliance_import
-    alliance_import()
+    doc = CachedDocument.objects.api_query('/eve/AllianceList.xml.aspx')
+    dom = minidom.parseString(doc.body.encode('utf-8'))
 
+    nodes = dom.getElementsByTagName('result')[0].childNodes
 
+    for alliance in basic_xml_parse(nodes)['alliances']:
+        print alliance
+        allobj, created = EVEPlayerAlliance.objects.get_or_create(pk=alliance['allianceID'])
+        if created:
+            allobj.name = alliance['name']
+            allobj.ticker = alliance['shortName']
+            allobj.date_founded = alliance['startDate']
+        allobj.member_count = alliance['memberCount']
+        allobj.api_last_updated = datetime.utcnow()
+        allobj.save()
+
+        corplist = allobj.eveplayercorporation_set.all().values_list('id', flat=True)
+
+        validcorps = []
+        for corp in alliance['memberCorporations']:
+            if corp.id not in corplist:
+                corpobj, created = EVEPlayerCorporation.objects.get_or_create(pk=corp['corporationID'])
+                corpobj.alliance = allobj
+                corpobj.save()
+                if created:
+                    import_corp_details.delay(corp['corporationID'])
+            validcorps.append(int(corp['corporationID']))
+
+        delcorps = set(corplist) - set(validcorps)
+        EVEPlayerCorporation.objects.filter(id__in=delcorps).update(alliance=None)
+
+        
 @task(ignore_result=True)
 def import_corp_members(api_userid, api_key, character_id):
     pull_corp_members(api_key, api_userid, character_id)
