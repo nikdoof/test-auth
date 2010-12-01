@@ -26,9 +26,12 @@ API_KEYTYPE_CHOICES = (
     (API_KEYTYPE_FULL, 'Full'),
 )
 
+API_GENDER_MALE = 1
+API_GENDER_FEMALE = 2
+
 API_GENDER_CHOICES = (
-    (1, 'Male'),
-    (2, 'Female'),
+    (API_GENDER_MALE, 'Male'),
+    (API_GENDER_FEMALE, 'Female'),
 )
 
 API_RACES_CHOICES = (

@@ -15,8 +15,10 @@
 <li>Race: {{ character.get_race_display }}</li>
 <li>Gender: {{ character.get_gender_display }}</li>
 <li>Corporation: {{ character.corporation.name }}</li>
+<li>Joined Corporation: {{ character.corporation_date }}</li>
 <li>Alliance: {{ character.corporation.alliance.name }}</li>
 <li>Total SP: {{ character.total_sp|intcomma }}</li>
+<li>Security Status: {{ character.security_status }}</li>
 <li>Director: {{ character.director }}</li>
 </ul>
 

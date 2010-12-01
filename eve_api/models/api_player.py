@@ -69,6 +69,7 @@ class EVEPlayerCharacter(EVEAPIModel):
     """
     name = models.CharField(max_length=255, blank=True, null=False)
     corporation = models.ForeignKey('EVEPlayerCorporation', blank=True, null=True)
+    corporation_date = models.DateTimeField(blank=True, null=True, verbose_name="Corporation Join Date")
     race = models.IntegerField(blank=True, null=True, choices=API_RACES_CHOICES)
     gender = models.IntegerField(blank=True, null=True, choices=API_GENDER_CHOICES)
     balance = models.FloatField("Account Balance", blank=True, null=True)
@@ -81,6 +82,7 @@ class EVEPlayerCharacter(EVEAPIModel):
     attrib_willpower = models.IntegerField("Willpower", blank=True, null=True)
     total_sp = models.IntegerField("Total SP", blank=True, null=True)
 
+    security_status = models.FloatField("Security Status", blank=True, null=True)
     current_location_id = models.IntegerField("Current Location ID", blank=True, null=True)
     last_login = models.DateTimeField(blank=True, null=True,
                                             verbose_name="Last Login Date/Time",
@@ -210,6 +212,9 @@ class EVEPlayerCorporation(EVEAPIModel):
         Takes an EVEPlayerCorporation object and updates it from the 
         EVE API service.
         """
+
+        from eve_api.api_puller.accounts import import_eve_character
+
         # Pull XML from the EVE API via eve_proxy.
         dom = EVEPlayerCorporation.objects.api_corp_sheet_xml(self.id)
         
@@ -245,7 +250,7 @@ class EVEPlayerCorporation(EVEAPIModel):
                 continue
 
         ceoid = dom.getElementsByTagName('ceoID')[0].firstChild.nodeValue
-        self.ceo_character, created = EVEPlayerCharacter.objects.get_or_create(id=ceoid)
+        self.ceo_character = import_eve_character(ceoid)
 
         self.api_last_updated = datetime.utcnow()
         self.save()
