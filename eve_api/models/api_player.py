@@ -6,7 +6,6 @@ from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User, Group
 from eve_proxy.models import CachedDocument
-from eve_api.managers import EVEPlayerCorporationManager, EVEPlayerAllianceManager, EVEPlayerCharacterManager
 from eve_api.app_defines import *
 
 class EVEAPIModel(models.Model):
@@ -98,8 +97,6 @@ class EVEPlayerCharacter(EVEAPIModel):
     roles = models.ManyToManyField("EVEPlayerCharacterRole", blank=True,
                                             null=True)
     
-    objects = EVEPlayerCharacterManager()
-    
     def __unicode__(self):
         if self.name:
             return self.name
@@ -148,8 +145,6 @@ class EVEPlayerAlliance(EVEAPIModel):
     date_founded = models.DateField(blank=True, null=True)
     group = models.ForeignKey(Group, blank=True, null=True)
     
-    objects = EVEPlayerAllianceManager()
-    
     class Meta:
         app_label = 'eve_api'
         ordering = ['date_founded']
@@ -194,8 +189,6 @@ class EVEPlayerCorporation(EVEAPIModel):
     group = models.ForeignKey(Group, blank=True, null=True)
     applications = models.BooleanField(blank=False, default=False)
 
-    objects = EVEPlayerCorporationManager()
-    
     class Meta:
         app_label = 'eve_api'
         verbose_name = 'Player Corporation'
