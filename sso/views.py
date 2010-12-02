@@ -13,15 +13,15 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.core import serializers
 
-from eve_api.api_exceptions import APIAuthException, APINoUserIDException
-from eve_api.api_puller.accounts import import_eve_account
 from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter
+from eve_api.tasks import import_apikey, import_apikey_result
+
 from eve_proxy.models import ApiAccessLog
+
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
 from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetForm, RedditAccountForm, UserLookupForm, APIPasswordForm
-from reddit.models import RedditAccount
 
-from eve_api.tasks import import_apikey, import_apikey_result
+from reddit.models import RedditAccount
 
 import settings
 
