@@ -88,7 +88,7 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
 
     if pchar.director and api_key and user_id:
         from eve_api.tasks.corporation import import_corp_members
-        import_corp_members.delay(api_key=api_key, api_userid=user_id, character_id=char.id)
+        import_corp_members.delay(api_key=api_key, api_userid=user_id, character_id=pchar.id)
 
     if callback:
         callback.delay(character=pchar.id)
