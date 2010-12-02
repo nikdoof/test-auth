@@ -1,3 +1,6 @@
+from xml.dom import minidom
+from eve_proxy.models import CachedDocument
+
 def basic_xml_parse(nodes):
     """ Parses a minidom set of nodes into a tree dict """
     values = {}
@@ -24,9 +27,28 @@ def basic_xml_parse(nodes):
                             rset.append(d)
                     values[node.attributes['name'].value] = rset
                 else:
-                    for nd in node.childNodes:
-                        if nd.nodeType == 1:
-                            nv[nd.tagName] = nd.childNodes[0].nodeValue
-                    values[node.tagName] = nv
+                    values[node.tagName] = basic_xml_parse(node.childNodes)
 
     return values
+
+def basic_xml_parse_doc(doc):
+    """
+    Parses a CachedDocument object into a dict
+    """
+
+    if type(doc) == CachedDocument:
+        dom = minidom.parseString(doc.body.encode('utf-8'))
+        return basic_xml_parse(dom.childNodes)
+
+    return {}
+
+
+def test():
+    doc = CachedDocument.objects.api_query('/server/ServerStatus.xml.aspx')
+    #print basic_xml_parse_doc(doc)
+
+    doc = CachedDocument.objects.api_query('/corp/CorporationSheet.xml.aspx', {'corporationID': 1018389948 })
+    #print basic_xml_parse_doc(doc)
+
+    return basic_xml_parse_doc(CachedDocument.objects.api_query('/eve/AllianceList.xml.aspx'))
+
