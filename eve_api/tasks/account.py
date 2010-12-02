@@ -2,12 +2,15 @@ from datetime import datetime, timedelta
 from xml.dom import minidom
 
 from celery.decorators import task
-from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerCharacterRole, EVEPlayerAlliance
-from eve_api.api_puller.corp_management import pull_corp_members
+
+from eve_proxy.models import CachedDocument
+
+from eve_api.models import EVEAccount
 from eve_api.app_defines import *
 from eve_api.utils import basic_xml_parse
-from eve_proxy.models import CachedDocument
+
 from sso.tasks import update_user_access
+
 from django.contrib.auth.models import User
 
 @task(ignore_result=True, expires=120)
@@ -33,10 +36,16 @@ def queue_apikey_updates(update_delay=86400, batch_size=50):
 
 @task(ignore_result=True)
 def import_apikey(api_userid, api_key, user=None, force_cache=False):
+    """
+    Imports a EVE Account from the API, doesn't return a result
+    """
     import_apikey_func(api_userid, api_key, user, force_cache)
 
 @task()
 def import_apikey_result(api_userid, api_key, user=None, force_cache=False):
+    """
+    Imports a EVE Account from the API and returns the account object when completed
+    """
     return import_apikey_func(api_userid, api_key, user, force_cache)
 
 def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
@@ -128,123 +137,3 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
          update_user_access.delay(user=account.user.id)
 
     return account
-
-
-@task()
-def import_eve_character(character_id, api_key=None, user_id=None):
-
-    char_doc = CachedDocument.objects.api_query('/eve/CharacterInfo.xml.aspx',
-                                               params={'characterID': character_id},
-                                               no_cache=False)
-
-    dom = minidom.parseString(char_doc.body.encode('utf-8'))
-    if dom.getElementsByTagName('error'):
-        return
-    values = basic_xml_parse(dom.getElementsByTagName('result')[0].childNodes)
-    pchar, created = EVEPlayerCharacter.objects.get_or_create(id=character_id)
-
-    pchar.name = values['characterName']
-    pchar.security_status = values['securityStatus']
-
-    corp, created = EVEPlayerCorporation.objects.get_or_create(id=values['corporationID'])
-    if created:
-        import_corp_details.delay(values['corporationID'])
-    pchar.corporation = corp
-    pchar.corporation_date = values['corporationDate']
-
-    for v in API_RACES_CHOICES:
-        val, race = v
-        if race == values['race']:
-            pchar.race = val
-            break
-
-    if api_key and user_id:
-        auth_params = {'userID': user_id, 'apiKey': api_key, 'characterID': character_id }
-        char_doc = CachedDocument.objects.api_query('/char/CharacterSheet.xml.aspx',
-                                                       params=auth_params,
-                                                       no_cache=False)
-
-        dom = minidom.parseString(char_doc.body.encode('utf-8'))
-        if not dom.getElementsByTagName('error'):
-
-            values = basic_xml_parse(dom.getElementsByTagName('result')[0].childNodes)
-            pchar.balance = values['balance']
-            pchar.attrib_intelligence = values['attributes']['intelligence']
-            pchar.attrib_charisma = values['attributes']['charisma']
-            pchar.attrib_perception = values['attributes']['perception']
-            pchar.attrib_willpower = values['attributes']['willpower']
-            pchar.attrib_memory = values['attributes']['memory']
-
-            # Process the character's roles
-            pchar.director = False
-            pchar.roles.clear()
-            roles = values.get('corporationRoles', None)
-            if roles and len(roles):
-                for r in roles:
-                    role, created = EVEPlayerCharacterRole.objects.get_or_create(roleid=r['roleID'], name=r['roleName'])
-                    pchar.roles.add(role)
-                    if r['roleName'] == 'roleDirector':
-                        pchar.director = True
-
-            if values['gender'] == 'Male':
-                pchar.gender = API_GENDER_MALE
-            else:
-                pchar.gender = API_GENDER_FEMALE
-
-            total = 0
-            for skill in values['skills']:
-                total = total + int(skill['skillpoints'])
-            pchar.total_sp = total
-
-    pchar.api_last_updated = datetime.utcnow()
-    pchar.save()
-
-    return pchar
-
-
-@task(ignore_result=True)
-def import_alliance_details():
-    doc = CachedDocument.objects.api_query('/eve/AllianceList.xml.aspx')
-    dom = minidom.parseString(doc.body.encode('utf-8'))
-
-    nodes = dom.getElementsByTagName('result')[0].childNodes
-
-    for alliance in basic_xml_parse(nodes)['alliances']:
-        print alliance
-        allobj, created = EVEPlayerAlliance.objects.get_or_create(pk=alliance['allianceID'])
-        if created:
-            allobj.name = alliance['name']
-            allobj.ticker = alliance['shortName']
-            allobj.date_founded = alliance['startDate']
-        allobj.member_count = alliance['memberCount']
-        allobj.api_last_updated = datetime.utcnow()
-        allobj.save()
-
-        corplist = allobj.eveplayercorporation_set.all().values_list('id', flat=True)
-
-        validcorps = []
-        for corp in alliance['memberCorporations']:
-            if corp.id not in corplist:
-                corpobj, created = EVEPlayerCorporation.objects.get_or_create(pk=corp['corporationID'])
-                corpobj.alliance = allobj
-                corpobj.save()
-                if created:
-                    import_corp_details.delay(corp['corporationID'])
-            validcorps.append(int(corp['corporationID']))
-
-        delcorps = set(corplist) - set(validcorps)
-        EVEPlayerCorporation.objects.filter(id__in=delcorps).update(alliance=None)
-
-        
-@task(ignore_result=True)
-def import_corp_members(api_userid, api_key, character_id):
-    pull_corp_members(api_key, api_userid, character_id)
-
-
-@task(ignore_result=True)
-def import_corp_details(corp_id):
-    corp, created = EVEPlayerCorporation.objects.get_or_create(id=corp_id)
-    
-    if created or not corp.api_last_updated or corp.api_last_updated < (datetime.utcnow() - timedelta(hours=12)):
-        corp.query_and_update_corp()
-        corp.save()
