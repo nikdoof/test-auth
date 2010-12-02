@@ -33,7 +33,7 @@ admin.site.register(Audit, AuditAdmin)
 class BlacklistAdmin(admin.ModelAdmin):
     list_display = ('type', 'value', 'source', 'created_date', 'created_by')
     list_filter = ('source', 'type')
-    search_fields = ('value')
+    search_fields = ('value',)
 
 admin.site.register(Blacklist, BlacklistAdmin)
 
