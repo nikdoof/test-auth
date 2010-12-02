@@ -7,12 +7,11 @@ from eve_proxy.models import CachedDocument
 
 from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerCharacterRole
 from eve_api.app_defines import *
-from eve_api.utils import basic_xml_parse
-from eve_api.tasks.corporation import import_corp_details
+from eve_api.utils import basic_xml_parse, basic_xml_parse_doc
 
 
 @task()
-def import_eve_character(character_id, api_key=None, user_id=None):
+def import_eve_character(character_id, api_key=None, user_id=None, callback=None):
     """ 
     Imports a character from the API, providing a API key will populate 
     further details
@@ -23,10 +22,10 @@ def import_eve_character(character_id, api_key=None, user_id=None):
                                                params={'characterID': character_id},
                                                no_cache=False)
 
-    dom = minidom.parseString(char_doc.body.encode('utf-8'))
-    if dom.getElementsByTagName('error'):
+    d = basic_xml_parse_doc(char_doc)['eveapi']
+    if 'error' in d:
         return
-    values = basic_xml_parse(dom.getElementsByTagName('result')[0].childNodes)
+    values = d['result']
     pchar, created = EVEPlayerCharacter.objects.get_or_create(id=character_id)
 
     pchar.name = values['characterName']
@@ -34,6 +33,7 @@ def import_eve_character(character_id, api_key=None, user_id=None):
 
     corp, created = EVEPlayerCorporation.objects.get_or_create(id=values['corporationID'])
     if created:
+        from eve_api.tasks.corporation import import_corp_details
         import_corp_details.delay(values['corporationID'])
     pchar.corporation = corp
     pchar.corporation_date = values['corporationDate']
@@ -85,4 +85,7 @@ def import_eve_character(character_id, api_key=None, user_id=None):
     pchar.api_last_updated = datetime.utcnow()
     pchar.save()
 
-    return pchar
+    if callback:
+        callback.delay(character=pchar.id)
+    else:
+        return pchar
