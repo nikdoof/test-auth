@@ -3,7 +3,7 @@ from xml.dom import minidom
 
 from celery.decorators import task
 from eve_proxy.models import CachedDocument
-from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter
+from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerAlliance
 from eve_api.utils import basic_xml_parse_doc
 from eve_api.tasks.character import import_eve_character
         
@@ -17,8 +17,8 @@ def import_corp_details_result(corp_id):
 
 
 def import_corp_details_func(corp_id):
-    corpobj, created = EVEPlayerCorporation.objects.get_or_create(id=corp_id)
-    
+
+    corpobj, created = EVEPlayerCorporation.objects.get_or_create(id=corp_id)   
     if created or not corpobj.api_last_updated or corpobj.api_last_updated < (datetime.utcnow() - timedelta(hours=12)):
 
         doc = CachedDocument.objects.api_query('/corp/CorporationSheet.xml.aspx', {'corporationID': corp_id})
@@ -48,6 +48,8 @@ def import_corp_details_func(corp_id):
         for logo_map in logo_mappings:
             setattr(corpobj, logo_map[1], d['logo'][logo_map[0]])
 
+        corpobj.alliance, created = EVEPlayerAlliance.objects.get_or_create(id=d['allianceID'])
+
         import_eve_character.delay(d['ceoID'], callback=link_ceo.subtask(corporation=corpobj.id))
 
         corpobj.api_last_updated = datetime.utcnow()
@@ -66,5 +68,29 @@ def link_ceo(corporation, character):
 
 @task(ignore_result=True)
 def import_corp_members(api_userid, api_key, character_id):
-    pull_corp_members(api_key, api_userid, character_id)
+    """
+    This function pulls all corporation members from the EVE API using a director's
+    API key. It'll add as much information as it can about the character.
+    """
+
+    # grab and decode /corp/MemberTracking.xml.aspx
+    auth_params = {'userID': api_userid, 'apiKey': api_key, 'characterID': character_id }
+    char_doc = CachedDocument.objects.api_query('/corp/MemberTracking.xml.aspx',
+                                                   params=auth_params,
+                                                   no_cache=False)
+
+    set = basic_xml_parse_doc(char_doc)['eveapi']['result']['members']
+    corp = EVEPlayerCharacter.objects.get(id=character_id).corporation
+
+    for character in set:
+        import_eve_character.delay(character['characterID'], callback=update_character_tracking.subtask(tracking_details=character))
+
+@task()
+def update_character_tracking(character, tracking_details):
+    charobj = EVEPlayerCharacter.objects.get(id=character)
+
+    charobj.last_login = tracking_details['logonDateTime']
+    charobj.last_logoff = tracking_details['logoffDateTime']
+    charobj.current_location_id = int(tracking_details['locationID'])
+    charobj.save()
 

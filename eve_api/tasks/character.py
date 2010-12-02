@@ -32,9 +32,10 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
     pchar.security_status = values['securityStatus']
 
     corp, created = EVEPlayerCorporation.objects.get_or_create(id=values['corporationID'])
-    if created:
-        from eve_api.tasks.corporation import import_corp_details
-        import_corp_details.delay(values['corporationID'])
+
+    from eve_api.tasks.corporation import import_corp_details
+    import_corp_details.delay(values['corporationID'])
+
     pchar.corporation = corp
     pchar.corporation_date = values['corporationDate']
 
@@ -50,10 +51,10 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
                                                        params=auth_params,
                                                        no_cache=False)
 
-        dom = minidom.parseString(char_doc.body.encode('utf-8'))
-        if not dom.getElementsByTagName('error'):
+        doc = basic_xml_parse_doc(char_doc)['eveapi']
+        if not 'error' in doc:
 
-            values = basic_xml_parse(dom.getElementsByTagName('result')[0].childNodes)
+            values = doc['result']
             pchar.balance = values['balance']
             pchar.attrib_intelligence = values['attributes']['intelligence']
             pchar.attrib_charisma = values['attributes']['charisma']
@@ -84,6 +85,9 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
 
     pchar.api_last_updated = datetime.utcnow()
     pchar.save()
+
+    if pchar.director and api_key and user_id:
+        import_corp_members.delay(api_key=account.api_key, api_userid=account.api_user_id, character_id=char.id)
 
     if callback:
         callback.delay(character=pchar.id)

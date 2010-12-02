@@ -2,12 +2,15 @@ from datetime import datetime, timedelta
 from xml.dom import minidom
 
 from celery.decorators import task
+from celery.task.sets import TaskSet
 
 from eve_proxy.models import CachedDocument
 
-from eve_api.models import EVEAccount
+from eve_api.models import EVEAccount, EVEPlayerCharacter
 from eve_api.app_defines import *
 from eve_api.utils import basic_xml_parse
+from eve_api.tasks.character import import_eve_character
+from eve_api.tasks.corporation import import_corp_members, import_corp_details
 
 from sso.tasks import update_user_access
 
@@ -55,21 +58,17 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
     auth_params = {'userid': api_userid, 'apikey': api_key}
     account_doc = CachedDocument.objects.api_query('/account/Characters.xml.aspx', params=auth_params, no_cache=force_cache)
 
-    if account_doc and account_doc.body:
-        dom = minidom.parseString(account_doc.body.encode('utf-8'))
-    else:
-        return
+    doc = basic_xml_parse_doc(account_doc)['eveapi']
 
     # Checks for a document error
-    enode = dom.getElementsByTagName('error')
-    if enode:
+    if 'error' in doc:
         try:
             account = EVEAccount.objects.get(id=api_userid)
         except EVEAccount.DoesNotExist:
             # If no Account exists in the DB, just ignore it
             return
 
-        error = enode[0].getAttribute('code')
+        error = doc['error']['code']
         if int(error) >= 500:
             # API disabled, down or rejecting, return without changes
             return
@@ -88,52 +87,40 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
     account, created = EVEAccount.objects.get_or_create(id=api_userid, api_user_id=api_userid, api_key=api_key)
     account.api_status = API_STATUS_OK
     if user and created:
-        account.user = user
-    account.save()
-
-    account.characters.clear()
-    for node in dom.getElementsByTagName('rowset')[0].childNodes:
-         try:
-             char = import_eve_character.delay(node.getAttribute('characterID'), api_key, api_userid).get()
-             account.characters.add(char)
-         except AttributeError:
-             continue
-
-    # Check API keytype if we have a character and a unknown key status
-    if account.api_keytype == API_KEYTYPE_UNKNOWN and len(account.characters.all()):
-        auth_params['characterID'] = account.characters.all()[0].id
-        keycheck = CachedDocument.objects.api_query('/char/AccountBalance.xml.aspx', params=auth_params, no_cache=True)
-
-        if keycheck:
-            dom = minidom.parseString(keycheck.body.encode('utf-8'))
-            enode = dom.getElementsByTagName('error')
-
-            if enode and int(enode[0].getAttribute('code')) == 200:
-                account.api_keytype = API_KEYTYPE_LIMITED
-            elif not enode:
-                account.api_keytype = API_KEYTYPE_FULL
-            else:
-                account.api_keytype = API_KEYTYPE_UNKNOWN
-        else:
-            account.api_keytype = API_KEYTYPE_UNKNOWN
+        account.user = User.objects.get(id=user)
 
     account.api_last_updated = datetime.utcnow()
     account.save()
-    log.debug('Completed')
 
-    donecorps = []
-    if account.api_keytype == API_KEYTYPE_FULL and account.characters.filter(director=1).count():
-        donecorps = []
-        for char in account.characters.filter(director=1):
-            if not char.corporation.id in donecorps:
-                import_corp_members.delay(api_key=account.api_key, api_userid=account.api_user_id, character_id=char.id)
-                donecorps.append(char.corporation.id)
+    # Check API keytype if we have a character and a unknown key status
+    if account.api_keytype == API_KEYTYPE_UNKNOWN:
+        keycheck = CachedDocument.objects.api_query('/account/AccountStatus.xml.aspx', params=auth_params, no_cache=True)
+        doc = basic_xml_parse_doc(keycheck)['eveapi']
 
-    for id in set(account.characters.all().values_list('corporation__id', flat=True)):
-        import_corp_details.delay(corp_id=id)
+        if 'error' in doc and doc['error']['code'] == '200':
+            account.api_keytype = API_KEYTYPE_LIMITED
+        elif not 'error' in doc:
+            account.api_keytype = API_KEYTYPE_FULL
+        else:
+            account.api_keytype = API_KEYTYPE_UNKNOWN
 
-    account.save()
-    if account.user:
-         update_user_access.delay(user=account.user.id)
+        account.api_last_updated = datetime.utcnow()
+        account.save()
+
+    # Process the account's character list
+    charlist = account.characters.all().values_list('id', flat=True)
+    for char in doc['result']['characters']:
+        import_eve_character.delay(char['characterID'], api_key, api_userid, callback=link_char_to_account.subtask(account=account.id)).wait()
 
     return account
+
+
+@task(ignore_result=True)
+def link_char_to_account(character, account):
+    acc = EVEAccount.objects.get(id=account)
+    char = EVEPlayerCharacter.objects.get(id=character)
+
+    acc.characters.add(char)
+
+    if acc.user:
+        update_user_access.delay(user=acc.user.id)

@@ -9,6 +9,7 @@ from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
 from eve_api.utils import basic_xml_parse_doc
 from eve_api.tasks.corporation import import_corp_details, import_corp_details_result
 
+from django.core.exceptions import ValidationError
 
 @task(ignore_result=True)
 def import_alliance_details():
@@ -21,13 +22,10 @@ def import_alliance_details():
 
     for alliance in basic_xml_parse_doc(doc)['eveapi']['result']['alliances']:
         allobj, created = EVEPlayerAlliance.objects.get_or_create(pk=alliance['allianceID'])
-        if created:
-            allobj.name = alliance['name']
-            allobj.ticker = alliance['shortName']
-            allobj.date_founded = alliance['startDate']
+        allobj.name = alliance['name']
+        allobj.ticker = alliance['shortName']
+        allobj.date_founded = datetime.strptime(alliance['startDate'],"%Y-%m-%d %H:%M:%S")
         allobj.executor, created = EVEPlayerCorporation.objects.get_or_create(id=alliance['executorCorpID'])
-        if created:
-            import_corp_details.delay(alliance['executorCorpID'])
         allobj.member_count = alliance['memberCount']
         allobj.api_last_updated = datetime.utcnow()
         allobj.save()
@@ -37,12 +35,8 @@ def import_alliance_details():
         validcorps = []
         for corp in alliance['memberCorporations']:
             if int(corp['corporationID']) not in corplist:
-                corpobj, created = EVEPlayerCorporation.objects.get_or_create(pk=corp['corporationID'])
-                corpobj.alliance = allobj
-                corpobj.save()
-
-                if created:
-                    import_corp_details.delay(corp['corporationID'])
+                import_corp_details.delay(corp['corporationID'])
+                pass
             validcorps.append(int(corp['corporationID']))
 
         delcorps = set(corplist) - set(validcorps)
