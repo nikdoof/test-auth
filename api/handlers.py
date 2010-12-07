@@ -216,7 +216,12 @@ class BlacklistHandler(BaseHandler):
 
 class CharacterHandler(BaseHandler):
     allowed_methods = ('GET')
-    exclude = ('_state',)
+
+    fields = ('id', 'name', ('corporation', ('id', 'name', ('alliance', ('id', 'name')))), 'corporation_date', 'balance', 'total_sp', 'security_status', 'director', 'skillset')
+
+    @classmethod
+    def skillset(cls, instance):
+        return instance.eveplayercharacterskill_set.all().values('skill__id', 'skill__name', 'level', 'skillpoints')
 
     def read(self, request):
         s = []
@@ -227,6 +232,5 @@ class CharacterHandler(BaseHandler):
             s = EVEPlayerCharacter.objects.filter(corporation__id=request.GET['corpid'])
         elif request.GET.get('allianceid', None):
             s = EVEPlayerCharacter.objects.filter(corporation__alliance__id=request.GET['allianceid'])
-
-        return {'characters': s}
+        return s
 
