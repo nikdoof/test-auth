@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.core import serializers
 
-from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter
+from eve_api.models import EVEAccount, EVEPlayerCharacter
 from eve_api.tasks import import_apikey, import_apikey_result
 
 from eve_proxy.models import ApiAccessLog
@@ -50,6 +50,12 @@ def characters(request, charid=0):
 
     if charid:
         character = get_object_or_404(EVEPlayerCharacter.objects.select_related('corporation', 'corporation__aliance'), id=charid)
+        skills = {}
+        for s in character.eveplayercharacterskill_set.all().order_by('skill__group__name', 'skill'):
+            if not s.skill.group.name in skills:
+                skills[s.skill.group.name] = [s]
+            else:
+                skills[s.skill.group.name].append(s)
         return render_to_response('sso/character.html', locals(), context_instance=RequestContext(request))
 
     characters = EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=request.user).only('id', 'name', 'corporation__name', 'corporation__alliance__name')

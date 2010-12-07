@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 import settings
-from eve_api.models.api_player import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
+from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 from sso.models import ServiceAccount, Service
 from reddit.models import RedditAccount
 from registration.forms import RegistrationForm
