@@ -34,8 +34,8 @@ class SSOUser(models.Model):
 
     api_service_password = models.CharField("API Services Password", max_length=200, blank=True)
 
-    def __str__(self):
-        return self.user.__str__()
+    def __unicode__(self):
+        return self.user.__unicode__()
 
     @staticmethod
     def create_user_profile(sender, instance, created, **kwargs):   
@@ -88,7 +88,7 @@ class Service(models.Model):
         api.settings = self.settings
         return api
 
-    def __str__(self):
+    def __unicode__(self):
         return self.name
 
     def save(self):
@@ -139,8 +139,8 @@ class ServiceAccount(models.Model):
         verbose_name_plural = 'Service Accounts'
         ordering = ['user']
 
-    def __str__(self):
-        return "%s: %s (%s)" % (self.service.name, self.user.username, self.service_uid)
+    def __unicode__(self):
+        return u"%s: %s (%s)" % (self.service.name, self.user.username, self.service_uid)
 
     def save(self):
         if self.id:

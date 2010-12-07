@@ -19,9 +19,6 @@ class AuthAPIKey(models.Model):
     def __unicode__(self):
         return self.name
 
-    def __str__(self):
-        return self.__unicode__()
-
     class Meta:
         verbose_name = 'API Key'
         verbose_name_plural = "API Keys"

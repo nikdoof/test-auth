@@ -18,6 +18,10 @@ class Application(models.Model):
                                      verbose_name="Status",
                                      help_text="Current status of this application request.")
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('hr.views.view_application', [self.id])
+
     @property
     def blacklisted(self):
         if len(self.blacklist_values) > 0:
@@ -97,9 +101,6 @@ class Application(models.Model):
     def __unicode__(self):
         return self.character.name
 
-    def __str__(self):
-        return self.__unicode__()
-
 
 class Recommendation(models.Model):
     """ User recommendation for a application """
@@ -108,11 +109,12 @@ class Recommendation(models.Model):
     user_character = models.ForeignKey(EVEPlayerCharacter, blank=False, verbose_name="Recommender")
     application = models.ForeignKey(Application, blank=False, verbose_name="Recommended Application")
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('hr.views.view_application', [self.application.id])
+
     def __unicode__(self):
         return self.user_character.name
-
-    def __str__(self):
-        return self.__unicode__()
 
 
 class Audit(models.Model):
@@ -127,6 +129,13 @@ class Audit(models.Model):
                                      help_text="Detailed event text")
     date = models.DateTimeField(auto_now_add=True, verbose_name="Event Date")
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('hr.views.view_application', [self.application.id])
+
+    def __unicode__(self):
+        return u"(%s) %s: %s" % (self.get_event_display(), self.user, self.text)
+
 
 class BlacklistSource(models.Model):
     """ Blacklist Source """
@@ -136,9 +145,6 @@ class BlacklistSource(models.Model):
 
     def __unicode__(self):
         return self.name
-
-    def __str__(self):
-        return self.__unicode__()
 
 
 class Blacklist(models.Model):
@@ -158,6 +164,3 @@ class Blacklist(models.Model):
 
     def __unicode__(self):
         return u'%s: %s' % (self.get_type_display(), self.value)
-
-    def __str__(self):
-        return self.__unicode__()
