@@ -5,7 +5,7 @@ from celery.decorators import task
 
 from eve_proxy.models import CachedDocument
 
-from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerCharacterRole
+from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerCharacterRole, EVEPlayerCharacterSkill, EVESkill
 from eve_api.app_defines import *
 from eve_api.utils import basic_xml_parse, basic_xml_parse_doc
 
@@ -62,6 +62,17 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
             pchar.attrib_willpower = values['attributes']['willpower']
             pchar.attrib_memory = values['attributes']['memory']
 
+
+            # Process the character's skills
+            pchar.total_sp = 0
+            for skill in values.get('skills', None):
+                skillobj, created = EVESkill.objects.get_or_create(id=skill['typeID'])
+                charskillobj, created = EVEPlayerCharacterSkill.objects.get_or_create(skill=skillobj, character=pchar)
+                charskillobj.level = int(skill['level'])
+                charskillobj.skillpoints = int(skill['skillpoints'])
+                charskillobj.save()
+                pchar.total_sp = pchar.total_sp + int(skill['skillpoints'])
+
             # Process the character's roles
             pchar.director = False
             pchar.roles.clear()
@@ -78,10 +89,6 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
             else:
                 pchar.gender = API_GENDER_FEMALE
 
-            total = 0
-            for skill in values['skills']:
-                total = total + int(skill['skillpoints'])
-            pchar.total_sp = total
 
     pchar.api_last_updated = datetime.utcnow()
     pchar.save()

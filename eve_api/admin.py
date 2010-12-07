@@ -47,3 +47,14 @@ class EVEPlayerCorporationAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'ticker', 'member_count', 'alliance')
     search_fields = ['name', 'ticker']
 admin.site.register(EVEPlayerCorporation, EVEPlayerCorporationAdmin)
+
+class EVESkillAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'group' )
+    search_fields = ['id', 'name']
+admin.site.register(EVESkill, EVESkillAdmin)
+
+class EVESkillGroupAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', )
+    search_fields = ['id', 'name']
+admin.site.register(EVESkillGroup, EVESkillGroupAdmin)
+

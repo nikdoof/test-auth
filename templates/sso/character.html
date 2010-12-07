@@ -17,7 +17,6 @@
 <li>Corporation: {{ character.corporation.name }}</li>
 <li>Joined Corporation: {{ character.corporation_date }}</li>
 <li>Alliance: {{ character.corporation.alliance.name }}</li>
-<li>Total SP: {{ character.total_sp|intcomma }}</li>
 <li>Security Status: {{ character.security_status }}</li>
 <li>Director: {{ character.director }}</li>
 </ul>
@@ -29,6 +28,19 @@
 <tr><td>Charisma</td><td>{{ character.attrib_charisma }}</td></tr>
 <tr><td>Perception</td><td>{{ character.attrib_perception }}</td></tr>
 <tr><td>Willpower</td><td>{{ character.attrib_willpower }}</td></tr>
+</table>
+<br/>
+
+<h2>Skills</h2>
+
+<table width="350px">
+{% for g ,v in skills.items %}
+<tr><th colspan=3>{{ g }}</th</tr>
+{% for skill in v %}
+<tr><td>{{ skill.skill.name }} </td><td>Level {{ skill.level }}</td><td>{{ skill.skillpoints|intcomma }} SP</td></tr>
+{% endfor %}
+{% endfor %}
+<tr><th colspan=2>Total SP</th><th>{{ character.total_sp|intcomma }} SP</td></tr>
 </table>
 
 {% endblock %}

@@ -51,7 +51,11 @@ class EVEPlayerCharacterSkill(models.Model):
     """
     character = models.ForeignKey('eve_api.EVEPlayerCharacter')
     skill = models.ForeignKey('eve_api.EVESkill')
-    level = models.IntegerField()
+    level = models.IntegerField(default=0)
+    skillpoints = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        return u"%s - Level %s" % (self.skill, self.level)
 
     class Meta:
         app_label = 'eve_api'

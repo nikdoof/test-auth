@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 from api.models import AuthAPIKey, AuthAPILog
 from eve_proxy.models import CachedDocument
 from eve_proxy.exceptions import *
-from eve_api.models import EVEAccount
+from eve_api.models import EVEAccount, EVEPlayerCharacter
 from sso.models import ServiceAccount, Service
 from hr.models import Blacklist
 
@@ -212,3 +212,21 @@ class BlacklistHandler(BaseHandler):
             obj = []
 
         return obj
+
+
+class CharacterHandler(BaseHandler):
+    allowed_methods = ('GET')
+    exclude = ('_state',)
+
+    def read(self, request):
+        s = []
+
+        if request.GET.get('id', None):
+            s = get_object_or_404(EVEPlayerCharacter, pk=id)
+        elif request.GET.get('corpid', None):
+            s = EVEPlayerCharacter.objects.filter(corporation__id=request.GET['corpid'])
+        elif request.GET.get('allianceid', None):
+            s = EVEPlayerCharacter.objects.filter(corporation__alliance__id=request.GET['allianceid'])
+
+        return {'characters': s}
+

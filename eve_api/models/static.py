@@ -11,6 +11,7 @@ class EVESkill(models.Model):
     """ Represents a skill in EVE Online """
 
     name = models.CharField(blank=True, max_length=255)
+    group = models.ForeignKey('eve_api.EVESkillGroup', null=True)
     description = models.TextField(blank=True)    
 
     def __unicode__(self):
@@ -23,6 +24,23 @@ class EVESkill(models.Model):
         app_label = 'eve_api'
         verbose_name = 'Character Skill'
         verbose_name_plural = 'Character Skills'
+
+
+class EVESkillGroup(models.Model):
+    """ Represents a skill group in EVE Online """
+
+    name = models.CharField(blank=True, max_length=255)
+
+    def __unicode__(self):
+        if self.name:
+            return self.name
+        else:
+            return u"Skill Group %d" % self.id
+
+    class Meta:
+        app_label = 'eve_api'
+        verbose_name = 'Character Skill Group'
+        verbose_name_plural = 'Character Skill Groups'
 
 
 class EVEPlayerCharacterRole(models.Model):
