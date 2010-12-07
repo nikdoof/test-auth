@@ -4,7 +4,7 @@ django-registration==0.7
 yolk==0.4.1
 -e hg+http://bitbucket.org/schinckel/django-jsonfield@acb6b4fd7312#egg=django-jsonfield
 xmlrpclib==1.0.1
-South==0.7.1
+South==0.7.3
 fabric==0.9.1
 flup
 django-debug-toolbar==0.8.3
