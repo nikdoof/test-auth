@@ -34,7 +34,9 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
     corp, created = EVEPlayerCorporation.objects.get_or_create(id=values['corporationID'])
 
     from eve_api.tasks.corporation import import_corp_details
-    import_corp_details.delay(values['corporationID'])
+
+    if created or not corp.name:
+        import_corp_details.delay(values['corporationID'])
 
     pchar.corporation = corp
     pchar.corporation_date = values['corporationDate']

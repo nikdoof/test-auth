@@ -49,11 +49,10 @@ def import_corp_details_func(corp_id):
             setattr(corpobj, logo_map[1], d['logo'][logo_map[0]])
 
         corpobj.alliance, created = EVEPlayerAlliance.objects.get_or_create(id=d['allianceID'])
-
-        import_eve_character.delay(d['ceoID'], callback=link_ceo.subtask(corporation=corpobj.id))
-
         corpobj.api_last_updated = datetime.utcnow()
         corpobj.save()
+
+        import_eve_character.delay(d['ceoID'], callback=link_ceo.subtask(corporation=corpobj.id))
 
     return EVEPlayerCorporation.objects.get(pk=corpobj.pk)
 
@@ -61,9 +60,7 @@ def import_corp_details_func(corp_id):
 @task(ignore_result=True)
 def link_ceo(corporation, character):
     """ Links a character to the CEO position of a corporation """
-    corpobj = EVEPlayerCorporation.objects.get(id=corporation)
-    corpobj.ceo_character = EVEPlayerCharacter.objects.get(id=character)
-    corpobj.save()
+    corpobj = EVEPlayerCorporation.objects.get(id=corporation).update(ceo_character=EVEPlayerCharacter.objects.get(id=character))
 
 
 @task(ignore_result=True)
@@ -83,14 +80,6 @@ def import_corp_members(api_userid, api_key, character_id):
     corp = EVEPlayerCharacter.objects.get(id=character_id).corporation
 
     for character in set:
-        import_eve_character.delay(character['characterID'], callback=update_character_tracking.subtask(tracking_details=character))
-
-@task()
-def update_character_tracking(character, tracking_details):
-    charobj = EVEPlayerCharacter.objects.get(id=character)
-
-    charobj.last_login = tracking_details['logonDateTime']
-    charobj.last_logoff = tracking_details['logoffDateTime']
-    charobj.current_location_id = int(tracking_details['locationID'])
-    charobj.save()
+        charobj = EVEPlayerCharacter.objects.filter(id=character['characterID'])
+        charobj.update(last_login=tracking_details['logonDateTime'], last_logoff=tracking_details['logoffDateTime'], current_location_id=int(tracking_details['locationID']))
 
