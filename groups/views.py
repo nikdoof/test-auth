@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 
+from groups.models import GroupInformation
 from groups.app_defines import *
 from groups.forms import GroupRequestForm
 
@@ -28,6 +29,10 @@ def group_list(request):
     # Process the query into a list of tuples including status
     group_list = []
     for group in set(groups):
+
+        if not group.groupinformation:
+            GroupInformation(group=group).save()
+
         if request.user in group.groupinformation.admins.all():
             status = "Admin"
         elif request.user in group.user_set.all():
