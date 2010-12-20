@@ -169,11 +169,11 @@ CELERYBEAT_SCHEDULE = {
         "schedule": timedelta(minutes=10),
     },
     "eveapi-update": {
-        "task": "eve_api.tasks.queue_apikey_updates",
+        "task": "eve_api.tasks.account.queue_apikey_updates",
         "schedule": timedelta(minutes=10),
     },
     "alliance-update": {
-        "task": "eve_api.tasks.import_alliance_details",
+        "task": "eve_api.tasks.alliance.import_alliance_details",
         "schedule": timedelta(hours=6),
     },
 }
