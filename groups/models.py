@@ -19,7 +19,7 @@ class GroupInformation(models.Model):
     def save(self, *args, **kwargs):
         if self.group and (self.group.eveplayercorporation_set.count() or self.group.eveplayeralliance_set.count()):
             self.type = GROUP_TYPE_MANAGED
-        models.Model.save(*args, **kwargs)
+        models.Model.save(self, *args, **kwargs)
 
     @staticmethod
     def create_group(sender, instance, created, **kwargs):

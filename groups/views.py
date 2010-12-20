@@ -31,16 +31,16 @@ def group_list(request):
     for group in set(groups):
 
         if not group.groupinformation:
-            GroupInformation(group=group).save()
+            g, c = GroupInformation.objects.get_or_create(group=group)
 
-        if request.user in group.groupinformation.admins.all():
+        if group.groupinformation and request.user in group.groupinformation.admins.all():
             status = "Admin"
         elif request.user in group.user_set.all():
             status = "Member"
         else:
             status = None
 
-        if group.groupinformation.requestable and not group.groupinformation.type == GROUP_TYPE_MANAGED:
+        if group.groupinformation and group.groupinformation.requestable and not group.groupinformation.type == GROUP_TYPE_MANAGED:
             requestable = True
         else:
             requestable = False
