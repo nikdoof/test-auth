@@ -155,6 +155,11 @@ FULL_API_CHARACTER_ID = 246102445
 
 BANNED_EMAIL_DOMAINS = ['att.net']
 
+
+## Eve Proxy settings
+
+EVE_PROXY_KEEP_LOGS = 30
+
 # try and import local settings
 try:
     from settingslocal import *
@@ -176,6 +181,9 @@ CELERYBEAT_SCHEDULE = {
         "task": "eve_api.tasks.alliance.import_alliance_details",
         "schedule": timedelta(hours=6),
     },
+    "api-log-clear": {
+        "task": "eve_proxy.tasks.clear_old_logs"
+        "schedule": timedelta(days=1)
 }
 
 CELERY_SEND_TASK_ERROR_EMAILS = True
