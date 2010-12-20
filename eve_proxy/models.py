@@ -54,20 +54,15 @@ class CachedDocumentManager(models.Manager):
         """
 
         url = self.construct_url(url_path, params)
+        doc_key = hashlib.sha1(url).hexdigest()
 
+        
         try:
-            doc = super(CachedDocumentManager, self).get_query_set().get(url_path=url)
-        except self.model.MultipleObjectsReturned:
-            super(CachedDocumentManager, self).get_query_set().filter(url_path=url).delete()
-            doc = CachedDocument(url_path=url)
+            doc = super(CachedDocumentManager, self).get_query_set().get(pk=doc_key)
         except self.model.DoesNotExist:
-            doc = CachedDocument(url_path=url)
+            doc = CachedDocument(pk=doc_key, url_path=url)
 
-        if doc.pk and no_cache:
-            doc.delete()
-            doc = CachedDocument(url_path=url)
-
-        if not doc.cached_until or datetime.utcnow() > doc.cached_until:
+        if not doc.cached_until or datetime.utcnow() > doc.cached_until or no_cache:
 
             req = urllib2.Request(url)
             req.add_header('CCP-Contact', 'matalok@pleaseignore.com')
@@ -113,7 +108,8 @@ class CachedDocument(models.Model):
     """
     This is a cached XML document from the EVE API.
     """
-    url_path = models.CharField(max_length=255, unique=True)
+    doc_key = models.CharField(max_length=40, primary_key=True)
+    url_path = models.CharField(max_length=255)
     body = models.TextField()
     time_retrieved = models.DateTimeField(blank=True, null=True)
     cached_until = models.DateTimeField(blank=True, null=True)
