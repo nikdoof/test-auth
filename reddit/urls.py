@@ -1,7 +1,6 @@
 
 from django.conf.urls.defaults import *
-
-from sso import views
+from reddit import views
 
 urlpatterns = patterns('',
     (r'^profile/add/reddit', views.reddit_add),

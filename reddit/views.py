@@ -1,3 +1,8 @@
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render_to_response, redirect
+from django.template import RequestContext
+from django.contrib import messages
+
 from reddit.forms import RedditAccountForm
 from reddit.models import RedditAccount
 
@@ -15,7 +20,7 @@ def reddit_add(request):
                 acc.api_update()
             except RedditAccount.DoesNotExist:
                 messages.add_message(request, messages.ERROR, "Error, user %s does not exist on Reddit" % acc.username )
-                return render_to_response('sso/redditaccount.html', locals(), context_instance=RequestContext(request))
+                return render_to_response('reddit/add_reddit_account.html', locals(), context_instance=RequestContext(request))
             acc.save()
 
             messages.add_message(request, messages.INFO, "Reddit account %s successfully added." % acc.username)

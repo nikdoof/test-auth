@@ -118,10 +118,10 @@ class UserLookupForm(forms.Form):
     type = forms.ChoiceField(label = u'Search type', choices = choices)
     username = forms.CharField(label = u'User ID', max_length=64)
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         if installed('reddit'):
             self.choices.append((3, "Reddit ID"))
-        forms.Form.__init__(self)
+        forms.Form.__init__(self, *args, **kwargs)
 
 class APIPasswordForm(forms.Form):
 

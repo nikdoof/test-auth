@@ -24,6 +24,6 @@ urlpatterns = patterns('',
 
 if installed('reddit'):
     urlpatterns += patterns('',
-        ('', include('sso.urls')),
+        ('', include('reddit.urls')),
     )
 
