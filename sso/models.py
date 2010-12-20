@@ -10,7 +10,6 @@ from django.utils import simplejson as json
 
 from jsonfield.fields import JSONField
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance, EVEPlayerCharacter
-from reddit.models import RedditAccount
 
 from services import get_api
 

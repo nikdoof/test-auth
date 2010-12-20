@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
 from hr.app_defines import *
 
+from utils import installed
 
 class Application(models.Model):
     """ Person's application to a corporation """
@@ -38,9 +39,10 @@ class Application(models.Model):
         bl_items = Blacklist.objects.filter(models.Q(expiry_date__gt=datetime.now()) | models.Q(expiry_date=None))
 
         # Check Reddit blacklists
-        reddit_uids = self.user.redditaccount_set.all().values_list('username', flat=True)
-        objs = bl_items.filter(type=BLACKLIST_TYPE_REDDIT, value__in=reddit_uids)
-        blacklist.extend(objs)
+        if installed('reddit'):
+            reddit_uids = self.user.redditaccount_set.all().values_list('username', flat=True)
+            objs = bl_items.filter(type=BLACKLIST_TYPE_REDDIT, value__in=reddit_uids)
+            blacklist.extend(objs)
 
         # Check email blacklists
         blacklist.extend(bl_items.filter(type=BLACKLIST_TYPE_EMAIL, value=self.user.email.lower()))

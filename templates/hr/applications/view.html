@@ -2,6 +2,7 @@
 
 {% load humanize %}
 {% load if_extra %}
+{% load installed %}
 
 {% block title %}View Application{% endblock %}
 
@@ -88,7 +89,7 @@
 {% endfor %}
 {% endfor %}
 </table>
-
+{% if "reddit"|installed %}
 {% if app.user.redditaccount_set.all %}
 <h3>Reddit Accounts</h3>
 <table>
@@ -151,7 +152,7 @@ function handleResponse() {
 
 <div id="redditposts">
 </div>
-
+{% endif %}
 {% endif %}
 {% endif %}
 {% endblock %}

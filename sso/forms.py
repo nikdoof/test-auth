@@ -4,9 +4,10 @@ from django import forms
 from django.contrib.auth.models import User
 from django.conf import settings
 
+from utils import installed
+
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 from sso.models import ServiceAccount, Service
-from reddit.models import RedditAccount
 from registration.forms import RegistrationForm
 
 class RegistrationFormUniqueEmailBlocked(RegistrationForm):
@@ -107,50 +108,20 @@ class ServiceAccountResetForm(forms.Form):
             self.fields['password'] = self.password
 
 
-class RedditAccountForm(forms.Form):
-    """ Reddit Account Form """
-
-    username = forms.CharField(label = u'User ID', max_length=64)
-
-    def clean(self):
-        try:
-            eaccount = RedditAccount.objects.get(username=self.cleaned_data['username'])
-        except RedditAccount.DoesNotExist:
-            return self.cleaned_data
-        else:
-            raise forms.ValidationError("This User ID is already registered")
-
 class UserLookupForm(forms.Form):
     """ User Lookup Form """
 
     choices = [ (1, "Auth Username"),
                 (2, "Character"),
-                (3, "Reddit ID"),
                 (4, "Email Address"), ]
 
     type = forms.ChoiceField(label = u'Search type', choices = choices)
     username = forms.CharField(label = u'User ID', max_length=64)
 
-    def clean(self):
-
-        if self.cleaned_data['type'] == 1:
-            try: 
-                acc = User.objects.filter(username=self.cleaned_data['username'])
-            except User.DoesNotExist:
-                raise forms.ValidationError("User doesn't exist")
-        elif self.cleaned_data['type'] == 2:
-            try:
-                acc = EVEPlayerCharacter.filter(name=self.cleaned_data['username'])
-            except User.DoesNotExist:
-                raise forms.ValidationError("Character doesn't exist")
-        elif self.cleaned_data['type'] == 3:
-            try:
-                acc = RedditAccount.filter(name=self.cleaned_data['username'])
-            except User.DoesNotExist:
-                raise forms.ValidationError("Account doesn't exist")
-
-        return self.cleaned_data
-
+    def __init__(self):
+        if installed('reddit'):
+            self.choices.append((3, "Reddit ID"))
+        forms.Form.__init__(self)
 
 class APIPasswordForm(forms.Form):
 

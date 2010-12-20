@@ -1,7 +1,9 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.contrib.auth.views import login
-import settings
+from django.conf import settings
+
+from utils import installed
 
 from registration.views import register
 from sso.forms import RegistrationFormUniqueEmailBlocked
@@ -17,8 +19,11 @@ urlpatterns = patterns('',
     (r'^api/', include('api.urls')),
     (r'^hr/', include('hr.urls')),
     (r'^groups/', include('groups.urls')),
-)
-
-urlpatterns += patterns('',
     (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 )
+
+if installed('reddit'):
+    urlpatterns += patterns('',
+        ('', include('sso.urls')),
+    )
+

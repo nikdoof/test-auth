@@ -38,3 +38,18 @@ def dump(qs, outfile_path, model=None):
 			row.append(val)
 		writer.writerow(row)
 
+
+def installed(value):
+    from django.conf import settings
+    apps = settings.INSTALLED_APPS
+    if "." in value:
+        for app in apps:
+            if app == value:
+                return True
+    else:
+        for app in apps:
+            fields = app.split(".")
+            if fields[-1] == value:
+                return True
+    return False
+

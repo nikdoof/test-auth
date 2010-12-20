@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load naturaltimediff %}
+{% load installed %}
 
 {% block title %}Your Profile{% endblock %}
 
@@ -119,6 +120,7 @@ setup.</p>
 
 <br/>
 
+{% if "reddit"|installed %}
 <h2>Reddit Accounts</h2>
 <p>This is a list of all your current linked Reddit accounts</p>
 {% if user.redditaccount_set.all %}
@@ -140,6 +142,7 @@ setup.</p>
 <p>
 <a href="{% url sso.views.reddit_add %}">Add a Reddit account</a>
 </p>
+{% endif %}
 
 <p>If you encounter any errors during using this service, copy the massive
 error message into <a href="http://pastebin.com/">Pastebin</a> and give

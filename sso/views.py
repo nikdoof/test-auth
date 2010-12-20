@@ -14,15 +14,15 @@ from django.template import RequestContext
 from django.core import serializers
 from django.conf import settings
 
+from utils import installed
+
 from eve_api.models import EVEAccount, EVEPlayerCharacter
 from eve_api.tasks import import_apikey, import_apikey_result
 
 from eve_proxy.models import ApiAccessLog
 
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
-from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetForm, RedditAccountForm, UserLookupForm, APIPasswordForm
-
-from reddit.models import RedditAccount
+from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm
 
 
 def index(request):
@@ -245,47 +245,6 @@ def service_reset(request, serviceid=0):
     return redirect('sso.views.profile')
 
 @login_required
-def reddit_add(request):
-    """ Add a Reddit account to a user's account """
-
-    if request.method == 'POST': 
-        form = RedditAccountForm(request.POST) 
-        if form.is_valid(): 
-            acc = RedditAccount()
-            acc.user = request.user
-            acc.username = form.cleaned_data['username']
-            try:
-                acc.api_update()
-            except RedditAccount.DoesNotExist:
-                messages.add_message(request, messages.ERROR, "Error, user %s does not exist on Reddit" % acc.username )
-                return render_to_response('sso/redditaccount.html', locals(), context_instance=RequestContext(request))
-            acc.save()
-
-            messages.add_message(request, messages.INFO, "Reddit account %s successfully added." % acc.username)
-            return redirect('sso.views.profile') # Redirect after POST
-    else:
-        defaults = { 'username': request.user.username, }
-        form = RedditAccountForm(defaults) # An unbound form
-
-    return render_to_response('sso/redditaccount.html', locals(), context_instance=RequestContext(request))
-
-@login_required
-def reddit_del(request, redditid=0):
-    """ Delete a Reddit account from a user's account """
-
-    if redditid > 0 :
-        try:
-            acc = RedditAccount.objects.get(id=redditid)
-        except RedditAccount.DoesNotExist:
-            return redirect('sso.views.profile')
-
-        if acc.user == request.user:
-            acc.delete()
-            messages.add_message(request, messages.INFO, "Reddit account successfully deleted.")
-
-    return redirect('sso.views.profile')
-
-@login_required
 def user_view(request, username=None):
     """ View a user's profile as a admin """
 
@@ -301,7 +260,6 @@ def user_view(request, username=None):
     is_admin = request.user.is_staff
     if is_admin:
         services = ServiceAccount.objects.select_related('service').filter(user=user).only('service__name', 'service_uid', 'active')
-        reddits = RedditAccount.objects.filter(user=user).all()
         characters = EVEPlayerCharacter.objects.select_related('corporation').filter(eveaccount__user=user).only('id', 'name', 'corporation__name')
 
     return render_to_response('sso/lookup/user.html', locals(), context_instance=RequestContext(request))
@@ -323,7 +281,7 @@ def user_lookup(request):
                 uid = EVEAccount.objects.filter(characters__name__icontains=form.cleaned_data['username']).values('user')
                 for u in uid: uids.append(u['user'])
                 users = User.objects.filter(id__in=uids).only('username')
-            elif form.cleaned_data['type'] == '3':
+            elif installed('reddit') and form.cleaned_data['type'] == '3':
                 uid = RedditAccount.objects.filter(username__icontains=form.cleaned_data['username']).values('user')
                 for u in uid: uids.append(u['user'])
                 users = User.objects.filter(id__in=uids).only('username')

@@ -70,15 +70,16 @@
 </table>
 {% endif %}
 
+{% if "reddit"|installed %}
 <br/>
 <h2>Reddit Accounts</h2>
-{% if reddits %}
+{% if user.redditaccount_set.all %}
 <table>
 <thead>
 <tr><th>Username</th><th>Created Date</th><th>Validated</th></tr>
 </thead>
 <tbody>
-{% for acc in reddits %}
+{% for acc in user.redditaccount_set.all %}
 <tr><td><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a></td>
     <td>{{ acc.date_created }}</td>
     <td>{% if acc.validated %}Yes{% else %}No{% endif %}</td>
@@ -86,6 +87,7 @@
 {% endfor %}
 </tbody>
 </table>
+{% endif %}
 {% endif %}
 {% endif %}
 

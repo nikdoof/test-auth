@@ -10,8 +10,9 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.conf import settings
 
+from utils import installed
+
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter
-from reddit.models import RedditAccount
 from hr.forms import CreateRecommendationForm, CreateApplicationForm, NoteForm
 from hr.models import Recommendation, Application, Audit
 from app_defines import *
@@ -28,9 +29,9 @@ def send_message(application, message_type, note=None):
     except:
         pass
 
-    if len(application.user.redditaccount_set.all()) > 0:
-        from reddit.tasks import send_reddit_message
-        send_reddit_message.delay(to=application.user.redditaccount_set.all()[0].username, subject=subject, message=message)
+    if installed('reddit') and len(application.user.redditaccount_set.all()) > 0:
+            from reddit.tasks import send_reddit_message
+            send_reddit_message.delay(to=application.user.redditaccount_set.all()[0].username, subject=subject, message=message)
 
 
 def check_permissions(user, application=None):
@@ -87,7 +88,7 @@ def view_application(request, applicationid):
     else:
         return HttpResponseRedirect(reverse('hr.views.index'))
 
-    if request.GET.has_key('redditxhr') and request.is_ajax():
+    if installed('reddit') and request.GET.has_key('redditxhr') and request.is_ajax():
         posts = []
         for acc in app.user.redditaccount_set.all():
             try:

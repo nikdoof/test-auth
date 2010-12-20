@@ -182,8 +182,9 @@ CELERYBEAT_SCHEDULE = {
         "schedule": timedelta(hours=6),
     },
     "api-log-clear": {
-        "task": "eve_proxy.tasks.clear_old_logs"
-        "schedule": timedelta(days=1)
+        "task": "eve_proxy.tasks.clear_old_logs",
+        "schedule": timedelta(days=1),
+    },
 }
 
 CELERY_SEND_TASK_ERROR_EMAILS = True
