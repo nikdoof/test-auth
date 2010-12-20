@@ -2,13 +2,12 @@ import re
 
 from django import forms
 from django.contrib.auth.models import User
+from django.conf import settings
 
-import settings
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 from sso.models import ServiceAccount, Service
 from reddit.models import RedditAccount
 from registration.forms import RegistrationForm
-from settings import BANNED_EMAIL_DOMAINS
 
 class RegistrationFormUniqueEmailBlocked(RegistrationForm):
     """
@@ -27,9 +26,10 @@ class RegistrationFormUniqueEmailBlocked(RegistrationForm):
         return self.cleaned_data['email']
 
         email_domain = self.cleaned_data['email'].split('@')[1]
-        if email_domain in BANNED_EMAIL_DOMAINS:
+        if email_domain in settings.BANNED_EMAIL_DOMAINS:
             raise forms.ValidationError("Your email provider (%s) is banned from registering, please use a different address.")
         return self.cleaned_data['email']
+
 
 class EveAPIForm(forms.Form):
     """ EVE API input form """

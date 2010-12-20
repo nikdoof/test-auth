@@ -1,7 +1,7 @@
 from celery.decorators import task
 from reddit.models import RedditAccount
 from reddit.api import Inbox
-import settings
+from django.conf import settings
 
 @task(ignore_result=True)
 def send_reddit_message(to, subject, message):

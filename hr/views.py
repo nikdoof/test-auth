@@ -8,8 +8,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.template.loader import render_to_string
-
-import settings
+from django.conf import settings
 
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter
 from reddit.models import RedditAccount

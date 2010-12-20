@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.core import serializers
+from django.conf import settings
 
 from eve_api.models import EVEAccount, EVEPlayerCharacter
 from eve_api.tasks import import_apikey, import_apikey_result
@@ -23,7 +24,6 @@ from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetFor
 
 from reddit.models import RedditAccount
 
-import settings
 
 def index(request):
     if request.user:

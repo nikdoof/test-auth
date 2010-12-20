@@ -1,5 +1,5 @@
 from django import forms
-import settings
+from django.conf import settings
 
 from hr.app_defines import *
 from hr.models import Application, Audit
