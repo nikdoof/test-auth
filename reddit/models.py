@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import simplejson as json
 import urllib
-from datetime import datetime
+from datetime import datetime, date
 from reddit.api import Comment
 
 
@@ -63,6 +63,21 @@ class RedditAccount(models.Model):
                 posts.append(item['data'])
 
         return posts
+
+    @property
+    def is_valid(self):
+        if not self.date_created:
+            return False
+
+        # Account 3 months old?
+        if (date.today() - self.date_created.date()).days >= 90:
+            return True
+
+        # Account created after 9/2/10 and before 13/2/10
+        if self.date_created.date() >= date(2010, 2, 9) and self.date_created.date() <= date(2010, 2, 13):
+            return True
+
+        return False
 
 
     class Meta:
