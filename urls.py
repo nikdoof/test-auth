@@ -27,3 +27,8 @@ if installed('reddit'):
         ('', include('reddit.urls')),
     )
 
+if installed('groups'):    
+    urlpatterns += patterns('',
+        (r'^groups/', include('groups.urls')),
+    )
+
