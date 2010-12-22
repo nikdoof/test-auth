@@ -5,10 +5,17 @@ def basic_xml_parse(nodes):
     """ Parses a minidom set of nodes into a tree dict """
     values = {}
     for node in nodes:
+        print node
         if node.nodeType == 1:
             node.normalize()
             if len(node.childNodes) == 1:
-                values[node.tagName] = node.childNodes[0].nodeValue
+                if node.attributes.keys():
+                    values[node.tagName] = {}
+                    for e in node.attributes.keys():
+                        values[node.tagName][e] = node.attributes[e].value
+                    values[node.tagName]['value'] = node.childNodes[0].nodeValue
+                else:
+                    values[node.tagName] = node.childNodes[0].nodeValue
             else:
                 nv = {}
                 if node.tagName == "rowset":
@@ -41,14 +48,3 @@ def basic_xml_parse_doc(doc):
         return basic_xml_parse(dom.childNodes)
 
     return {}
-
-
-def test():
-    doc = CachedDocument.objects.api_query('/server/ServerStatus.xml.aspx')
-    #print basic_xml_parse_doc(doc)
-
-    doc = CachedDocument.objects.api_query('/corp/CorporationSheet.xml.aspx', {'corporationID': 1018389948 })
-    #print basic_xml_parse_doc(doc)
-
-    return basic_xml_parse_doc(CachedDocument.objects.api_query('/eve/AllianceList.xml.aspx'))
-
