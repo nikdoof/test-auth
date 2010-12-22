@@ -82,5 +82,5 @@ def import_corp_members(api_userid, api_key, character_id):
 
     for character in set:
         charobj = EVEPlayerCharacter.objects.filter(id=character['characterID'])
-        charobj.update(last_login=tracking_details['logonDateTime'], last_logoff=tracking_details['logoffDateTime'], current_location_id=int(tracking_details['locationID']))
+        charobj.update(last_login=character['logonDateTime'], last_logoff=character['logoffDateTime'], current_location_id=int(character['locationID']))
 
