@@ -282,6 +282,7 @@ def user_lookup(request):
                 for u in uid: uids.append(u['user'])
                 users = User.objects.filter(id__in=uids).only('username')
             elif installed('reddit') and form.cleaned_data['type'] == '3':
+                from reddit.models import RedditAccount
                 uid = RedditAccount.objects.filter(username__icontains=form.cleaned_data['username']).values('user')
                 for u in uid: uids.append(u['user'])
                 users = User.objects.filter(id__in=uids).only('username')
