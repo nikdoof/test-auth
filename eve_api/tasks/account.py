@@ -95,11 +95,11 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
     # Check API keytype if we have a character and a unknown key status
     if account.api_keytype == API_KEYTYPE_UNKNOWN:
         keycheck = CachedDocument.objects.api_query('/account/AccountStatus.xml.aspx', params=auth_params, no_cache=True)
-        doc = basic_xml_parse_doc(keycheck)['eveapi']
+        keydoc = basic_xml_parse_doc(keycheck)['eveapi']
 
-        if 'error' in doc and doc['error']['code'] == '200':
+        if 'error' in keydoc:
             account.api_keytype = API_KEYTYPE_LIMITED
-        elif not 'error' in doc:
+        elif not 'error' in keydoc:
             account.api_keytype = API_KEYTYPE_FULL
         else:
             account.api_keytype = API_KEYTYPE_UNKNOWN
@@ -109,6 +109,7 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
 
     # Process the account's character list
     charlist = account.characters.all().values_list('id', flat=True)
+    print doc
     for char in doc['result']['characters']:
         import_eve_character.delay(char['characterID'], api_key, api_userid, callback=link_char_to_account.subtask(account=account.id))
 
