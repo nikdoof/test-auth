@@ -117,10 +117,13 @@ class UserLookupForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(UserLookupForm, self).__init__(*args, **kwargs)
+        choices = [ (1, "Auth Username"),
+                    (2, "Character"),
+                    (4, "Email Address"), ]
         if installed('reddit'):
-            self.choices.append((3, "Reddit ID"))
+            choices.append((3, "Reddit ID"))
 
-        self.fields['type'] = forms.ChoiceField(label=u'Search type', choices=self.choices)
+        self.fields['type'] = forms.ChoiceField(label=u'Search type', choices=choices)
         self.fields['username'] = forms.CharField(label = u'User ID', max_length=64)
 
 class APIPasswordForm(forms.Form):
