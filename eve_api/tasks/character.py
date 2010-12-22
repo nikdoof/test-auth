@@ -96,7 +96,7 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
     pchar.save()
 
     try:
-        acc = EVEAccount.object.get(api_user_id=user_id)
+        acc = EVEAccount.objects.get(api_user_id=user_id)
         if pchar.director and acc.api_keytype == API_KEYTYPE_FULL:
             from eve_api.tasks.corporation import import_corp_members
             import_corp_members.delay(api_key=api_key, api_userid=user_id, character_id=pchar.id)
