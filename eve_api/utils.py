@@ -5,7 +5,6 @@ def basic_xml_parse(nodes):
     """ Parses a minidom set of nodes into a tree dict """
     values = {}
     for node in nodes:
-        print node
         if node.nodeType == 1:
             node.normalize()
             if len(node.childNodes) == 1:
