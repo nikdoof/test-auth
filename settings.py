@@ -103,7 +103,7 @@ INSTALLED_APPS = (
     'reddit',
     'hr',
     'sso',
-    'groups',
+#    'groups',
     'api',
 )
 

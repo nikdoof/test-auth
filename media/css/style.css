@@ -101,11 +101,15 @@ border-collapse: collapse;
 border-spacing: 0px;}
 
 table td 
-{background-color: #CCC;
+{
 color: #000;
 padding: 4px;
 text-align: left;
 border: 1px #fff solid;}
+
+table tr { background-color: #CCC; }
+table tr:nth-child(odd) { background-color: #ddd; }
+table tr:hover { background-color: #eed; }
 
 table th
 {background-color: #333;
@@ -115,3 +119,22 @@ text-align: left;
 border-bottom: 2px #fff solid;
 font-size: 12px;
 font-weight: bold;}
+
+.character_info > div { margin-bottom: 2em; }
+.character_info .character_portrait, .character_info .character_corporation, .character_info .character_alliance { float: right; }
+.character_info .character_corporation { clear: right; margin-left: 2em; }
+.character_info .character_corporation span, .character_info .character_alliance span { font-weight: bold; display: block; text-align: center; }
+.character_info .character_attributes ul { margin: .25em 2em; padding: 0; }
+.character_info .character_skills table { width: 100%; }
+.character_info .character_stats table { width: 300px; }
+.character_info .character_attributes .stat { font-weight: bold; }
+.character_skills th { cursor:pointer;cursor:hand; }
+.toggle_off th { background-color: #000; }
+.skill_controls { margin-bottom: .5em; }
+.skill_controls a {
+    background: none repeat scroll 0 0 #CC6600;
+    color: #FFFFFF;
+    display: inline-block;
+    padding: 4px 12px;
+    text-decoration: none;
+}
