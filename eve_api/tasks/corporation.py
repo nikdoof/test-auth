@@ -48,7 +48,7 @@ def import_corp_details_func(corp_id):
         for logo_map in logo_mappings:
             setattr(corpobj, logo_map[1], d['logo'][logo_map[0]])
 
-        if int(d['alliance']):
+        if int(d['allianceID']):
             corpobj.alliance, created = EVEPlayerAlliance.objects.get_or_create(id=d['allianceID'])
         corpobj.api_last_updated = datetime.utcnow()
         corpobj.save()
