@@ -93,12 +93,13 @@
 {% if app.user.redditaccount_set.all %}
 <h3>Reddit Accounts</h3>
 <table>
-<tr><th>Account</th><th>Karma</th><th>Validated</th><th>Creation Date</th></tr>
+<tr><th>Account</th><th>Karma</th><th>Validated</th><th>Creation Date</th><th>Matches Criteria?</th></tr>
 {% for acc in app.user.redditaccount_set.all %}
 <tr><td><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a></td>
     <td>{{ acc.link_karma }} / {{ acc.comment_karma }}</td>
     <td>{% if acc.validated %}Validated{%else %}<b>NOT VALIDATED</b>{% endif %}</td>
     <td>{{ acc.date_created }}</td>
+    <td>{% if acc.is_valid %}<font color="green">Yes</font>{% else %}<font color="red">No</font>{% endif %}</td>
 </tr>
 {% endfor %}
 </table>
