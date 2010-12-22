@@ -91,7 +91,7 @@ class CachedDocumentManager(models.Manager):
             # If we have a error in the ignored error list use the cached doc, otherwise return the new doc
             if not error or not error in ROLLBACK_ERRORS:
                 doc.save()
-                doc = self.get(id=doc.pk)
+                doc = self.get(pk=doc.pk)
 
             # If this is user related, write a log instance
             if params and params.get('userid', None):
