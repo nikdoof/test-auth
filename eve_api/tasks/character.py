@@ -5,7 +5,7 @@ from celery.decorators import task
 
 from eve_proxy.models import CachedDocument
 
-from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerCharacterRole, EVEPlayerCharacterSkill, EVESkill
+from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerCharacterRole, EVEPlayerCharacterSkill, EVESkill, EVEAccount
 from eve_api.app_defines import *
 from eve_api.utils import basic_xml_parse, basic_xml_parse_doc
 
@@ -95,9 +95,13 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
     pchar.api_last_updated = datetime.utcnow()
     pchar.save()
 
-    if pchar.director and api_key and user_id:
-        from eve_api.tasks.corporation import import_corp_members
-        import_corp_members.delay(api_key=api_key, api_userid=user_id, character_id=pchar.id)
+    try:
+        acc = EVEAccount.object.get(api_user_id=user_id)
+        if pchar.director and acc.api_keytype == API_KEYTYPE_FULL:
+            from eve_api.tasks.corporation import import_corp_members
+            import_corp_members.delay(api_key=api_key, api_userid=user_id, character_id=pchar.id)
+    except EVEAccount.DoesNotExist:
+        pass
 
     if callback:
         callback.delay(character=pchar.id)
