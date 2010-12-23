@@ -119,7 +119,7 @@ class Recommendation(models.Model):
     @property
     def is_valid(self):
         diff = datetime.utcnow() - self.user_character.corporation_date
-        if diff.days > settings.HR_RECOMMENDATION_DAYS and self.user_character == self.application.corporation:
+        if diff.days >= settings.HR_RECOMMENDATION_DAYS and self.user_character.corporation == self.application.corporation:
             return True
         return False
 
