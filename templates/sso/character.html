@@ -12,14 +12,16 @@
 	</div>
 	
 	<div class="character_corporation">
-		<span><a href="http://evemaps.dotlan.net/ajax/opensearch?q={{ character.corporation.name }}">{{ character.corporation.ticker }}</a></span>
+		<span><a href="http://evemaps.dotlan.net/corp/{{ character.corporation.name }}">{{ character.corporation.ticker }}</a></span>
 		<img src="http://www.evecorplogo.net/logo.php?id={{ character.corporation.id }}" />
 	</div>
 	
+        {% if character.corporation.alliance %}
 	<div class="character_alliance">
-		<span><a href="http://evemaps.dotlan.net/ajax/opensearch?q={{ character.corporation.alliance.name }}">{{ character.corporation.alliance.ticker }}</a></span>
+		<span><a href="http://evemaps.dotlan.net/alliance/{{ character.corporation.alliance.name }}">{{ character.corporation.alliance.ticker }}</a></span>
 		<img src="http://image.eveonline.com/Alliance/{{ character.corporation.alliance.id }}_64.png" />
 	</div>
+        {% endif %}
 
 	<div class="character_attributes">
 		<h2>Attributes</h2>
@@ -27,9 +29,9 @@
 		<ul>
 			<li><span class="stat">Race:</span> <span class="value">{{ character.get_race_display }}</span></li>
 			<li><span class="stat">Gender:</span> <span class="value">{{ character.get_gender_display }}</span></li>
-			<li><span class="stat">Corporation:</span> <a href="http://evemaps.dotlan.net/ajax/opensearch?q={{ character.corporation.name }}">{{ character.corporation.name }}</a></span></li>
+			<li><span class="stat">Corporation:</span> <a href="http://evemaps.dotlan.net/corp/{{ character.corporation.name }}">{{ character.corporation.name }}</a></span></li>
 			<li><span class="stat">Joined Corporation:</span> <span class="value">{{ character.corporation_date }}</span></li>
-			<li><span class="stat">Alliance:</span> <span class="value"><a href="http://evemaps.dotlan.net/ajax/opensearch?q={{ character.corporation.alliance.name }}">{{ character.corporation.alliance.name }}</a></span></li>
+			<li><span class="stat">Alliance:</span> <span class="value"><a href="http://evemaps.dotlan.net/alliance/{{ character.corporation.alliance.name }}">{{ character.corporation.alliance.name }}</a></span></li>
 			<li><span class="stat">Security Status:</span> {{ character.security_status }}</span></li>
 			<li><span class="stat">Director:</span> <span class="value">{{ character.director }}</span></li>
 		</ul>
@@ -56,9 +58,11 @@
 			<a href=#" id="collapseAll">Collapse All</a>
 		</div>
 		<table>
-			{% for g ,v in skills.items %}
-			<tr class="skill_heading"><th colspan=3>{{ g }}</th</tr>
-			{% for skill in v %}
+
+                        {% regroup skills by skill.group as skill_group %}
+                        {% for group in skill_group %}
+			<tr class="skill_heading"><th colspan=3>{{ group.grouper }}</th</tr>
+			{% for skill in group.list %}
 			<tr style="display:none;"><td>{{ skill.skill.name }} </td><td>Level {{ skill.level }}</td><td>{{ skill.skillpoints|intcomma }} SP</td></tr>
 			{% endfor %}
 			{% endfor %}
