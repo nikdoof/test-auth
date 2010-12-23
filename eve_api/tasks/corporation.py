@@ -61,7 +61,7 @@ def import_corp_details_func(corp_id):
 @task(ignore_result=True)
 def link_ceo(corporation, character):
     """ Links a character to the CEO position of a corporation """
-    corpobj = EVEPlayerCorporation.objects.get(id=corporation).update(ceo_character=EVEPlayerCharacter.objects.get(id=character))
+    corpobj = EVEPlayerCorporation.objects.filter(id=corporation).update(ceo_character=EVEPlayerCharacter.objects.get(id=character))
 
 
 @task(ignore_result=True)
