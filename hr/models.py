@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
@@ -114,6 +115,13 @@ class Recommendation(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('hr.views.view_application', [self.application.id])
+
+    @property
+    def is_valid(self):
+        diff = datetime.utcnow() - self.user_character.corporation_date
+        if diff.days > settings.HR_RECOMMENDATION_DAYS and self.user_character == application.corporation:
+            return True
+        return False
 
     def __unicode__(self):
         return self.user_character.name
