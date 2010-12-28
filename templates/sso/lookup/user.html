@@ -60,13 +60,16 @@
 </table>
 {% endif %}
 <br/>
-{% if characters %}
+{% if user.eveaccount_set.all %}
 <table>
 <tr><th>Character Name</th><th>Corp</th></tr>
-{% for char in characters %}
+{% for acc in user.eveaccount_set.all %}
+<tr><td span=2>Account {{ acc.api_user_id }}</td></tr>
+{% for char in acc.characters.all %}
 <tr><td><a href="{% url sso.views.characters char.id %}">{{ char.name }}</a></td>
     <td>{{ char.corporation }}</td>
 </tr>
+{% endfor %}
 {% endfor %}
 </table>
 {% endif %}
