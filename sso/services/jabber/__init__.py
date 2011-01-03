@@ -94,7 +94,7 @@ class JabberService(BaseService):
 
         return grouplist
 
-    def update_groups(self, uid, groups):
+    def update_groups(self, uid, groups, character=None):
         username, server = uid.split("@")
 
         current_groups = self.get_group_list(uid)

@@ -45,7 +45,7 @@ class PhpBBService(BaseDBService):
         self.update_groups(username)
         return { 'username': username, 'password': password }
 
-    def update_groups(self, username):
+    def update_groups(self, username, groups, character=None):
         self._dbcursor.execute(self.SQL_CHECK_USER, [self._clean_username(username)])
         row = self._dbcursor.fetchone()
         user_id = row['user_id']

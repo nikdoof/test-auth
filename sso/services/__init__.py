@@ -63,7 +63,7 @@ class BaseService():
         """ Login the user and provide cookies back """ 
         pass
 
-    def update_groups(self, uid, groups):
+    def update_groups(self, uid, groups, character=None):
         """" Update the UID's groups based on the provided list """
         pass
 

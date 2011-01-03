@@ -142,7 +142,7 @@ class TS3Service(BaseService):
 
         return outlist
 
-    def update_groups(self, uid, groups):
+    def update_groups(self, uid, groups, character=None):
         """ Update the UID's groups based on the provided list """
 
         cldbid = self._get_userid(uid)
@@ -164,6 +164,15 @@ class TS3Service(BaseService):
             for g in groups:
                 if g.name in usrgrplist:
                     del usrgrplist[g.name]
+
+            # Add to corporation groups
+            if character and character.corporation:
+                if character.corporation.name in usrgrplist:
+                    del usrgrplist[character.corporation.name]
+                else:
+                    if not character.corporation.name in tsgrplist:
+                        tsgrplist[g.name] = self._create_group(character.corporation.name)
+                    self.conn.send_command('servergroupaddclient', {'sgid': tsgrplist[character.corporation.name], 'cldbid': cldbid })
 
             # Remove ignored and admin groups
             for k, v in usrgrplist.items():

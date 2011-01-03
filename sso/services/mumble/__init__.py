@@ -132,7 +132,7 @@ class MumbleService(BaseService):
 
         return acls
 
-    def update_groups(self, uid, groups):
+    def update_groups(self, uid, groups, character=None):
         """ Update the UID's groups based on the provided list """
         
         user = self.mumblectl.getRegisteredPlayers(self.settings['mumble_server_id'], uid)

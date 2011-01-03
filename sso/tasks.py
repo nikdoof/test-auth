@@ -73,4 +73,4 @@ def update_user_access(user):
 def update_service_groups(user_id):
     for service in ServiceAccount.objects.filter(user=user_id, active=True).select_related('service__api'):
         api = service.service.api_class
-        api.update_groups(service.service_uid, service.user.groups.all())
+        api.update_groups(service.service_uid, service.user.groups.all(), service.character)
