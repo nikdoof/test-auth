@@ -19,6 +19,7 @@ class Application(models.Model):
                                      default=APPLICATION_STATUS_NOTSUBMITTED,
                                      verbose_name="Status",
                                      help_text="Current status of this application request.")
+    application_date = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
 
     @models.permalink
     def get_absolute_url(self):
@@ -111,6 +112,7 @@ class Recommendation(models.Model):
     user = models.ForeignKey(User, blank=False, verbose_name="User")
     user_character = models.ForeignKey(EVEPlayerCharacter, blank=False, verbose_name="Recommender")
     application = models.ForeignKey(Application, blank=False, verbose_name="Recommended Application")
+    recommendation_date = models.DateTimeField(auto_now_add=True, verbose_name="Recommendation Date")
 
     @models.permalink
     def get_absolute_url(self):
@@ -118,7 +120,7 @@ class Recommendation(models.Model):
 
     @property
     def is_valid(self):
-        diff = datetime.utcnow() - self.user_character.corporation_date
+        diff = self.recommendation_date - self.user_character.corporation_date
         if diff.days >= settings.HR_RECOMMENDATION_DAYS and self.user_character.corporation == self.application.corporation:
             return True
         return False
