@@ -78,5 +78,5 @@ def update_service_groups(user_id):
         try:
             api.update_groups(service.service_uid, service.user.groups.all(), service.character)
         except:
-            print "Error updating %s %s" 5 (service.service, service.service_uid)
+            print "Error updating %s %s" % (service.service, service.service_uid)
             pass
