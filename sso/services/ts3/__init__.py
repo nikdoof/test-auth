@@ -162,12 +162,12 @@ class TS3Service(BaseService):
 
             # Add to corporation groups
             if character and character.corporation:
-                if character.corporation.name in usrgrplist:
-                    del usrgrplist[character.corporation.name]
+                if character.corporation.ticker in usrgrplist:
+                    del usrgrplist[character.corporation.ticker]
                 else:
-                    if not character.corporation.name in tsgrplist:
-                        tsgrplist[character.corporation.name] = self._create_group(character.corporation.name)
-                    self.conn.send_command('servergroupaddclient', {'sgid': tsgrplist[character.corporation.name], 'cldbid': cldbid })
+                    if not character.corporation.ticker in tsgrplist:
+                        tsgrplist[character.corporation.ticker] = self._create_group(character.corporation.ticker)
+                    self.conn.send_command('servergroupaddclient', {'sgid': tsgrplist[character.corporation.ticker], 'cldbid': cldbid })
 
             # Remove OKed groups from the delete list
             for g in groups:
