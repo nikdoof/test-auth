@@ -69,8 +69,10 @@ class CachedDocumentManager(models.Manager):
             try:
                 conn = urllib2.urlopen(req)
             except urllib2.HTTPError, e:
+                print "HTTP Error Code: %s" % e.code
                 raise DocumentRetrievalError(e.code)
             except urllib2.URLError, e:
+                print "URLError: %s" % e.reason
                 raise DocumentRetrievalError(e.reason)
 
             doc.body = unicode(conn.read(), 'utf-8')
