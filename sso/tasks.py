@@ -42,10 +42,12 @@ def update_user_access(user):
     addgroups = set(chargroups) - set(set(user.groups.all()) & set(corpgroups))
 
     for g in delgroups:
-        user.groups.remove(g)
+        if g in user.groups.all():
+            user.groups.remove(g)
 
     for g in addgroups:
-        user.groups.add(g)
+        if not g in user.groups.all():
+            user.groups.add(g)
 
     # For users set to not active, delete all accounts
     if not user.is_active:
