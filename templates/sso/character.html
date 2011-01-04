@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load humanize %}
-
+{% load naturaltimediff %}
 {% block content %}
 
 <div class="character_info">
@@ -30,7 +30,7 @@
 			<li><span class="stat">Race:</span> <span class="value">{{ character.get_race_display }}</span></li>
 			<li><span class="stat">Gender:</span> <span class="value">{{ character.get_gender_display }}</span></li>
 			<li><span class="stat">Corporation:</span> <a href="http://evemaps.dotlan.net/corp/{{ character.corporation.name }}">{{ character.corporation.name }}</a></span></li>
-			<li><span class="stat">Joined Corporation:</span> <span class="value">{{ character.corporation_date }}</span></li>
+			<li><span class="stat">Joined Corporation:</span> <span class="value">{{ character.corporation_date|date:"Y/m/d H:i:s" }} ({{ character.corporation_date|naturaltimediff }})</span></li>
 			<li><span class="stat">Alliance:</span> <span class="value"><a href="http://evemaps.dotlan.net/alliance/{{ character.corporation.alliance.name }}">{{ character.corporation.alliance.name }}</a></span></li>
 			<li><span class="stat">Security Status:</span> {{ character.security_status }}</span></li>
 			<li><span class="stat">Director:</span> <span class="value">{{ character.director }}</span></li>
@@ -76,7 +76,7 @@
 	$(function(){
 		$(".skill_heading").bind("click", function(){
 			$this = $(this);
-			$this.nextUntil(".skill_heading").toggle();
+			$this.nextUntil(".skill_heading").toggle('fast');
 			
 			if($this.hasClass("toggle_off")){
 				$this.removeClass("toggle_off").removeClass("toggle_on");
