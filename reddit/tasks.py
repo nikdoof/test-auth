@@ -19,7 +19,8 @@ class send_reddit_message(Task):
             ib.send(to, subject, message)
         except (HTTPError, URLError), exc:
             logger.error("Error sending message, queueing for retry")
-            self.retry([to, subject, message], kwargs=kwargs, exc=exc)
+            send_reddit_message.retry(args=[to, subject, message], kwargs=kwargs, exc=exc)
+            pass
         except LoginError, exc:
             logger.error("Error logging into Reddit")
 
