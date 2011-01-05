@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from xml.dom import minidom
 
 from celery.decorators import task
-from celery.task.set import subtask
+from celery.task.sets import subtask
 
 from eve_proxy.models import CachedDocument
 

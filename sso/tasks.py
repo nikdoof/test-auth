@@ -13,7 +13,7 @@ signals.post_delete.connect(eveapi_deleted, sender=EVEAccount)
 
 
 @task()
-def update_user_access(user):
+def update_user_access(user, **kwargs):
     """ Process all corporate and alliance entries and correct access groups """
 
     user = User.objects.get(id=user)
