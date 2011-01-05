@@ -98,7 +98,7 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
     try:
         acc = EVEAccount.objects.get(api_user_id=user_id)
 
-        if not char in acc.characters.all():
+        if not pchar in acc.characters.all():
             acc.characters.add(pchar)
 
         if pchar.director and acc.api_keytype == API_KEYTYPE_FULL:

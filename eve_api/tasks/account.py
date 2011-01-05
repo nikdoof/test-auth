@@ -113,7 +113,7 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
     charlist = set(account.characters.all().values_list('id', flat=True))
     newcharlist = []
     for char in doc['result']['characters']:
-        tasklist.append(import_eve_character.subtask(char['characterID'], api_key, api_userid))
+        tasklist.append(import_eve_character.subtask(args=(char['characterID'], api_key, api_userid)))
         newcharlist.append(int(char['characterID']))
 
     toremove = charlist - set(newcharlist)
@@ -122,7 +122,7 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
 
     # If we have a user, update their details in the taskset
     if account.user:
-        tasklist.append(update_user_access.subtask(user=account.user.id))
+        tasklist.append(update_user_access.subtask(kwargs={'user': account.user.id }))
 
     ts = TaskSet(tasks=tasklist)
     ts.apply_async()
