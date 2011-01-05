@@ -64,15 +64,15 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
             pchar.attrib_willpower = values['attributes']['willpower']
             pchar.attrib_memory = values['attributes']['memory']
 
-
             # Process the character's skills
             pchar.total_sp = 0
             for skill in values.get('skills', None):
                 skillobj, created = EVESkill.objects.get_or_create(id=skill['typeID'])
                 charskillobj, created = EVEPlayerCharacterSkill.objects.get_or_create(skill=skillobj, character=pchar)
-                charskillobj.level = int(skill['level'])
-                charskillobj.skillpoints = int(skill['skillpoints'])
-                charskillobj.save()
+                if created or not charskillobj.level == int(skill['level']) or not charskillobj.skillpoints == int(skill['skillpoints']):
+                    charskillobj.level = int(skill['level'])
+                    charskillobj.skillpoints = int(skill['skillpoints'])
+                    charskillobj.save()
                 pchar.total_sp = pchar.total_sp + int(skill['skillpoints'])
 
             # Process the character's roles
@@ -97,6 +97,10 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
 
     try:
         acc = EVEAccount.objects.get(api_user_id=user_id)
+
+        if not char in acc.characters.all():
+            acc.characters.add(pchar)
+
         if pchar.director and acc.api_keytype == API_KEYTYPE_FULL:
             from eve_api.tasks.corporation import import_corp_members
             import_corp_members.delay(api_key=api_key, api_userid=user_id, character_id=pchar.id)

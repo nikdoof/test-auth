@@ -107,25 +107,24 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
         account.api_last_updated = datetime.utcnow()
         account.save()
 
+    tasklist = []
+
     # Process the account's character list
     charlist = set(account.characters.all().values_list('id', flat=True))
     newcharlist = []
     for char in doc['result']['characters']:
-        import_eve_character.delay(char['characterID'], api_key, api_userid, callback=link_char_to_account.subtask(account=account.id))
+        tasklist.append(import_eve_character.subtask(char['characterID'], api_key, api_userid))
         newcharlist.append(int(char['characterID']))
 
     toremove = charlist - set(newcharlist)
     for char in account.characters.filter(id__in=toremove):
         account.characters.remove(char)
+
+    # If we have a user, update their details in the taskset
+    if account.user:
+        tasklist.append(update_user_access.subtask(user=account.user.id))
+
+    ts = TaskSet(tasks=tasklist)
+    ts.apply_async()
+
     return account
-
-
-@task(ignore_result=True)
-def link_char_to_account(character, account):
-    acc = EVEAccount.objects.get(id=account)
-    char = EVEPlayerCharacter.objects.get(id=character)
-
-    acc.characters.add(char)
-
-    if acc.user:
-        update_user_access.delay(user=acc.user.id)
