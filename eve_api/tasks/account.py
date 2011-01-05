@@ -9,7 +9,7 @@ from eve_proxy.models import CachedDocument
 from eve_api.models import EVEAccount, EVEPlayerCharacter
 from eve_api.app_defines import *
 from eve_api.utils import basic_xml_parse_doc
-from eve_api.tasks.character import import_eve_character
+from eve_api.tasks.character import import_eve_characters
 from eve_api.tasks.corporation import import_corp_members, import_corp_details
 
 from sso.tasks import update_user_access
@@ -111,20 +111,15 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
 
     # Process the account's character list
     charlist = set(account.characters.all().values_list('id', flat=True))
-    newcharlist = []
-    for char in doc['result']['characters']:
-        tasklist.append(import_eve_character.subtask(args=(char['characterID'], api_key, api_userid)))
-        newcharlist.append(int(char['characterID']))
+    newcharlist = [char['characterID'] char in doc['result']['characters']]
 
-    toremove = charlist - set(newcharlist)
-    for char in account.characters.filter(id__in=toremove):
+    for char in account.characters.filter(id__in=set(charlist - set(newcharlist)):
         account.characters.remove(char)
 
-    # If we have a user, update their details in the taskset
     if account.user:
-        tasklist.append(update_user_access.subtask(kwargs={'user': account.user.id }))
-
-    ts = TaskSet(tasks=tasklist)
-    ts.apply_async()
+        cb = update_user_access.subtask(kwargs={'user': account.user.id })
+    else:
+        cb = None
+    import_eve_characters.delay(newcharlist, api_key, api_userid, callback=cb)
 
     return account

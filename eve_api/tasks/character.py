@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from xml.dom import minidom
 
 from celery.decorators import task
+from celery.task.set import subtask
 
 from eve_proxy.models import CachedDocument
 
@@ -14,10 +15,33 @@ from eve_api.utils import basic_xml_parse, basic_xml_parse_doc
 def import_eve_character(character_id, api_key=None, user_id=None, callback=None):
     """ 
     Imports a character from the API, providing a API key will populate 
-    further details
+    further details. Returns a single EVEPlayerCharacter object
 
     """
 
+    pchar = import_eve_character_func(character_id, api_key, user_id)
+    if callback:
+        subtask(callback).delay(character=pchar.id)
+    else:
+        return pchar
+
+
+@task()
+def import_eve_characters(character_list, api_key=None, user_id=None, callback=None):
+    """
+    Imports characters from the API, providing a API key will populate
+    further details. Returns a list of EVEPlayerCharacter objects
+
+    """
+
+    results = [import_eve_character_func(char, api_key, user_id) for char in character_list]
+    if callback:
+        subtask(callback).delay(characters=results)
+    else:
+        return results
+
+
+def import_eve_character_func(character_id, api_key=None, user_id=None):
     char_doc = CachedDocument.objects.api_query('/eve/CharacterInfo.xml.aspx',
                                                params={'characterID': character_id},
                                                no_cache=False)
@@ -107,7 +131,4 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
     except EVEAccount.DoesNotExist:
         pass
 
-    if callback:
-        callback.delay(character=pchar.id)
-    else:
-        return pchar
+    return pchar
