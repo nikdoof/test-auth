@@ -109,11 +109,13 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
 
     # Process the account's character list
     charlist = set(account.characters.all().values_list('id', flat=True))
+    newcharlist = set([])
     for char in doc['result']['characters']:
         import_eve_character.delay(char['characterID'], api_key, api_userid, callback=link_char_to_account.subtask(account=account.id))
-        charlist.remove(int(char['characterID']))
-    remchars = account.characters.filter(id__in=charlist)
-    for char in remchars:
+        newcharlist.append(int(char['characterID']))
+
+    toremove = charlist - newcharlist
+    for char in account.characters.filter(id__in=toremove):
         account.characters.remove(char)
     return account
 
