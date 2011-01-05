@@ -112,7 +112,9 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
     for char in doc['result']['characters']:
         import_eve_character.delay(char['characterID'], api_key, api_userid, callback=link_char_to_account.subtask(account=account.id))
         charlist.remove(int(char['characterID']))
-    account.characters.filter(id__in=charlist).remove()
+    remchars = account.characters.filter(id__in=charlist)
+    for char in remchars:
+        account.characters.remove(char)
     return account
 
 
