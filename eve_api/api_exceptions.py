@@ -15,7 +15,7 @@ class APINoUserIDException(Exception):
     def __str__(self):
         return "This query requires a valid userID, but yours is either missing or invalid."
 
-class APIAccessException(Exception)
+class APIAccessException(Exception):
     """
     Raised on Access errors of any kind, network and EVE API failures
     """
