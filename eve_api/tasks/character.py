@@ -1,11 +1,14 @@
 from datetime import datetime, timedelta
 from xml.dom import minidom
+import logging
 
 from celery.decorators import task
 from celery.task.sets import subtask
 
+from eve_proxy.exceptions import *
 from eve_proxy.models import CachedDocument
 
+from eve_api.api_exceptions import *
 from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerCharacterRole, EVEPlayerCharacterSkill, EVESkill, EVEAccount
 from eve_api.app_defines import *
 from eve_api.utils import basic_xml_parse, basic_xml_parse_doc
@@ -19,7 +22,13 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
 
     """
 
-    pchar = import_eve_character_func(character_id, api_key, user_id)
+    log = import_eve_character.getLogger()
+    try:
+        pchar = import_eve_character_func(character_id, api_key, user_id, log)
+    except APIAccessException, exc:
+        log.error('Error importing character - flagging for retry')
+        import_eve_character.retry(args=[char, api_key, user_id, callback], exc=exc)
+
     if callback:
         subtask(callback).delay(character=pchar.id)
     else:
@@ -34,31 +43,38 @@ def import_eve_characters(character_list, api_key=None, user_id=None, callback=N
 
     """
 
-    results = [import_eve_character_func(char, api_key, user_id) for char in character_list]
+    log = import_eve_character.getLogger()
+    try:
+        results = [import_eve_character_func(char, api_key, user_id, log) for char in character_list]
+    except APIAccessException, exc:
+        log.error('Error importing characters - flagging for retry')
+        import_eve_characters.retry(args=[char, api_key, user_id, callback], exc=exc)
     if callback:
         subtask(callback).delay(characters=results)
     else:
         return results
 
 
-def import_eve_character_func(character_id, api_key=None, user_id=None):
-    char_doc = CachedDocument.objects.api_query('/eve/CharacterInfo.xml.aspx',
-                                               params={'characterID': character_id},
-                                               no_cache=False)
+def import_eve_character_func(character_id, api_key=None, user_id=None, logger=logging.getLogger(__name__)):
+
+    try:
+        char_doc = CachedDocument.objects.api_query('/eve/CharacterInfo.xml.aspx', params={'characterID': character_id}, no_cache=False)
+    except DocumentRetrievalError, exc:
+        logger.error('Error retrieving CharacterInfo.xml.aspx for Character ID %s - %s' % (user_id, character_id, exc))
+        raise APIAccessException
 
     d = basic_xml_parse_doc(char_doc)['eveapi']
     if 'error' in d:
+        logger.debug('EVE API Error enountered in API document')
         return
+
     values = d['result']
     pchar, created = EVEPlayerCharacter.objects.get_or_create(id=character_id)
-
     pchar.name = values['characterName']
     pchar.security_status = values['securityStatus']
 
     corp, created = EVEPlayerCorporation.objects.get_or_create(id=values['corporationID'])
-
     from eve_api.tasks.corporation import import_corp_details
-
     if created or not corp.name:
         import_corp_details.delay(values['corporationID'])
 
@@ -73,9 +89,11 @@ def import_eve_character_func(character_id, api_key=None, user_id=None):
 
     if api_key and user_id:
         auth_params = {'userID': user_id, 'apiKey': api_key, 'characterID': character_id }
-        char_doc = CachedDocument.objects.api_query('/char/CharacterSheet.xml.aspx',
-                                                       params=auth_params,
-                                                       no_cache=False)
+        try:
+            char_doc = CachedDocument.objects.api_query('/char/CharacterSheet.xml.aspx', params=auth_params, no_cache=False)
+        except DocumentRetrievalError, exc:
+            logger.error('Error retrieving CharacterSheet.xml.aspx for User ID %s, Character ID %s - %s' % (user_id, character_id, exc))
+            raise APIAccessException
 
         doc = basic_xml_parse_doc(char_doc)['eveapi']
         if not 'error' in doc:
@@ -121,7 +139,6 @@ def import_eve_character_func(character_id, api_key=None, user_id=None):
 
     try:
         acc = EVEAccount.objects.get(api_user_id=user_id)
-
         if not pchar in acc.characters.all():
             acc.characters.add(pchar)
 
