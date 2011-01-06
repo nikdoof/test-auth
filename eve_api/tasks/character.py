@@ -22,7 +22,7 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
 
     """
 
-    log = import_eve_character.getLogger()
+    log = import_eve_character.get_logger()
     try:
         pchar = import_eve_character_func(character_id, api_key, user_id, log)
     except APIAccessException, exc:
@@ -43,7 +43,7 @@ def import_eve_characters(character_list, api_key=None, user_id=None, callback=N
 
     """
 
-    log = import_eve_character.getLogger()
+    log = import_eve_characters.get_logger()
     try:
         results = [import_eve_character_func(char, api_key, user_id, log) for char in character_list]
     except APIAccessException, exc:
