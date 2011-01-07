@@ -15,7 +15,7 @@ from eve_api.utils import basic_xml_parse, basic_xml_parse_doc
 
 
 @task()
-def import_eve_character(character_id, api_key=None, user_id=None, callback=None):
+def import_eve_character(character_id, api_key=None, user_id=None, callback=None, **kwargs):
     """ 
     Imports a character from the API, providing a API key will populate 
     further details. Returns a single EVEPlayerCharacter object
@@ -27,7 +27,7 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
         pchar = import_eve_character_func(character_id, api_key, user_id, log)
     except APIAccessException, exc:
         log.error('Error importing character - flagging for retry')
-        import_eve_character.retry(args=[char, api_key, user_id, callback], exc=exc)
+        import_eve_character.retry(args=[char, api_key, user_id, callback], exc=exc, kwargs=kwargs)
 
     if callback:
         subtask(callback).delay(character=pchar.id)
@@ -36,7 +36,7 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
 
 
 @task()
-def import_eve_characters(character_list, api_key=None, user_id=None, callback=None):
+def import_eve_characters(character_list, api_key=None, user_id=None, callback=None, **kwargs):
     """
     Imports characters from the API, providing a API key will populate
     further details. Returns a list of EVEPlayerCharacter objects
@@ -48,7 +48,7 @@ def import_eve_characters(character_list, api_key=None, user_id=None, callback=N
         results = [import_eve_character_func(char, api_key, user_id, log) for char in character_list]
     except APIAccessException, exc:
         log.error('Error importing characters - flagging for retry')
-        import_eve_characters.retry(args=[char, api_key, user_id, callback], exc=exc)
+        import_eve_characters.retry(args=[char, api_key, user_id, callback], exc=exc, kwargs=kwargs)
     if callback:
         subtask(callback).delay(characters=results)
     else:
@@ -60,7 +60,7 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
     try:
         char_doc = CachedDocument.objects.api_query('/eve/CharacterInfo.xml.aspx', params={'characterID': character_id}, no_cache=False)
     except DocumentRetrievalError, exc:
-        logger.error('Error retrieving CharacterInfo.xml.aspx for Character ID %s - %s' % (user_id, character_id, exc))
+        logger.error('Error retrieving CharacterInfo.xml.aspx for Character ID %s - %s' % (character_id, exc))
         raise APIAccessException
 
     d = basic_xml_parse_doc(char_doc)['eveapi']
