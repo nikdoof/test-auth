@@ -215,7 +215,8 @@ def service_reset(request, serviceid=0):
         except ServiceAccount.DoesNotExist:
             return redirect('sso.views.profile')
 
-        if not acc.active:
+        # If the account is inactive, or the service doesn't require a password, redirect
+        if not acc.active or ('require_password' in acc.service.settings and not acc.service.settings['require_password']):
             return redirect('sso.views.profile')
 
         if acc.user == request.user:
