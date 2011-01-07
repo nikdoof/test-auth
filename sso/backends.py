@@ -5,6 +5,10 @@ from hashlib import sha1
 
 class SimpleHashModelBackend(ModelBackend):
 
+    supports_anonymous_user = False
+    supports_object_permissions = False
+    supports_inactive_user = False
+
     def authenticate(self, username=None, password=None):
         try:
             user = User.objects.get(username=username)
