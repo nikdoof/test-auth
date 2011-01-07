@@ -4,6 +4,7 @@ from sso.models import ServiceAccount
 from django.contrib.auth.models import User
 from django.db.models import signals
 
+
 # Signals that the tasks need to listen for
 def eveapi_deleted(sender, instance, **kwargs):
     if instance.user:
@@ -14,7 +15,10 @@ signals.post_delete.connect(eveapi_deleted, sender=EVEAccount)
 
 @task()
 def update_user_access(user, **kwargs):
-    """ Process all corporate and alliance entries and correct access groups """
+    """
+    Process all corporate and alliance entries and correct
+    access groups.
+    """
 
     user = User.objects.get(id=user)
 
@@ -30,7 +34,7 @@ def update_user_access(user, **kwargs):
     # Create a list of Char groups
     chargroups = []
     for eacc in EVEAccount.objects.filter(user=user):
-        if eacc.api_status in [1,3]:
+        if eacc.api_status in [1, 3]:
             for char in eacc.characters.all():
                 if char.corporation.group:
                     chargroups.append(char.corporation.group)
@@ -70,6 +74,7 @@ def update_user_access(user, **kwargs):
                 pass
 
     update_service_groups.delay(user_id=user.id)
+
 
 @task(ignore_result=True)
 def update_service_groups(user_id):

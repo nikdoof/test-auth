@@ -10,10 +10,11 @@ from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 from sso.models import ServiceAccount, Service
 from registration.forms import RegistrationForm
 
+
 class RegistrationFormUniqueEmailBlocked(RegistrationForm):
     """
-    Subclass of ``RegistrationForm`` which disallows registration from certain domains
-    and also makes sure that the email address is unique in the DB
+    Subclass of ``RegistrationForm`` which disallows registration from certain
+    domains and also makes sure that the email address is unique in the DB
     """
 
     def clean_email(self):
@@ -35,8 +36,8 @@ class RegistrationFormUniqueEmailBlocked(RegistrationForm):
 class EveAPIForm(forms.Form):
     """ EVE API input form """
 
-    user_id = forms.IntegerField(label = u'User ID')
-    api_key = forms.CharField(label = u'API Key', max_length=64)
+    user_id = forms.IntegerField(label=u'User ID')
+    api_key = forms.CharField(label=u'API Key', max_length=64)
     description = forms.CharField(max_length=100, required=False)
 
     def clean(self):
@@ -58,7 +59,7 @@ class EveAPIForm(forms.Form):
 def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
-    services = Service.objects.filter(groups__in=user.groups.all(),active=1).exclude(id__in=ServiceAccount.objects.filter(user=user).values('service')).distinct()
+    services = Service.objects.filter(groups__in=user.groups.all(), active=1).exclude(id__in=ServiceAccount.objects.filter(user=user).values('service')).distinct()
     chars = EVEPlayerCharacter.objects.filter(eveaccount__user=user)
 
     class ServiceAccountForm(forms.Form):
@@ -70,7 +71,7 @@ def UserServiceAccountForm(user):
         def __init__(self, *args, **kwargs):
             super(ServiceAccountForm, self).__init__(*args, **kwargs)
             if not settings.GENERATE_SERVICE_PASSWORD:
-                self.password = forms.CharField(widget=forms.PasswordInput, label="Password" )
+                self.password = forms.CharField(widget=forms.PasswordInput, label="Password")
                 self.fields['password'] = self.password
 
         def clean(self):
@@ -101,32 +102,35 @@ def UserServiceAccountForm(user):
 
 
 class ServiceAccountResetForm(forms.Form):
+    """ Password reset form for Services """
+
     def __init__(self, *args, **kwargs):
         super(ServiceAccountResetForm, self).__init__(*args, **kwargs)
         if not settings.GENERATE_SERVICE_PASSWORD:
-            self.password = forms.CharField(widget=forms.PasswordInput, label="Password" )
+            self.password = forms.CharField(widget=forms.PasswordInput, label="Password")
             self.fields['password'] = self.password
 
 
 class UserLookupForm(forms.Form):
     """ User Lookup Form """
 
-    choices = [ (1, "Auth Username"),
-                (2, "Character"),
-                (4, "Email Address"), ]
+    choices = [(1, "Auth Username"),
+               (2, "Character"),
+               (4, "Email Address"), ]
 
     def __init__(self, *args, **kwargs):
         super(UserLookupForm, self).__init__(*args, **kwargs)
-        choices = [ (1, "Auth Username"),
-                    (2, "Character"),
-                    (4, "Email Address"), ]
+        choices = [(1, "Auth Username"),
+                   (2, "Character"),
+                   (4, "Email Address"), ]
         if installed('reddit'):
             choices.append((3, "Reddit ID"))
 
         self.fields['type'] = forms.ChoiceField(label=u'Search type', choices=choices)
-        self.fields['username'] = forms.CharField(label = u'User ID', max_length=64)
+        self.fields['username'] = forms.CharField(label=u'User ID', max_length=64)
+
 
 class APIPasswordForm(forms.Form):
+    """ API Password reset form """
 
-    password = forms.CharField(widget=forms.PasswordInput, label="Password" )
-
+    password = forms.CharField(widget=forms.PasswordInput, label="Password")

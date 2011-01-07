@@ -21,4 +21,3 @@ class SimpleHashModelBackend(ModelBackend):
                 return user
 
         return None
-

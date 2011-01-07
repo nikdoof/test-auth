@@ -15,16 +15,18 @@ from services import get_api
 
 ## Exceptions
 
+
 class CorporateOnlyService(Exception):
     pass
+
 
 class ExistingUser(Exception):
     pass
 
+
 class ServiceError(Exception):
     pass
 
-## Models
 
 class SSOUser(models.Model):
     """ Extended SSO User Profile options """
@@ -37,11 +39,12 @@ class SSOUser(models.Model):
         return self.user.__unicode__()
 
     @staticmethod
-    def create_user_profile(sender, instance, created, **kwargs):   
-        if created:   
-            profile, created = SSOUser.objects.get_or_create(user=instance) 
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            profile, created = SSOUser.objects.get_or_create(user=instance)
 
 signals.post_save.connect(SSOUser.create_user_profile, sender=User)
+
 
 class SSOUserNote(models.Model):
     """ Notes bound to a user's account. Used to store information regarding the user """
@@ -154,7 +157,7 @@ class ServiceAccount(models.Model):
         models.Model.save(self)
 
     @staticmethod
-    def pre_delete_listener( **kwargs ):
+    def pre_delete_listener(**kwargs):
         if not kwargs['instance'].service.api_class.delete_user(kwargs['instance'].service_uid):
             raise ServiceError('Unable to delete account on related service')
 

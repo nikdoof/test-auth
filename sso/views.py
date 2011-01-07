@@ -31,6 +31,7 @@ def index(request):
     else:
         return render_to_response('sso/index.html', context_instance=RequestContext(request))
 
+
 @login_required
 def profile(request):
     """ Displays the user's profile page """
@@ -44,6 +45,7 @@ def profile(request):
 
     return render_to_response('sso/profile.html', locals(), context_instance=RequestContext(request))
 
+
 @login_required
 def characters(request, charid=0):
     """ Provide a list of characters, or a indivdual character sheet """
@@ -56,12 +58,13 @@ def characters(request, charid=0):
     characters = EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=request.user).only('id', 'name', 'corporation__name', 'corporation__alliance__name')
     return render_to_response('sso/characterlist.html', locals(), context_instance=RequestContext(request))
 
+
 @login_required
 def eveapi_add(request):
     """ Add a EVE API key to a user's account """
 
-    if request.method == 'POST': 
-        form = EveAPIForm(request.POST) 
+    if request.method == 'POST':
+        form = EveAPIForm(request.POST)
         if form.is_valid():
 
             task = import_apikey.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['user_id'], user=request.user.id)
@@ -69,7 +72,7 @@ def eveapi_add(request):
                 task.wait(5)
             except celery.exceptions.TimeoutError:
                 messages.add_message(request, messages.INFO, "The addition of your API key is still processing, please check back in a minute or so")
-                pass    
+                pass
             else:
                 messages.add_message(request, messages.INFO, "EVE API successfully added.")
 
@@ -79,11 +82,12 @@ def eveapi_add(request):
 
     return render_to_response('sso/eveapi.html', locals(), context_instance=RequestContext(request))
 
+
 @login_required
 def eveapi_del(request, userid=0):
     """ Delete a EVE API key from a account """
 
-    if userid > 0 :
+    if userid > 0:
         try:
             acc = EVEAccount.objects.get(id=userid)
         except EVEAccount.DoesNotExist:
@@ -94,11 +98,12 @@ def eveapi_del(request, userid=0):
 
     return redirect('sso.views.profile')
 
+
 @login_required
 def eveapi_refresh(request, userid=0):
     """ Force refresh a EVE API key """
 
-    if userid > 0 :
+    if userid > 0:
         try:
             acc = EVEAccount.objects.get(id=userid)
         except EVEAccount.DoesNotExist:
@@ -114,14 +119,15 @@ def eveapi_refresh(request, userid=0):
                         acc = EVEAccount.objects.get(id=userid)
                     return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
                 else:
-                    messages.add_message(request, messages.INFO,"Key %s has been queued to be refreshed from the API" % acc.api_user_id)
+                    messages.add_message(request, messages.INFO, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
 
     return redirect('sso.views.profile')
+
 
 @login_required
 def eveapi_log(request, userid=0):
     """ Provides a list of access logs for a specific EVE API key """
-    if userid > 0 :
+    if userid > 0:
         try:
             acc = EVEAccount.objects.get(id=userid)
         except:
@@ -133,14 +139,15 @@ def eveapi_log(request, userid=0):
 
         return redirect('sso.views.profile')
 
+
 @login_required
 def service_add(request):
     """ Add a service to a user's account """
 
     clsform = UserServiceAccountForm(request.user)
 
-    if request.method == 'POST': 
-        form = clsform(request.POST) 
+    if request.method == 'POST':
+        form = clsform(request.POST)
         if form.is_valid():
 
             acc = ServiceAccount(user=request.user, service=form.cleaned_data['service'])
@@ -174,16 +181,17 @@ def service_add(request):
         availserv = Service.objects.filter(groups__in=request.user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=request.user).values('service'))
         if len(availserv) == 0:
             return render_to_response('sso/serviceaccount/noneavailable.html', locals(), context_instance=RequestContext(request))
-        else: 
+        else:
             form = clsform() # An unbound form
 
     return render_to_response('sso/serviceaccount/index.html', locals())
+
 
 @login_required
 def service_del(request, serviceid=0):
     """ Delete a service from a user's account """
 
-    if serviceid > 0 :
+    if serviceid > 0:
         try:
             acc = ServiceAccount.objects.get(id=serviceid)
         except ServiceAccount.DoesNotExist:
@@ -205,11 +213,12 @@ def service_del(request, serviceid=0):
 
     return redirect('sso.views.profile')
 
+
 @login_required
 def service_reset(request, serviceid=0):
     """ Reset a user's password on a service """
 
-    if serviceid > 0 :
+    if serviceid > 0:
         try:
             acc = ServiceAccount.objects.get(id=serviceid)
         except ServiceAccount.DoesNotExist:
@@ -240,17 +249,18 @@ def service_reset(request, serviceid=0):
 
     return redirect('sso.views.profile')
 
+
 @login_required
 def user_view(request, username=None):
     """ View a user's profile as a admin """
 
     if username:
-       try:
-           user = User.objects.get(username=username)
-       except User.DoesNotExist:
-           return redirect('sso.views.user_lookup')
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return redirect('sso.views.user_lookup')
     else:
-       return redirect('sso.views.user_lookup')
+        return redirect('sso.views.user_lookup')
 
     profile = user.get_profile()
     is_admin = request.user.is_staff
@@ -259,6 +269,7 @@ def user_view(request, username=None):
         characters = EVEPlayerCharacter.objects.select_related('corporation').filter(eveaccount__user=user).only('id', 'name', 'corporation__name')
 
     return render_to_response('sso/lookup/user.html', locals(), context_instance=RequestContext(request))
+
 
 @login_required
 def user_lookup(request):
@@ -275,12 +286,14 @@ def user_lookup(request):
                 users = User.objects.filter(username__icontains=form.cleaned_data['username']).only('username')
             elif form.cleaned_data['type'] == '2':
                 uid = EVEAccount.objects.filter(characters__name__icontains=form.cleaned_data['username']).values('user')
-                for u in uid: uids.append(u['user'])
+                for u in uid:
+                    uids.append(u['user'])
                 users = User.objects.filter(id__in=uids).only('username')
             elif installed('reddit') and form.cleaned_data['type'] == '3':
                 from reddit.models import RedditAccount
                 uid = RedditAccount.objects.filter(username__icontains=form.cleaned_data['username']).values('user')
-                for u in uid: uids.append(u['user'])
+                for u in uid:
+                    uids.append(u['user'])
                 users = User.objects.filter(id__in=uids).only('username')
             elif form.cleaned_data['type'] == '4':
                 users = User.objects.filter(email__icontains=form.cleaned_data['username']).only('username')
@@ -295,7 +308,7 @@ def user_lookup(request):
             else:
                 messages.add_message(request, messages.INFO, "No results found")
                 return redirect('sso.views.user_lookup')
-            
+
     return render_to_response('sso/lookup/userlookup.html', locals(), context_instance=RequestContext(request))
 
 
@@ -315,4 +328,3 @@ def set_apipasswd(request):
         form = APIPasswordForm() # An unbound form
 
     return render_to_response('sso/apipassword.html', locals(), context_instance=RequestContext(request))
-
