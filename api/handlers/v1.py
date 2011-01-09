@@ -27,10 +27,10 @@ from xml.dom import minidom
 class UserHandler(BaseHandler):
     allowed_methods = ('GET')
 
-    def read(self, request, id=None):
-        if id:
+    def read(self, request):
+        if 'userid' in request.GET:
             try:
-                u = User.objects.get(id=id)
+                u = User.objects.get(id=request.GET['userid'])
             except (User.DoesNotExist, ValueError):
                 return {'auth': 'missing', 'missing': 'userid'}
         elif 'user' in request.GET:
@@ -63,15 +63,9 @@ class UserHandler(BaseHandler):
 class LoginHandler(BaseHandler):
     allowed_methods = ('GET')
 
-    def read(self, request, id=None):
+    def read(self, request):
 
         u = None
-        if id:
-            try:
-                u = User.objects.get(id=id)
-            except (User.DoesNotExist, ValueError):
-                return {'auth': 'missing', 'missing': 'UserID'}
-
         if request.GET.get('user', None):
             try:
                 u = User.objects.get(username=request.GET['user'])
