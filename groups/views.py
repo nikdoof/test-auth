@@ -26,7 +26,8 @@ def group_list(request):
     if request.user.is_superuser:
         groups = Group.objects.select_related('groupinformation').all()
     else:
-        groups = Group.objects.select_related('groupinformation').filter(Q(groupinformation__public=True) |
+        groups = Group.objects.select_related('groupinformation').filter(Q(groupinformation__type=GROUP_TYPE_PERMISSION) |
+                                                                         Q(groupinformation__public=True) |
                                                                          Q(groupinformation__admins__in=[request.user]) |
                                                                          Q(user__in=[request.user]))
 
