@@ -24,14 +24,6 @@ from eve_proxy.models import ApiAccessLog
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
 from sso.forms import EveAPIForm, UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm
 
-
-def index(request):
-    if request.user:
-        return redirect('sso.views.profile')
-    else:
-        return render_to_response('sso/index.html', context_instance=RequestContext(request))
-
-
 @login_required
 def profile(request):
     """ Displays the user's profile page """
