@@ -13,7 +13,7 @@
 <tr><td>{{ group }}</td>
     <td>{{ status }}</td>
     <td>{% ifequal status None %}{% if requestable %}<a href="{% url groups.views.create_request id %}">Request Membership</a>{% endif %}{% endifequal %}
-        {% if status == 'Member' or status == 'Admin' and fixed != True  %}<a href="{% url groups.views.kick_member id request.user.id %}">Leave</a>&nbsp;{% endif %}
+        {% if not fixed and status %}<a href="{% url groups.views.kick_member id request.user.id %}">Leave</a>&nbsp;{% endif %}
         {% if status == 'Admin' or request.user.is_superuser %}<a href="{% url groups.views.admin_group id %}">Admin</a>{% endif %}</td>
 </tr>
 {% endfor %}
