@@ -28,8 +28,11 @@ urlpatterns = patterns('',
 )
 
 # v2 APIs
-v2_authenticate_resource = Resource(handler=AuthenticationHandler, **noauth)
+v2_authenticate_resource = Resource(handler=V2AuthenticationHandler, **noauth)
+v2_eveapiproxy_resource = Resource(handler=V2EveAPIProxyHandler, **apikeyauth)
 
 urlpatterns += patterns('',
     url(r'^v2/authenticate/$', v2_authenticate_resource),
+    url(r'^v2/proxy/', eveapiproxy_resource, name='v2-api-eveapiproxy'),
+
 )
