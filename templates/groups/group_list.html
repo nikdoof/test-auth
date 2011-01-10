@@ -14,7 +14,7 @@
     <td>{% if status %}{{ status }}{% endif %}</td>
     <td>{% ifequal status None %}{% if requestable %}<a href="{% url groups.views.create_request id %}">Request Membership</a>{% endif %}{% endifequal %}
         {% if not fixed and status %}<a href="{% url groups.views.kick_member id request.user.id %}">Leave</a>&nbsp;{% endif %}
-        {% if status == 'Admin' or request.user.is_superuser %}<a href="{% url groups.views.admin_group id %}">Admin</a>{% endif %}</td>
+        {% if status == 'Admin' or request.user.is_superuser %}{% if not fixed %}<a href="{% url groups.views.admin_group id %}">Admin</a>{% endif %}{% endif %}</td>
 </tr>
 {% endfor %}
 </table>
