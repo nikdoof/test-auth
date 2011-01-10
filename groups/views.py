@@ -66,6 +66,10 @@ def create_request(request, groupid):
     if not group.groupinformation.requestable and not request.user in group.user_set.all():
         return HttpResponseRedirect(reverse('groups.views.index'))
 
+    if group.requests.filter(status=REQUEST_PENDING,user=request.user).count():
+        messages.add_message(request, messages.INFO, "You already have a pending request for %s" % group.name)
+        return HttpResponseRedirect(reverse('groups.views.index'))
+
     if request.method == 'POST':
         form = GroupRequestForm(request.POST)
         if form.is_valid():
