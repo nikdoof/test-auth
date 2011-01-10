@@ -15,11 +15,17 @@ class V2AuthenticationHandler(BaseHandler):
 
     allowed_methods = ('GET')
 
-    def read(self, request, username, password):
+    def read(self, request):
         """
         Validates login details for the provided user as
         long as 'username' and 'password' are provided.
         """
+
+        username = request.GET.get('username', None)
+        password = request.GET.get('password', None)
+
+        if not username or not password:
+            return rc.BAD_REQUEST
 
         try:
             user = User.object.get(username=username)
