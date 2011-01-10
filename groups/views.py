@@ -50,7 +50,8 @@ def group_list(request):
         else:
             requestable = False
 
-        group_list.append((group.id, group.name, status, requestable))
+        fixed = not group.groupinformation.type == GROUP_TYPE_PERMISSION
+        group_list.append((group.id, group.name, status, requestable, fixed))
 
     return render_to_response('groups/group_list.html', locals(), context_instance=RequestContext(request))
 
