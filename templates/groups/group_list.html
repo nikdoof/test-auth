@@ -9,9 +9,9 @@
 <table>
 {% if group_list %}
 <tr><th>Group Name</th><th>Description</th><th>Status</th><th>Actions</th></tr>
-{% for id, group, status, requestable, fixed, pending in group_list %}
+{% for id, group, description, status, requestable, fixed, pending in group_list %}
 <tr><td>{{ group }}</td>
-    <td>{{ group.description }}</td>
+    <td>{{ description }}</td>
     <td>{% if pending %}Request Pending{% else %}{% if status %}{{ status }}{% endif %}{% endif %}</td>
     <td>{% ifequal status None %}{% if requestable %}<a href="{% url groups.views.create_request id %}">Request Membership</a>{% endif %}{% endifequal %}
         {% if not fixed and status %}<a href="{% url groups.views.kick_member id request.user.id %}">Leave</a>&nbsp;{% endif %}
