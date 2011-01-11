@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from xml.dom import minidom
+import logging
 
 from celery.decorators import task
 from celery.task.sets import TaskSet
@@ -42,17 +43,31 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False):
     """
     Imports a EVE Account from the API, doesn't return a result
     """
-    import_apikey_func(api_userid, api_key, user, force_cache)
+    log = import_apikey.get_logger()
+    try:
+        import_apikey_func(api_userid, api_key, user, force_cache, log)
+    except:
+        log.error('Error importing API Key')
 
 @task()
-def import_apikey_result(api_userid, api_key, user=None, force_cache=False):
+def import_apikey_result(api_userid, api_key, user=None, force_cache=False, callback=None):
     """
     Imports a EVE Account from the API and returns the account object when completed
     """
-    return import_apikey_func(api_userid, api_key, user, force_cache)
 
-def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
-    log = import_apikey.get_logger('import_apikey_result')
+    log = import_apikey_result.get_logger()
+    try:
+        results = import_apikey_func(api_userid, api_key, user, force_cache, log)
+    except APIAccessException, exc:
+        log.error('Error importing API Key - flagging for retry')
+    else:
+        if callback:
+            subtask(callback).delay(account=results)
+        else:
+            return results
+
+
+def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=logging.getLogger(__name__)):
     log.info('Importing %s/%s' % (api_userid, api_key))
 
     auth_params = {'userid': api_userid, 'apikey': api_key}
@@ -111,7 +126,7 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
 
     # Process the account's character list
     charlist = set(account.characters.all().values_list('id', flat=True))
-    newcharlist = [char['characterID'] for char in doc['result']['characters']]
+    newcharlist = [int(char['characterID']) for char in doc['result']['characters']]
 
     log.info("[CHAR] Current %s, New: %s, Remove: %s" % (charlist, newcharlist, set(charlist - set(newcharlist))))
 
