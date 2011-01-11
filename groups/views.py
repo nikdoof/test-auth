@@ -53,7 +53,7 @@ def group_list(request):
         fixed = not group.groupinformation.type == GROUP_TYPE_PERMISSION
 	pending = group.requests.filter(status=REQUEST_PENDING,user=request.user).count()
 
-        group_list.append((group.id, group.name, group.description, status, requestable, fixed, pending))
+        group_list.append((group.id, group.name, group.groupinformation.description, status, requestable, fixed, pending))
 
     return render_to_response('groups/group_list.html', locals(), context_instance=RequestContext(request))
 
