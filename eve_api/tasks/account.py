@@ -113,6 +113,8 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False):
     charlist = set(account.characters.all().values_list('id', flat=True))
     newcharlist = [char['characterID'] for char in doc['result']['characters']]
 
+    log.info("[CHAR] Current %s, New: %s, Remove: %s" % (charlist, newcharlist, set(charlist - set(newcharlist)))
+
     for char in account.characters.filter(id__in=set(charlist - set(newcharlist))):
         account.characters.remove(char)
 
