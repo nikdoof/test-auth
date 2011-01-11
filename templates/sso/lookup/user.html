@@ -9,6 +9,7 @@
 
 <b>Username:</b> {{ user.username }}<br/>
 <b>Email:</b> {{ user.email }}<br/>
+<b>Groups:</b> {{ user.groups.all|join:", " }}<br/>
 
 {% if is_admin %}
 <br/>
