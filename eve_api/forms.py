@@ -19,6 +19,8 @@ class EveAPIForm(forms.Form):
         if re.search(r'[^\.a-zA-Z0-9]', self.cleaned_data['api_key']):
             raise forms.ValidationError("Provided API Key has invalid characters.")
 
+        return self.cleaned_data['api_key']
+
     def clean_user_id(self):
 
         if not 'user_id' in self.cleaned_data or self.cleaned_data['user_id'] == '':
@@ -27,7 +29,8 @@ class EveAPIForm(forms.Form):
         try:
             eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['user_id'])
         except EVEAccount.DoesNotExist:
-            return self.cleaned_data
+            pass
         else:
             raise forms.ValidationError("This API User ID is already registered")
 
+        return self.cleaned_data['user_id']
