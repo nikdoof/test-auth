@@ -55,23 +55,21 @@ def eveapi_del(request, userid, post_save_redirect='/'):
 def eveapi_refresh(request, userid, post_save_redirect='/'):
     """ Force refresh a EVE API key """
 
-    if userid > 0:
-        try:
-            acc = EVEAccount.objects.get(id=userid)
-        except EVEAccount.DoesNotExist:
-            pass
-        else:
-            if acc.user == request.user or request.user.is_superuser:
-                task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, force_cache=True, user=request.user.id)
-
-                if request.is_ajax():
-                    try:
-                        acc = task.wait(30)
-                    except celery.exceptions.TimeoutError:
-                        acc = EVEAccount.objects.get(id=userid)
-                    return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
-                else:
-                    messages.add_message(request, messages.INFO, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
+    try:
+        acc = EVEAccount.objects.get(id=userid)
+    except EVEAccount.DoesNotExist:
+        pass
+    else:
+        if acc.user == request.user or request.user.is_superuser:
+            task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, force_cache=True, user=request.user.id)
+            if request.is_ajax():
+                try:
+                    acc = task.wait(30)
+                except celery.exceptions.TimeoutError:
+                    acc = EVEAccount.objects.get(id=userid)
+                return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
+            else:
+                messages.add_message(request, messages.INFO, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
 
     return redirect(post_save_redirect)
 
@@ -79,6 +77,7 @@ def eveapi_refresh(request, userid, post_save_redirect='/'):
 @login_required
 def eveproxy_log(request, userid):
     """ Provides a list of access logs for a specific EVE API key """
+
     try:
         acc = EVEAccount.objects.get(id=userid)
     except EVEAccount.DoesNotExist:
