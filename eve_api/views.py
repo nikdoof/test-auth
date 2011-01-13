@@ -75,7 +75,7 @@ def eveapi_refresh(request, userid, post_save_redirect='/'):
 
 
 @login_required
-def eveproxy_log(request, userid):
+def eveapi_log(request, userid):
     """ Provides a list of access logs for a specific EVE API key """
 
     try:
