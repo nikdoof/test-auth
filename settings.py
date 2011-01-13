@@ -67,6 +67,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'pagination.middleware.PaginationMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -80,7 +81,8 @@ TEMPLATE_CONTEXT_PRCESSORS = (
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.contrib.staticfiles.context_processors.staticfiles",
-    "django.contrib.messages.context_processors.messages"
+    "django.contrib.messages.context_processors.messages",
+    "django.core.context_processors.request"
 )
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
@@ -98,6 +100,7 @@ INSTALLED_APPS = (
     'djcelery',
     'registration',
     'debug_toolbar',
+    'pagination',
     'eve_proxy',
     'eve_api',
     'reddit',

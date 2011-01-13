@@ -8,7 +8,7 @@
 <table>
 <tr><th>Character Name</th><th>Corporation</th><th>Alliance</th></tr>
 {% for char in characters %}
-<tr><td><a href="{% url sso.views.characters char.id %}">{{ char.name }}</a></td>
+<tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td>
     <td>{{ char.corporation }}</td>
     <td>{% if char.corporation.alliance %}{{ char.corporation.alliance }}{% endif %}</td>
 </tr>

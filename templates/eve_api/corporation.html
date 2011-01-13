@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+{% load naturaltimediff %}
+{% load pagination_tags %}
+
+{% block content %}
+
+<div class="corporation_info">
+	<h1>{{ corporation.name }}</h1>
+
+        <ul>
+        <li><b>Member Count:</b> {{ corporation.member_count }}</li>
+        <li><b>Known Members:</b> {{ corporation.eveplayercharacter_set.all.count }}</li>
+        </ul>
+
+        {% if view_members %}
+        <table>
+        <tr><th>Name</th><th>Join Date</th></tr>
+        {% autopaginate members 10 %}
+        {% for char in members %}
+        <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td><td>{{ char.corporation_date }}</td></tr>
+        {% endfor %}
+        </table>
+        {% paginate %}
+        {% endif %}
+
+</div>
+
+{% endblock %}

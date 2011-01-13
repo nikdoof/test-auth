@@ -9,8 +9,9 @@ urlpatterns = patterns('',
     url(r'^eveapi/refresh/(?P<userid>\d+)/$', views.eveapi_refresh, name="eveapi-refresh"),
     url(r'^eveapi/log/(?P<userid>\d+)/$', views.eveapi_log, name="eveapi-log"),
 
-    url(r'^character/list/$', views.eveapi_characters, name="eveapi-characters-list"),
-    url(r'^character/(?P<charid>.*)/$', views.eveapi_characters, name="eveapi-character"),
+    url(r'^character/list/$', views.eveapi_character, name="eveapi-characters-list"),
+    url(r'^character/(?P<charid>\d+)/$', views.eveapi_character, name="eveapi-character"),
 
+    url(r'^corporation/(?P<corporationid>\d+)/$', views.eveapi_corporation, name="eveapi-corporation"),
 
 )

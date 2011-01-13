@@ -8,7 +8,7 @@ from django.template import RequestContext
 from django.http import Http404
 
 from eve_api.forms import EveAPIForm
-from eve_api.models import EVEAccount, EVEPlayerCharacter
+from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 from eve_api.tasks import import_apikey_result
 
 
@@ -101,3 +101,21 @@ def eveapi_character(request, charid=None):
 
     characters = EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=request.user).only('id', 'name', 'corporation__name', 'corporation__alliance__name')
     return render_to_response('eve_api/character_list.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required
+def eveapi_corporation(request, corporationid):
+    """
+    Provide details of a corporation, and for admins, a list of members
+    """
+
+    try:
+        corporation = EVEPlayerCorporation.objects.get(id=corporationid)
+    except EVEPlayerCorporation.DoesNotExist:
+        raise Http404
+
+    if request.user.is_superuser:
+        view_members = True
+        members = corporation.eveplayercharacter_set.all().order_by('corporation_date').only('id', 'name', 'corporation_date')
+
+    return render_to_response('eve_api/corporation.html', locals(), context_instance=RequestContext(request))
