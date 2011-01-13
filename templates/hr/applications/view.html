@@ -69,7 +69,7 @@
 <tr><th>User</th><th>Character</th><th>Corporation</th><th>Valid Recommendation</th></tr>
 {% for rec in app.recommendation_set.all %}
 <tr><td><a href="{% url sso.views.user_view rec.user %}">{{ rec.user }}</a></td>
-<td><a href="{% url sso.views.characters rec.user_character.id %}">{{ rec.user_character }}</a></td>
+<td><a href="{% url eve_api.views.eveapi_character rec.user_character.id %}">{{ rec.user_character }}</a></td>
 <td><a href="http://evemaps.dotlan.net/corp/{{ rec.user_character.corporation.name }}">{{ rec.user_character.corporation }}</a></td>
 <td>{% if rec.is_valid %}<font color="green">Yes</font>{% else %}<font color="red">No</font>{% endif %}</td>
 </tr>
@@ -83,7 +83,7 @@
 <tr><th>Character</th><th>Corp / Alliance</th><th>ISK</th><th>SP</th><th>Links</th></tr>
 {% for acc in app.user.eveaccount_set.all %}
 {% for char in acc.characters.all %}
-<tr><td><a href="{% url sso.views.characters char.id %}">{{ char.name }}</a></td>
+<tr><td><a href="{% url eve_api.views.eveapi_character char.id %}">{{ char.name }}</a></td>
     <td><a href="http://evemaps.dotlan.net/corp/{{ char.corporation }}">{{ char.corporation }}</a>{% if char.corporation.alliance %} / 
         <a href="http://evemaps.dotlan.net/alliance/{{ char.corporation.alliance }}">{{ char.corporation.alliance }}</a>{% endif %}
     </td>
