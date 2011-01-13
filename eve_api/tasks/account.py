@@ -9,6 +9,7 @@ from eve_proxy.models import CachedDocument
 
 from eve_api.models import EVEAccount, EVEPlayerCharacter
 from eve_api.app_defines import *
+from eve_api.api_exceptions import *
 from eve_api.utils import basic_xml_parse_doc
 from eve_api.tasks.character import import_eve_characters
 from eve_api.tasks.corporation import import_corp_members, import_corp_details
