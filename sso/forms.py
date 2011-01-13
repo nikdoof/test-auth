@@ -33,29 +33,6 @@ class RegistrationFormUniqueEmailBlocked(RegistrationForm):
         return self.cleaned_data['email']
 
 
-class EveAPIForm(forms.Form):
-    """ EVE API input form """
-
-    user_id = forms.IntegerField(label=u'User ID')
-    api_key = forms.CharField(label=u'API Key', max_length=64)
-    description = forms.CharField(max_length=100, required=False)
-
-    def clean(self):
-
-        if not 'api_key' in self.cleaned_data or not len(self.cleaned_data['api_key']) == 64:
-            raise forms.ValidationError("API Key provided is invalid (Not 64 characters long)")
-
-        if not 'user_id' in self.cleaned_data:
-            raise forms.ValidationError("Please provide a valid User ID")
-
-        try:
-            eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['user_id'])
-        except EVEAccount.DoesNotExist:
-            return self.cleaned_data
-        else:
-            raise forms.ValidationError("This API User ID is already registered")
-
-
 def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
