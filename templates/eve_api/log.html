@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
 {% block title %}EVE API Access Logs{% endblock %}
-
+{% load pagination_tags %}
 {% block content %}
 
 <h1>Access Logs for API Key {{ userid }}</h1>
 
 <table>
 <tr><th>Service ID</th><th>Date / Time</th><th>API</th></tr>
+{% autopaginate logs 20 %}
 {% for log in logs %}
 <tr><td>{{ log.service }}</td>
     <td>{{ log.time_access }}</td>
@@ -15,5 +16,7 @@
 </tr>
 {% endfor %}
 </table>
+{% paginate %}
+
 
 {% endblock %}
