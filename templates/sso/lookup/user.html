@@ -67,7 +67,7 @@
 {% for acc in user.eveaccount_set.all %}
 <tr><th colspan=2>Account {{ acc.api_user_id }}</th></tr>
 {% for char in acc.characters.all %}
-<tr><td><a href="{% url sso.views.characters char.id %}">{{ char.name }}</a></td>
+<tr><td><a href="{% url eve_api.views.eveapi_character char.id %}">{{ char.name }}</a></td>
     <td>{{ char.corporation }}</td>
 </tr>
 {% endfor %}
