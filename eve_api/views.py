@@ -89,3 +89,15 @@ def eveapi_log(request, userid):
 
     raise Http404
 
+
+@login_required
+def eveapi_character(request, charid=None):
+    """ Provide a list of characters, or a indivdual character sheet """
+
+    if charid:
+        character = get_object_or_404(EVEPlayerCharacter.objects.select_related('corporation', 'corporation__aliance'), id=charid)
+        skills = character.eveplayercharacterskill_set.all().order_by('skill__group__name', 'skill__name')
+        return render_to_response('eve_api/character.html', locals(), context_instance=RequestContext(request))
+
+    characters = EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=request.user).only('id', 'name', 'corporation__name', 'corporation__alliance__name')
+    return render_to_response('eve_api/character_list.html', locals(), context_instance=RequestContext(request))

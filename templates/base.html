@@ -22,7 +22,7 @@
                 {% if "hr"|installed %}
                     <li><a href="{% url hr.views.index %}">HR</a></li>
                 {% endif %}
-                    <li><a href="{% url sso.views.characters %}">Characters</a></li>
+                    <li><a href="{% url eve_api.views.eveapi_character %}">Characters</a></li>
                 {% if request.user.is_staff %}
                     <li><a href="{% url sso.views.user_lookup %}">Lookup User</a></li>
                     <li><a href="/admin">Admin</a></li>
