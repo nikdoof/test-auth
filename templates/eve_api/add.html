@@ -7,7 +7,7 @@
 href="http://eve-online.com/api">EVE Online API
 page</a> and a optional description.</p>
 
-<form action="{% url sso.views.eveapi_add %}" method="post">
+<form action="{% url eve_api.views.eveapi_add %}" method="post">
 <table>
 {{ form.as_table }}
 </table>
@@ -15,6 +15,5 @@ page</a> and a optional description.</p>
 {% csrf_token %}
 <input type="submit" value="Add Key" />
 </form>
-<p>Once you have added your EVE API key, don't forget to apply in game, as well as add an application through our
-<a href="{% url hr.applications.add}">HR system.</a></p>
+
 {% endblock %}

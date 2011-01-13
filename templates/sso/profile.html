@@ -13,7 +13,7 @@
 function refresh_apikey(key) {
     $("#api-status-" + key).html("<center><img src='/static/img/spinner.gif'/></center>");
     $("#api-time-" + key).html("<center><img src='/static/img/spinner.gif'/></center>");  
-    $.getJSON("/profile/refresh/eveapi/" + key + "/", function(json) {
+    $.getJSON("/eve/eveapi/refresh/" + key + "/", function(json) {
             $("#api-time-" + json[0].fields.api_user_id).html("a moment ago");
 
             switch(json[0].fields.api_status) {
@@ -107,15 +107,15 @@ setup.</p>
     <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
     <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
     <td><a href="javascript:refresh_apikey({{ acc.api_user_id }})">Refresh</a>,&nbsp;
-        <a href="{% url sso.views.eveapi_log acc.api_user_id %}">Logs</a>,&nbsp;
-        <a href="{% url sso.views.eveapi_del acc.api_user_id %}">Delete</a></td>
+        <a href="{% url eve_api.views.eveapi_log acc.api_user_id %}">Logs</a>,&nbsp;
+        <a href="{% url eve_api.views.eveapi_del acc.api_user_id %}">Delete</a></td>
 </tr>
 </tbody>
 {% endfor %}
 </table>
 {% endif %}
 <p>
-<a href="{% url sso.views.eveapi_add %}">Add a Eve API key</a>
+<a href="{% url eve_api.views.eveapi_add %}">Add a Eve API key</a>
 </p>
 
 <br/>
