@@ -80,7 +80,14 @@ def import_corp_members(api_userid, api_key, character_id):
     set = basic_xml_parse_doc(char_doc)['eveapi']['result']['members']
     corp = EVEPlayerCharacter.objects.get(id=character_id).corporation
 
+    charlist = []
     for character in set:
+        charlist.append(int(character['characterID']))
         charobj = EVEPlayerCharacter.objects.filter(id=character['characterID'])
-        charobj.update(last_login=character['logonDateTime'], last_logoff=character['logoffDateTime'], current_location_id=int(character['locationID']))
+        charobj.update(last_login=character['logonDateTime'], last_logoff=character['logoffDateTime'], current_location_id=int(character['locationID'], corporation_date=character['startDateTime']))
+
+    removemembers = EVEPlayerCharacter.objects.exclude(corporation=corp,id__in=charlist)
+    removemembers.update(corporation=None, corporation_date=None)
+    #for char in removemembers:
+    #    import_eve_character.delay(char.id)
 
