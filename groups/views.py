@@ -55,6 +55,8 @@ def group_list(request):
 
         group_list.append((group.id, group.name, group.groupinformation.description, status, requestable, fixed, pending))
 
+    group_list = sorted(group_list, key=lambda name: name[1].lower())
+
     return render_to_response('groups/group_list.html', locals(), context_instance=RequestContext(request))
 
 
