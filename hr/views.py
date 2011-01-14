@@ -70,7 +70,7 @@ def index(request):
 def view_applications(request):
     """ Shows a list of the user's applications """
 
-    apps = Application.objects.filter(user=request.user)
+    apps = Application.objects.filter(user=request.user).order_by('id')
     return render_to_response('hr/applications/view_list.html', locals(), context_instance=RequestContext(request))
 
 @login_required
@@ -163,18 +163,24 @@ def admin_applications(request):
 
     # Get the list of viewable applications by the admin
     corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).values_list('corporation', flat=True)
+    view_status = [APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY]
+
     apps = Application.objects.filter(corporation__id__in=list(corplist))
 
     if 'q' in request.GET:
         query = request.GET['q']
-        if 'l' in request.GET:
-            limit = request.get['l']
-        else:
-            limit = 10
-        apps = apps.filter(character__name__icontains=query)[:limit]
+        apps = apps.filter(character__name__icontains=query)
     else:
-        view_status = [APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY]
         apps = apps.filter(status__in=view_status)
+
+    if 'o' in request.GET:
+        order = request.GET['o']
+        if order in ['id', 'corporation', 'name']:
+            apps = apps.order_by(order)
+
+    if 'l' in request.GET:
+        limit = request.get['l']
+        apps = apps[:limit]
 
     return render_to_response('hr/applications/admin/view_list.html', locals(), context_instance=RequestContext(request))
 

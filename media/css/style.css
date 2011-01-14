@@ -120,6 +120,15 @@ border-bottom: 2px #fff solid;
 font-size: 12px;
 font-weight: bold;}
 
+table th a
+{color: #fff;
+}
+
+table th a:visted
+{color: #fff;
+}
+
+
 .character_info > div { margin-bottom: 2em; }
 .character_info .character_portrait, .character_info .character_corporation, .character_info .character_alliance { float: right; }
 .character_info .character_corporation { clear: right; margin-left: 2em; }
