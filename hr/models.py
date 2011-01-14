@@ -77,6 +77,12 @@ class Application(models.Model):
 
         return blacklist
 
+    @property
+    def last_action(self):
+        if self.audit_set.count():
+            return self.audit_set.all().order_by('-date')[0]
+        return None
+
     def save(self, *args, **kwargs):
 
         user = None
