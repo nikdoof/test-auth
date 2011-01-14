@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.http import Http404
+from django.core import serializers
 
 from eve_proxy.models import ApiAccessLog
 from eve_api.forms import EveAPIForm
