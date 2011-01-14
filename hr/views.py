@@ -179,7 +179,7 @@ def admin_applications(request):
             apps = apps.order_by(order)
 
     if 'l' in request.GET:
-        limit = request.get['l']
+        limit = request.GET['l']
         apps = apps[:limit]
 
     return render_to_response('hr/applications/admin/view_list.html', locals(), context_instance=RequestContext(request))
