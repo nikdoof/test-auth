@@ -144,6 +144,6 @@ table th a:visted
     background: none repeat scroll 0 0 #CC6600;
     color: #FFFFFF;
     display: inline-block;
-    padding: 4px 12px;
+    padding: 4px 12px 4px;
     text-decoration: none;
 }
