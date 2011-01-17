@@ -11,7 +11,7 @@
 
 <ul>
 <li>Applying Auth User: <a href="{% url sso.views.user_view app.user %}">{{ app.user }}</a></li>
-<li>Applying Character: <a href="{% url eve_api.views.eveapi_character rec.user_character.id %}">{{ app.character }}</a></li>
+<li>Applying Character: <a href="{% url eve_api.views.eveapi_character app.character.id %}">{{ app.character }}</a></li>
 <li>Applying To: <a href="{% url eve_api.views.eveapi_corporation app.corporation.id %}">{{ app.corporation }}</a></li>
 <li>Application Status: <b>{{ app.get_status_display }}</b></li>
 <li>Blacklist Status: <b>{% if app.blacklisted %}<font color='red'>BLACKLISTED</font>{% else %}<font color='geen'>OK</font>{% endif %}</b></li>
@@ -19,30 +19,32 @@
 
 {% ifnotequal app.status 5 %}
 <h3>Actions</h3>
+<div class="skill_controls">
 <p>
 {% if app.status < 1 %}
-<a href="{% url hr.views.update_application app.id 1 %}">Submit Application</a>,&nbsp;
+<a href="{% url hr.views.update_application app.id 1 %}">Submit Application</a>
 {% else %}
-<a href="{% url hr.views.update_application app.id 0 %}">Withdraw Application</a>,&nbsp;
+<a href="{% url hr.views.update_application app.id 0 %}">Withdraw Application</a>
 {% endif %}
-<a href="{% url hr.views.add_message app.id %}">Add Message</a>,
+<a href="{% url hr.views.add_message app.id %}">Add Message</a>
 {% if hrstaff %}
-<a href="{% url hr.views.add_note app.id %}">Add Staff Note</a>,&nbsp;
+<a href="{% url hr.views.add_note app.id %}">Add Staff Note</a>
 {% if app.status < 2 or app.status = 4 %}
-<a href="{% url hr.views.reject_application app.id %}">Reject Application</a>,&nbsp;
+<a href="{% url hr.views.reject_application app.id %}">Reject Application</a>
 {% ifequal app.blacklisted 0 %}
-<a href="{% url hr.views.accept_application app.id %}">Accept Application</a>,&nbsp;
+<a href="{% url hr.views.accept_application app.id %}">Accept Application</a>
 {% endifequal %}
 {% ifnotequal app.status 4 %}
-<a href="{% url hr.views.update_application app.id 4 %}">Mark as In Query</a>,&nbsp;
+<a href="{% url hr.views.update_application app.id 4 %}">Mark as In Query</a>
 {% endifnotequal %}
 {% endif %}
 {% ifequal app.status 3 %}
-<a href="{% url hr.views.update_application app.id 5 %}">Mark as Complete</a>,&nbsp;
+<a href="{% url hr.views.update_application app.id 5 %}">Mark as Complete</a>
 {% endifequal %}
 {% endif %}
 {% endifnotequal %}
 </p>
+</div>
 
 {% if audit %}
 <h3>Event Log</h3>
@@ -90,7 +92,7 @@
     </td>
     <td align="right">{{ char.balance|intcomma }} ISK</td>
     <td align="right">{{ char.total_sp|intcomma }} SP</td>
-    <td><button type="button" onclick="CCPEVE.showInfo('1377//{{ char.id }}')">Show In Eve</button> / <a href="https://gate.eveonline.com/Profile/{{ char.name }}/">EveGate Profile</a> / <a href="http://eve-search.com/search/author/{{ char.name }}">EveSearch</a></td>
+    <td>{% if request.is_igb %}<a href="javascript:CCPEVE.showInfo(1377, {{ char.id }})">Show In Eve</a> / {% endif %}<a href="https://gate.eveonline.com/Profile/{{ char.name }}/">EveGate Profile</a> / <a href="http://eve-search.com/search/author/{{ char.name }}">EveSearch</a></td>
 </tr>
 {% endfor %}
 {% endfor %}

@@ -68,6 +68,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'pagination.middleware.PaginationMiddleware',
+    'sso.middleware.IGBMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
