@@ -11,8 +11,8 @@
 
 <ul>
 <li>Applying Auth User: <a href="{% url sso.views.user_view app.user %}">{{ app.user }}</a></li>
-<li>Applying Character: {{ app.character }} <button type="button" onclick="CCPEVE.showInfo('1377//{{ app.character.id }}')">Show In Eve</button></li>
-<li>Applying To: {{ app.corporation }}</li>
+<li>Applying Character: <a href="{% url eve_api.views.eveapi_character rec.user_character.id %}">{{ app.character }}</a></li>
+<li>Applying To: <a href="{% url eve_api.views.eveapi_corporation app.corporation.id %}">{{ app.corporation }}</a></li>
 <li>Application Status: <b>{{ app.get_status_display }}</b></li>
 <li>Blacklist Status: <b>{% if app.blacklisted %}<font color='red'>BLACKLISTED</font>{% else %}<font color='geen'>OK</font>{% endif %}</b></li>
 </ul>
