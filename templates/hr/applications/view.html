@@ -13,7 +13,7 @@
 <li>Applying Auth User: <a href="{% url sso.views.user_view app.user %}">{{ app.user }}</a></li>
 <li>Applying Character: {{ app.character }} <button type="button" onclick="CCPEVE.showInfo('1377//{{ app.character.id }}')">Show In Eve</button></li>
 <li>Application Status: <b>{{ app.get_status_display }}</b></li>
-<li>Blacklist Status: <b>{% if app.blacklisted %}<span color='red'>BLACKLISTED</span>{% else %}<span color='geen'>OK</span>{% endif %}</b></li>
+<li>Blacklist Status: <b>{% if app.blacklisted %}<font color='red'>BLACKLISTED</font>{% else %}<font color='geen'>OK</font>{% endif %}</b></li>
 </ul>
 
 {% ifnotequal app.status 5 %}
