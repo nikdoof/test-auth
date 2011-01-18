@@ -2,6 +2,8 @@ from __future__ import with_statement
 import time
 import os
 from fabric.api import *
+from fabric.contrib.files import *
+from fabric.utils import warn
 from hashlib import sha1
 
 env.repo = 'git://dev.dredd.it/dreddit-auth.git'
@@ -77,6 +79,7 @@ def setup_db():
         run('if [ ! -e dbsettings.py ]; then cp dbsettings.py.example dbsettings.py; fi' % env)
         run('env/bin/python manage.py syncdb --noinput --migrate')
 
+
 def generate_brokersettings():
     """
     Generates the brokersettings file
@@ -87,6 +90,7 @@ def generate_brokersettings():
     cnf = open('brokersettings.py.example', 'r').read()
     out = open('brokersettings.py', 'w')
     out.write(cnf % env)
+
 
 def setup_rabbitmq():
     """
@@ -107,6 +111,7 @@ def setup_rabbitmq():
 
     put('./brokersettings.py', '%(path)s/dreddit-auth/' % env)
     os.unlink('brokersettings.py')
+
 
 def deploy_repo():
     """
@@ -133,6 +138,7 @@ def update_repo():
     with cd('%(path)s/dreddit-auth/' % env):
         run('git pull')
 
+
 def reset_repo():
     """
     Does a hard reset on the remote repo
@@ -155,38 +161,68 @@ def migrate():
         run('env/bin/python manage.py migrate')
 
 
-def start():
+def start_celeryd():
     """
-    Start the FastCGI server
+    Start the celeryd server
     """
     require('hosts')
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('rm -f off.html')
-        run('./start.sh')
+        run('./manage.py celeryd_detach -l INFO -B --pidfile logs/celery.pd -f logs/celeryd.log -n auth-processor' % env)
 
 
-def stop():
+def stop_celeryd():
     """
     Stop any running FCGI instance
     """
     require('hosts')
     require('path')
 
+        if exists('logs/celeryd.pid'):
+            run('kill `cat logs/celeryd.pid`')
+        else:
+            warn('celeryd isn\'t running')
+
+def restart_celeryd():
+    """
+    Restart the celery daemon
+    """
+    stop_celeryd()
+    time.sleep(2)
+    start_celeryd()
+
+
+def start_uwsgi():
     with cd('%(path)s/dreddit-auth/' % env):
-        run('rm -f off.html')
-        run('ln -s templates/off.html')
-        run('kill `cat ./logs/celeryd.pid`')
-        run('kill `cat ./logs/auth.pid`')
-        run('rm -f ./logs/celeryd.pid')
-        run('rm -f ./logs/auth.pid')
+        run('uwsgi -s logs/uwsgi.sock -M -p 5 --vhost --no-site -d logs/uwsgi.log --pidfile logs/uwsgi.pid --vacuum' % env)
+
+
+def stop_uwsgi():
+    with cd('%(path)s/dreddit-auth/' % env):
+        if exists('logs/uwsgi.pid'):
+            run('kill `cat logs/uwsgi.pid`')
+        else:
+            warn('uWSGI isn\'t running')
+
+
+def restart_uwsgi():
+    stop_uwsgi()
+    time.sleep(0.5)
+    start_uwsgi()
+
+
+def start():
+    start_uwsgi()
+    start_celeryd()
+
+
+def stop():
+    stop_celeryd()
+    stop_uwsgi()
 
 
 def restart():
-    """
-    Restart the FCGI server
-    """
     stop()
-    time.sleep(2)
+    time.sleep(5)
     start()
