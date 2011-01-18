@@ -15,10 +15,6 @@ from groups.forms import GroupRequestForm
 from sso.tasks import update_user_access
 
 
-def index(request):
-    return HttpResponseRedirect(reverse('groups.views.group_list'))
-
-
 @login_required
 def group_list(request):
     """ View all groups, for users only public ones """

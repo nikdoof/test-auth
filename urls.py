@@ -18,14 +18,17 @@ urlpatterns = patterns('',
     (r'^eve/', include('eve_api.urls')),
     (r'^eveapi/', include('eve_proxy.urls')),
     (r'^api/', include('api.urls')),
-    (r'^hr/', include('hr.urls')),
-    (r'^groups/', include('groups.urls')),
     (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 )
 
 if installed('reddit'):
     urlpatterns += patterns('',
         ('', include('reddit.urls')),
+    )
+
+if installed('hr'):
+    urlpatterns += patterns('',
+        (r'^hr/', include('hr.urls')),
     )
 
 if installed('groups'):    
