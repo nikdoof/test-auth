@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 from xml.dom import minidom
 
@@ -6,23 +7,51 @@ from eve_proxy.models import CachedDocument
 from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerAlliance
 from eve_api.utils import basic_xml_parse_doc
 from eve_api.tasks.character import import_eve_character
+from eve_api.api_exceptions import APIAccessException
         
 @task(ignore_result=True)
-def import_corp_details(corp_id):
-    import_corp_details_func(corp_id)
+def import_corp_details(corp_id, callback=None, **kwargs):
+    log = import_corp_details.get_logger()
+    try:
+        corp = import_corp_details_func(corp_id, log)
+    except APIAccessException, exc:
+        log.error('Error importing corporation - queueing for retry')
+        import_corp_details.retry(args=[corp_id, callback], exc=exc, kwargs=kwargs)
+
+    if callback:
+        subtask(callback).delay(corporation=corp.id)
+    else:
+        return corp
+
 
 @task()
-def import_corp_details_result(corp_id):
-    return import_corp_details_func(corp_id)
+def import_corp_details_result(corp_id, callback=None):
+    log = import_corp_details_result.get_logger()
+    try:
+        corp = import_corp_details_func(corp_id, log)
+    except APIAccessException, exc:
+        log.error('Error importing corporation')
+        return none
+
+    if callback:
+        subtask(callback).delay(corporation=corp.id)
+    else:
+        return corp
 
 
-def import_corp_details_func(corp_id):
+def import_corp_details_func(corp_id, log=logging.getLogger(__name__)):
 
     corpobj, created = EVEPlayerCorporation.objects.get_or_create(id=corp_id)   
     if created or not corpobj.api_last_updated or corpobj.api_last_updated < (datetime.utcnow() - timedelta(hours=12)):
 
         doc = CachedDocument.objects.api_query('/corp/CorporationSheet.xml.aspx', {'corporationID': corp_id})
-        d = basic_xml_parse_doc(doc)['eveapi']['result']
+        d = basic_xml_parse_doc(doc)['eveapi']
+
+        if 'error' in d:
+            log.error("Error importing Corp %s: %s" % (corp_id, d['error']))
+            raise APIAccessException
+        else:
+            d = d['result']
 
         tag_mappings = (
             ('corporationName', 'name'),
