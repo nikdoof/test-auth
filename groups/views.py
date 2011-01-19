@@ -62,11 +62,11 @@ def create_request(request, groupid):
     group = get_object_or_404(Group, id=groupid)
 
     if not group.groupinformation.requestable and not request.user in group.user_set.all():
-        return HttpResponseRedirect(reverse('groups.views.index'))
+        return HttpResponseRedirect(reverse('groups.views.group_list'))
 
     if group.requests.filter(status=REQUEST_PENDING,user=request.user).count():
         messages.add_message(request, messages.INFO, "You already have a pending request for %s" % group.name)
-        return HttpResponseRedirect(reverse('groups.views.index'))
+        return HttpResponseRedirect(reverse('groups.views.group_list'))
 
     if request.method == 'POST':
         form = GroupRequestForm(request.POST)
@@ -77,7 +77,7 @@ def create_request(request, groupid):
             obj.changed_by = request.user
             obj.save()
             messages.add_message(request, messages.INFO, "You membership request has been created.")
-            return HttpResponseRedirect(reverse('groups.views.index')) # Redirect after POST
+            return HttpResponseRedirect(reverse('groups.views.group_list')) # Redirect after POST
     else:
         form = GroupRequestForm() # An unbound form
 
