@@ -33,8 +33,12 @@ class TS3Service(BaseService):
         """ Add a user, returns a UID for that user """
 
         details = { 'name': username,
-                    'alliance': kwargs['character'].corporation.alliance.ticker,
                     'corporation': kwargs['character'].corporation.ticker }
+
+        if kwargs['character'].corporation.alliance:
+            details['alliance'] = kwargs['character'].corporation.alliance.ticker
+        else:
+            details['alliance'] = None
 
         username = self.settings['name_format'] % details
         ret = self.conn.send_command('tokenadd', {'tokentype': 0, 'tokenid1': self.settings['authed_sgid'], 'tokenid2': 0, 'tokendescription': kwargs['character'].name.replace(' ', ''), 'tokencustomset': "ident=sso_uid value=%s|ident=sso_userid value=%s|ident=eve_charid value=%s" % (kwargs['character'].name.replace(' ', ''), kwargs['user'].id, kwargs['character'].id) })
