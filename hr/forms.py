@@ -30,12 +30,12 @@ def CreateApplicationForm(user):
         character = forms.ModelChoiceField(queryset=characters, required=True, empty_label=None)
         corporation = forms.ModelChoiceField(queryset=corporations, required=True, empty_label=None)
 
-        def clean(self):
+        def clean_character(self):
  
             if not 'character' in self.cleaned_data or not self.cleaned_data['character']:
                 raise forms.ValidationError("Please select a character to apply with")
 
-            if len(Application.objects.filter(character=self.cleaned_data['character'], status__in=[APPLICATION_STATUS_NOTSUBMITTED, APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_QUERY])):
+            if Application.objects.filter(character=self.cleaned_data['character']).exclude(status__in=[APPLICATION_STATUS_COMPLETED, APPLICATION_STATUS_REJECTED]).count():
                 raise forms.ValidationError("This character already has a open application")
 
             return self.cleaned_data
