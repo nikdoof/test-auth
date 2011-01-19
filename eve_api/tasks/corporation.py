@@ -17,11 +17,9 @@ def import_corp_details(corp_id, callback=None, **kwargs):
     except APIAccessException, exc:
         log.error('Error importing corporation - queueing for retry')
         import_corp_details.retry(args=[corp_id, callback], exc=exc, kwargs=kwargs)
-
-    if callback:
-        subtask(callback).delay(corporation=corp.id)
     else:
-        return corp
+        if callback:
+            subtask(callback).delay(corporation=corp.id)
 
 
 @task()
@@ -31,12 +29,11 @@ def import_corp_details_result(corp_id, callback=None):
         corp = import_corp_details_func(corp_id, log)
     except APIAccessException, exc:
         log.error('Error importing corporation')
-        return none
-
-    if callback:
-        subtask(callback).delay(corporation=corp.id)
     else:
-        return corp
+        if callback:
+            subtask(callback).delay(corporation=corp.id)
+        else:
+            return corp
 
 
 def import_corp_details_func(corp_id, log=logging.getLogger(__name__)):
