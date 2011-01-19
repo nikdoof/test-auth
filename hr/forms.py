@@ -38,7 +38,8 @@ def CreateApplicationForm(user):
             if Application.objects.filter(character=self.cleaned_data['character']).exclude(status__in=[APPLICATION_STATUS_COMPLETED, APPLICATION_STATUS_REJECTED]).count():
                 raise forms.ValidationError("This character already has a open application")
 
-            return self.cleaned_data
+            return self.cleaned_data['character']
+
     return ApplicationForm
 
 class NoteForm(forms.ModelForm):
