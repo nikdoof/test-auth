@@ -16,6 +16,8 @@ def import_corp_details(corp_id, callback=None, **kwargs):
         corp = import_corp_details_func(corp_id, log)
     except APIAccessException, exc:
         log.error('Error importing corporation - queueing for retry')
+        if not kwargs:
+            kwargs = {}
         import_corp_details.retry(args=[corp_id, callback], exc=exc, kwargs=kwargs)
     else:
         if callback:
