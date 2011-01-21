@@ -96,6 +96,8 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
             account.api_status = API_STATUS_OTHER_ERROR
         account.api_last_updated = datetime.utcnow()
         account.save()
+        if account.user:
+            update_user_access.delay(account.user.id)
         return account
 
     # Create or retrieve the account last to make sure everything
