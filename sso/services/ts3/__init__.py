@@ -74,7 +74,13 @@ class TS3Service(BaseService):
         if user:
             ret = self.conn.send_command('servergroupdelclient', {'sgid': self.settings['authed_sgid'], 'cldbid': user })
             if ret == '0':
+
+                groups = self._user_group_list(user)
+                for group in groups:
+                    self.conn.send_command('servergroupdelclient', {'sgid': groups[group], 'cldbid': user })
+
                 return True
+        return False
 
     def enable_user(self, uid, password):
         """ Enable a user by uid """
