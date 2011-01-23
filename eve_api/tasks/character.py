@@ -75,7 +75,7 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
 
     corp, created = EVEPlayerCorporation.objects.get_or_create(id=values['corporationID'])
     from eve_api.tasks.corporation import import_corp_details
-    if created or not corp.name:
+    if created or not corp.name or corp.api_last_updated < (datetime.utcnow() - timedelta(hours=12)):
         import_corp_details.delay(values['corporationID'])
 
     pchar.corporation = corp
