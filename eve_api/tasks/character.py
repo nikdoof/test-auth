@@ -29,10 +29,13 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
         log.error('Error importing character - flagging for retry')
         import_eve_character.retry(args=[character_id, api_key, user_id, callback], exc=exc, kwargs=kwargs)
 
-    if callback:
-        subtask(callback).delay(character=pchar.id)
+    if not pchar:
+        log.error('Error importing character %d' % character_id)
     else:
-        return pchar
+        if callback:
+            subtask(callback).delay(character=pchar.id)
+        else:
+            return pchar
 
 
 @task()
