@@ -13,7 +13,7 @@ import settings
 try:
     API_URL = getattr(settings, 'EVE_API_URL')
 except AttributeError:
-    API_URL = 'http://api.eve-online.com'
+    API_URL = 'https://api.eve-online.com'
 
 # Errors to rollback if we have a cached version of the document
 # Errors 500-999 at the moment, this can be trimmed down as needed
