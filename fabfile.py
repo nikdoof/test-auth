@@ -169,7 +169,7 @@ def start_celeryd():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('. env/bin/activate; ./manage.py celeryd_detach -l INFO -B --pidfile logs/celery.pd -f logs/celeryd.log -n auth-processor' % env)
+        run('. env/bin/activate; ./manage.py celeryd_detach -l INFO -B --pidfile logs/celeryd.pid -f logs/celeryd.log -n auth-processor' % env)
 
 
 def stop_celeryd():
