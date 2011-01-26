@@ -60,6 +60,7 @@ def check_permissions(user, application=None):
 
 ### General Views
 
+@login_required
 def index(request):
     hrstaff = check_permissions(request.user)
     return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
