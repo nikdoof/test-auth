@@ -169,7 +169,7 @@ def start_celeryd():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('./manage.py celeryd_detach -l INFO -B --pidfile logs/celery.pd -f logs/celeryd.log -n auth-processor' % env)
+        run('. env/bin/activate; ./manage.py celeryd_detach -l INFO -B --pidfile logs/celery.pd -f logs/celeryd.log -n auth-processor' % env)
 
 
 def stop_celeryd():
@@ -179,6 +179,7 @@ def stop_celeryd():
     require('hosts')
     require('path')
 
+    with cd('%(path)s/dreddit-auth/' % env):
         if exists('logs/celeryd.pid'):
             run('kill `cat logs/celeryd.pid`')
         else:
