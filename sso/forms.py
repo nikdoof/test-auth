@@ -91,15 +91,12 @@ class ServiceAccountResetForm(forms.Form):
 class UserLookupForm(forms.Form):
     """ User Lookup Form """
 
-    choices = [(1, "Auth Username"),
-               (2, "Character"),
-               (4, "Email Address"), ]
-
     def __init__(self, *args, **kwargs):
         super(UserLookupForm, self).__init__(*args, **kwargs)
         choices = [(1, "Auth Username"),
                    (2, "Character"),
-                   (4, "Email Address"), ]
+                   (4, "Email Address"),
+                   (5, "EVE API User ID"), ]
         if installed('reddit'):
             choices.append((3, "Reddit ID"))
 
