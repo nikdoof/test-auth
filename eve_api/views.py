@@ -10,6 +10,7 @@ from django.http import Http404
 from django.core import serializers
 
 from eve_proxy.models import ApiAccessLog
+from eve_api.api_exceptions import DocumentRetrievalError
 from eve_api.forms import EveAPIForm
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 from eve_api.tasks import import_apikey_result
@@ -29,6 +30,10 @@ def eveapi_add(request, post_save_redirect='/'):
             except celery.exceptions.TimeoutError:
                 msg = "The addition of your API key is still processing, please check back in a minute or so."
                 pass
+            except DocumentRetrievalError:
+                msg = "An issue with the EVE API was encountered while adding your API, please try again later."
+            except:
+                msg = "An unknown error was encountered while trying to add your API key, please try again later."
             else:
                 msg = "EVE API key %d successfully added." % form.cleaned_data['user_id']
             messages.success(request, msg, fail_silently=True)
@@ -68,7 +73,7 @@ def eveapi_refresh(request, userid, post_save_redirect='/'):
             if request.is_ajax():
                 try:
                     acc = task.wait(30)
-                except celery.exceptions.TimeoutError:
+                except (celery.exceptions.TimeoutError, DocumentRetrievalError):
                     acc = EVEAccount.objects.get(id=userid)
                 return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
             else:
