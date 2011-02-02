@@ -10,7 +10,7 @@ from django.http import Http404
 from django.core import serializers
 
 from eve_proxy.models import ApiAccessLog
-from eve_api.api_exceptions import DocumentRetrievalError
+from eve_proxy.exceptions import DocumentRetrievalError
 from eve_api.forms import EveAPIForm
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 from eve_api.tasks import import_apikey_result
