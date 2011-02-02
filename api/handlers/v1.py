@@ -228,3 +228,23 @@ class CharacterHandler(BaseHandler):
             s = EVEPlayerCharacter.objects.filter(corporation__alliance__id=request.GET['allianceid'])
         return s
 
+class AnnounceHandler(BaseHandler):
+    allowed_methods = ('GET')
+
+    def read(self, request):
+
+        sid = request.GET.get('sid', None)
+        to = request.GET.getlist('to')
+        message = request.GET.get('message', None)
+        subject = request.GET.get('subject', None)
+
+        if sid and to and message:
+            srv = get_object_or_404(Service, pk=sid)
+
+            if not srv.api == 'sso.services.jabber':
+                return {'result': 'invalid'}
+
+            api = srv.api_class
+            return {'result': api.announce(api.settings['jabber_server'], message, subject, groups=to)}
+
+        return {'result': 'invalid'}
