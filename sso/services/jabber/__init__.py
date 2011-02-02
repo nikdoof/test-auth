@@ -114,7 +114,7 @@ class JabberService(BaseService):
         for group in (set(current_groups) - set(valid_groups)):
             self.exec_xmlrpc('srg_user_del', user=username, host=server, group=groupname, grouphost=server)
 
-    def send_message(jid, msg):
+    def send_message(self, jid, msg):
         # send_stanza_c2s user host resource stanza
         username, server = jid.split("@")
         self.exec_xmlrpc('send_stanza_c2s', user=username, host=server, resource='auth', stanza=msg)
