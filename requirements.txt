@@ -12,3 +12,4 @@ simplejson
 celery==2.1.2
 django-celery==2.1.2
 -e git+https://github.com/ericflo/django-pagination.git@47e7ec874cd7dddda5ed#egg=django-pagination
+xmpppy
