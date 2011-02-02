@@ -9,7 +9,8 @@ class JabberService(BaseService):
                  'require_password': True,
                  'provide_login': False,
                  'jabber_server': 'dredd.it',
-                 'jabber_xmlrpc_url': 'http://127.0.0.1:4560' }
+                 'jabber_xmlrpc_url': 'http://127.0.0.1:4560',
+                 'jabber_annouce_from': 'announcebot@pleaseignore.com'}
 
     def exec_xmlrpc(self, func, **kwargs):
         """ Send a XMLRPC request """
@@ -39,7 +40,7 @@ class JabberService(BaseService):
         """ Delete a user """
         username, server = uid.split("@")
 
-        for group in self.get_group_list(uid):
+        for group in self.get_user_groups(uid):
             self.exec_xmlrpc('srg_user_del', user=username, host=server, group=group, grouphost=server)
 
         res = self.exec_xmlrpc('unregister', user=username, host=server)
@@ -82,22 +83,26 @@ class JabberService(BaseService):
         else:
             return False
 
-    def get_group_list(self, uid):
+    def get_group_list(self, server):
+        srvgrp = self.exec_xmlrpc('srg_list', host=server)
+        return [grp for grp in srvgrp['groups']]
+
+    def get_group_members(self, server, group):
+        members = self.exec_xmlrpc('srg_get_members', group=grp['id'], host=server)
+        return [x for x in members['members']]
+
+    def get_user_groups(self, uid):
         grouplist = []
         username, server = uid.split("@")
-        srvgrp = self.exec_xmlrpc('srg_list', host=server)
-        for grp in srvgrp['groups']:
-            members = self.exec_xmlrpc('srg_get_members', group=grp['id'], host=server)
-            members = map(lambda x: x['member'], members['members'])
-            if uid in members:
+        for grp in self.get_group_list(server):
+            if uid in self.get_group_members(sever, grp['id']):
                 grouplist.append(grp['id'])
-
         return grouplist
 
     def update_groups(self, uid, groups, character=None):
         username, server = uid.split("@")
 
-        current_groups = self.get_group_list(uid)
+        current_groups = self.get_user_groups(uid)
         valid_groups = []
 
         for group in groups:
@@ -108,5 +113,37 @@ class JabberService(BaseService):
 
         for group in (set(current_groups) - set(valid_groups)):
             self.exec_xmlrpc('srg_user_del', user=username, host=server, group=groupname, grouphost=server)
+
+    def send_message(jid, msg):
+        # send_stanza_c2s user host resource stanza
+        username, server = jid.split("@")
+        self.exec_xmlrpc('send_stanza_c2s', user=username, host=server, resource='auth', stanza=msg)
+
+    def announce(self, server, message, subject=None, all=False, users=[], groups=[]):
+        import xmpp
+        msg = xmpp.protocol.Message()
+        msg.setFrom(self.settings['jabber_announce_from'])
+        msg.setBody(message)
+        if subject:
+            msg.setSubject(subject)
+
+        if all:
+            msg.setTo('%s/announce/all-hosts/online' % server)
+            self.send_message(self.settings['jabber_announce_from'], msg)
+            return True
+        else:
+            if len(users):
+                for u in users:
+                    msg.setTo(u)
+                    self.send_message(self.settings['jabber_announce_from'], msg)
+                return True
+
+            elif len(groups):
+                lolist = []
+                for g in groups:
+                    tolist.extend([x for x in get_group_members(server, g)])
+                    return self.announce(server, message, subject, users=tolist)
+            else:
+                return False
 
 ServiceClass = 'JabberService'
