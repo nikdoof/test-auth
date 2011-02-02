@@ -85,18 +85,18 @@ class JabberService(BaseService):
 
     def get_group_list(self, server):
         srvgrp = self.exec_xmlrpc('srg_list', host=server)
-        return [grp for grp in srvgrp['groups']]
+        return [grp['id'] for grp in srvgrp['groups']]
 
     def get_group_members(self, server, group):
-        members = self.exec_xmlrpc('srg_get_members', group=grp['id'], host=server)
-        return [x for x in members['members']]
+        members = self.exec_xmlrpc('srg_get_members', group=group, host=server)
+        return [x['member'] for x in members['members']]
 
     def get_user_groups(self, uid):
         grouplist = []
         username, server = uid.split("@")
         for grp in self.get_group_list(server):
-            if uid in self.get_group_members(sever, grp['id']):
-                grouplist.append(grp['id'])
+            if uid in self.get_group_members(server, grp):
+                grouplist.append(grp)
         return grouplist
 
     def update_groups(self, uid, groups, character=None):
@@ -117,7 +117,7 @@ class JabberService(BaseService):
     def send_message(self, jid, msg):
         # send_stanza_c2s user host resource stanza
         username, server = jid.split("@")
-        self.exec_xmlrpc('send_stanza_c2s', user=username, host=server, resource='auth', stanza=msg)
+        self.exec_xmlrpc('send_stanza_c2s', user=username, host=server, resource='auth', stanza=str(msg))
 
     def announce(self, server, message, subject=None, all=False, users=[], groups=[]):
         import xmpp
@@ -139,9 +139,9 @@ class JabberService(BaseService):
                 return True
 
             elif len(groups):
-                lolist = []
+                tolist = []
                 for g in groups:
-                    tolist.extend([x for x in get_group_members(server, g)])
+                    tolist.extend([x for x in self.get_group_members(server, g)])
                     return self.announce(server, message, subject, users=tolist)
             else:
                 return False
