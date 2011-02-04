@@ -30,7 +30,7 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
         import_eve_character.retry(args=[character_id, api_key, user_id, callback], exc=exc, kwargs=kwargs)
 
     if not pchar:
-        log.error('Error importing character %d' % character_id)
+        log.error('Error importing character %s' % character_id)
     else:
         if callback:
             subtask(callback).delay(character=pchar.id)
