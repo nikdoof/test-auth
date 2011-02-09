@@ -16,7 +16,7 @@ eveapiproxy_resource = Resource(handler=EveAPIProxyHandler, **apikeyauth)
 optimer_resource = Resource(handler=OpTimerHandler, **apikeyauth)
 blacklist_resource = Resource(handler=BlacklistHandler, **apikeyauth)
 characters_resource = Resource(handler=CharacterHandler, **apikeyauth)
-announce_resource = Resource(handler=CharacterHandler, **apikeyauth)
+announce_resource = Resource(handler=AnnounceHandler, **apikeyauth)
 
 urlpatterns = patterns('',
     url(r'^user/$', user_resource),
