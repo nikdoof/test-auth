@@ -232,10 +232,12 @@ def set_apipasswd(request):
 
 
 @login_required
-def refresh_access(request):
+def refresh_access(request, userid=0):
     """ Refreshes the user's access """
 
-    if request.user:
+    if userid and request.user.is_staff:
+        update_user_access(userid)
+    elif request.user:
         update_user_access(request.user.id)
         messages.add_message(request, messages.INFO, "User access updated.")
     return redirect('sso.views.profile')
