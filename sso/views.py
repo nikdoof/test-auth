@@ -236,6 +236,6 @@ def refresh_access(request):
     """ Refreshes the user's access """
 
     if request.user:
-        update_user_access(request.user)
+        update_user_access(request.user.id)
         messages.add_message(request, messages.INFO, "User access updated.")
     return redirect('sso.views.profile')
