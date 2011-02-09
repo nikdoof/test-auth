@@ -44,6 +44,8 @@ function refresh_apikey(key) {
 <p>
 <b>Username:</b> {{ user.username }}<br/>
 <b>Email:</b> {{ user.email }}<br/>
+<b>Groups:</b> {{ user.groups.all|join:", " }}<br/>
+<a href="{% url sso.views.refresh_access %}">Update Access</a><br/>
 </p>
 
 <h2>External API Auth Services</h2>

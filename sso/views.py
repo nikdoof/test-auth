@@ -17,7 +17,7 @@ from django.conf import settings
 from utils import installed
 
 from eve_api.models import EVEAccount, EVEPlayerCharacter
-from eve_api.tasks import import_apikey, import_apikey_result
+from eve_api.tasks import import_apikey, import_apikey_result, update_user_access
 
 from eve_proxy.models import ApiAccessLog
 
@@ -229,3 +229,13 @@ def set_apipasswd(request):
         form = APIPasswordForm() # An unbound form
 
     return render_to_response('sso/apipassword.html', locals(), context_instance=RequestContext(request))
+
+
+@login_required
+def refresh_access(request):
+    """ Refreshes the user's access """
+
+    if request.user:
+        update_user_access(request.user)
+        messages.add_message(request, messages.INFO, "User access updated.")
+    return redirect('sso.views.profile')
