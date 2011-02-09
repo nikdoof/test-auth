@@ -235,7 +235,7 @@ def set_apipasswd(request):
 def refresh_access(request, userid=0):
     """ Refreshes the user's access """
 
-    if userid and request.user.is_staff:
+    if userid > 0 and request.user.is_staff:
         update_user_access(userid)
     elif request.user:
         update_user_access(request.user.id)
