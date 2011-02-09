@@ -4,6 +4,7 @@ from xml.dom import minidom
 
 from celery.decorators import task
 from eve_proxy.models import CachedDocument
+from eve_proxy.exceptions imort DocumentRetrievalError
 from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerAlliance
 from eve_api.utils import basic_xml_parse_doc
 from eve_api.tasks.character import import_eve_character
@@ -43,7 +44,12 @@ def import_corp_details_func(corp_id, log=logging.getLogger(__name__)):
     corpobj, created = EVEPlayerCorporation.objects.get_or_create(id=corp_id)   
     if created or not corpobj.api_last_updated or corpobj.api_last_updated < (datetime.utcnow() - timedelta(hours=12)):
 
-        doc = CachedDocument.objects.api_query('/corp/CorporationSheet.xml.aspx', {'corporationID': corp_id})
+        try:
+            doc = CachedDocument.objects.api_query('/corp/CorporationSheet.xml.aspx', {'corporationID': corp_id})
+        except DocumentRetrievalError, exc:
+            logger.error('Error retrieving CorporationSheet.xml.aspx for ID %s - %s' % (corp_id, exc))
+            raise APIAccessException
+
         d = basic_xml_parse_doc(doc)['eveapi']
 
         if 'error' in d:

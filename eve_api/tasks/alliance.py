@@ -36,7 +36,6 @@ def import_alliance_details():
         for corp in alliance['memberCorporations']:
             if int(corp['corporationID']) not in corplist:
                 import_corp_details.delay(corp['corporationID'])
-                pass
             validcorps.append(int(corp['corporationID']))
 
         delcorps = set(corplist) - set(validcorps)
