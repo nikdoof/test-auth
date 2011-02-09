@@ -4,7 +4,7 @@ from xml.dom import minidom
 
 from celery.decorators import task
 from eve_proxy.models import CachedDocument
-from eve_proxy.exceptions imort DocumentRetrievalError
+from eve_proxy.exceptions import DocumentRetrievalError
 from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerAlliance
 from eve_api.utils import basic_xml_parse_doc
 from eve_api.tasks.character import import_eve_character
