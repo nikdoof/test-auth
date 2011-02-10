@@ -47,7 +47,7 @@ def import_corp_details_func(corp_id, log=logging.getLogger(__name__)):
         try:
             doc = CachedDocument.objects.api_query('/corp/CorporationSheet.xml.aspx', {'corporationID': corp_id})
         except DocumentRetrievalError, exc:
-            logger.error('Error retrieving CorporationSheet.xml.aspx for ID %s - %s' % (corp_id, exc))
+            log.error('Error retrieving CorporationSheet.xml.aspx for ID %s - %s' % (corp_id, exc))
             raise APIAccessException
 
         d = basic_xml_parse_doc(doc)['eveapi']
