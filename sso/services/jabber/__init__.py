@@ -134,7 +134,7 @@ class JabberService(BaseService):
             return True
         else:
             if len(users):
-                for u in users:
+                for u in set(users):
                     msg.setTo(u)
                     self.send_message(self.settings['jabber_announce_from'], msg)
                 return True
