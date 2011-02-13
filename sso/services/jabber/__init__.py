@@ -24,6 +24,7 @@ class JabberService(BaseService):
 
     def add_user(self, username, password, **kwargs):
         """ Add user to service """
+        username = username.lower()
         res = self.exec_xmlrpc('register', user=username, host=self.settings['jabber_server'], password=password)
         if res['res'] == 0:
             if 'character' in kwargs:
@@ -38,7 +39,7 @@ class JabberService(BaseService):
 
     def delete_user(self, uid):
         """ Delete a user """
-        username, server = uid.split("@")
+        username, server = uid.lower().split("@")
 
         for group in self.get_user_groups(uid):
             self.exec_xmlrpc('srg_user_del', user=username, host=server, group=group, grouphost=server)
@@ -52,7 +53,7 @@ class JabberService(BaseService):
     def check_user(self, username):
         """ Check if the username exists """
         if '@' in username:
-            username, server = username.split("@")
+            username, server = username.lower().split("@")
         else:
             server = self.settings['jabber_server']
         res = self.exec_xmlrpc('check_account', user=username, host=server)
@@ -63,7 +64,7 @@ class JabberService(BaseService):
 
     def disable_user(self, uid):
         """ Disable a user """
-        username, server = uid.split("@")
+        username, server = uid.lower().split("@")
         res = self.exec_xmlrpc('ban_account', host=server, user=username, reason='Auth account disable')
         if res['res'] == 0:
             return True
@@ -76,7 +77,7 @@ class JabberService(BaseService):
 
     def reset_password(self, uid, password):
         """ Reset the user's password """
-        username, server = uid.split("@")
+        username, server = uid.lower().split("@")
         res = self.exec_xmlrpc('change_password', user=username, host=server, newpass=password)
         if res['res'] == 0:
             return True
@@ -85,22 +86,22 @@ class JabberService(BaseService):
 
     def get_group_list(self, server):
         srvgrp = self.exec_xmlrpc('srg_list', host=server)
-        return [grp['id'] for grp in srvgrp['groups']]
+        return [grp['id'].lower() for grp in srvgrp['groups']]
 
     def get_group_members(self, server, group):
         members = self.exec_xmlrpc('srg_get_members', group=group, host=server)
-        return [x['member'] for x in members['members']]
+        return [x['member'].lower() for x in members['members']]
 
     def get_user_groups(self, uid):
         grouplist = []
-        username, server = uid.split("@")
+        username, server = uid.lower().split("@")
         for grp in self.get_group_list(server):
             if uid in self.get_group_members(server, grp):
                 grouplist.append(grp)
         return grouplist
 
     def update_groups(self, uid, groups, character=None):
-        username, server = uid.split("@")
+        username, server = uid.lower().split("@")
 
         current_groups = self.get_user_groups(uid)
         valid_groups = []
@@ -116,7 +117,7 @@ class JabberService(BaseService):
 
     def send_message(self, jid, msg):
         # send_stanza_c2s user host resource stanza
-        username, server = jid.split("@")
+        username, server = jid.lower().split("@")
         self.exec_xmlrpc('send_stanza_c2s', user=username, host=server, resource='auth', stanza=str(msg))
 
     def announce(self, server, message, subject=None, all=False, users=[], groups=[]):
