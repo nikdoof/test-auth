@@ -27,6 +27,11 @@ class EveAPIForm(forms.Form):
             raise forms.ValidationError("Please provide a valid User ID")
 
         try:
+            int(self.cleaned_data['user_id'])
+        except ValueError:
+            raise forms.ValidationError("Please provide a valid user ID.")
+
+        try:
             eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['user_id'])
         except EVEAccount.DoesNotExist:
             pass
