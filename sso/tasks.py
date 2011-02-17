@@ -24,8 +24,12 @@ def update_user_access(user, **kwargs):
 
     # Create a list of all Corp and Alliance groups
     corpgroups = []
-    corpgroups.extend(EVEPlayerCorporation.objects.filter(group__isnull=False))
-    corpgroups.extend(EVEPlayerAlliance.objects.filter(group__isnull=False))
+    for corp in EVEPlayerCorporation.objects.filter(group__isnull=False):
+        if corp.group:
+            corpgroups.append(corp.group)
+    for alliance in EVEPlayerAlliance.objects.filter(group__isnull=False):
+        if alliance.group:
+            corpgroups.append(alliance.group)
 
     # Create a list of Char groups
     chargroups = []
