@@ -7,5 +7,6 @@
   <processes>5</processes>
   <daemonize>./logs/uwsgi.log</daemonize>
   <pidfile>./logs/uwsgi.pid</pidfile>
+  <vacuum/>
 </uwsgi>
 
