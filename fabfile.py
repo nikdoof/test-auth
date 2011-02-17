@@ -196,7 +196,7 @@ def restart_celeryd():
 
 def start_uwsgi():
     with cd('%(path)s/dreddit-auth/' % env):
-        run('uwsgi -x auth_uwsgi.xml' % env)
+        run('uwsgi -x auth_uwsgi.xml --vaccum' % env)
 
 
 def stop_uwsgi():
