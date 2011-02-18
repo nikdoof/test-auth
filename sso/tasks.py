@@ -3,6 +3,7 @@ from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
 from sso.models import ServiceAccount
 from django.contrib.auth.models import User
 from django.db.models import signals
+from utils import installed
 
 
 # Signals that the tasks need to listen for
@@ -44,6 +45,13 @@ def update_user_access(user, **kwargs):
     # Generate the list of groups to add/remove
     delgroups = set(set(user.groups.all()) & set(corpgroups)) - set(chargroups)
     addgroups = set(chargroups) - set(set(user.groups.all()) & set(corpgroups))
+
+    # Check that user's groups fufil requirements
+    if installed('groups'):
+        for g in user.groups.filter(groupinformation__parent__isnull=False):
+            print g
+            if not g in delgroups and not g.groupinformation.parent in user.groups.all():
+                delgroups.add(g)
 
     for g in delgroups:
         if g in user.groups.all():

@@ -13,6 +13,7 @@ class GroupInformation(models.Model):
     admins = models.ManyToManyField(User, blank=True)
     public = models.BooleanField("Public", default=False, help_text="Indicates if the group is visible to all")
     requestable = models.BooleanField("Requestable", default=False, help_text="Indicates if people can request to join this group")
+    parent = models.ForeignKey(Group, related_name="children", null=True, blank=True)
 
     description = models.TextField(help_text="Description of the group and its permissions", blank=True)
 
