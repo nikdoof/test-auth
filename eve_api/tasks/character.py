@@ -73,7 +73,10 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
 
     values = d['result']
     pchar, created = EVEPlayerCharacter.objects.get_or_create(id=character_id)
-    pchar.name = values['characterName']
+    if not values['characterName'] == {}:
+        pchar.name = values['characterName']
+    else:
+        pchar.name = ""
     pchar.security_status = values['securityStatus']
 
     corp, created = EVEPlayerCorporation.objects.get_or_create(id=values['corporationID'])
@@ -102,6 +105,7 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
         if not 'error' in doc:
 
             values = doc['result']
+            pchar.name = values['name']
             pchar.balance = values['balance']
             pchar.attrib_intelligence = values['attributes']['intelligence']
             pchar.attrib_charisma = values['attributes']['charisma']
