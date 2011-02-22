@@ -41,6 +41,20 @@
 </table>
 {% endif %}
 
+{% if user.recommendation_set.all %}
+<br />
+<h2>Recommendations</h2>
+<table>
+<tr><th>Recommended Application</th><th>Recommendation Character</th><th>Recommendation Date</th></tr>
+{% for rec in user.recommendation_set.all %}
+<tr><td>
+<tr><td><a href="{% url hr.views.view_application app.id %}">{{ rec.application.character.name }}</a></td>
+    <td>{{ rec.user_character }}</td>
+    <td>{{ rec.recommendation_date }}</td></tr>
+{% endfor %}
+</table>
+{% endif %}
+
 <br/>
 <h2>Eve API Keys</h2>
 {% if user.eveaccount_set.all %}
