@@ -15,8 +15,7 @@ account_api_update.short_description = "Update account from the EVE API"
 class EVEAccountAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'api_keytype', 'api_status', 'api_last_updated')
     search_fields = ['id', 'user__username']
-    readonly_fields = ('api_keytype', 'api_user_id', 'api_key', 'api_status', 'characters', 'api_last_updated')
-    filter_horizontal = ('characters',)
+    readonly_fields = ('api_keytype', 'api_user_id', 'api_key', 'api_status', 'characters', 'api_last_updated', 'characters')
 
     actions = [account_api_update]
 

@@ -13,7 +13,7 @@ class SSOGroupInformationInline(admin.StackedInline):
     fk_name = 'group'
     max_num = 1
 
-    filter_horizontal = ('admins',)
+    readonly_fields = ('admins',)
 
 # Define a new UserAdmin class
 class SSOGroupAdmin(GroupAdmin):
