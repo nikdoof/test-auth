@@ -29,13 +29,16 @@
 <a href="{% url hr.views.add_message app.id %}">Add Message</a>
 {% if hrstaff %}
 <a href="{% url hr.views.add_note app.id %}">Add Staff Note</a>
-{% if app.status < 2 or app.status = 4 %}
+{% if app.status < 2 or app.status = 4 or app.status = 6 %}
 <a href="{% url hr.views.reject_application app.id %}">Reject Application</a>
 {% ifequal app.blacklisted 0 %}
 <a href="{% url hr.views.accept_application app.id %}">Accept Application</a>
 {% endifequal %}
 {% ifnotequal app.status 4 %}
 <a href="{% url hr.views.update_application app.id 4 %}">Mark as In Query</a>
+{% endifnotequal %}
+{% ifnotequal app.status 6 %}
+<a href="{% url hr.views.update_application app.id 6 %}">Flag for Review</a>
 {% endifnotequal %}
 {% endif %}
 {% ifequal app.status 3 %}
