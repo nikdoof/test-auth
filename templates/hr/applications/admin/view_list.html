@@ -19,7 +19,7 @@
     <th>Last Action Date</th>
     <th>Last Action User</th></tr>
 {% for app in apps %}
-<tr {% if app.alt_application %}id="alt-application"{% endif %}><td><a href="{% url hr.views.view_applicati
+<tr {% if app.alt_application %}id="alt-application"{% endif %}><td><a href="<a href="{% url hr.views.view_application app.id %}">{{ app.id }}</a></td>
     <td>{{ app.character }}</td>
     <td>{{ app.corporation }}</td>
     <td>{{ app.get_status_display }}</td>
