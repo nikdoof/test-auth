@@ -85,7 +85,7 @@ class Application(models.Model):
 
     @property
     def alt_application(self):
-        return EVEPlayerCharacters.objects.filter(corporation=self.corporation, eveaccount__user=self.user).count() > 0
+        return EVEPlayerCharacter.objects.filter(corporation=self.corporation, eveaccount__user=self.user).count() > 0
 
     def save(self, *args, **kwargs):
 

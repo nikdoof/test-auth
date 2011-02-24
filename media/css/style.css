@@ -110,6 +110,7 @@ border: 1px #fff solid;}
 table tr { background-color: #CCC; }
 table tr:nth-child(odd) { background-color: #ddd; }
 table tr:hover { background-color: #eed; }
+table tr#alt-application { background-color: #FFA545; }
 
 table th
 {background-color: #333;
