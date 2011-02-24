@@ -6,7 +6,7 @@
 <p>This list shows your current open applications</p>
 {% if apps %}
 <table>
-<tr><th>Application ID</th><th>Character</th><th>Corporation</th><th>Application Status</th></tr>
+<tr {% if app.alt_application %}background="#FFA545"{% endif %}><th>Application ID</th><th>Character</th><th>Corporation</th><th>Application Status</th></tr>
 {% for app in apps %}
 <tr><td><a href="{% url hr.views.view_application app.id %}">{{ app.id }}</a></td>
     <td>{{ app.character }}</td>

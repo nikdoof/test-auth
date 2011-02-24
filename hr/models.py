@@ -83,6 +83,10 @@ class Application(models.Model):
             return self.audit_set.all().order_by('-date')[0]
         return None
 
+    @property
+    def alt_application(self):
+        return EVEPlayerCharacters.objects.filter(corporation=self.corporation, eveaccount__user=self.user).count() > 0
+
     def save(self, *args, **kwargs):
 
         user = None
