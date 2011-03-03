@@ -13,6 +13,7 @@ class MediawikiService(BaseDBService):
     settings = { 'require_user': False,
                  'require_password': False,
                  'provide_login': False,
+                 'use_auth_username': False,
                  'database_name': 'dreddit_wiki' }
 
     default_options = 'rows=80\ncols=50'

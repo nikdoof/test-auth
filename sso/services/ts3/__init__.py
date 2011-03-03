@@ -7,6 +7,7 @@ class TS3Service(BaseService):
     settings = { 'require_user': True,
                  'require_password': False,
                  'provide_login': False,
+                 'use_auth_username': False,
                  'host': 'mumble.pleaseignore.com',
                  'port': 10011,
                  'sa_login': 'serveradmin',

@@ -7,6 +7,7 @@ class MumbleService(BaseService):
     settings = { 'require_user': True,
                  'require_password': True,
                  'provide_login': False, 
+                 'use_auth_username': False,
                  'mumble_server_id': 2,
                  'name_format': r'%(alliance)s - %(corporation)s - %(name)s',
                  'connection_string': 'Meta:tcp -h 127.0.0.1 -p 6502',

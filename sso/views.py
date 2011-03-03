@@ -59,8 +59,11 @@ def service_add(request):
             else:
                 acc.password = None
 
-            # Decode unicode and remove invalid characters
-            username = re.sub('[^a-zA-Z0-9_-]+', '', unicodedata.normalize('NFKD', acc.character.name).encode('ASCII', 'ignore'))
+            if acc.service.settings['use_auth_username']:
+                username = request.user.username
+            else:
+                # Decode unicode and remove invalid characters
+                username = re.sub('[^a-zA-Z0-9_-]+', '', unicodedata.normalize('NFKD', acc.character.name).encode('ASCII', 'ignore'))
 
             if acc.service.api_class.check_user(username):
                 error = "Username already exists on the target service, please contact an admin."

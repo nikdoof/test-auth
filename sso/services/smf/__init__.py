@@ -1,19 +1,19 @@
 import hashlib
 import random
-from django.db import load_backend, transaction, IntegrityError
 from sso.services import BaseDBService
 import settings
 
-class PhpBBService(BaseDBService):
+class SMFService(BaseDBService):
     """
-    PHPBB Class, allows registration and sign-in
+    SMF Class, allows registration and sign-in
 
     """
 
-    settings = { 'require_user': False,
-                 'require_password': False,
+    settings = { 'require_user': True,
+                 'require_password': True,
                  'provide_login': False,
-                 'use_auth_username': False }
+                 'use_auth_username': False
+                 'can_delete': False }
 
     SQL_ADD_USER = r"INSERT INTO phpbb_users (username, username_clean, user_password, user_email) VALUES (%s, %s, %s, %s)"
     SQL_DIS_USER = r"DELETE FROM phpbb_user_groups where user_id = (SELECT user_id FROM phpbb_user WHERE username = %s)"
@@ -36,7 +36,6 @@ class PhpBBService(BaseDBService):
         """ Add a user """
         if 'user' in kwargs:
             email = kwargs['user'].email
-            groups = kwargs['user'].groups.all()
         else:
             email = ''
         pwhash = self._gen_hash(password)
@@ -49,17 +48,19 @@ class PhpBBService(BaseDBService):
     def update_groups(self, username, groups, character=None):
         self._dbcursor.execute(self.SQL_CHECK_USER, [self._clean_username(username)])
         row = self._dbcursor.fetchone()
-        user_id = row['user_id']
+        user_id = row['id_member']
 
+        smfgrps = self._get_smf_groups()
+
+        grpids = []
         for group in groups:
-            self._dbcursor.execute(self.SQL_GET_GROUP, [group.name])
-            row = self._dbcursor.fetchone()
-            if not row:
-                self._dbcursor.execute(self.SQL_ADD_GROUP, [group.name])
-                self._dbcursor.execute(self.SQL_GET_GROUP, [group.name])
-                row = self._dbcursor.fetchone()
+            if group.name in smfgrps:
+                grpids.append(smfgrps[group.name])
+            else:
+                grpids.append(self._create_smf_group(group.name))
 
-            self._dbcursor.execute(self.SQL_ADD_USER_GROUP, [row['group_id'], user_id])
+        # Update DB with grouplist
+        self._dbcursor.execute(self.SQL_UPDATE_GROUPS, [user_id, ','.join(groupids)])
 
     def check_user(self, username):
         """ Check if the username exists """
@@ -69,30 +70,9 @@ class PhpBBService(BaseDBService):
             return True        
         return False
 
-    def delete_user(self, uid):
-        """ Delete a user """
-        return True
-
-    def disable_user(self, uid):
-        """ Disable a user """
-        #self._dbcursor.execute(self.SQL_DIS_USER, [self._gen_user_token(), uid])
-        try:
-            self._dbcursor.execute(self.SQL_DIS_GROUP, [uid])
-        except IntegrityError:
-            # Record already exists, skip it
-            pass
-        return True
-
-    def enable_user(self, uid, password):
-        """ Enable a user """
-        pwhash = self._gen_mw_hash(password)
-        self._dbcursor.execute(self.SQL_ENABLE_USER, [pwhash, uid])
-        self._dbcursor.execute(self.SQL_ENABLE_GROUP, [uid])
-        return True
-
     def reset_password(self, uid, password):
         """ Reset the user's password """
         return self.enable_user(uid, password)
         
 
-ServiceClass = 'PhpBBService'
+ServiceClass = 'SMFService'

@@ -8,6 +8,7 @@ class JabberService(BaseService):
     settings = { 'require_user': True,
                  'require_password': True,
                  'provide_login': False,
+                 'use_auth_username': False,
                  'jabber_server': 'dredd.it',
                  'jabber_xmlrpc_url': 'http://127.0.0.1:4560',
                  'jabber_annouce_from': 'announcebot@pleaseignore.com'}

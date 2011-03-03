@@ -13,6 +13,7 @@ class POSTrackerService(BaseDBService):
     settings = { 'require_user': False,
                  'require_password': False,
                  'provide_login': False, 
+                 'use_auth_username': False,
                  'database_name': 'dreddit_pos' }
 
     SQL_ADD_USER = r"INSERT INTO pos3_user (eve_id, name, pass, email, access, corp, alliance_id) VALUES (%s, %s, %s, %s, 1, %s, %s)"

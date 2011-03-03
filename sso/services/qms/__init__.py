@@ -13,6 +13,7 @@ class QMSService(BaseDBService):
     settings = { 'require_user': False,
                  'require_password': False,
                  'provide_login': False, 
+                 'use_auth_username': False,
                  'database_name': 'dreddit_qms' }
 
     SQL_ADD_USER = r"INSERT INTO users (ssoid, Name, passhash, salt, Email, certificate) VALUES (%s, %s, %s, %s, %s, %s)"
