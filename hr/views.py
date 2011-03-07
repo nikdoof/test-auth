@@ -162,7 +162,7 @@ def add_recommendation(request):
 def admin_applications(request):
     # Get the list of viewable applications by the admin
     corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).values_list('corporation', flat=True)
-    view_status = [APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY]
+    view_status = [APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY, APPLICATION_STATUS_FLAGGED]
 
     if request.user.has_perm('hr.can_view_all'):
         apps = Application.objects.all()
