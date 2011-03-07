@@ -37,23 +37,22 @@ def send_message(application, message_type, note=None):
 def check_permissions(user, application=None):
     """ Check if the user has permissions to view or admin the application """
 
-    hrgroup, created = Group.objects.get_or_create(name=settings.HR_STAFF_GROUP)
     corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=user,corporation__applications=True)
     if not application:
-        if hrgroup in user.groups.all() or user.is_superuser or corplist.filter(director=True).count():
+        if user.has_perm('hr.can_view_all') or user.has_perm('hr.can_view_corp') or corplist.filter(director=True).count():
             return HR_ADMIN
     else:
-        if user.is_superuser:
-            return HR_ADMIN
-        elif application.user == user:
+        if application.user == user:
             return HR_VIEWONLY
+        if user.has_perm('hr.can_view_all'):
+            return HR_ADMIN
         else:
             # Give admin access to directors of the corp
             if application.corporation.id in corplist.filter(director=True).values_list('corporation__id', flat=True):
                 return HR_ADMIN
 
             # Give access to none director HR people access
-            if application.corporation.id in corplist.values_list('corporation__id', flat=True) and hrgroup in user.groups.all():
+            if application.corporation.id in corplist.values_list('corporation__id', flat=True) and user.has_perm('hr.can_view_corp'):
                 return HR_ADMIN
 
     return HR_NONE
@@ -80,15 +79,17 @@ def view_application(request, applicationid):
 
     app = get_object_or_404(Application, id=applicationid)
 
-    hrlvl = check_permissions(request.user, app)
-    if hrlvl == 1:
+    perm = check_permissions(request.user, app)
+    if perm == HR_VIEWONLY:
         audit = app.audit_set.filter(event__in=[AUDIT_EVENT_STATUSCHANGE, AUDIT_EVENT_REJECTION, AUDIT_EVENT_ACCEPTED, AUDIT_EVENT_MESSAGE])
-    elif hrlvl == 2:
+    elif perm == HR_ADMIN:
         hrstaff = True
         audit = app.audit_set.all()
     else:
         return HttpResponseRedirect(reverse('hr.views.index'))
 
+    # Respond to Reddit Comment Load
+    # TODO: Move to reddit app?
     if installed('reddit') and request.GET.has_key('redditxhr') and request.is_ajax():
         posts = []
         for acc in app.user.redditaccount_set.all():
@@ -159,14 +160,16 @@ def add_recommendation(request):
 
 @login_required
 def admin_applications(request):
-    if check_permissions(request.user) < HR_ADMIN:
-        return HttpResponseRedirect(reverse('hr.views.index'))
-
     # Get the list of viewable applications by the admin
     corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).values_list('corporation', flat=True)
     view_status = [APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY]
 
-    apps = Application.objects.filter(corporation__id__in=list(corplist))
+    if request.user.has_perm('hr.can_view_all'):
+        apps = Application.objects.all()
+    elif request.user.has_perm('hr.can_view_corp'):
+        apps = Application.objects.filter(corporation__id__in=list(corplist))
+    else:
+        return HttpResponseRedirect(reverse('hr.views.index'))
 
     if 'q' in request.GET:
         query = request.GET['q']
@@ -219,8 +222,8 @@ def add_note(request, applicationid):
 @login_required
 def add_message(request, applicationid):
     """ Send a message to the end user and note it on the application """
-    app = get_object_or_404(Application, id=applicationid)
 
+    app = get_object_or_404(Application, id=applicationid)
     if check_permissions(request.user, app):
         if request.method == 'POST':
             obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_MESSAGE)
@@ -240,7 +243,7 @@ def add_message(request, applicationid):
 def reject_application(request, applicationid):
     """ Reject the application and notify the user """
 
-    if check_permissions(request.user) == HR_ADMIN:
+    if check_permissions(request.user) == HR_ADMIN and request.user.has_perm('hr.can_accept'):
         if request.method == 'POST':
             app = Application.objects.get(id=applicationid)
             if check_permissions(request.user, app) == HR_ADMIN:
@@ -262,7 +265,7 @@ def reject_application(request, applicationid):
 def accept_application(request, applicationid):
     """ Accept the application and notify the user """
 
-    if check_permissions(request.user) == HR_ADMIN:
+    if check_permissions(request.user) == HR_ADMIN and request.user.has_perm('hr.can_accept'):
         if request.method == 'POST':
             app = Application.objects.get(id=applicationid)
             if check_permissions(request.user, app) == HR_ADMIN:

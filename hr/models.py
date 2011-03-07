@@ -117,6 +117,12 @@ class Application(models.Model):
     def __unicode__(self):
         return self.character.name
 
+    class Meta:
+        permissions = (
+            ("can_accept", "Can accept / reject applications"),
+            ("can_view_all", "Can view all applications"),
+            ("can_view_corp", "Can view corp applications"),
+        )
 
 class Recommendation(models.Model):
     """ User recommendation for a application """

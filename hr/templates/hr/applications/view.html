@@ -30,10 +30,12 @@
 {% if hrstaff %}
 <a href="{% url hr.views.add_note app.id %}">Add Staff Note</a>
 {% if app.status < 2 or app.status = 4 or app.status = 6 %}
+{% if perms.hr.can_accept %}
 <a href="{% url hr.views.reject_application app.id %}">Reject Application</a>
 {% ifequal app.blacklisted 0 %}
 <a href="{% url hr.views.accept_application app.id %}">Accept Application</a>
 {% endifequal %}
+{% endif %}
 {% ifnotequal app.status 4 %}
 <a href="{% url hr.views.update_application app.id 4 %}">Mark as In Query</a>
 {% endifnotequal %}
