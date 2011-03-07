@@ -62,6 +62,28 @@ class SSOUserNote(models.Model):
         ordering = ['date_created']
 
 
+class SSOUserIPAddress(models.Model):
+    """
+    Stores User Related IP Addresses
+    """
+    first_seen =  models.DateTimeField(auto_now_add=True, blank=False, null=False,
+                                           verbose_name="First sighting date/time",
+                                           help_text="Shows the first the user was seen at this IP.")
+    last_seen = models.DateTimeField(auto_now_add=True, blank=False, null=False,
+                                           verbose_name="First sighting date/time",
+                                           help_text="Shows the most recent time the user has been seen at this IP.")
+    ip_address = models.CharField("IP Address", max_length=200, blank=False)
+    user = models.ForeignKey(User, blank=False, null=False, related_name='ip_addresses')
+
+    def __unicode__(self):
+        return self.ip_address
+
+    class Meta:
+        verbose_name = 'User IP Addresse'
+        verbose_name_plural = 'User IP Addresses'
+        ordering = ['user']
+
+
 class Service(models.Model):
     """
     Service model represents a service available to users, either a website or

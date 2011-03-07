@@ -34,5 +34,19 @@ class IGBMiddleware(object):
                     if request.META.get(header, None):
                         setattr(request, map, request.META.get(header, None))
                             
-            
 
+from sso.models import SSOUserIPAddress
+from datetime import datetime
+
+class IPTrackingMiddleware(object):
+    """
+    Middleware to track user's IPs and insert them into the database
+    """
+
+    def process_request(self, request):
+
+        if request.user and not request.user.is_anonymous():
+            ip, created = SSOUserIPAddress.objects.get_or_create(user=request.user, ip_address=request.META['REMOTE_ADDR'])
+            if not created:
+                ip.last_seen = datetime.utcnow()
+                ip.save()

@@ -69,6 +69,7 @@ MIDDLEWARE_CLASSES = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'pagination.middleware.PaginationMiddleware',
     'sso.middleware.IGBMiddleware',
+    'sso.middleware.IPTrackingMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
@@ -148,8 +149,6 @@ REDDIT_USER = 'DredditVerification'
 REDDIT_PASSWORD = ''
 
 ### HR Settings
-
-HR_STAFF_GROUP = 'HR Staff'
 
 HR_RECOMMENDATION_DAYS = 45
 
