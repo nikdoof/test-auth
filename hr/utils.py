@@ -45,4 +45,3 @@ def blacklist_values(user):
     blacklist.extend(objs)
 
     return blacklist
-

@@ -5,8 +5,6 @@ from django.contrib.auth.models import User
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
 from hr.app_defines import *
 
-from utils import installed
-
 class Application(models.Model):
     """ Person's application to a corporation """
 
@@ -27,12 +25,14 @@ class Application(models.Model):
 
     @property
     def blacklisted(self):
+        from hr.utils import blacklist_values
         if len(self.blacklist_values) > 0:
             return True
         return False
 
     @property
     def blacklist_values(self):
+        from hr.utils import blacklist_values
         return blacklist_values(self.user)
 
     @property
