@@ -33,49 +33,7 @@ class Application(models.Model):
 
     @property
     def blacklist_values(self):
-        """
-        Returns a list of blacklist values that apply to the application
-        """
-
-        blacklist = []
-        bl_items = Blacklist.objects.filter(models.Q(expiry_date__gt=datetime.now()) | models.Q(expiry_date=None))
-
-        # Check Reddit blacklists
-        if installed('reddit'):
-            reddit_uids = self.user.redditaccount_set.all().values_list('username', flat=True)
-            objs = bl_items.filter(type=BLACKLIST_TYPE_REDDIT, value__in=reddit_uids)
-            blacklist.extend(objs)
-
-        # Check email blacklists
-        blacklist.extend(bl_items.filter(type=BLACKLIST_TYPE_EMAIL, value=self.user.email.lower()))
-
-        # Check Auth blacklists
-        blacklist.extend(bl_items.filter(type=BLACKLIST_TYPE_AUTH, value=self.user.username.lower()))
-
-        # Check EVE Related blacklists
-        evechars = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).select_related('corporation__alliance')
-
-        # Check Character blacklists
-        characters = evechars.values_list('name', flat=True)
-        objs = bl_items.filter(type=BLACKLIST_TYPE_CHARACTER, value__in=characters)
-        blacklist.extend(objs)
-
-        # Check Corporation blacklists
-        corporations = evechars.values_list('corporation__name', flat=True)
-        objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__in=corporations)
-        blacklist.extend(objs)
-
-        # Check Alliance blacklists
-        alliances = evechars.values_list('corporation__alliance__name', flat=True)
-        objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__in=alliances)
-        blacklist.extend(objs)
-
-        # Check API Key blacklists
-        keys = self.user.eveaccount_set.all().values_list('api_user_id', flat=True)
-        objs = bl_items.filter(type=BLACKLIST_TYPE_APIUSERID, value__in=keys)
-        blacklist.extend(objs)
-
-        return blacklist
+        return blacklist_values(self.user)
 
     @property
     def last_action(self):
