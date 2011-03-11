@@ -66,7 +66,7 @@ def setup_virtualenv():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('./setup-env.sh' % env)
+        run('./bin/setup-env.sh' % env)
 
 
 def setup_db():
@@ -77,7 +77,7 @@ def setup_db():
 
     with cd('%(path)s/dreddit-auth/' % env):
         run('if [ ! -e dbsettings.py ]; then cp dbsettings.py.example dbsettings.py; fi' % env)
-        run('env/bin/python manage.py syncdb --noinput --migrate')
+        run('env/bin/python app/manage.py syncdb --noinput --migrate')
 
 
 def generate_brokersettings():
@@ -109,7 +109,7 @@ def setup_rabbitmq():
     sudo('rabbitmqctl add_vhost %s' % env.vhost, shell=False)
     sudo('rabbitmqctl set_permissions -p %s %s ".*" ".*" ".*"' % (env.vhost, env.user), shell=False)
 
-    put('./brokersettings.py', '%(path)s/dreddit-auth/' % env)
+    put('./brokersettings.py', '%(path)s/dreddit-auth/app/conf/' % env)
     os.unlink('brokersettings.py')
 
 
@@ -158,7 +158,7 @@ def migrate():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('env/bin/python manage.py migrate')
+        run('env/bin/python app/manage.py migrate')
 
 
 def start_celeryd():
@@ -169,7 +169,7 @@ def start_celeryd():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('. env/bin/activate; ./manage.py celeryd_detach -l INFO -B --pidfile logs/celeryd.pid -f logs/celeryd.log -n auth-processor' % env)
+        run('. env/bin/activate; app/manage.py celeryd_detach -l INFO -B --pidfile logs/celeryd.pid -f logs/celeryd.log -n auth-processor' % env)
 
 
 def stop_celeryd():
@@ -196,7 +196,7 @@ def restart_celeryd():
 
 def start_uwsgi():
     with cd('%(path)s/dreddit-auth/' % env):
-        run('uwsgi -x auth_uwsgi.xml' % env)
+        run('uwsgi -d logs/uwsgi.log -x etc/auth_uwsgi.xml' % env)
 
 
 def stop_uwsgi():
