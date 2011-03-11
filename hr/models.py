@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
+from eve_api.app_defines import *
 from hr.app_defines import *
 
 class Application(models.Model):
@@ -97,7 +98,7 @@ class Recommendation(models.Model):
     @property
     def is_valid(self):
         diff = self.recommendation_date - self.user_character.corporation_date
-        if diff.days >= settings.HR_RECOMMENDATION_DAYS and self.user_character.corporation == self.application.corporation:
+        if self.user_character.eveaccount_set.count() and self.user_character.eveaccount_set.all()[0].api_status == API_STATUS_OK and diff.days >= settings.HR_RECOMMENDATION_DAYS and self.user_character.corporation == self.application.corporation:
             return True
         return False
 
