@@ -17,8 +17,10 @@ import settings
 setup_environ(settings)
 
 import getopt
+
+from django.db.models import Count
 from eve_api.app_defines import *
-from eve_api.models import EVEAccount
+from eve_api.models import EVEAccount, EVEPlayerCorporation
 
 from hr.app_defines import *
 from hr.models import Application
@@ -66,9 +68,11 @@ def main(argv=None):
                 print "graph_title Auth - Open Applications"
                 print "graph_vlabel Applications"
                 print "graph_category auth"
-                print "apps.label Applications"
-                print "apps.warning 10"
-                print "apps.critical 20"
+
+                for i, n in EVEPlayerCorporation.objects.filter(applications=True).values_list('id', 'name'):
+                    print "%s.label %s" % (i, n)
+                    print "%s.warning 10" % i
+                    print "%s.critical 20" % i
                 print "graph_args --base 1000"
                 return 0
             if execname == 'auth_eveapicache':
@@ -85,9 +89,11 @@ def main(argv=None):
         print "keys.value %s" % key_count
     elif execname == 'auth_hrapplications':
         view_status = [APPLICATION_STATUS_AWAITINGREVIEW,
-                       APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY]
-        apps = Application.objects.filter(status__in=view_status)
-        print "apps.value %s" % apps.count()
+                       APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY, APPLICATION_STATUS_FLAGGED]
+
+        corps = EVEPlayerCorporation.objects.filter(applications=True, application__status__in=view_status).annotate(num_apps=Count('application')).values_list('id', 'num_apps')
+        for c,n in corps:
+            print "%s.value %s" % (c, n)
     elif execname == 'auth_eveapicache':
         print "requests.value %s" % CachedDocument.objects.count()
 
