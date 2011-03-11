@@ -1,7 +1,7 @@
 MySQL-python
 Django==1.2.4
 django-piston==0.2.2
-django-registration==0.7
+-e hg+https://bitbucket.org/ubernostrum/django-registration@d36a38202ee3#egg=django-registration
 yolk==0.4.1
 -e hg+http://bitbucket.org/schinckel/django-jsonfield@acb6b4fd7312#egg=django-jsonfield
 xmlrpclib==1.0.1
