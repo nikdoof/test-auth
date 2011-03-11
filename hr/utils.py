@@ -1,5 +1,23 @@
+from datetime import datetime
 from hr.app_defines import *
 from hr.models import Blacklist
+from django.db import models
+from eve_api.models import EVEPlayerCharacter
+
+def installed(value):
+    from django.conf import settings
+    apps = settings.INSTALLED_APPS
+    if "." in value:
+        for app in apps:
+            if app == value:
+                return True
+    else:
+        for app in apps:
+            fields = app.split(".")
+            if fields[-1] == value:
+                return True
+    return False
+
 
 def blacklist_values(user):
     """
