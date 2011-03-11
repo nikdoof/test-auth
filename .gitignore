@@ -1,9 +1,9 @@
 *.pyc
 *~
 *.db
-dbsettings.py
+app/conf/dbsettings.py
 logs/
-settingslocal.py
+app/conf/settingslocal.py
 env
 *.pid
-brokersettings.py
+app/conf/brokersettings.py
