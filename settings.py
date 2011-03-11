@@ -189,6 +189,10 @@ CELERYBEAT_SCHEDULE = {
         "task": "eve_proxy.tasks.clear_old_logs",
         "schedule": timedelta(days=1),
     },
+    "blacklist-check": {
+        "task": "hr.tasks.blacklist_check",
+        "schedule": timedelta(days=1),
+    },
 }
 
 CELERY_SEND_TASK_ERROR_EMAILS = True
