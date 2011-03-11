@@ -15,10 +15,10 @@ ADMINS = (
 MANAGERS = ADMINS
 
 # Import db settings from dbsettings.py
-from dbsettings import *
+from conf.dbsettings import *
 
 # Import the Broker settings
-from brokersettings import *
+from conf.brokersettings import *
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -167,7 +167,7 @@ EVE_PROXY_KEEP_LOGS = 30
 
 # try and import local settings
 try:
-    from settingslocal import *
+    from conf.settingslocal import *
 except:
     pass
 
