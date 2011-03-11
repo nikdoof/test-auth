@@ -110,6 +110,7 @@ INSTALLED_APPS = (
     'sso',
     'groups',
     'api',
+    'tools',
 )
 
 ## Server Mail
