@@ -11,9 +11,9 @@ from sso.forms import RegistrationFormUniqueEmailBlocked
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    (r'^register/$', register, {'form_class': RegistrationFormUniqueEmailBlocked}),
+    ('', include('registration.backends.default.urls')),
+    (r'^register/$', register, {'backend': 'registration.backends.default.DefaultBackend', 'form_class': RegistrationFormUniqueEmailBlocked}),
     (r'^admin/', include(admin.site.urls)),
-    ('', include('registration.urls')),
     ('', include('sso.urls')),
     (r'^eve/', include('eve_api.urls')),
     (r'^eveapi/', include('eve_proxy.urls')),
