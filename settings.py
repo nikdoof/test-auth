@@ -113,7 +113,7 @@ INSTALLED_APPS = (
 )
 
 ## Server Mail
-SERVER_EMAIL = 'trace@auth.dredd.it'
+SERVER_EMAIL = 'trace@auth.pleaseignore.com'
 
 # API OAuth
 #OAUTH_AUTH_VIEW = 'api.views.oauth.authorize_oauth'
@@ -134,7 +134,7 @@ AUTH_PROFILE_MODULE = 'sso.SSOUser'
 LOGIN_REDIRECT_URL = "/profile"
 LOGIN_URL = "/login"
 
-DEFAULT_FROM_EMAIL = "bot@auth.dredd.it"
+DEFAULT_FROM_EMAIL = "bot@auth.pleaseignore.com"
 ACCOUNT_ACTIVATION_DAYS = 14
 
 # Slice File Location
