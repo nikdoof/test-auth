@@ -166,6 +166,9 @@ def user_view(request, username=None):
     profile = user.get_profile()
     is_admin = request.user.is_staff
     if is_admin:
+        if installed('hr'):
+            from hr.utils import blacklist_values
+            blacklisted = len(blacklist_values(user))
         services = ServiceAccount.objects.select_related('service').filter(user=user).only('service__name', 'service_uid', 'active')
         characters = EVEPlayerCharacter.objects.select_related('corporation').filter(eveaccount__user=user).only('id', 'name', 'corporation__name')
 

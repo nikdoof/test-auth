@@ -17,4 +17,6 @@ urlpatterns = patterns('',
     (r'^recommendation/add/$', views.add_recommendation),
 
     (r'^application/admin$', views.admin_applications),
+
+    (r'^blacklist/user/(?P<userid>\d+)/$', views.blacklist_user),
 )

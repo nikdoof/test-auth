@@ -1,9 +1,13 @@
+from datetime import datetime
+
 from django import forms
 from django.conf import settings
+from django.forms.extras.widgets import SelectDateWidget
 
 from hr.app_defines import *
 from hr.models import Application, Audit
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
+
 
 def CreateRecommendationForm(user):
     """ Generate a Recommendation form based on the user's permissions """
@@ -42,8 +46,17 @@ def CreateApplicationForm(user):
 
     return ApplicationForm
 
-class NoteForm(forms.ModelForm):
 
+class NoteForm(forms.ModelForm):
     class Meta:
         model = Audit
         exclude = ('application', 'user', 'event')
+
+
+class BlacklistUserForm(forms.Form):
+    """ A form to capture the reasons for blacklisting a user
+        and the related expiry date """
+
+    reason = forms.CharField(required=True, widget=forms.widgets.Textarea())
+    expiry_date = forms.DateTimeField(required=False, widget=SelectDateWidget())
+    disable = forms.BooleanField()

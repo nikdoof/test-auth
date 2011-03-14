@@ -7,15 +7,31 @@
 
 <h1>{{user.username}}'s Profile</h1>
 
-<b>Username:</b> {{ user.username }}<br/>
-<b>Email:</b> {{ user.email }}<br/>
-<b>Groups:</b> {{ user.groups.all|join:", " }}<br/>
-<a href="{% url sso.views.refresh_access user.id %}">Update Access</a><br/>
+<p>
+<li><b>Username:</b> {{ user.username }}</li>
+<li><b>Active:</b> {{ user.is_active }}</li>
+<li><b>Email:</b> {{ user.email }}</li>
+<li><b>Groups:</b> {{ user.groups.all|join:", " }}</li>
+{% if "hr"|installed %}
+<li><b>Blacklist Status: {% if blacklisted %}<font color='red'>BLACKLISTED</font> ({{ blacklisted }} items){% else %}<font color='geen'>OK</font>{% endif %}</b></li>
+{% endif %}
+</p>
+
+<p>
+<div class="skill_controls">
+<a href="{% url sso.views.refresh_access user.id %}">Update Access</a>
+{% if "hr"|installed %}
+{% if perms.hr.can_add_blacklist %}
+<a href="{% url hr.views.blacklist_user user.id %}">Blacklist User</a>
+{% endif %}
+{% endif %}
+</div>
+</p>
 
 {% if is_admin %}
 <br/>
-<h2>Service Accounts</h2>
 {% if services %}
+<h2>Service Accounts</h2>
 <table>
 <tr><th>Service</th><th>Username</th><th>Active</th></tr>
 {% for acc in services %}

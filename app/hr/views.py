@@ -1,7 +1,7 @@
-import datetime
+from datetime import datetime, timedelta
 import simplejson
 from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
@@ -13,8 +13,8 @@ from django.conf import settings
 from utils import installed
 
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter
-from hr.forms import CreateRecommendationForm, CreateApplicationForm, NoteForm
-from hr.models import Recommendation, Application, Audit
+from hr.forms import CreateRecommendationForm, CreateApplicationForm, NoteForm, BlacklistUserForm
+from hr.models import Recommendation, Application, Audit, Blacklist, BlacklistSource
 from app_defines import *
 
 ### Shared Functions
@@ -282,3 +282,55 @@ def accept_application(request, applicationid):
         return render_to_response('hr/applications/accept.html', locals(), context_instance=RequestContext(request))
 
     return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
+
+
+def blacklist_user(request, userid):
+
+    if request.user.has_perm('hr.can_add_blacklist'):
+
+        u = get_object_or_404(User, id=userid)
+
+        if request.method == 'POST':
+            form = BlacklistUserForm(request.POST)
+            if form.is_valid():
+                source = BlacklistSource.objects.get(id=1)
+
+                if not form.cleaned_data.get('expiry_date', None):
+                    expiry = datetime.utcnow() + timedelta(days=50*365)
+                else:
+                    expiry = form.cleaned_data['expiry_date']
+
+                def blacklist_item(type, value):
+                    o = Blacklist(type=type, value=value, source=source, expiry_date=expiry, created_by=request.user, reason=form.cleaned_data['reason'])
+                    o.save()
+
+                for ea in u.eveaccount_set.all():
+                    blacklist_item(BLACKLIST_TYPE_APIUSERID, ea.api_user_id)
+
+                for ra in u.redditaccount_set.all():
+                    blacklist_item(BLACKLIST_TYPE_REDDIT, ra.username)
+
+                for char in EVEPlayerCharacter.objects.filter(eveaccount__user=u):
+                    blacklist_item(BLACKLIST_TYPE_CHARACTER, char.name)
+
+                blacklist_item(BLACKLIST_TYPE_EMAIL, u.email)
+
+                messages.add_message(request, messages.INFO, "User %s has been blacklisted" % u.username )
+
+                if form.cleaned_data.get('disable', None):
+                    # Disable the account
+                    u.active = False
+                    u.save()
+
+                    for acc in u.serviceaccount_set.all():
+                        acc.delete()
+
+                    messages.add_message(request, messages.INFO, "User %s disabled" % u.username )
+
+                return redirect('sso.views.user_view', username=u.username)
+
+        form = BlacklistUserForm()
+        return render_to_response('hr/blacklist/blacklist.html', locals(), context_instance=RequestContext(request))
+
+    return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
+
