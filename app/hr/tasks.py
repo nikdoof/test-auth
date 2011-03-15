@@ -23,5 +23,5 @@ def blacklist_check():
                 blstr = ""
                 for i in val:
                     blstr = "%s%s - %s - %s\n" % (blstr, i.get_type_display(), i.value, i.reason)
-                msg = "Suspect User found: %s\nGroups: %s\nBlacklist Items:\n\n%s" % (u.username, u.groups.all(), blstr)
+                msg = "Suspect User found: %s\nGroups: %s\nBlacklist Items:\n\n%s" % (u.username, u.groups.all().values_list('name'), blstr)
                 send_mail('Automated blacklist checker alert - %s' % u.username, msg, 'blacklist@pleaseignore.com', ['abuse@pleaseignore.com'])
