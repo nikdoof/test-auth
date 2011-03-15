@@ -138,15 +138,12 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
                     charskillobj.save()
 
             # Process the character's roles
-            pchar.director = False
             pchar.roles.clear()
             roles = values.get('corporationRoles', None)
             if roles and len(roles):
                 for r in roles:
                     role, created = EVEPlayerCharacterRole.objects.get_or_create(roleid=r['roleID'], name=r['roleName'])
                     pchar.roles.add(role)
-                    if r['roleName'] == 'roleDirector':
-                        pchar.director = True
 
             if values['gender'] == 'Male':
                 pchar.gender = API_GENDER_MALE

@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 from eve_api.app_defines import *
 from eve_api.models import EVEAPIModel
 
@@ -27,11 +28,17 @@ class EVEPlayerCharacter(EVEAPIModel):
                                             help_text="The last time this character logged into EVE")
     last_logoff = models.DateTimeField(blank=True, null=True, verbose_name="Last Logoff Date/Time",
                                             help_text="The last time this character logged off EVE")
-    director = models.BooleanField(blank=False, default=False, verbose_name="Director",
-                                            help_text="This character is a Director of the associated corporation")
     roles = models.ManyToManyField('eve_api.EVEPlayerCharacterRole', blank=True, null=True,
                                             help_text="Roles associated with this character")
     skills = models.ManyToManyField('eve_api.EVESkill', through='eve_api.EVEPlayerCharacterSkill')
+
+    @property
+    def director(self):
+        try:
+            self.roles.get(name="roleDirector")
+            return True
+        except ObjectDoesNotExist:
+            return False
     
     def __unicode__(self):
         if self.name:
