@@ -59,4 +59,4 @@ class BlacklistUserForm(forms.Form):
 
     reason = forms.CharField(required=True, widget=forms.widgets.Textarea())
     expiry_date = forms.DateTimeField(required=False, widget=SelectDateWidget())
-    disable = forms.BooleanField()
+    disable = forms.BooleanField(required=False)

@@ -328,6 +328,8 @@ def blacklist_user(request, userid):
                     messages.add_message(request, messages.INFO, "User %s disabled" % u.username )
 
                 return redirect('sso.views.user_view', username=u.username)
+            else:
+                messages.add_message(request, messages.ERROR, "Error while processing the form")
 
         form = BlacklistUserForm()
         return render_to_response('hr/blacklist/blacklist.html', locals(), context_instance=RequestContext(request))
