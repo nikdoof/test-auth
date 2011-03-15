@@ -124,6 +124,19 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
                     charskillobj.save()
                 pchar.total_sp = pchar.total_sp + int(skill['skillpoints'])
 
+            try:
+                skillqueue = CachedDocument.objects.api_query('/char/SkillInTraining.xml.aspx', params=auth_params, no_cache=False)
+            except DocumentRetrievalError, exc:
+                logger.error('Error retrieving SkillInTraining.xml.aspx for User ID %s, Character ID %s - %s' % (user_id, character_id, exc))
+            else:
+                queuedoc = basic_xml_parse_doc(skillqueue)['eveapi']['result']
+                EVEPlayerCharacterSkill.objects.filter(character=pchar).update(in_training=0)
+                if int(queuedoc['skillInTraining']):
+                    skillobj, created = EVESkill.objects.get_or_create(id=skill['trainingTypeID'])
+                    charskillobj = EVEPlayerCharacterSkill.objects.get_or_create(skill=skillobj, character=pchar)
+                    charskillobj.in_training = queuedoc['trainingToLevel']
+                    charskillobj.save()
+
             # Process the character's roles
             pchar.director = False
             pchar.roles.clear()

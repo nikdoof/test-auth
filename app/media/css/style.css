@@ -136,6 +136,7 @@ table th a:visted
 .character_info .character_corporation span, .character_info .character_alliance span { font-weight: bold; display: block; text-align: center; }
 .character_info .character_attributes ul { margin: .25em 2em; padding: 0; }
 .character_info .character_skills table { width: 100%; }
+.character_info .character_skills .intraining { background-color: #cc6600; }
 .character_info .character_stats table { width: 300px; }
 .character_info .character_attributes .stat { font-weight: bold; }
 .character_skills th { cursor:pointer;cursor:hand; }
