@@ -1,19 +1,10 @@
-{% extends "base.html" %}
-
-{% load i18n %}
-
+{% extends "registration/registration_base.html" %}
+{% block title %}{% if account %}Activation complete{% else %}Activation problem{% endif %}{% endblock %}
 {% block content %}
 {% if account %}
-    <p>{% with account.username as username %}
-    Thank you for registering!<br />
-    From now on, you can login with your username ({{ username }}).<br/>
-    <br/>
-    <a href="{% url sso.views.profile %}">Back</a>
-    {% endwith %}
-    </p>
+<p>Thanks {{ account }}, activation complete!  You may now <a href='{% url auth_login %}'>login</a> using the username and password you set at registration.</p>
 {% else %}
-    <p>Either the link was invalid, or you didn't activate your account within {{ expiration_days }} days after the registration. Please register again.</p>
+<p>Oops &ndash; it seems that your activation key is invalid.  Please check the url again.</p>
 {% endif %}
-
 {% endblock %}
 

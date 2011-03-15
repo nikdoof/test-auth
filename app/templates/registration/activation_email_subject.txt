@@ -1,1 +1,1 @@
-Dreddit Auth Gateway Account Validation
+Account registration for {{ site.name }}

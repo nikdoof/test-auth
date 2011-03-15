@@ -1,19 +1,15 @@
-{% extends "base.html" %}
-
-{% load i18n %}
-
-{% block title %}Create Account{% endblock %}
-
+{% extends "registration/registration_base.html" %}
+{% block title %}Register for an account{% endblock %}
 {% block content %}
-<h2>Create Account</h2>
-<p>Please fill in the following form.</p>
-
-<form method="post" action=".">
-    <table>
-      {{ form }}
-      {% csrf_token %}
-    </table>
-    <br />
-    <input type="submit" value="{% trans "Create Account" %}" />
+<h3>Registration</h3>
+<p>Please complete this form to register for a new Auth account, please be aware that you are required to confirm your email account so please use a valid address.</p>
+<h3>Problematic Providers</h3>
+<p>In addition, some providers maybe blocked form auth due to their draconian spam detection routines, which has flagged this server numerous times for no reason. These include AT&T services, Cox, and a few other mainland US ISPs. If you have a Google Mail account please consider using that instead of your ISP email account.</p>
+<form method='post' action=''>
+<table>
+        {{ form }}
+</table>
+{% csrf_token %}
+<input type="submit" value="Send activation email" />
 </form>
 {% endblock %}
