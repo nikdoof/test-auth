@@ -5,7 +5,7 @@
   <module>auth_wsgi</module>
   <master/>
   <processes>5</processes>
-  <daemonize>./logs/uwsgi.log</daemonize>
+  <!--<daemonize>./logs/uwsgi.log</daemonize>-->
   <pidfile>./logs/uwsgi.pid</pidfile>
   <vacuum/>
 </uwsgi>
