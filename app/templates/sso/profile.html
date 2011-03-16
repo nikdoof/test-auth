@@ -45,17 +45,20 @@ function refresh_apikey(key) {
 <b>Username:</b> {{ user.username }}<br/>
 <b>Email:</b> {{ user.email }}<br/>
 <b>Groups:</b> {{ user.groups.all|join:", " }}<br/>
+</p>
+<p>
+<div class="skill_controls">
 <a href="{% url sso.views.refresh_access %}">Update Access</a><br/>
+</div>
 </p>
 
-<h2>External API Auth Services</h2>
-<p>To reset your External API Auth Services password, which is used to access tools and websites which use Auth's API, click the link below</p>
-<p><a href="{% url sso.views.set_apipasswd %}">Reset External API Auth Services Password</a></p>
+<h2>Auth API Services</h2>
+<p>Auth API Servies use Auth for your login information with the use of a seperate password. To reset your services password click the link below</p>
+<p><a href="{% url sso.views.set_apipasswd %}">Reset Auth API Services Password</a></p>
 
 {% if user.eveaccount_set.all %}
-<h2>External non-API Service Accounts</h2>
-<p>This is a list of all your current non-api external service accounts, to
-create a login for a service click the Add Service link</p>
+<h2>Service Accounts</h2>
+<p>Services not fully integrated into Auth, and which a seperate username/password is required.</p>
 {% if user.serviceaccount_set.all %}
 <table>
 <thead>
