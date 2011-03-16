@@ -39,7 +39,7 @@ def check_permissions(user, application=None):
 
     corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=user,corporation__applications=True)
     if not application:
-        if user.has_perm('hr.can_view_all') or user.has_perm('hr.can_view_corp') or corplist.filter(director=True).count():
+        if user.has_perm('hr.can_view_all') or user.has_perm('hr.can_view_corp') or corplist.filter(roles__name='roleDirector').count():
             return HR_ADMIN
     else:
         if application.user == user:
@@ -48,7 +48,7 @@ def check_permissions(user, application=None):
             return HR_ADMIN
         else:
             # Give admin access to directors of the corp
-            if application.corporation.id in corplist.filter(director=True).values_list('corporation__id', flat=True):
+            if application.corporation.id in corplist.filter(roles__name='roleDirector').values_list('corporation__id', flat=True):
                 return HR_ADMIN
 
             # Give access to none director HR people access

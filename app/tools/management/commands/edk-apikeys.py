@@ -8,7 +8,7 @@ class Command(NoArgsCommand):
     help = "Extracts a list of director's full API keys in CSV format for uploading to EDK"
 
     def handle_noargs(self, **options):
-        chars = EVEPlayerCharacter.objects.filter(director=True, eveaccount__api_keytype=API_KEYTYPE_FULL, eveaccount__api_status=API_STATUS_OK)
+        chars = EVEPlayerCharacter.objects.filter(roles__name='roleDirector', eveaccount__api_keytype=API_KEYTYPE_FULL, eveaccount__api_status=API_STATUS_OK)
         donekeys = []
 
         i = 0
