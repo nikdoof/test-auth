@@ -6,8 +6,7 @@ from fabric.contrib.files import *
 from fabric.utils import warn
 from hashlib import sha1
 
-env.repo = 'git://dev.dredd.it/dreddit-auth.git'
-
+env.repo = 'git://dev.pleaseignore.com/dreddit-auth.git'
 
 def production():
     "Use the production enviroment on Web1"
