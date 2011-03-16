@@ -160,10 +160,13 @@ FULL_API_CHARACTER_ID = 246102445
 
 BANNED_EMAIL_DOMAINS = ['att.net']
 
-
 ## Eve Proxy settings
 
 EVE_PROXY_KEEP_LOGS = 30
+
+## Director management settings
+
+IGNORE_CORP_GROUPS = [29]
 
 # try and import local settings
 try:
