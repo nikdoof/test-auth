@@ -132,7 +132,7 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
                 queuedoc = basic_xml_parse_doc(skillqueue)['eveapi']['result']
                 EVEPlayerCharacterSkill.objects.filter(character=pchar).update(in_training=0)
                 if int(queuedoc['skillInTraining']):
-                    skillobj, created = EVESkill.objects.get_or_create(id=skill['trainingTypeID'])
+                    skillobj, created = EVESkill.objects.get_or_create(id=queuedoc['trainingTypeID'])
                     charskillobj = EVEPlayerCharacterSkill.objects.get_or_create(skill=skillobj, character=pchar)
                     charskillobj.in_training = queuedoc['trainingToLevel']
                     charskillobj.save()
