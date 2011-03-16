@@ -17,6 +17,9 @@ body
 #header
 {
 	background:#ccc;
+        background: url('http://kb.pleaseignore.com/banner/sketch_banner.png');
+        background-position: -25px;
+        height: 164px;
 	padding: 20px;
 }
 
