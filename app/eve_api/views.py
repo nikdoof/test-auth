@@ -97,7 +97,10 @@ def eveapi_character(request, charid=None):
 
     if charid:
         character = get_object_or_404(EVEPlayerCharacter.objects.select_related('corporation', 'corporation__aliance'), id=charid)
-        current_training = character.eveplayercharacterskill_set.filter(in_training__gt=0)
+        try:
+            current_training = character.eveplayercharacterskill_set.get(in_training__gt=0)
+        except:
+            current_training = None
         skills = character.eveplayercharacterskill_set.all().order_by('skill__group__name', 'skill__name')
         return render_to_response('eve_api/character.html', locals(), context_instance=RequestContext(request))
 
