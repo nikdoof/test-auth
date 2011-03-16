@@ -29,7 +29,6 @@ def eveapi_add(request, post_save_redirect='/'):
                 task.wait(10)
             except celery.exceptions.TimeoutError:
                 msg = "The addition of your API key is still processing, please check back in a minute or so."
-                pass
             except DocumentRetrievalError:
                 msg = "An issue with the EVE API was encountered while adding your API, please try again later."
             except:
@@ -86,16 +85,10 @@ def eveapi_refresh(request, userid, post_save_redirect='/'):
 def eveapi_log(request, userid):
     """ Provides a list of access logs for a specific EVE API key """
 
-    try:
-        acc = EVEAccount.objects.get(id=userid)
-    except EVEAccount.DoesNotExist:
-        pass
-    else:
-        if acc and (acc.user == request.user or request.user.is_staff):
-            logs = ApiAccessLog.objects.filter(userid=userid).order_by('-time_access')[:50]
-            return render_to_response('eve_api/log.html', locals(), context_instance=RequestContext(request))
-
-    raise Http404
+    acc = get_object_or_404(EVEAccount, id=userid)
+    if acc and (acc.user == request.user or request.user.is_staff):
+        logs = ApiAccessLog.objects.filter(userid=userid).order_by('-time_access')[:50]
+        return render_to_response('eve_api/log.html', locals(), context_instance=RequestContext(request))
 
 
 @login_required
@@ -104,6 +97,7 @@ def eveapi_character(request, charid=None):
 
     if charid:
         character = get_object_or_404(EVEPlayerCharacter.objects.select_related('corporation', 'corporation__aliance'), id=charid)
+        current_training = character.eveplayercharacterskill_set.filter(in_training__gt=0)
         skills = character.eveplayercharacterskill_set.all().order_by('skill__group__name', 'skill__name')
         return render_to_response('eve_api/character.html', locals(), context_instance=RequestContext(request))
 
@@ -117,11 +111,7 @@ def eveapi_corporation(request, corporationid):
     Provide details of a corporation, and for admins, a list of members
     """
 
-    try:
-        corporation = EVEPlayerCorporation.objects.get(id=corporationid)
-    except EVEPlayerCorporation.DoesNotExist:
-        raise Http404
-
+    corporation = get_object_or_404(EVEPlayerCorporation, id=corporationid)
     if request.user.is_superuser:
         view_members = True
         members = corporation.eveplayercharacter_set.all().order_by('corporation_date').only('id', 'name', 'corporation_date')
