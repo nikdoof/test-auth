@@ -151,4 +151,5 @@ table th a:visted
     display: inline-block;
     padding: 4px 12px 4px;
     text-decoration: none;
+    margin-bottom: 4px;
 }
