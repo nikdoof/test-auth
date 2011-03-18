@@ -37,7 +37,7 @@ def send_message(application, message_type, note=None):
 def check_permissions(user, application=None):
     """ Check if the user has permissions to view or admin the application """
 
-    corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=user,corporation__applications=True)
+    corplist = EVEPlayerCharacter.objects.select_related('roles').filter(eveaccount__user=user)
     if not application:
         if user.has_perm('hr.can_view_all') or user.has_perm('hr.can_view_corp') or corplist.filter(roles__name='roleDirector').count():
             return HR_ADMIN
