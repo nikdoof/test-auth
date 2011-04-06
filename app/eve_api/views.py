@@ -114,8 +114,6 @@ def eveapi_corporation(request, corporationid):
     Provide details of a corporation, and for admins, a list of members
     """
 
-    from __future__ import division
-
     corporation = get_object_or_404(EVEPlayerCorporation, id=corporationid)
     if request.user.is_superuser:
         view_members = True
@@ -123,7 +121,7 @@ def eveapi_corporation(request, corporationid):
         memberdata = corporation.eveplayercharacter_set.all()
         if corporation.member_count:
             api_members = memberdata.filter(eveaccount__isnull=False).count()
-            percentage = (api_members / corporation.member_count) * 100
+            percentage = (float(api_members) / corporation.member_count) * 100
         members = memberdata.order_by('corporation_date').only('id', 'name', 'corporation_date')
 
     return render_to_response('eve_api/corporation.html', locals(), context_instance=RequestContext(request))
