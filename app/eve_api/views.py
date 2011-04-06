@@ -117,6 +117,11 @@ def eveapi_corporation(request, corporationid):
     corporation = get_object_or_404(EVEPlayerCorporation, id=corporationid)
     if request.user.is_superuser:
         view_members = True
-        members = corporation.eveplayercharacter_set.all().order_by('corporation_date').only('id', 'name', 'corporation_date')
+
+        memberdata = corporation.eveplayercharacter_set.all()
+        if corporation.member_count:
+            api_members = memberdata.filter(eveaccount__isnull=False).count()
+            percentage = (api_members / corporation.member_count) * 100
+        members = memberdata.order_by('corporation_date').only('id', 'name', 'corporation_date')
 
     return render_to_response('eve_api/corporation.html', locals(), context_instance=RequestContext(request))
