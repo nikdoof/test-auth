@@ -114,6 +114,8 @@ def eveapi_corporation(request, corporationid):
     Provide details of a corporation, and for admins, a list of members
     """
 
+    from __future__ import division
+
     corporation = get_object_or_404(EVEPlayerCorporation, id=corporationid)
     if request.user.is_superuser:
         view_members = True
