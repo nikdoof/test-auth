@@ -18,8 +18,6 @@ class Command(NoArgsCommand):
         add = set(users) - set(g.user_set.all())
         rem = set(g.user_set.all()) - set(users)
 
-        print g.user_set.all()
-
         for m in rem:
             m.groups.remove(g)
             update_user_access.delay(m.id)
