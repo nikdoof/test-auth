@@ -117,8 +117,17 @@ def import_corp_members(api_userid, api_key, character_id):
     charlist = []
     for character in set:
         charlist.append(int(character['characterID']))
-        charobj = EVEPlayerCharacter.objects.filter(id=character['characterID'])
-        charobj.update(corporation=corp, last_login=character['logonDateTime'], last_logoff=character['logoffDateTime'], current_location_id=int(character['locationID']), corporation_date=character['startDateTime'])
+        charobj, created = EVEPlayerCharacter.objects.get_or_create(id=character['characterID'])
+        if created:
+            charobj.name = character['name']
+        charobj.corporation = corp
+        charobj.last_login = character['logonDateTime']
+        charobj.last_logoff = character['logoffDateTime']
+        charobj.current_location_id = int(character['locationID'])
+        charobj.corporation_date = character['startDateTime']
+        charobj.save()
+        if created:
+            import_eve_character.delay(character['characterID'])
 
     for char in EVEPlayerCharacter.objects.filter(corporation=corp).exclude(id__in=charlist):
         import_eve_character.delay(char.id)
