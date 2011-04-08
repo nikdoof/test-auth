@@ -98,7 +98,7 @@
     </td>
     <td align="right">{{ char.balance|intcomma }} ISK</td>
     <td align="right">{{ char.total_sp|intcomma }} SP</td>
-    <td>{% if request.is_igb %}<a href="javascript:CCPEVE.showInfo(1377, {{ char.id }})">Show In Eve</a> / {% endif %}<a href="https://gate.eveonline.com/Profile/{{ char.name }}/">EveGate Profile</a> / <a href="http://eve-search.com/search/author/{{ char.name }}">EveSearch</a></td>
+    <td>{% if request.is_igb %}<a href="javascript:CCPEVE.showInfo(1377, {{ char.id }})">Show In Eve</a> / {% endif %}<a href="https://gate.eveonline.com/Profile/{{ char.name }}/">EveGate Profile</a> / <a href="http://eve-search.com/search/author/{{ char.name }}">EveSearch</a><a href="https://forums.eveonline.com/default.aspx?g=search&search={{ char.name}}">EVEGate Forums</a></td>
 </tr>
 {% endfor %}
 {% endfor %}
