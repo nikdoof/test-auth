@@ -155,6 +155,9 @@ def service_reset(request, serviceid=0):
 def user_view(request, username=None):
     """ View a user's profile as a admin """
 
+    if not request.user.is_staff:
+        return redirect('sso.views.profile')
+
     if username:
         try:
             user = User.objects.get(username=username)
@@ -180,6 +183,9 @@ def user_lookup(request):
     """ Lookup a user's account by providing a matching criteria """
 
     form = UserLookupForm()
+
+    if not request.user.is_staff:
+        return redirect('sso.views.profile')
 
     if request.method == 'POST':
         form = UserLookupForm(request.POST)
