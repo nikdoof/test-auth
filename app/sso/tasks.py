@@ -67,19 +67,19 @@ def update_user_access(user, **kwargs):
             servacc.active = 0
             servacc.save()
             pass
-
-    # For each of the user's services, check they're in a valid group for it and enable/disable as needed.
-    for servacc in ServiceAccount.objects.filter(user=user):
-        if not (set(user.groups.all()) & set(servacc.service.groups.all())):
-            if servacc.active:
-                servacc.active = 0
-                servacc.save()
-                pass
-        else:
-            if not servacc.active:
-                servacc.active = 1
-                servacc.save()
-                pass
+    else:
+        # For each of the user's services, check they're in a valid group for it and enable/disable as needed.
+        for servacc in ServiceAccount.objects.filter(user=user):
+            if not (set(user.groups.all()) & set(servacc.service.groups.all())):
+                if servacc.active:
+                    servacc.active = 0
+                    servacc.save()
+                    pass
+            else:
+                if not servacc.active:
+                    servacc.active = 1
+                    servacc.save()
+                    pass
 
     update_service_groups.delay(user_id=user.id)
 
