@@ -32,12 +32,13 @@ admin.site.register(EVEAccount, EVEAccountAdmin)
 class EVEPlayerCharacterAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'corporation')
     search_fields = ['id', 'name']
+    actions = [char_api_update]
+
 admin.site.register(EVEPlayerCharacter, EVEPlayerCharacterAdmin)
 
 class EVEPlayerCharacterRoleAdmin(admin.ModelAdmin):
     list_display = ('id', 'roleid', 'name')
     search_fields = ['roleid', 'name']
-    actions = [char_api_update]
 
 admin.site.register(EVEPlayerCharacterRole, EVEPlayerCharacterRoleAdmin)
 
