@@ -4,7 +4,7 @@ Admin interface models. Automatically detected by admin.autodiscover().
 from django.contrib import admin
 from eve_api.models import *
 
-from eve_api.tasks import import_apikey
+from eve_api.tasks import import_apikey, import_eve_character
 
 def account_api_update(modeladmin, request, queryset):
     for obj in queryset:
@@ -12,11 +12,19 @@ def account_api_update(modeladmin, request, queryset):
 
 account_api_update.short_description = "Update account from the EVE API"
 
+def char_api_update(modeladmin, request, queryset):
+    for obj in queryset:
+        if obj.eveaccount_set.count():
+            import_eve_character.delay(obj.id, obj.eveaccount_set.all()[0].api_key, obj.eveaccount_set.all()[0].api_user_id)
+        else:
+            import_eve_character.delay(obj.id)
+
+char_api_update.short_description = "Update character information from the EVE API"
+
 class EVEAccountAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'api_keytype', 'api_status', 'api_last_updated')
     search_fields = ['id', 'user__username']
     readonly_fields = ('api_keytype', 'api_user_id', 'api_key', 'api_status', 'characters', 'api_last_updated', 'characters')
-
     actions = [account_api_update]
 
 admin.site.register(EVEAccount, EVEAccountAdmin)
@@ -29,6 +37,8 @@ admin.site.register(EVEPlayerCharacter, EVEPlayerCharacterAdmin)
 class EVEPlayerCharacterRoleAdmin(admin.ModelAdmin):
     list_display = ('id', 'roleid', 'name')
     search_fields = ['roleid', 'name']
+    actions = [char_api_update]
+
 admin.site.register(EVEPlayerCharacterRole, EVEPlayerCharacterRoleAdmin)
 
 class EVEPlayerCorporationInline(admin.TabularInline):
