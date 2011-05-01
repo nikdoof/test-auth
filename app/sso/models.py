@@ -72,7 +72,7 @@ class SSOUserIPAddress(models.Model):
     last_seen = models.DateTimeField(auto_now_add=True, blank=False, null=False,
                                            verbose_name="First sighting date/time",
                                            help_text="Shows the most recent time the user has been seen at this IP.")
-    ip_address = models.CharField("IP Address", max_length=200, blank=False)
+    ip_address = models.CharField("IP Address", max_length=200, blank=False, unique=True)
     user = models.ForeignKey(User, blank=False, null=False, related_name='ip_addresses')
 
     def __unicode__(self):
