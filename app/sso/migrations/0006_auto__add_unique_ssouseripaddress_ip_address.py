@@ -9,7 +9,8 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
 
         # Purge existing records
-        orm['sso.SSOUserIPAddress'].objects.all().delete()
+        if not db.dry_run:
+            orm['sso.SSOUserIPAddress'].objects.all().delete()
         
         # Adding unique constraint on 'SSOUserIPAddress', fields ['ip_address']
         db.create_unique('sso_ssouseripaddress', ['ip_address'])
