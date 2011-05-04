@@ -73,7 +73,7 @@ class LoginHandler(BaseHandler):
                 return {'auth': 'missing', 'missing': 'Username'}
 
         if u:
-            if request.GET.get('pass', None) and request.GET['pass'] == u.get_profile().api_service_password:
+            if request.GET.get('pass', None) and u.is_active and request.GET['pass'] == u.get_profile().api_service_password:
                 return {'auth': 'ok', 'id': u.id, 'username': u.username,
                         'email': u.email, 'groups': u.groups.all(),
                         'staff': u.is_staff, 'superuser': u.is_superuser}
