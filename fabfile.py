@@ -181,6 +181,8 @@ def stop_celeryd():
     with cd('%(path)s/dreddit-auth/' % env):
         if exists('logs/celeryd.pid'):
             run('kill `cat logs/celeryd.pid`')
+            time.sleep(2)
+            run('rm -f logs/celeryd.pid')
         else:
             warn('celeryd isn\'t running')
 
@@ -194,35 +196,48 @@ def restart_celeryd():
 
 
 def start_uwsgi():
+    """
+    Start uWSGI
+    """
     with cd('%(path)s/dreddit-auth/' % env):
         run('uwsgi -d logs/uwsgi.log -x etc/auth_uwsgi.xml' % env)
 
 
-def stop_uwsgi():
+def restart_uwsgi():
+    """
+    Restart the uWSGI daemon
+    """
     with cd('%(path)s/dreddit-auth/' % env):
         if exists('logs/uwsgi.pid'):
             run('kill `cat logs/uwsgi.pid`')
         else:
             warn('uWSGI isn\'t running')
 
-
-def restart_uwsgi():
-    stop_uwsgi()
-    time.sleep(0.5)
-    start_uwsgi()
-
-
 def start():
+    """
+    Start uWSGI and Celery
+    """
     start_uwsgi()
     start_celeryd()
 
 
 def stop():
+    """
+    Stop Celery
+    """
     stop_celeryd()
-    stop_uwsgi()
-
+    info('Can\'t stop uWSGI')
 
 def restart():
-    stop()
+    """
+    Restart uWSGI and Celery
+    """
+    stop_celeryd()
     time.sleep(5)
-    start()
+    restart_uwsgi()
+    start_celeryd()
+
+def clear_logs():
+    with cd('%(path)s/dreddit-auth/' % env):
+        run('rm ./logs/*.log')
+
