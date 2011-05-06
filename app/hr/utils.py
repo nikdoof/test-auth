@@ -1,6 +1,6 @@
 from datetime import datetime
 from hr.app_defines import *
-from hr.models import Blacklist
+from hr.models import Blacklist, Application
 from django.db import models
 from eve_api.models import EVEPlayerCharacter
 
@@ -63,3 +63,15 @@ def blacklist_values(user):
     blacklist.extend(objs)
 
     return blacklist
+
+def recommendation_chain(application):
+    """ Returns the recommendation chain for a application (as a nested dict) """
+
+    t = {}
+    for rec in application.recommendation_set.all():
+        try:
+            app = Application.objects.get(character=rec.user_character, status=APPLICATION_STATUS_COMPLETED)
+            t[rec.user_character.name] = recommendation_chain(app)
+        except Application.DoesNotExist:
+            t[rec.user_character.name] = {}
+    return t
