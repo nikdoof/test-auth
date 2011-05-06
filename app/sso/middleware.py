@@ -48,10 +48,8 @@ class IPTrackingMiddleware(object):
 
         if request.user and not request.user.is_anonymous():
             try:
-                ip, created = SSOUserIPAddress.objects.get_or_create(user=request.user, ip_address=request.META['REMOTE_ADDR'])
-            except IntegrityError:
-                ip  = SSOUserIPAddress.objects.get(user=request.user, ip_address=request.META['REMOTE_ADDR'])
-                created = False
-            if not created:
-                ip.last_seen = datetime.utcnow()
-                ip.save()
+                ip = SSOUserIPAddress.objects.get(user=request.user, ip_address=request.META['REMOTE_ADDR'])
+            except SSOUserIPAddress.DoesNotExist:
+                ip = SSOUserIPAddress(user=request.user, ip_address=request.META['REMOTE_ADDR'])
+            ip.last_seen = datetime.utcnow()
+            ip.save()
