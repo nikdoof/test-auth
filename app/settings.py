@@ -69,7 +69,6 @@ MIDDLEWARE_CLASSES = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'pagination.middleware.PaginationMiddleware',
     'sso.middleware.IGBMiddleware',
-    'sso.middleware.IPTrackingMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
