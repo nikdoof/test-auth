@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 
 class IGBMiddleware(object):
     """
