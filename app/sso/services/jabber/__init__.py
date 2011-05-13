@@ -108,13 +108,15 @@ class JabberService(BaseService):
         valid_groups = []
 
         for group in groups:
-            groupname = group.name.lower().replace(' ', '-')
-            self.exec_xmlrpc('srg_create', group=groupname, host=server, name=group.name, description='', display='')
-            self.exec_xmlrpc('srg_user_add', user=username, host=server, group=groupname, grouphost=server)
-            valid_groups.append(groupname)
+            if not group.name in current_groups:
+                groupname = group.name.lower().replace(' ', '-').replace('.', '')
+                self.exec_xmlrpc('srg_create', group=groupname, host=server, name=group.name, description='', display='')
+                self.exec_xmlrpc('srg_user_add', user=username, host=server, group=groupname, grouphost=server)
+                if not groupname in current_groups: current_groups.append(groupname)
+            if not groupname in valid_groups: valid_groups.append(groupname)
 
         for group in (set(current_groups) - set(valid_groups)):
-            self.exec_xmlrpc('srg_user_del', user=username, host=server, group=groupname, grouphost=server)
+            self.exec_xmlrpc('srg_user_del', user=username, host=server, group=group, grouphost=server)
 
     def send_message(self, jid, msg):
         # send_stanza_c2s user host resource stanza

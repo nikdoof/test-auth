@@ -89,7 +89,9 @@ def update_service_groups(user_id):
     for service in ServiceAccount.objects.filter(user=user_id, active=True).select_related('service__api'):
         api = service.service.api_class
         try:
+            print "Updating %s" % service
             api.update_groups(service.service_uid, service.user.groups.all(), service.character)
+            print "Done"
         except:
             print "Error updating %s %s" % (service.service, service.service_uid)
             pass
