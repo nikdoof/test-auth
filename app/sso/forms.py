@@ -108,3 +108,19 @@ class APIPasswordForm(forms.Form):
     """ API Password reset form """
 
     password = forms.CharField(widget=forms.PasswordInput, label="Password")
+
+
+class EmailChangeForm(forms.Form):
+    """ Email Change Form """
+
+    email1 = forms.EmailField(label=u'New E-mail Address', max_length=75)
+    email2 = forms.EmailField(label=u'Confirm New E-mail Address', max_length=75)
+
+    def clean_email2(self):
+        email1 = self.cleaned_data.get('email1')
+        email2 = self.cleaned_data.get('email2')
+        if email1 and email2:
+            if email1 != email2:
+                raise forms.ValidationError("The two e-mail fields didn't match.")
+        return email2
+

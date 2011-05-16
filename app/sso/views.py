@@ -22,7 +22,7 @@ from eve_api.tasks import import_apikey, import_apikey_result, update_user_acces
 from eve_proxy.models import ApiAccessLog
 
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
-from sso.forms import UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm
+from sso.forms import UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm, EmailChangeForm
 
 @login_required
 def profile(request):
@@ -253,3 +253,21 @@ def refresh_access(request, userid=0):
         update_user_access(request.user.id)
         messages.add_message(request, messages.INFO, "User access updated.")
     return redirect('sso.views.profile')
+
+
+@login_required
+def email_change(request):
+    """ Change the user's email address """
+
+    if request.method == 'POST':
+        form = EmailChangeForm(request.POST)
+        if form.is_valid():
+            request.user.email = form.cleaned_data['email2']
+            request.user.save()
+            messages.add_message(request, messages.INFO, "E-mail address changed to %s." % form.cleaned_data['email2'])
+            return redirect('sso.views.profile') # Redirect after POST
+    else:
+        form = EmailChangeForm() # An unbound form
+
+    return render_to_response('sso/emailchange.html', locals(), context_instance=RequestContext(request))
+

@@ -16,6 +16,7 @@ urlpatterns = patterns('',
     (r'^profile/refresh/', views.refresh_access),
     (r'^profile/refresh/(?P<userid>\d+)/', views.refresh_access),
     (r'^profile/change/password/$', password_change),
+    (r'^profile/change/email/$', views.email_change),
     (r'^users/(?P<username>.*)/$', views.user_view),
     (r'^users/$', views.user_lookup),
 )
