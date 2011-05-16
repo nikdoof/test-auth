@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
+from django.contrib.auth.views import password_change, password_change_done
 
 from sso import views
 
@@ -14,6 +15,7 @@ urlpatterns = patterns('',
     (r'^profile/apipassword/', views.set_apipasswd),
     (r'^profile/refresh/', views.refresh_access),
     (r'^profile/refresh/(?P<userid>\d+)/', views.refresh_access),
+    (r'^profile/change/password/$', password_change),
     (r'^users/(?P<username>.*)/$', views.user_view),
     (r'^users/$', views.user_lookup),
 )
