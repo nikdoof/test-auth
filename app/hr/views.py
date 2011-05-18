@@ -179,7 +179,7 @@ def admin_applications(request):
 
     if 'o' in request.GET:
         order = request.GET['o']
-        if order in ['id', 'corporation', 'character']:
+        if order in ['id', 'corporation__name', 'character__name']:
             apps = apps.order_by(order)
 
     if 'l' in request.GET:

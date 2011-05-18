@@ -13,8 +13,8 @@
 {% if apps %}
 <table>
 <tr><th><a href="{% url hr.views.admin_applications %}?o=id">Application ID</a></th>
-    <th><a href="{% url hr.views.admin_applications %}?o=character">Character</a></th>
-    <th><a href="{% url hr.views.admin_applications %}?o=corporation">Corporation</a></th>
+    <th><a href="{% url hr.views.admin_applications %}?o=character__name">Character</a></th>
+    <th><a href="{% url hr.views.admin_applications %}?o=corporation__name">Corporation</a></th>
     <th>Application Status</th>
     <th>Last Action Date</th>
     <th>Last Action User</th></tr>
