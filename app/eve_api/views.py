@@ -74,7 +74,11 @@ def eveapi_refresh(request, userid, post_save_redirect='/'):
                     acc = task.wait(30)
                 except (celery.exceptions.TimeoutError, DocumentRetrievalError):
                     acc = EVEAccount.objects.get(id=userid)
-                return HttpResponse(serializers.serialize('json', [acc]), mimetype='application/javascript')
+                if acc:
+                    ret = [acc]
+                else:
+                    ret = []
+                return HttpResponse(serializers.serialize('json', ret), mimetype='application/javascript')
             else:
                 messages.add_message(request, messages.INFO, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
 
