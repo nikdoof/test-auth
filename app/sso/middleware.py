@@ -1,4 +1,15 @@
 from django.db import IntegrityError
+from django.contrib.auth import logout
+
+class InactiveLogoutMiddleware(object):
+    """
+    Detect inactive and logged in users and log them out
+    """
+
+    def process_request(self, request):
+        if request.user.is_authenticated() and not request.user.is_active:
+            logout(request)
+
 
 class IGBMiddleware(object):
     """
