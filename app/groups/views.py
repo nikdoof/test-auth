@@ -64,6 +64,9 @@ def create_request(request, groupid):
     if request.user in group.user_set.all() or not group.groupinformation.requestable:
         return HttpResponseRedirect(reverse('groups.views.group_list'))
 
+    if group.groupinformation.parent and not group.groupinformation.parent in request.user.groups.all():
+       return HttpResponseRedirect(reverse('groups.views.group_list'))
+
     if group.requests.filter(status=REQUEST_PENDING,user=request.user).count():
         messages.add_message(request, messages.INFO, "You already have a pending request for %s" % group.name)
         return HttpResponseRedirect(reverse('groups.views.group_list'))
