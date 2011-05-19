@@ -49,7 +49,7 @@ def group_list(request):
         fixed = not group.groupinformation.type == GROUP_TYPE_PERMISSION
 	pending = group.requests.filter(status=REQUEST_PENDING,user=request.user).count()
 
-        group_list.append((group.id, group.name, group.groupinformation.description, status, requestable, fixed, pending))
+        group_list.append((group.id, group.name, group.groupinformation.description, status, requestable, fixed, pending, group.groupinformation.moderated))
 
     group_list = sorted(group_list, key=lambda name: name[1].lower())
 
