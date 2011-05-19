@@ -28,7 +28,7 @@ class EVEAccount(EVEAPIModel):
                                      help_text="Type of API key")
 
     def __unicode__(self):
-        return u"%s" % self.id
+        return u"%s" % self.pk
 
     def in_corp(self, corpid):
         return self.character.filter(corporation__id=corpid).count()
