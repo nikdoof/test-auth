@@ -50,7 +50,7 @@ function refresh_apikey(key) {
 <div class="skill_controls">
 <a href="{% url sso.views.refresh_access %}">Update Access</a>
 <a href="{% url django.contrib.auth.views.password_change %}">Change Your Password</a>
-<a href="{% url sso.views.email_change %}">Change Your E-mail</a
+<a href="{% url sso.views.email_change %}">Change Your E-mail</a>
 </div>
 </p>
 
@@ -114,6 +114,7 @@ setup.</p>
     <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
     <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
     <td><a href="javascript:refresh_apikey({{ acc.api_user_id }})">Refresh</a>,&nbsp;
+        <a href="{% url eve_api.views.eveapi_update acc.api_user_id %}">Update Key</a>,&nbsp;
         <a href="{% url eve_api.views.eveapi_log acc.api_user_id %}">Logs</a>,&nbsp;
         <a href="{% url eve_api.views.eveapi_del acc.api_user_id %}">Delete</a></td>
 </tr>
