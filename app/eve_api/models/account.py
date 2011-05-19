@@ -8,14 +8,15 @@ class EVEAccount(EVEAPIModel):
     Use this class to store EVE user account information. Note that its use is
     entirely optional and up to the developer's discretion.
     """
+    api_user_id = models.IntegerField(primary_key=True, verbose_name="API User ID",
+                                      help_text="EVE API User ID")
+    api_key = models.CharField(max_length=64, verbose_name="API Key",
+                               help_text="EVE API Key")
+
     user = models.ForeignKey(User, blank=True, null=True,
                              help_text="User that owns this account")
     description = models.CharField(max_length=50, blank=True,
                                    help_text="User-provided description.")
-    api_key = models.CharField(max_length=64, verbose_name="API Key",
-                               help_text="EVE API Key")
-    api_user_id = models.IntegerField(verbose_name="API User ID",
-                                      help_text="EVE API User ID")
     characters = models.ManyToManyField('eve_api.EVEPlayerCharacter', blank=True, null=True)
     api_status = models.IntegerField(choices=API_STATUS_CHOICES,
                                      default=API_STATUS_PENDING,

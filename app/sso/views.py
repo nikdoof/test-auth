@@ -208,7 +208,7 @@ def user_lookup(request):
             elif form.cleaned_data['type'] == '4':
                 users = User.objects.filter(email__icontains=form.cleaned_data['username']).only('username')
             elif form.cleaned_data['type'] == '5':
-                uids = EVEAccount.objects.filter(id__icontains=form.cleaned_data['username']).values_list('user', flat=True)
+                uids = EVEAccount.objects.filter(api_user_id__icontains=form.cleaned_data['username']).values_list('user', flat=True)
                 users = User.objects.filter(id__in=uids).only('username')
             else:
                 messages.add_message(request, messages.ERROR, "Error parsing form, Type: %s, Value: %s" % (form.cleaned_data['type'], form.cleaned_data['username']))

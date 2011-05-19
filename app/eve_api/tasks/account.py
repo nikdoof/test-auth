@@ -79,7 +79,7 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
     # Checks for a document error
     if 'error' in doc:
         try:
-            account = EVEAccount.objects.get(id=api_userid)
+            account = EVEAccount.objects.get(api_user_id=api_userid)
         except EVEAccount.DoesNotExist:
             # If no Account exists in the DB, just ignore it
             return
@@ -102,7 +102,7 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
 
     # Create or retrieve the account last to make sure everything
     # before here is good to go.
-    account, created = EVEAccount.objects.get_or_create(id=api_userid, api_user_id=api_userid)
+    account, created = EVEAccount.objects.get_or_create(api_user_id=api_userid, api_user_id=api_userid)
     account.api_key = api_key
     account.api_status = API_STATUS_OK
     if user and created:

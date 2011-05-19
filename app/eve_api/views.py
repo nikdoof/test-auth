@@ -49,7 +49,7 @@ def eveapi_add(request, post_save_redirect='/'):
 def eveapi_update(request, userid, post_save_redirect='/'):
     """ Update a EVE API Key """
 
-    acc = get_object_or_404(EVEAccount, id=userid)
+    acc = get_object_or_404(EVEAccount, pk=userid)
     if not acc.user == request.user and not request.user.is_staff:
         raise Http404    
 
@@ -88,7 +88,7 @@ def eveapi_del(request, userid, post_save_redirect='/'):
     """ Delete a EVE API key from a account """
 
     try:
-        acc = EVEAccount.objects.get(id=userid)
+        acc = EVEAccount.objects.get(pk=userid)
     except EVEAccount.DoesNotExist:
         return redirect(post_save_redirect)
     if acc.user == request.user:
@@ -103,7 +103,7 @@ def eveapi_refresh(request, userid, post_save_redirect='/'):
     """ Force refresh a EVE API key """
 
     try:
-        acc = EVEAccount.objects.get(id=userid)
+        acc = EVEAccount.objects.get(pk=userid)
     except EVEAccount.DoesNotExist:
         pass
     else:
@@ -113,7 +113,7 @@ def eveapi_refresh(request, userid, post_save_redirect='/'):
                 try:
                     acc = task.wait(30)
                 except (celery.exceptions.TimeoutError, DocumentRetrievalError):
-                    acc = EVEAccount.objects.get(id=userid)
+                    acc = EVEAccount.objects.get(pk=userid)
                 if acc:
                     ret = [acc]
                 else:
@@ -129,7 +129,7 @@ def eveapi_refresh(request, userid, post_save_redirect='/'):
 def eveapi_log(request, userid):
     """ Provides a list of access logs for a specific EVE API key """
 
-    acc = get_object_or_404(EVEAccount, id=userid)
+    acc = get_object_or_404(EVEAccount, pk=userid)
     if acc and (acc.user == request.user or request.user.is_staff):
         logs = ApiAccessLog.objects.filter(userid=userid).order_by('-time_access')[:50]
         return render_to_response('eve_api/log.html', locals(), context_instance=RequestContext(request))

@@ -126,7 +126,7 @@ class OpTimerHandler(BaseHandler):
     allowed_methods = ('GET')
 
     def read(self, request, id=None):
-        obj = get_object_or_404(EVEAccount, id=FULL_API_USER_ID)
+        obj = get_object_or_404(EVEAccount, pk=FULL_API_USER_ID)
 
         params = {'userID': obj.id, 'apiKey': obj.api_key, 'characterID': FULL_API_CHARACTER_ID}
 

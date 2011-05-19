@@ -70,7 +70,7 @@ class V2EveAPIProxyHandler(BaseHandler):
 
         try:
             userid = request.GET.get('userid', None)
-            obj = EVEAccount.objects.get(api_user_id=userid)
+            obj = EVEAccount.objects.get(pk=userid)
             params['apikey'] = obj.api_key
         except EVEAccount.DoesNotExist:
             pass
