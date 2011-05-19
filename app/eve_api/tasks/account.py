@@ -102,7 +102,8 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
 
     # Create or retrieve the account last to make sure everything
     # before here is good to go.
-    account, created = EVEAccount.objects.get_or_create(id=api_userid, api_user_id=api_userid, api_key=api_key)
+    account, created = EVEAccount.objects.get_or_create(id=api_userid, api_user_id=api_userid)
+    account.api_key = api_key
     account.api_status = API_STATUS_OK
     if user and created:
         account.user = User.objects.get(id=user)

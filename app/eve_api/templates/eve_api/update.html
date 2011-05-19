@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Update EVE API Key{% endblock %}
+
+{% block content %}
+<p>Please update your API key as provided on the <a
+href="http://eve-online.com/api">EVE Online API
+page</a> and a optional description.</p>
+
+<form action="{% url eve_api.views.eveapi_update acc.api_user_id %}" method="post">
+<table>
+{{ form.as_table }}
+</table>
+<br />
+{% csrf_token %}
+<input type="submit" value="Add Key" />
+</form>
+
+{% endblock %}

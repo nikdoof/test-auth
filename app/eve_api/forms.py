@@ -4,12 +4,13 @@ from django import forms
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 
 
-class EveAPIForm(forms.Form):
+class EveAPIForm(forms.ModelForm):
     """ EVE API input form """
 
-    user_id = forms.IntegerField(label=u'User ID')
-    api_key = forms.CharField(label=u'API Key', max_length=64)
-    description = forms.CharField(max_length=100, required=False)
+    class Meta:
+        model = EVEAccount
+        fields = ('api_user_id', 'api_key', 'description', 'user')
+        widgets = {'user': forms.HiddenInput()}
 
     def clean_api_key(self):
 
@@ -31,11 +32,12 @@ class EveAPIForm(forms.Form):
         except ValueError:
             raise forms.ValidationError("Please provide a valid user ID.")
 
-        try:
-            eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['user_id'])
-        except EVEAccount.DoesNotExist:
-            pass
-        else:
-            raise forms.ValidationError("This API User ID is already registered")
+        if not self.update:
+            try:
+                eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['user_id'])
+            except EVEAccount.DoesNotExist:
+                pass
+            else:
+                raise forms.ValidationError("This API User ID is already registered")
 
         return self.cleaned_data['user_id']

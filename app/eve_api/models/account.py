@@ -12,8 +12,10 @@ class EVEAccount(EVEAPIModel):
                              help_text="User that owns this account")
     description = models.CharField(max_length=50, blank=True,
                                    help_text="User-provided description.")
-    api_key = models.CharField(max_length=64, verbose_name="API Key")
-    api_user_id = models.IntegerField(verbose_name="API User ID")
+    api_key = models.CharField(max_length=64, verbose_name="API Key",
+                               help_text="EVE API Key")
+    api_user_id = models.IntegerField(verbose_name="API User ID",
+                                      help_text="EVE API User ID")
     characters = models.ManyToManyField('eve_api.EVEPlayerCharacter', blank=True, null=True)
     api_status = models.IntegerField(choices=API_STATUS_CHOICES,
                                      default=API_STATUS_PENDING,
