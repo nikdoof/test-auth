@@ -61,11 +61,18 @@ def create_request(request, groupid):
 
     group = get_object_or_404(Group, id=groupid)
 
-    if not group.groupinformation.requestable and not request.user in group.user_set.all():
+    if request.user in group.user_set.all() or not group.groupinformation.requestable:
         return HttpResponseRedirect(reverse('groups.views.group_list'))
 
     if group.requests.filter(status=REQUEST_PENDING,user=request.user).count():
         messages.add_message(request, messages.INFO, "You already have a pending request for %s" % group.name)
+        return HttpResponseRedirect(reverse('groups.views.group_list'))
+
+    if not group.groupinformation.moderated:
+        # Unmoderated group, so accept the application
+        request.user.groups.add(group)
+        update_user_access.delay(request.user.id)
+        messages.add_message(request, messages.INFO, "You are now a member of %s" % (group))
         return HttpResponseRedirect(reverse('groups.views.group_list'))
 
     if request.method == 'POST':
