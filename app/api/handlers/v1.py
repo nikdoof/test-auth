@@ -97,7 +97,7 @@ class EveAPIHandler(BaseHandler):
         elif request.GET.get('allianceid', None):
             s = EVEAccount.objects.filter(characters__corporation__alliance__id=request.GET['allianceid'])
 
-        return {'keys': s.values('id', 'user_id', 'api_status', 'api_last_updated')}
+        return {'keys': s.values('api_user_id', 'user_id', 'api_status', 'api_last_updated')}
 
 
 class EveAPIProxyHandler(BaseHandler):

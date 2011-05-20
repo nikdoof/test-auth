@@ -10,7 +10,7 @@ class IPBService(BaseService):
                  'provide_login': False,
                  'use_auth_username': True,
                  'ipb_display_name': "[%(corp)s] - %(name)s",
-                 'ipb_endpoint': 'http://testboard.aevumdecessus.com/interface/board/index.php',
+                 'ipb_endpoint': 'http://ipb.pleaseignore.com/interface/board/index.php',
                  'ipb_api_key': '51242ecca069b986106f04db1047cfc4',
                  'ipb_api_module': 'ipb' }
 
@@ -51,7 +51,6 @@ class IPBService(BaseService):
     def check_user(self, username):
         """ Check if the username exists """
         ret = self.exec_xmlrpc('fetchMember', search_type='email', search_string=username)
-
         return ret
 
     def disable_user(self, uid):
