@@ -29,13 +29,24 @@ urlpatterns = patterns('',
     url(r'^announce/$', announce_resource),
 )
 
+urlpatterns += patterns('',
+    url(r'^1.0/user/$', user_resource),
+    url(r'^1.0/login/$', login_resource),
+    url(r'^1.0/eveapi/$', eveapi_resource),
+    url(r'^1.0/eveapi/', eveapiproxy_resource, name='api-eveapiproxy'),
+    url(r'^1.0/character/$', characters_resource),
+    url(r'^1.0/optimer/$', optimer_resource),
+    url(r'^1.0/blacklist/$', blacklist_resource),
+    url(r'^1.0/announce/$', announce_resource),
+)
+
 # v2 APIs
 v2_authenticate_resource = Resource(handler=V2AuthenticationHandler, **noauth)
 v2_eveapiproxy_resource = Resource(handler=V2EveAPIProxyHandler, **apikeyauth)
 v2_user_resource = Resource(handler=V2UserHandler, **apikeyauth)
 
 urlpatterns += patterns('',
-    url(r'^v2/authenticate/$', v2_authenticate_resource),
-    url(r'^v2/proxy/', v2_eveapiproxy_resource, name='v2-api-eveapiproxy'),
-    url(r'^v2/user/(?P<userid>\d+)/$', v2_user_resource), 
+    url(r'^2.0/authenticate/$', v2_authenticate_resource, name='v2-api-authenticate'),
+    url(r'^2.0/proxy/', v2_eveapiproxy_resource, name='v2-api-eveapiproxy'),
+    url(r'^2.0/user/(?P<userid>\d+)/$', v2_user_resource, name='v2-api-user'),
 )

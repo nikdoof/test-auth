@@ -69,11 +69,12 @@ class V2EveAPIProxyHandler(BaseHandler):
             params[key.lower()] = value
 
         try:
-            userid = request.GET.get('userid', None)
-            obj = EVEAccount.objects.get(pk=userid)
+            obj = EVEAccount.objects.get(pk=request.GET.get('userid', None))
             params['apikey'] = obj.api_key
         except EVEAccount.DoesNotExist:
-            pass
+            resp = rc.NOT_FOUND
+            resp.write({'user': 'notfound'})
+            return resp
 
         try:
             cached_doc = CachedDocument.objects.api_query(url_path, params)
@@ -96,7 +97,7 @@ class V2UserHandler(BaseHandler):
         for acc in u.eveaccount_set.all():
             for char in acc.characters.all().select_related('characters').values('id', 'name', 'corporation', 'corporation_date', 'corporation__name'):
                 d = dict(char)
-                d['eveaccount'] = acc.id
+                d['eveaccount'] = acc.pk
                 charlist.append(d)
 
         d = {'id': u.id,
