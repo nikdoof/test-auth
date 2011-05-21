@@ -4,22 +4,21 @@ body
 	padding: 0;
 	font: 80%/1.2 helvetica, arial, sans-serif;
 	color: #444;
-	background: #000;
+	background: #6D825D;
 }
 
 #container
 {
 	margin: 0 auto;
-	width: 800px;
-	background:#fff;
+	width: 960px;
+	background:#9FB190;
+border-radius: 15px;
 }
 
 #header
 {
-	background:#ccc;
-        background: url('http://kb.pleaseignore.com/banner/sketch_banner.png');
-        background-position: -25px;
-        height: 164px;
+        background: #6D825D url('/static/img/mmd-header.png');
+        height: 180px;
 	padding: 20px;
 }
 
@@ -28,8 +27,9 @@ body
 #navigation
 {
 	float: left;
-	width: 800px;
-	background:#333;
+	width: 100%;
+        height: 45px;
+	background:#5F6757;
 }
 
 #navigation ul
@@ -48,13 +48,13 @@ body
 {
 	display: block;
 	float: left;
-	padding: 5px 10px;
+	padding: 15px 15px;
 	color:#fff;
 	text-decoration: none;
-	border-right: 1px solid#fff;
+	border-right: 2px solid #545b4d;
 }
 
-#navigation li a:hover { background:#383; }
+#navigation li a:hover { background:#486531; }
 
 #content
 {
@@ -62,12 +62,51 @@ body
 	padding: 20px;
 }
 
+#content h1
+{
+    font-size: 2em;
+    color:#222;
+    text-shadow: 0px 1px 3px #555;
+}
+
 #content h2
 {
-	color:#000;
-	font-size: 160%;
+	color:#222;
+	font-size: 1.5em;
 	margin: 0 0 .5em;
+        text-shadow: 0px 1px 3px #555;
 }
+
+#content a, #content a:visited, #content a:active
+{
+	color:#486531;
+}
+
+#content a.button
+{
+        background: none repeat scroll 0 0 #486531;
+        /*set up the layout just right*/
+        display: inline-block;
+        padding: 5px 10px 6px;
+        position: relative;
+        /*style the cursor and text of the button*/
+        color: #fff !important;
+        text-decoration: none;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+        /*add rounded corners in mozilla and webkit*/
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+        /*Add box shadows and a bottom border with rgba colors*/
+        -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+        border-bottom: 1px solid rgba(0,0,0,0.25);
+
+}
+
 
 #footer
 {
@@ -94,44 +133,55 @@ body
 }
 
 table 
-{text-align: center;
-font-weight: normal;
-font-size: 11px;
-color: #fff;
-background-color: #666;
-border: 0px;
-border-collapse: collapse;
-border-spacing: 0px;}
+{
+	text-align: center;
+	font-weight: normal;
+	font-size: 11px;
+	color: #fff;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 15px;
+}
 
 table td 
 {
-color: #000;
-padding: 4px;
-text-align: left;
-border: 1px #fff solid;}
+	color: #000;
+	padding: 4px;
+	text-align: left;
+}
 
-table tr { background-color: #CCC; }
-table tr:nth-child(odd) { background-color: #ddd; }
-table tr:hover { background-color: #eed; }
-table tr#alt-application { background-color: #FFA545; }
+table tr { 
+	background-color: #b6c9a6; 
+}
+
+table tr:nth-child(odd) {
+	background-color: #c3d7b2; 
+}
+
+table tr:hover {
+	background-color: #eed;
+}
+
+table tr#alt-application {
+	background-color: #FFA545;
+}
 
 table th
-{background-color: #333;
+{background-color: #5F6D53;
 color: #fff;
 padding: 4px;
 text-align: left;
-border-bottom: 2px #fff solid;
 font-size: 12px;
 font-weight: bold;}
 
 table th a
-{color: #fff;
+{color: #fff !important;
 }
 
 table th a:visted
-{color: #fff;
+{
+color: #fff !important;
 }
-
 
 .character_info > div { margin-bottom: 2em; }
 .character_info .character_portrait, .character_info .character_corporation, .character_info .character_alliance { float: right; }
@@ -146,10 +196,26 @@ table th a:visted
 .toggle_off th { background-color: #000; }
 .skill_controls { margin-bottom: .5em; }
 .skill_controls a {
-    background: none repeat scroll 0 0 #CC6600;
-    color: #FFFFFF;
-    display: inline-block;
-    padding: 4px 12px 4px;
-    text-decoration: none;
-    margin-bottom: 4px;
+        background: none repeat scroll 0 0 #486531;
+	/*set up the layout just right*/
+	display: inline-block;
+	padding: 5px 10px 6px;
+	position: relative;
+	/*style the cursor and text of the button*/
+	color: #fff !important;
+	text-decoration: none;
+	font-weight: bold;
+	line-height: 1;
+	cursor: pointer;
+	/*add rounded corners in mozilla and webkit*/
+        border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	/*Add box shadows and a bottom border with rgba colors*/
+	-moz-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+	text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+	border-bottom: 1px solid rgba(0,0,0,0.25);
+
+
 }

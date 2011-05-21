@@ -47,16 +47,19 @@ function refresh_apikey(key) {
 <b>Groups:</b> {{ user.groups.all|join:", " }}<br/>
 </p>
 <p>
-<div class="skill_controls">
-<a href="{% url sso.views.refresh_access %}">Update Access</a>
-<a href="{% url django.contrib.auth.views.password_change %}">Change Your Password</a>
-<a href="{% url sso.views.email_change %}">Change Your E-mail</a>
-</div>
+<a href="{% url sso.views.refresh_access %}" class="button">Update Access</a>
+<a href="{% url django.contrib.auth.views.password_change %}" class="button">Change Your Password</a>
+<a href="{% url sso.views.email_change %}" class="button">Change Your E-mail</a>
 </p>
+
+<br/>
 
 <h2>Auth API Services</h2>
 <p>Auth API Servies use Auth for your login information with the use of a seperate password. To reset your services password click the link below</p>
-<p><a href="{% url sso.views.set_apipasswd %}">Reset Auth API Services Password</a></p>
+
+<p><a href="{% url sso.views.set_apipasswd %}" class="button">Change External Services Password</a></p>
+
+<br/>
 
 {% if user.eveaccount_set.all %}
 <h2>Service Accounts</h2>
@@ -88,7 +91,7 @@ function refresh_apikey(key) {
 {% endif %}
 
 <p>
-<a href="{% url sso.views.service_add %}">Add Service</a>
+<a href="{% url sso.views.service_add %}" class="button">Add Service</a>
 </p>
 
 <br/>
@@ -123,7 +126,7 @@ setup.</p>
 </table>
 {% endif %}
 <p>
-<a href="{% url eve_api.views.eveapi_add %}">Add a Eve API key</a>
+<a href="{% url eve_api.views.eveapi_add %}" class="button">Add a Eve API key</a>
 </p>
 
 <br/>
@@ -148,11 +151,8 @@ setup.</p>
 </table>
 {% endif %}
 <p>
-<a href="{% url reddit.views.reddit_add %}">Add a Reddit account</a>
+<a href="{% url reddit.views.reddit_add %}" class="button">Add a Reddit account</a>
 </p>
 {% endif %}
 
-<p>If you encounter any errors during using this service, copy the massive
-error message into <a href="http://pastebin.com/">Pastebin</a> and give
-Matalok/Aevum Decessus a good kicking on IRC/Jabber/Email or on the Forums.</p>
 {% endblock %}
