@@ -66,10 +66,7 @@ function refresh_apikey(key) {
 <p>Services not fully integrated into Auth, and which a seperate username/password is required.</p>
 {% if user.serviceaccount_set.all %}
 <table>
-<thead>
 <tr><th>Service</th><th>Username</th><th>URL</th><th>Active</th><th>Actions</th></tr>
-</thead>
-<tbody>
 {% for acc in user.serviceaccount_set.all %}
 <tr><td>{{ acc.service }}</td>
     <td>{{ acc.service_uid }}</td>
@@ -86,7 +83,6 @@ function refresh_apikey(key) {
     </td>
 </tr>
 {% endfor %}
-</tbody>
 </table>
 {% endif %}
 
@@ -105,10 +101,7 @@ remove them at any time, but this may affect any existing services you have
 setup.</p>
 {% if user.eveaccount_set.all %}
 <table>
-<thead>
 <tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th><th>Actions</th></tr>
-</thead>
-<tbody>
 {% for acc in user.eveaccount_set.all %}
 <tr><td>{{ acc.api_user_id }}</td>
     <td>{{ acc.api_key }}</td>
@@ -121,7 +114,6 @@ setup.</p>
         <a href="{% url eve_api.views.eveapi_log acc.api_user_id %}">Logs</a>,&nbsp;
         <a href="{% url eve_api.views.eveapi_del acc.api_user_id %}">Delete</a></td>
 </tr>
-</tbody>
 {% endfor %}
 </table>
 {% endif %}
@@ -137,17 +129,13 @@ setup.</p>
 {% if user.redditaccount_set.all %}
 <p>To validate your Reddit account, login on Reddit then click the link next to the account, fill in some text in the message and click send.</p>
 <table>
-<thead>
 <tr><th>Username</th><th>Created Date</th><th>Validated</th></tr>
-</thead>
-<tbody>
 {% for acc in user.redditaccount_set.all %}
 <tr><td>{{ acc.username }}</td>
     <td>{{ acc.date_created }}</td>
     <td>{% if acc.validated %}Yes{% else %}No (<a href="http://www.reddit.com/message/compose/?to=DredditVerification&subject=Validation%3a%20{{user.username}}" target="_blank">Validate</a>){% endif %}</td>
 </tr>
 {% endfor %}
-</tbody>
 </table>
 {% endif %}
 <p>
