@@ -8,18 +8,18 @@
 	<h1>{{ character.name }}</h1>
 
 	<div class="character_portrait">
-		<img src="http://image.eveonline.com/Character/{{ character.id }}_256.jpg" />
+		<img src="https://image.eveonline.com/Character/{{ character.id }}_256.jpg" />
 	</div>
 	
 	<div class="character_corporation">
 		<span><a href="http://evemaps.dotlan.net/corp/{{ character.corporation.name }}">{{ character.corporation.ticker }}</a></span>
-		<img src="http://image.eveonline.com/Corporation/{{ character.corporation.id }}_64.png" />
+		<img src="https://image.eveonline.com/Corporation/{{ character.corporation.id }}_64.png" />
 	</div>
 	
         {% if character.corporation.alliance %}
 	<div class="character_alliance">
 		<span><a href="http://evemaps.dotlan.net/alliance/{{ character.corporation.alliance.name }}">{{ character.corporation.alliance.ticker }}</a></span>
-		<img src="http://image.eveonline.com/Alliance/{{ character.corporation.alliance.id }}_64.png" />
+		<img src="https://image.eveonline.com/Alliance/{{ character.corporation.alliance.id }}_64.png" />
 	</div>
         {% endif %}
 
@@ -78,7 +78,7 @@
 	</div>
 </div>
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 	$(function(){
 		$(".skill_heading")

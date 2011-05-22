@@ -3,7 +3,7 @@ body
 	margin: 20px;
 	padding: 0;
 	font: 80%/1.2 helvetica, arial, sans-serif;
-	color: #444;
+	color: #000;
 	background: #6D825D;
 }
 
@@ -12,7 +12,7 @@ body
 	margin: 0 auto;
 	width: 960px;
 	background:#9FB190;
-border-radius: 15px;
+        border-radius: 15px;
 }
 
 #header
@@ -66,7 +66,7 @@ border-radius: 15px;
 {
     font-size: 2em;
     color:#222;
-    text-shadow: 0px 1px 3px #555;
+    text-shadow: 0px 1px 3px #666;
 }
 
 #content h2
@@ -74,7 +74,7 @@ border-radius: 15px;
 	color:#222;
 	font-size: 1.5em;
 	margin: 0 0 .5em;
-        text-shadow: 0px 1px 3px #555;
+        text-shadow: 0px 1px 3px #666;
 }
 
 #content a, #content a:visited, #content a:active
@@ -118,9 +118,9 @@ border-radius: 15px;
 
 #content #messagelist
 {
-	width: 760px;
-        border: 1px solid #efefef;
-        background: #ffc;
+	width: 100%px;
+        border: 1px solid #ccc;
+        background: #b3c6a2;
         list-style-type: none;
 	margin: 0px;
 	padding: 0px 0px 5px;
@@ -130,6 +130,7 @@ border-radius: 15px;
         margin: 0px;
         padding-left: 5px;
         padding-top: 2px;
+        font-weight: bold;
 }
 
 table 
