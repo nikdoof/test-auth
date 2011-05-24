@@ -46,3 +46,38 @@ def process_validations():
     except LoginError, exc:
         logger.error("Error logging into Reddit")
         return 
+
+
+@task(ignore_result=True)
+def update_account(username):
+
+    logger = process_validations.get_logger()
+
+    try:
+        acc = RedditAccount.objects.get(pk=username)
+    except RedditAccount.DoesNotExist:
+        pass
+    else:
+        acc.api_update
+        acc.save()
+
+
+@task(ignore_result=True, expires=120)
+def queue_account_updates(update_delay=604800, batch_size=50):
+    """
+    Updates all Reddit accounts in the system
+    """
+
+    log = queue_account_updates.get_logger()
+    # Update all the eve accounts and related corps
+    delta = timedelta(seconds=update_delay)
+    log.info("Updating Accounts older than %s" % (datetime.now() - delta))
+    accounts = RedditAccount.objects.filter(last_updated_lt=(datetime.now() - delta))
+    log.info("%s account(s) to update" % accounts.count())
+    for acc in accounts:
+        log.debug("Queueing Account %s for update" % acc.username)
+        if not acc.user:
+            acc.delete()
+            continue
+        update_account.delay(username=acc.pk)
+

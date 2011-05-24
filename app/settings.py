@@ -197,6 +197,10 @@ CELERYBEAT_SCHEDULE = {
         "task": "hr.tasks.blacklist_check",
         "schedule": timedelta(days=1),
     },
+    "reddit-update": {
+        "task": "reddit.tasks.queue_account_updates",
+        "schedule": timedelta(minutes=15),
+    }
 }
 
 CELERY_SEND_TASK_ERROR_EMAILS = True
@@ -204,6 +208,7 @@ CELERY_RESULT_BACKEND = "amqp"
 CELERY_DISABLE_RATE_LIMITS = True
 CELERYD_PREFETCH_MULTIPLIER = 128
 CELERY_ALWAYS_EAGER = DEBUG
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = DEBUG
 
 # Load the Celery tasks
 djcelery.setup_loader()
