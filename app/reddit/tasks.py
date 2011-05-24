@@ -73,7 +73,7 @@ def queue_account_updates(update_delay=604800, batch_size=50):
     # Update all the eve accounts and related corps
     delta = timedelta(seconds=update_delay)
     log.info("Updating Accounts older than %s" % (datetime.now() - delta))
-    accounts = RedditAccount.objects.filter(last_updated__lt=(datetime.now() - delta))
+    accounts = RedditAccount.objects.order_by('last_update').filter(last_update__lt=(datetime.now() - delta))[:batch_size]
     log.info("%s account(s) to update" % accounts.count())
     for acc in accounts:
         log.debug("Queueing Account %s for update" % acc.username)
