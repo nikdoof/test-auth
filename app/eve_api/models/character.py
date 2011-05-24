@@ -4,6 +4,25 @@ from eve_api.app_defines import *
 from eve_api.models import EVEAPIModel
 
 
+class EVEPlayerCharacterSkill(models.Model):
+    """
+    For our m2m join to EVESkills
+    """
+    character = models.ForeignKey('eve_api.EVEPlayerCharacter')
+    skill = models.ForeignKey('eve_api.EVESkill')
+    level = models.IntegerField(default=0)
+    skillpoints = models.IntegerField(default=0)
+    in_training = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        return u"%s - Level %s" % (self.skill, self.level)
+
+    class Meta:
+        app_label = 'eve_api'
+        verbose_name = 'Player Character Skill'
+        verbose_name_plural = 'Player Character Skills'
+
+
 class EVEPlayerCharacter(EVEAPIModel):
     """
     Represents an individual player character within the game. Not to be
@@ -34,12 +53,21 @@ class EVEPlayerCharacter(EVEAPIModel):
 
     @property
     def director(self):
+        """ Returns a bool to indicate if the character is a director """
         try:
             self.roles.get(name="roleDirector")
             return True
         except ObjectDoesNotExist:
             return False
-    
+
+    @property
+    def current_training(self):
+        """ Returns the current skill in training """
+        try:
+            return self.eveplayercharacterskill_set.get(in_training__gt=0)
+        except EVEPlayerCharacterSkill.DoesNotExist:
+            return None
+
     def __unicode__(self):
         if self.name:
             return self.name
@@ -50,23 +78,3 @@ class EVEPlayerCharacter(EVEAPIModel):
         app_label = 'eve_api'
         verbose_name = 'Player Character'
         verbose_name_plural = 'Player Characters'
-
-
-class EVEPlayerCharacterSkill(models.Model):
-    """
-    For our m2m join to EVESkills
-    """
-    character = models.ForeignKey('eve_api.EVEPlayerCharacter')
-    skill = models.ForeignKey('eve_api.EVESkill')
-    level = models.IntegerField(default=0)
-    skillpoints = models.IntegerField(default=0)
-    in_training = models.IntegerField(default=0)
-
-    def __unicode__(self):
-        return u"%s - Level %s" % (self.skill, self.level)
-
-    class Meta:
-        app_label = 'eve_api'
-        verbose_name = 'Player Character Skill'
-        verbose_name_plural = 'Player Character Skills'
-

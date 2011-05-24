@@ -6,11 +6,12 @@
 
 {% if characters %}
 <table>
-<tr><th>Character Name</th><th>Corporation</th><th>Alliance</th></tr>
+<tr><th>Character Name</th><th>Corporation</th><th>Alliance</th><th>Training</th></tr>
 {% for char in characters %}
 <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td>
     <td><a href="{% url eveapi-corporation char.corporation.id %}">{{ char.corporation }}</a></td>
     <td>{% if char.corporation.alliance %}{{ char.corporation.alliance }}{% endif %}</td>
+    <td>{% if char.current_training %}{{ char.current_training.skill.name }} to Level {{ char.current_training.in_training }}{% endif %}</td> 
 </tr>
 {% endfor %}
 </table>

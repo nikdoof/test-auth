@@ -34,8 +34,8 @@
 			<li><span class="stat">Alliance:</span> <span class="value"><a href="http://evemaps.dotlan.net/alliance/{{ character.corporation.alliance.name }}">{{ character.corporation.alliance.name }}</a></span></li>
 			<li><span class="stat">Security Status:</span> {{ character.security_status|floatformat:2 }}</span></li>
 			<li><span class="stat">Director:</span> <span class="value">{{ character.director }}</span></li>
-                        {% if current_training %}
-                        <li><spam class="stat">Training:</span> <span class="Value">{{ current_training.skill.name}} to Level {{ current_training.in_training }}</li>
+                        {% if character.current_training %}
+                        <li><spam class="stat">Training:</span> <span class="Value">{{ character.current_training.skill.name}} to Level {{ character.current_training.in_training }}</li>
                         {% endif %}
 		</ul>
 	</div>
