@@ -55,10 +55,10 @@ def update_account(username):
 
     try:
         acc = RedditAccount.objects.get(pk=username)
+        acc.api_update()
     except RedditAccount.DoesNotExist:
         pass
     else:
-        acc.api_update
         acc.save()
 
 
