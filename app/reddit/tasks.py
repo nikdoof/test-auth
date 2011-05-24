@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from urllib2 import HTTPError, URLError
 from celery.task import Task
 from celery.decorators import task
