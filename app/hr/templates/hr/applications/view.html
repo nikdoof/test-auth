@@ -20,6 +20,7 @@
 </ul>
 
 {% ifnotequal app.status 5 %}
+{% ifnotequal app.status 2 %}
 <h3>Actions</h3>
 <div class="skill_controls">
 <p>
@@ -51,6 +52,7 @@
 {% endif %}
 </p>
 </div>
+{% endifnotequal %}
 {% endifnotequal %}
 
 {% if audit %}
