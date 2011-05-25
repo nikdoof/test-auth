@@ -21,7 +21,7 @@
 <div class="skill_controls">
 <a href="{% url sso.views.refresh_access user.id %}">Update Access</a>
 {% if "hr"|installed %}
-{% if perms.hr.can_add_blacklist %}
+{% if perms.hr.add_blacklist %}
 <a href="{% url hr.views.blacklist_user user.id %}">Blacklist User</a>
 {% endif %}
 {% endif %}

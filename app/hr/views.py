@@ -286,7 +286,7 @@ def accept_application(request, applicationid):
 
 def blacklist_user(request, userid):
 
-    if request.user.has_perm('hr.can_add_blacklist'):
+    if request.user.has_perm('hr.add_blacklist'):
 
         u = get_object_or_404(User, id=userid)
 
