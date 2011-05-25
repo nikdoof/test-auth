@@ -69,7 +69,7 @@ class EVEPlayerCharacter(EVEAPIModel):
             return None
 
     @property
-    def account(self)
+    def account(self):
         if self.eveaccount_set.count():
             return self.eveaccount_set.all()[0]
         return None

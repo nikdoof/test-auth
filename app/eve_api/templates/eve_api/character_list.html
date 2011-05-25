@@ -5,14 +5,20 @@
 <h1>Character List</h1>
 
 {% if characters %}
+
+{% regroup characters by account as acc_list %}
+
 <table>
 <tr><th>Character Name</th><th>Corporation</th><th>Alliance</th><th>Training</th></tr>
-{% for char in characters %}
+{% for acc in acc_list %}
+<tr><th colspan=4>Account {{ acc.grouper }}</th></tr>
+{% for char in acc.list %}
 <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td>
     <td><a href="{% url eveapi-corporation char.corporation.id %}">{{ char.corporation }}</a></td>
     <td>{% if char.corporation.alliance %}{{ char.corporation.alliance }}{% endif %}</td>
     <td>{% if char.current_training %}{{ char.current_training.skill.name }} to Level {{ char.current_training.in_training }}{% endif %}</td> 
 </tr>
+{% endfor %}
 {% endfor %}
 </table>
 {% endif %}
