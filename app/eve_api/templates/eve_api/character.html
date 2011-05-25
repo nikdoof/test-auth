@@ -67,7 +67,7 @@
 			<tr class="skill_heading" id="{{ group.grouper }}"><th colspan=3>{{ group.grouper }}</th></tr>
 			{% for skill in group.list %}
                         {% if skill.in_training %}
-                        <tr class="child intraining" parent="{{ group.grouper }}"><td>{{ skill.skill.name }} - Training to Level {{ skill.in_training }}</td><td><img src="/static/img/skills/level{{ skill.level }}.gif" alt="Level {{ skill.level }}" /></td><td>{{ skill.skillpoints|intcomma }} SP</td></tr>
+                        <tr class="child intraining" parent="{{ group.grouper }}"><td>{{ skill.skill.name }} - Training to Level {{ skill.in_training }}</td><td><img src="/static/img/skills/level{{ skill.level }}t.gif" alt="Level {{ skill.level }}" /></td><td>{{ skill.skillpoints|intcomma }} SP</td></tr>
                         {% else %}
 			<tr class="child" parent="{{ group.grouper }}"><td>{{ skill.skill.name }} </td><td><img src="/static/img/skills/level{{ skill.level }}.gif" alt="Level {{ skill.level }}" /></td><td>{{ skill.skillpoints|intcomma }} SP</td></tr>
                         {% endif %}
