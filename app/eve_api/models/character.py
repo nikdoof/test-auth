@@ -68,6 +68,12 @@ class EVEPlayerCharacter(EVEAPIModel):
         except EVEPlayerCharacterSkill.DoesNotExist:
             return None
 
+    @property
+    def account(self)
+        if self.eveaccount_set.count():
+            return self.eveaccount_set.all()[0]
+        return None
+
     def __unicode__(self):
         if self.name:
             return self.name
