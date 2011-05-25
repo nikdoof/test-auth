@@ -70,6 +70,7 @@
 </table>
 {% endif %}
 
+{% if perms.sso.can_view_users %}
 <br/>
 <h2>Eve API Keys</h2>
 {% if user.eveaccount_set.all %}
@@ -90,6 +91,8 @@
 {% endfor %}
 </table>
 {% endif %}
+{% endif %}
+
 <br/>
 {% if user.eveaccount_set.all %}
 <table>
