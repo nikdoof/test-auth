@@ -191,26 +191,27 @@ def user_lookup(request):
         if form.is_valid():
             users = None
             uids = []
+            username = form.cleaned_data['username'].strip()
             if form.cleaned_data['type'] == '1':
-                users = User.objects.filter(username__icontains=form.cleaned_data['username']).only('username')
+                users = User.objects.filter(username__icontains=username).only('username')
             elif form.cleaned_data['type'] == '2':
-                uid = EVEAccount.objects.filter(characters__name__icontains=form.cleaned_data['username']).values('user')
+                uid = EVEAccount.objects.filter(characters__name__icontains=username).values('user')
                 for u in uid:
                     uids.append(u['user'])
                 users = User.objects.filter(id__in=uids).only('username')
             elif installed('reddit') and form.cleaned_data['type'] == '3':
                 from reddit.models import RedditAccount
-                uid = RedditAccount.objects.filter(username__icontains=form.cleaned_data['username']).values('user')
+                uid = RedditAccount.objects.filter(username__icontains=username).values('user')
                 for u in uid:
                     uids.append(u['user'])
                 users = User.objects.filter(id__in=uids).only('username')
             elif form.cleaned_data['type'] == '4':
-                users = User.objects.filter(email__icontains=form.cleaned_data['username']).only('username')
+                users = User.objects.filter(email__icontains=username).only('username')
             elif form.cleaned_data['type'] == '5':
-                uids = EVEAccount.objects.filter(api_user_id__icontains=form.cleaned_data['username']).values_list('user', flat=True)
+                uids = EVEAccount.objects.filter(api_user_id__icontains=username).values_list('user', flat=True)
                 users = User.objects.filter(id__in=uids).only('username')
             else:
-                messages.add_message(request, messages.ERROR, "Error parsing form, Type: %s, Value: %s" % (form.cleaned_data['type'], form.cleaned_data['username']))
+                messages.add_message(request, messages.ERROR, "Error parsing form, Type: %s, Value: %s" % (form.cleaned_data['type'], username))
                 return redirect('sso.views.user_lookup')
 
             if users and len(users) == 1:
