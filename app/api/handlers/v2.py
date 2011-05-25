@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.contrib.auth.models import User
 
 from piston.handler import BaseHandler
@@ -28,11 +29,9 @@ class V2AuthenticationHandler(BaseHandler):
             return rc.BAD_REQUEST
 
         try:
-            user = User.object.get(username=username)
+            user = User.objects.get(username=username)
         except User.DoesNotExist:
-            resp = rc.NOT_FOUND
-            resp.write({'auth': 'notfound'})
-            return resp
+            return {'auth': 'notfound'}
 
         if password and password == user.get_profile().api_service_password:
             return {'userid': user.id, 
@@ -42,9 +41,7 @@ class V2AuthenticationHandler(BaseHandler):
                     'staff': user.is_staff,
                     'superuser': user.is_superuser}
 
-        resp = rc.FORBIDDEN
-        resp.write({'auth': 'failed'})
-        return resp
+        return {'auth': 'failed'}
 
 
 class V2EveAPIProxyHandler(BaseHandler):
