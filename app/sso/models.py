@@ -43,6 +43,15 @@ class SSOUser(models.Model):
         if created:
             profile, created = SSOUser.objects.get_or_create(user=instance)
 
+    class Meta:
+        permissions = (
+            ("can_view_users", "Can view any user's profile"),
+            ("can_view_users_restricted", "Can view a restricted user profile"),
+            ("can_search_users", "Can use the user search function"),
+            ("can_refresh_users", "Can refresh a user's access"),
+        )
+
+
 signals.post_save.connect(SSOUser.create_user_profile, sender=User)
 
 

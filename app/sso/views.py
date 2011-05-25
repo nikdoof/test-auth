@@ -155,7 +155,7 @@ def service_reset(request, serviceid=0):
 def user_view(request, username=None):
     """ View a user's profile as a admin """
 
-    if not request.user.is_staff:
+    if not request.user.has_perm('sso.can_view_users') and not request.user.has_perm('sso.can_view_users_restricted'):
         return redirect('sso.views.profile')
 
     if username:
@@ -167,9 +167,8 @@ def user_view(request, username=None):
         return redirect('sso.views.user_lookup')
 
     profile = user.get_profile()
-    is_admin = request.user.is_staff
-    if is_admin:
-        if installed('hr'):
+    if installed('hr'):
+        if request.user.has_perm('hr.add_blacklist'):
             from hr.utils import blacklist_values
             blacklisted = len(blacklist_values(user))
         services = ServiceAccount.objects.select_related('service').filter(user=user).only('service__name', 'service_uid', 'active')
@@ -184,7 +183,7 @@ def user_lookup(request):
 
     form = UserLookupForm()
 
-    if not request.user.is_staff:
+    if not request.user.has_perm('sso.can_search_users'):
         return redirect('sso.views.profile')
 
     if request.method == 'POST':
@@ -247,7 +246,7 @@ def set_apipasswd(request):
 def refresh_access(request, userid=0):
     """ Refreshes the user's access """
 
-    if userid > 0 and request.user.is_staff:
+    if userid > 0 and request.user.has_perm('sso.can_refresh_users'):
         update_user_access(userid)
     elif request.user:
         update_user_access(request.user.id)
