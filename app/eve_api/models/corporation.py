@@ -28,7 +28,6 @@ class EVEPlayerCorporation(EVEAPIModel):
     logo_color3 = models.IntegerField(blank=True, null=True)
 
     group = models.ForeignKey(Group, blank=True, null=True)
-    applications = models.BooleanField(blank=False, default=False)
 
     class Meta:
         app_label = 'eve_api'

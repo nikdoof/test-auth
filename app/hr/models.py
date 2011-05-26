@@ -153,3 +153,18 @@ class Blacklist(models.Model):
 
     def __unicode__(self):
         return u'%s: %s' % (self.get_type_display(), self.value)
+
+
+class ApplicationConfig(models.Model):
+    """ Defines configuration settings for applications """
+
+    corporation = models.OneToOneField(EVEPlayerCorporation, blank=False, verbose_name="Corporation", related_name="application_config")
+    is_accepting = models.BooleanField(verbose_name="Accepting Applications",
+                                       help_text="Defines if the corporation is accepting applications")
+    api_required = models.IntegerField(choices=API_KEYTYPE_CHOICES, default=1, verbose_name="Minimum API Key Level",
+                                       help_text="This defines the minimum level of API needed to create a application")
+    api_view = models.BooleanField(verbose_name="View Applicant APIs",
+                                       help_text="This allows HR staff to see the applicant's API keys")
+
+    def __unicode__(self):
+        return u'%s' % corporation

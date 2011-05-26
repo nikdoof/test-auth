@@ -28,7 +28,7 @@ def CreateApplicationForm(user):
     """ Generate a Application form based on the user's permissions """
 
     characters = EVEPlayerCharacter.objects.filter(eveaccount__user=user)
-    corporations = EVEPlayerCorporation.objects.filter(applications=True)
+    corporations = EVEPlayerCorporation.objects.filter(application_config__is_accepting=True)
 
     class ApplicationForm(forms.Form):
         character = forms.ModelChoiceField(queryset=characters, required=True, empty_label=None)

@@ -69,7 +69,7 @@ def main(argv=None):
                 print "graph_vlabel Applications"
                 print "graph_category auth"
 
-                for i, n in EVEPlayerCorporation.objects.filter(applications=True).values_list('id', 'name'):
+                for i, n in EVEPlayerCorporation.objects.filter(application_config__is_accepting=True).values_list('id', 'name'):
                     print "%s.label %s" % (i, n)
                     print "%s.warning 10" % i
                     print "%s.critical 20" % i
@@ -91,7 +91,7 @@ def main(argv=None):
         view_status = [APPLICATION_STATUS_AWAITINGREVIEW,
                        APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY, APPLICATION_STATUS_FLAGGED]
 
-        corps = EVEPlayerCorporation.objects.filter(applications=True, application__status__in=view_status).annotate(num_apps=Count('application')).values_list('id', 'num_apps')
+        corps = EVEPlayerCorporation.objects.filter(application_config__is_accepting=True, application__status__in=view_status).annotate(num_apps=Count('application')).values_list('id', 'num_apps')
         for c,n in corps:
             print "%s.value %s" % (c, n)
     elif execname == 'auth_eveapicache':
