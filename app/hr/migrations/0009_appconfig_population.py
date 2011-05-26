@@ -6,6 +6,10 @@ from django.db import models
 
 class Migration(DataMigration):
 
+    depends_on = (
+        ("eve_api", "0014_auto__del_field_eveaccount_id__chg_field_eveaccount_api_user_id__add_u"),
+    )
+
     needed_by = (
         ("eve_api", "0015_auto__del_field_eveplayercorporation_applications"),
     )
