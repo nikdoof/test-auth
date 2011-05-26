@@ -3,6 +3,7 @@
 {% load humanize %}
 {% load if_extra %}
 {% load installed %}
+{% load naturaltimediff %}
 
 {% block title %}View Application{% endblock %}
 
@@ -93,6 +94,22 @@
 {% endif %}
 
 {% if hrstaff %}
+{% if app.corporation.application_config.api_view %}
+<h3>API Keys</h3>
+<table>
+<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th></tr>
+{% for acc in user.eveaccount_set.all %}
+<tr><td>{{ acc.api_user_id }}</td>
+    <td>{{ acc.api_key }}</td>
+    <td>{{ acc.description }}</td>
+    <td>{{ acc.get_api_keytype_display }}</td>
+    <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
+    <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
 <h3>EVE Characters</h3>
 <table>
 <tr><th>Character</th><th>Corp / Alliance</th><th>ISK</th><th>SP</th><th>Training</th><th>Links</th></tr>
