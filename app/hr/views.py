@@ -124,7 +124,7 @@ def add_application(request):
     else:
         form = clsform() # An unbound form
 
-    if len(EVEPlayerCorporation.objects.filter(applications=True)):
+    if len(EVEPlayerCorporation.objects.filter(application_config__is_accepting=True)):
         return render_to_response('hr/applications/add.html', locals(), context_instance=RequestContext(request))
     else:
         return render_to_response('hr/applications/noadd.html', locals(), context_instance=RequestContext(request)) 

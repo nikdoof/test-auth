@@ -167,4 +167,9 @@ class ApplicationConfig(models.Model):
                                        help_text="This allows HR staff to see the applicant's API keys")
 
     def __unicode__(self):
-        return u'%s' % corporation
+        return u'%s' % self.corporation
+
+    class Meta:
+        verbose_name = 'Application Config'
+        verbose_name_plural = 'Application Configs'
+        ordering = ['corporation']
