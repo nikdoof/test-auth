@@ -110,17 +110,10 @@ def add_application(request):
     if request.method == 'POST': 
         form = clsform(request.POST) 
         if form.is_valid():
-
-            if form.cleaned_data['character'].corporation == form.cleaned_data['corporation']:
-                messages.add_message(request, messages.WARNING, "This character is already a member of %s" % form.cleaned_data['corporation'])
-                return HttpResponseRedirect(reverse('hr.views.view_applications'))
-
             app = Application(user=request.user, character=form.cleaned_data['character'], corporation=form.cleaned_data['corporation'])
             app.save()
-
             messages.add_message(request, messages.INFO, "Your application to %s has been created." % app.corporation)
             return HttpResponseRedirect(reverse('hr.views.view_application', args=[app.id]))
-            
     else:
         form = clsform() # An unbound form
 
