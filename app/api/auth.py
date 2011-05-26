@@ -1,6 +1,7 @@
+from datetime import datetime
 from django.http import HttpResponseForbidden
 from django.contrib.auth.models import AnonymousUser
-from api.models import AuthAPIKey
+from api.models import AuthAPIKey, AuthAPILog
 
 
 class APIKeyAuthentication(object):
@@ -13,6 +14,7 @@ class APIKeyAuthentication(object):
             pass
         else:
             if keyobj and keyobj.active:
+                AuthAPILog(key=keyobj, access_datetime=datetime.utcnow(), url=request.get_full_path()).save()
                 request.user = AnonymousUser()
                 return True
         return False
