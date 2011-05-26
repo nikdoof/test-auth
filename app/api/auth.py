@@ -4,23 +4,17 @@ from api.models import AuthAPIKey
 
 
 class APIKeyAuthentication(object):
+    """ Validats a request by API key passed as a GET parameter """
 
     def is_authenticated(self, request):
-
-        params = {}
-        for key, value in request.GET.items():
-            params[key.lower()] = value
-
-        if 'apikey' in params:
-            try:
-                keyobj = AuthAPIKey.objects.get(key=params['apikey'])
-            except:
-                keyobj = None
-
+        try:
+            keyobj = AuthAPIKey.objects.get(key=request.GET.get('apikey', None))
+        except AuthAPIKey.DoesNotExist:
+            pass
+        else:
             if keyobj and keyobj.active:
                 request.user = AnonymousUser()
                 return True
-
         return False
 
     def challenge(self):
