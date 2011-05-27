@@ -1,8 +1,6 @@
 import re
 from datetime import datetime
-
-from piston.handler import BaseHandler
-from piston.utils import rc, throttle
+from xml.dom import minidom
 
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
@@ -10,6 +8,10 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
+from django.conf import settings
+
+from piston.handler import BaseHandler
+from piston.utils import rc, throttle
 
 from api.models import AuthAPIKey, AuthAPILog
 from eve_proxy.models import CachedDocument
@@ -17,11 +19,6 @@ from eve_proxy.exceptions import *
 from eve_api.models import EVEAccount, EVEPlayerCharacter
 from sso.models import ServiceAccount, Service
 from hr.models import Blacklist
-
-from settings import FULL_API_USER_ID
-from settings import FULL_API_CHARACTER_ID
-
-from xml.dom import minidom
 
 
 class UserHandler(BaseHandler):
@@ -126,9 +123,9 @@ class OpTimerHandler(BaseHandler):
     allowed_methods = ('GET')
 
     def read(self, request, id=None):
-        obj = get_object_or_404(EVEAccount, pk=FULL_API_USER_ID)
+        obj = get_object_or_404(EVEAccount, pk=settings.FULL_API_USER_ID)
 
-        params = {'userID': obj.pk, 'apiKey': obj.api_key, 'characterID': FULL_API_CHARACTER_ID}
+        params = {'userID': obj.pk, 'apiKey': obj.api_key, 'characterID': settings.FULL_API_CHARACTER_ID}
 
         error_doc = {'ops': [{'startsIn': -1, 'eventID': 0, 'ownerName': '', 'eventDate': '', 'eventTitle': '<div style="text-align:center">The EVE API calendar is unavailable</div>', 'duration': 0, 'isImportant': 0, 'eventText': 'Fuck CCP tbqh imho srsly', 'endsIn':-1, 'forumLink': ''}]}
 
