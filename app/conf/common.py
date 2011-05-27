@@ -1,18 +1,9 @@
 import os
 import djcelery
-from datetime import timedelta
 
-# Django settings for login project.
-
+# Debug settings
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-INTERNAL_IPS = ('127.0.0.1','91.121.180.45')
-
-ADMINS = (
-     ('Andrew Williams', 'andy@tensixtyone.com'),
-)
-
-MANAGERS = ADMINS
 
 # Zone Settings
 TIME_ZONE = 'UTC'
@@ -97,32 +88,7 @@ LOGIN_URL = "/login"
 
 ### Celery Schedule
 
-CELERYBEAT_SCHEDULE = {
-    "reddit-validations": {
-        "task": "reddit.tasks.process_validations",
-        "schedule": timedelta(minutes=10),
-    },
-    "eveapi-update": {
-        "task": "eve_api.tasks.account.queue_apikey_updates",
-        "schedule": timedelta(minutes=10),
-    },
-    "alliance-update": {
-        "task": "eve_api.tasks.alliance.import_alliance_details",
-        "schedule": timedelta(hours=6),
-    },
-    "api-log-clear": {
-        "task": "eve_proxy.tasks.clear_old_logs",
-        "schedule": timedelta(days=1),
-    },
-    "blacklist-check": {
-        "task": "hr.tasks.blacklist_check",
-        "schedule": timedelta(days=1),
-    },
-    "reddit-update": {
-        "task": "reddit.tasks.queue_account_updates",
-        "schedule": timedelta(minutes=15),
-    }
-}
+from celeryschedule import CELERYBEAT_SCHEDULE
 
 CELERY_SEND_TASK_ERROR_EMAILS = True
 CELERY_RESULT_BACKEND = "amqp"

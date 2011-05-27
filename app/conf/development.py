@@ -42,3 +42,9 @@ FULL_API_CHARACTER_ID = 246102445
 ## Django
 DEBUG = True
 SECRET_KEY = '8i2+dd-b2tg9g%mq$&i$-8beh4i5^2mm=e-nh^$p47^w=z1igr'
+
+ADMINS = (
+     ('Andrew Williams', 'andy@tensixtyone.com'),
+)
+MANAGERS = ADMINS
+
