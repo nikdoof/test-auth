@@ -4,7 +4,7 @@ from datetime import timedelta
 
 # Django settings for login project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1','91.121.180.45')
 
@@ -14,27 +14,10 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-# Import db settings from dbsettings.py
-from conf.dbsettings import *
-
-# Import the Broker settings
-from conf.brokersettings import *
-
-# Local time zone for this installation. Choices can be found here:
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
-# although not all choices may be available on all operating systems.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
+# Zone Settings
 TIME_ZONE = 'UTC'
-
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
-
 SITE_ID = 1
-
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
 USE_I18N = True
 
 # Defines the Static Media storage as per staticfiles contrib
@@ -43,7 +26,7 @@ STATIC_URL = '/static/'
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '8i2+dd-b2tg9g%mq$&i$-8beh4i5^2mm=e-nh^$p47^w=z1igr'
+SECRET_KEY = ''
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -104,66 +87,13 @@ INSTALLED_APPS = (
     'tools',
 )
 
-## Server Mail
-SERVER_EMAIL = 'trace@auth.pleaseignore.com'
-
-# API OAuth
-#OAUTH_AUTH_VIEW = 'api.views.oauth.authorize_oauth'
-OAUTH_CALLBACK_VIEW = 'api.views.oauth_callback'
-
-# Disable the service API, used for data imports
-DISABLE_SERVICES = False
-
-# Services API generates a new password for the user
-GENERATE_SERVICE_PASSWORD = False
-
 AUTHENTICATION_BACKENDS = (
     'sso.backends.SimpleHashModelBackend',
 )
 
-
 AUTH_PROFILE_MODULE = 'sso.SSOUser'
 LOGIN_REDIRECT_URL = "/profile"
 LOGIN_URL = "/login"
-
-DEFAULT_FROM_EMAIL = "bot@auth.pleaseignore.com"
-ACCOUNT_ACTIVATION_DAYS = 14
-
-# Slice File Location
-SLICE = os.path.join(os.path.dirname(os.path.abspath( __file__ )),'Murmur.ice')
-
-### Reddit Settings
-
-# Username to validate accounts from
-REDDIT_USER = 'DredditVerification'
-
-# Password for validatio account
-REDDIT_PASSWORD = ''
-
-### HR Settings
-
-HR_RECOMMENDATION_DAYS = 45
-
-FULL_API_USER_ID = 415631
-FULL_API_CHARACTER_ID = 246102445
-
-## Email Registration
-
-BANNED_EMAIL_DOMAINS = ['att.net']
-
-## Eve Proxy settings
-
-EVE_PROXY_KEEP_LOGS = 30
-
-## Director management settings
-
-IGNORE_CORP_GROUPS = [29]
-
-# try and import local settings
-try:
-    from conf.settingslocal import *
-except:
-    pass
 
 ### Celery Schedule
 

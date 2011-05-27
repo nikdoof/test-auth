@@ -5,8 +5,8 @@ import socket
 from datetime import datetime, timedelta
 from xml.dom import minidom
 from django.db import models
+from django.conf import settings
 from eve_proxy.exceptions import *
-import settings
 
 # You generally never want to change this unless you have a very good reason.
 

@@ -2,7 +2,7 @@ import hashlib
 import random
 from django.db import transaction, IntegrityError
 from sso.services import BaseDBService
-import settings
+from django.conf import settings
 
 class POSTrackerService(BaseDBService):
     """

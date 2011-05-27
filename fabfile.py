@@ -137,6 +137,8 @@ def update_repo():
     with cd('%(path)s/dreddit-auth/' % env):
         run('git pull')
 
+    deploy_static()
+
 
 def reset_repo():
     """

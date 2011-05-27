@@ -1,6 +1,6 @@
 import xmlrpclib
 from sso.services import BaseService
-import settings
+from django.conf import settings
 from hashlib import md5
 
 class IPBService(BaseService):

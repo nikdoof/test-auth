@@ -1,8 +1,0 @@
-DATABASES = {
-    'default': {
-        'NAME': 'dreddit_sso.db',
-        'ENGINE': 'django.db.backends.sqlite3',
-        'USER': '',
-        'PASSWORD': '',
-    }
-}

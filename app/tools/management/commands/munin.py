@@ -12,7 +12,7 @@ execfile(activate_this, dict(__file__=activate_this))
 import sys
 import logging
 from django.core.management import setup_environ
-import settings
+from django.conf import settings
 
 setup_environ(settings)
 

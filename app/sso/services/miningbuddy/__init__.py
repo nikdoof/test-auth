@@ -3,7 +3,7 @@ import random
 import time
 from django.db import transaction
 from sso.services import BaseDBService
-import settings
+from django.conf import settings
 
 class MiningBuddyService(BaseDBService):
     """

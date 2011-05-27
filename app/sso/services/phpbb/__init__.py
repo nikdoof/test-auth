@@ -2,7 +2,7 @@ import hashlib
 import random
 from django.db import load_backend, transaction, IntegrityError
 from sso.services import BaseDBService
-import settings
+from django.conf import settings
 
 class PhpBBService(BaseDBService):
     """

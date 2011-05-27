@@ -1,4 +1,4 @@
-import settings
+from django.conf import settings
 from django.db import connections
 
 def get_api(api):
