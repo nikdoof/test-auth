@@ -1,7 +1,5 @@
 import urllib, urllib2
-import xml
-import hashlib
-import socket
+from hashlib import sha1
 from datetime import datetime, timedelta
 from xml.dom import minidom
 from django.db import models
@@ -27,7 +25,7 @@ class CachedDocumentManager(models.Manager):
     def construct_url(self, url_path, params):
 
          # Valid arguments for EVE API Calls
-        allowed_params = ['userid', 'apikey', 'characterid', 'version', 'names', 'ids', 'corporationid', 'beforerefid', 'accountkey']
+        allowed_params = ['apikey', 'userid', 'keyid', 'vcode', 'characterid', 'version', 'names', 'ids', 'corporationid', 'beforerefid', 'accountkey']
 
         if len(params):
             for k, v in params.items():
@@ -54,7 +52,7 @@ class CachedDocumentManager(models.Manager):
         """
 
         url = self.construct_url(url_path, params)
-        doc_key = hashlib.sha1(url).hexdigest()
+        doc_key = sha1(url).hexdigest()
 
         
         try:
