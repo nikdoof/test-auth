@@ -1,10 +1,10 @@
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from django.contrib.auth.views import login
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf import settings
 
 from utils import installed
-
 from registration.views import register
 from sso.forms import RegistrationFormUniqueEmailBlocked
 
@@ -18,7 +18,6 @@ urlpatterns = patterns('',
     (r'^eve/', include('eve_api.urls')),
     (r'^eveapi/', include('eve_proxy.urls')),
     (r'^api/', include('api.urls')),
-    (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
 )
 
 if installed('reddit'):
@@ -36,3 +35,5 @@ if installed('groups'):
         (r'^groups/', include('groups.urls')),
     )
 
+if settings.DEBUG:
+   urlpatterns += staticfiles_urlpatterns()

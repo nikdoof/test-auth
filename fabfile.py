@@ -241,3 +241,6 @@ def clear_logs():
     with cd('%(path)s/dreddit-auth/' % env):
         run('rm ./logs/*.log')
 
+def deploy_static():
+    with cd('%(path)s/dreddit-auth/' % env):
+        run('./app/manage.py collectstatic -v0 --noinput')
