@@ -187,11 +187,12 @@ def update_application(request, applicationid, status):
 
     app = get_object_or_404(Application, id=applicationid)
 
-    perm = check_permissions(request.user, app)
-    if perm == HR_ADMIN or (perm == HR_VIEWONLY and int(status) <= 1):
-        if not app.status == status:
-            app.status = status
-            app.save(user=request.user)
+    if not app.status in [APPLICATION_STATUS_REJECTED, APPLICATION_STATUS_COMPLETED]:
+        perm = check_permissions(request.user, app)
+        if perm == HR_ADMIN or (perm == HR_VIEWONLY and int(status) <= 1):
+            if not app.status == status:
+                app.status = status
+                app.save(user=request.user)
     return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
 
 @login_required
