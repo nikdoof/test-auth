@@ -12,7 +12,7 @@ SITE_ID = 1
 USE_I18N = True
 
 # Defines the Static Media storage as per staticfiles contrib
-STATIC_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'static')
+STATIC_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'static')
 STATIC_URL = '/static/'
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
@@ -39,7 +39,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(__file__), "templates"),
+    os.path.join(os.path.dirname(__file__), '..', 'templates'),
 )
 
 TEMPLATE_CONTEXT_PRCESSORS = (
