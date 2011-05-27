@@ -186,7 +186,9 @@ def update_application(request, applicationid, status):
     """ Update a application's status """
 
     app = get_object_or_404(Application, id=applicationid)
-    if check_permissions(request.user, app):
+
+    perm = check_permissions(request.user, app)
+    if perm == HR_ADMIN or (perm == HR_VIEWONLY and int(status) <= 1):
         if not app.status == status:
             app.status = status
             app.save(user=request.user)
