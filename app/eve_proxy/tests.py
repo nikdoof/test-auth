@@ -1,7 +1,8 @@
 from __future__ import with_statement
-import unittest
 from datetime import datetime
 import time
+
+from django.utils import unittest
 from eve_proxy.models import CachedDocument
 from eve_proxy.exceptions import *
 
