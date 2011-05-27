@@ -75,41 +75,7 @@ def setup_db():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('if [ ! -e dbsettings.py ]; then cp dbsettings.py.example dbsettings.py; fi' % env)
         run('env/bin/python app/manage.py syncdb --noinput --migrate')
-
-
-def generate_brokersettings():
-    """
-    Generates the brokersettings file
-    """
-
-    require('hosts')
-
-    cnf = open('brokersettings.py.example', 'r').read()
-    out = open('brokersettings.py', 'w')
-    out.write(cnf % env)
-
-
-def setup_rabbitmq():
-    """
-    Setup the RabbitMQ instance on the system (requires sudo access)
-    """
-
-    require('hosts')
-    require('path')
-
-    generate_brokersettings() 
-
-    with settings(warn_only=True):
-        sudo('rabbitmqctl delete_user %s' % env.user, shell=False)
-        sudo('rabbitmqctl delete_vhost %s' % env.vhost, shell=False)
-    sudo('rabbitmqctl add_user %s %s' % (env.user, env.password), shell=False)
-    sudo('rabbitmqctl add_vhost %s' % env.vhost, shell=False)
-    sudo('rabbitmqctl set_permissions -p %s %s ".*" ".*" ".*"' % (env.vhost, env.user), shell=False)
-
-    put('./brokersettings.py', '%(path)s/dreddit-auth/app/conf/' % env)
-    os.unlink('brokersettings.py')
 
 
 def deploy_repo():
@@ -201,19 +167,15 @@ def start_uwsgi():
     """
     Start uWSGI
     """
-    with cd('%(path)s/dreddit-auth/' % env):
-        run('uwsgi -d logs/uwsgi.log -x etc/auth_uwsgi.xml' % env)
+    pass
 
 
 def restart_uwsgi():
     """
     Restart the uWSGI daemon
     """
-    with cd('%(path)s/dreddit-auth/' % env):
-        if exists('logs/uwsgi.pid'):
-            run('kill `cat logs/uwsgi.pid`')
-        else:
-            warn('uWSGI isn\'t running')
+    pass
+
 
 def start():
     """
