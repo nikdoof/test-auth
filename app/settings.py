@@ -38,7 +38,7 @@ SITE_ID = 1
 USE_I18N = True
 
 # Defines the Static Media storage as per staticfiles contrib
-STATIC_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+STATIC_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'static')
 STATIC_URL = '/static/'
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 

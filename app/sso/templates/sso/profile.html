@@ -7,12 +7,12 @@
 
 {% block content %}
 
-<script type="text/javascript" src="/media/js/jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.min.js"></script>
 <script type="text/javascript">
 
 function refresh_apikey(key) {
-    $("#api-status-" + key).html("<center><img src='/static/img/spinner.gif'/></center>");
-    $("#api-time-" + key).html("<center><img src='/static/img/spinner.gif'/></center>");  
+    $("#api-status-" + key).html("<center><img src='{{ STATIC_URL }}img/spinner.gif'/></center>");
+    $("#api-time-" + key).html("<center><img src='{{ STATIC_URL }}img/spinner.gif'/></center>");  
     $.getJSON("/eve/eveapi/refresh/" + key + "/", function(json) {
             $("#api-time-" + json[0].fields.api_user_id).html("a moment ago");
 
