@@ -94,9 +94,9 @@ class CachedDocumentManager(models.Manager):
                 doc = self.get(pk=doc.pk)
 
             # If this is user related, write a log instance
-            if params and params.get('userid', None):
+            if params and (params.get('userid', None) or params.get('keyid', None)):
                 try:
-                    v = int(params.get('userid', None))
+                    v = int(params.get('userid', None) or int(params.get('keyid', None))) 
                 except:
                     pass
                 else:
