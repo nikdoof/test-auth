@@ -14,6 +14,7 @@ def production():
     env.path = '/home/dreddit/apps'
     env.user = 'auth'
     env.vhost = '/auth'
+    env.config = 'conf.production'
     env.password = sha1('%s-%s' % (env.user, env.vhost)).hexdigest()
 
 def test():
@@ -75,7 +76,7 @@ def setup_db():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('env/bin/python app/manage.py syncdb --noinput --migrate')
+        run('env/bin/python app/manage.py syncdb --settings=%(config)s --noinput --migrate' % env)
 
 
 def deploy_repo():
@@ -125,7 +126,7 @@ def migrate():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('env/bin/python app/manage.py migrate')
+        run('env/bin/python app/manage.py migrate --settings=%(config)s' % env)
 
 
 def start_celeryd():
@@ -136,7 +137,7 @@ def start_celeryd():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('. env/bin/activate; app/manage.py celeryd_detach -l INFO -B --pidfile logs/celeryd.pid -f logs/celeryd.log -n auth-processor' % env)
+        run('. env/bin/activate; app/manage.py celeryd_detach --settings=%(config)s -l INFO -B --pidfile logs/celeryd.pid -f logs/celeryd.log -n auth-processor' % env)
 
 
 def stop_celeryd():
@@ -207,4 +208,4 @@ def clear_logs():
 
 def deploy_static():
     with cd('%(path)s/dreddit-auth/' % env):
-        run('./app/manage.py collectstatic -v0 --noinput')
+        run('./app/manage.py collectstatic --settings=%(config)s -v0 --noinput' % env)
