@@ -170,21 +170,22 @@ def kick_member(request, groupid, userid):
     group = get_object_or_404(Group, id=groupid)
     user = get_object_or_404(User, id=userid)
 
-    if user == request.user:
-        if user in group.groupinformation.admins.all():
-            group.groupinformation.admins.remove(user)
-        user.groups.remove(group)
-        update_user_access.delay(user.id)
-        messages.add_message(request, messages.INFO, "You have left the group %s" % group.name)
-
-    elif request.user in group.groupinformation.admins.all() or request.user.is_superuser:
-        if not user in group.groupinformation.admins.all():
+    if not group.groupinformation.type in [GROUP_TYPE_MANAGED]:
+        if user == request.user:
+            if user in group.groupinformation.admins.all():
+                group.groupinformation.admins.remove(user)
             user.groups.remove(group)
             update_user_access.delay(user.id)
-            messages.add_message(request, messages.INFO, "%s has been removed from %s." % (user.username, group.name))
-        else:
-            messages.add_message(request, messages.INFO, "%s is a admin of %s and cannot be removed." % (user.username, group.name))
+            messages.add_message(request, messages.INFO, "You have left the group %s" % group.name)
 
-        return HttpResponseRedirect(reverse('groups.views.admin_group', args=[groupid]))
+        elif request.user in group.groupinformation.admins.all() or request.user.is_superuser:
+            if not user in group.groupinformation.admins.all():
+                user.groups.remove(group)
+                update_user_access.delay(user.id)
+                messages.add_message(request, messages.INFO, "%s has been removed from %s." % (user.username, group.name))
+            else:
+                messages.add_message(request, messages.INFO, "%s is a admin of %s and cannot be removed." % (user.username, group.name))
+
+            return HttpResponseRedirect(reverse('groups.views.admin_group', args=[groupid]))
 
     return HttpResponseRedirect(reverse('groups.views.group_list'))
