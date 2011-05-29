@@ -23,8 +23,10 @@
                     <li><a href="{% url hr.views.index %}">HR</a></li>
                 {% endif %}
                     <li><a href="{% url eve_api.views.eveapi_character %}">Characters</a></li>
-                {% if request.user.is_staff %}
+                {% if perms.sso.can_search_users %}
                     <li><a href="{% url sso.views.user_lookup %}">Lookup User</a></li>
+                {% endif %}
+                {% if request.user.is_staff %}
                     <li><a href="/admin/">Admin</a></li>
                 {% endif %}
                     <li><a href="{% url django.contrib.auth.views.logout %}">Logout</a></li>

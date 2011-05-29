@@ -14,23 +14,23 @@ function refresh_apikey(key) {
     $("#api-status-" + key).html("<center><img src='{{ STATIC_URL }}img/spinner.gif'/></center>");
     $("#api-time-" + key).html("<center><img src='{{ STATIC_URL }}img/spinner.gif'/></center>");  
     $.getJSON("/eve/eveapi/refresh/" + key + "/", function(json) {
-            $("#api-time-" + json[0].fields.api_user_id).html("a moment ago");
+            $("#api-time-" + json[0].pk).html("a moment ago");
 
             switch(json[0].fields.api_status) {
                 case 0:
-                    $("#api-status-" + json[0].fields.api_user_id).html("Unknown");
+                    $("#api-status-" + json[0].pk).html("Unknown");
                     break;
                 case 1:
-                    $("#api-status-" + json[0].fields.api_user_id).html("OK");
+                    $("#api-status-" + json[0].pk).html("OK");
                     break;
                 case 2:
-                    $("#api-status-" + json[0].fields.api_user_id).html("Other Error");
+                    $("#api-status-" + json[0].pk).html("Other Error");
                     break;
                 case 3:
-                    $("#api-status-" + json[0].fields.api_user_id).html("Account Expired");
+                    $("#api-status-" + json[0].pk).html("Account Expired");
                     break;
                 default:
-                    $("#api-status-" + json[0].fields.api_user_id).html("Error");
+                    $("#api-status-" + json[0].pk).html("Error");
                     break;
             }
     });
