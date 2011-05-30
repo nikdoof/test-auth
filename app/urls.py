@@ -35,5 +35,10 @@ if installed('groups'):
         (r'^groups/', include('groups.urls')),
     )
 
+if installed('sentry'):
+    urlpatterns += patterns('',
+        (r'^sentry/', include('sentry.web.urls')),
+    )
+
 if settings.DEBUG:
    urlpatterns += staticfiles_urlpatterns()

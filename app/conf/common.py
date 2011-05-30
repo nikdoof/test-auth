@@ -3,7 +3,7 @@ import djcelery
 
 # Debug settings
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
+TEMPLATE_DEBUG = True
 
 # Zone Settings
 TIME_ZONE = 'UTC'
@@ -31,7 +31,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'sso.middleware.InactiveLogoutMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'pagination.middleware.PaginationMiddleware',
     'sso.middleware.IGBMiddleware',
 )
@@ -62,11 +61,12 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.humanize',
     'django.contrib.staticfiles',
+    'sentry',
+    'sentry.client',
     'south',
     'piston',
     'djcelery',
     'registration',
-    'debug_toolbar',
     'pagination',
     'eve_proxy',
     'eve_api',
