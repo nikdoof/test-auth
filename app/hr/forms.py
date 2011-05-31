@@ -46,11 +46,15 @@ def CreateApplicationForm(user):
 
 
         def clean(self):
-            if self.cleaned_data['character'].corporation == self.cleaned_data['corporation']:
-                raise forms.ValidationError("%s is already a member of %s" % (self.cleaned_data['character'], self.cleaned_data['corporation']))
 
-            if not self.cleaned_data['character'].account.api_keytype >= self.cleaned_data['corporation'].application_config.api_required:
-                raise forms.ValidationError("%s requires a %s API key for this application" % (self.cleaned_data['corporation'], self.cleaned_data['corporation'].application_config.get_api_required_display()))
+            char = self.cleaned_data.get('character')
+            corp = self.cleaned_data.get('corporation')
+
+            if char and corp:
+                if char.corporation == corp:
+                    raise forms.ValidationError("%s is already a member of %s" % (char, corp))
+                if not char.account.api_keytype >= corp.application_config.api_required:
+                    raise forms.ValidationError("%s requires a %s API key for this application" % (corp, corp.application_config.get_api_required_display()))
 
             return self.cleaned_data
 
