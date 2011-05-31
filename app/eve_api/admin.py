@@ -24,8 +24,18 @@ char_api_update.short_description = "Update character information from the EVE A
 class EVEAccountAdmin(admin.ModelAdmin):
     list_display = ('api_user_id', 'user', 'api_keytype', 'api_status', 'api_last_updated')
     search_fields = ['api_user_id', 'user__username']
-    readonly_fields = ('api_keytype', 'api_user_id', 'api_key', 'api_status', 'characters', 'api_last_updated', 'characters')
+    readonly_fields = ('api_keytype', 'api_status', 'characters', 'api_last_updated', 'characters')
     actions = [account_api_update]
+
+    def save_model(self, request, obj, form, change):
+        admin.ModelAdmin.save_model(self, request, obj, form, change)
+        task = import_apikey.delay(api_key=obj.api_key, api_userid=obj.api_user_id)
+        try:
+            task.wait(10)
+        except celery.exceptions.TimeoutError:
+            self.message_user(request, "The API key is queued for update." % obj.api_user_id)
+        except:
+            self.message_user(request, "An error was encountered why updating the API Key")
 
 admin.site.register(EVEAccount, EVEAccountAdmin)
 
