@@ -38,7 +38,7 @@ class CachedDocumentManager(models.Manager):
 
         return url
 
-    def api_query(self, url_path, params={}, no_cache=False, exceptions=True):
+    def api_query(self, url_path, params={}, no_cache=False, exceptions=True, service="Auth"):
         """
         Transparently handles querying EVE API or retrieving the document from
         the cache.
@@ -104,7 +104,7 @@ class CachedDocumentManager(models.Manager):
                     for k in params:
                         if not k in ['userid', 'apikey', 'vcode', 'keyid']: fparams[k] = params[k]
 
-                    ApiAccessLog(userid=v, service='Unknown', time_access=doc.time_retrieved, document=self.construct_url(url_path, fparams)).save()
+                    ApiAccessLog(userid=v, service=service, time_access=doc.time_retrieved, document=self.construct_url(url_path, fparams)).save()
 
         return doc
 

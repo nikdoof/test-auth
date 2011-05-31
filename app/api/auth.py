@@ -23,6 +23,7 @@ class APIKeyAuthentication(object):
                     url = request.path
                 AuthAPILog(key=keyobj, access_datetime=datetime.utcnow(), url=url).save()
                 request.user = AnonymousUser()
+                request.api_key = keyobj
                 return True
         return False
 

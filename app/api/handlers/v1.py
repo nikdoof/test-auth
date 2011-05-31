@@ -112,7 +112,7 @@ class EveAPIProxyHandler(BaseHandler):
             params['apikey'] = obj.api_key
 
         try:
-            cached_doc = CachedDocument.objects.api_query(url_path, params)
+            cached_doc = CachedDocument.objects.api_query(url_path, params, service=request.api_key.description)
         except DocumentRetrievalError, exc:
             return HttpResponse(exc, status=500)
         else:
@@ -130,7 +130,7 @@ class OpTimerHandler(BaseHandler):
         error_doc = {'ops': [{'startsIn': -1, 'eventID': 0, 'ownerName': '', 'eventDate': '', 'eventTitle': '<div style="text-align:center">The EVE API calendar is unavailable</div>', 'duration': 0, 'isImportant': 0, 'eventText': 'Fuck CCP tbqh imho srsly', 'endsIn':-1, 'forumLink': ''}]}
 
         try:
-            cached_doc = CachedDocument.objects.api_query('/char/UpcomingCalendarEvents.xml.aspx', params)
+            cached_doc = CachedDocument.objects.api_query('/char/UpcomingCalendarEvents.xml.aspx', params, service="Optimer")
         except DocumentRetrievalError:
             return error_doc
         dom = minidom.parseString(cached_doc.body.encode('utf-8'))
