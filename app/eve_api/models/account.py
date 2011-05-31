@@ -33,6 +33,10 @@ class EVEAccount(EVEAPIModel):
     def in_corp(self, corpid):
         return self.character.filter(corporation__id=corpid).count()
 
+    @property
+    def training(self):
+        return self.characters.filter(eveplayercharacterskill__in_training__gt=0).count()
+
     class Meta:
         app_label = 'eve_api'
         verbose_name = 'EVE Account'
