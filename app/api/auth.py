@@ -1,3 +1,4 @@
+from urllib import urlencode
 from datetime import datetime
 from django.http import HttpResponseForbidden
 from django.contrib.auth.models import AnonymousUser
@@ -14,7 +15,13 @@ class APIKeyAuthentication(object):
             pass
         else:
             if keyobj and keyobj.active:
-                AuthAPILog(key=keyobj, access_datetime=datetime.utcnow(), url=request.get_full_path()).save()
+                params = request.GET.copy()
+                if params.get('apikey', None): del params['apikey']
+                if len(params):
+                    url = "%s?%s" % (request.path, urlencode(params))
+                else:
+                    url = request.path
+                AuthAPILog(key=keyobj, access_datetime=datetime.utcnow(), url=url).save()
                 request.user = AnonymousUser()
                 return True
         return False
