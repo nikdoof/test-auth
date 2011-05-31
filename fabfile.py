@@ -1,6 +1,7 @@
 from __future__ import with_statement
 import time
 import os
+import os.path
 from fabric.api import *
 from fabric.contrib.files import *
 from fabric.utils import warn
@@ -15,6 +16,7 @@ def production():
     env.user = 'auth'
     env.vhost = '/auth'
     env.config = 'conf.production'
+    env.uwsgiconfig = os.path.join(env.path, '..', 'etc', 'uwsgi', 'dreddit-auth.ini')
     env.password = sha1('%s-%s' % (env.user, env.vhost)).hexdigest()
 
 def test():
@@ -23,6 +25,8 @@ def test():
     env.path = '/home/dreddit/apps'
     env.user = 'auth'
     env.vhost = '/auth'
+    env.config = 'conf.test'
+    env.uwsgiconfig = os.path.join(env.path, '..', 'etc', 'uwsgi', 'dreddit-auth.ini')
     env.password = sha1('%s-%s' % (env.user, env.vhost)).hexdigest()
 
 def deploy():
@@ -175,7 +179,7 @@ def restart_uwsgi():
     """
     Restart the uWSGI daemon
     """
-    pass
+    run('touch %(uwsgiconfig)s' % env)
 
 
 def start():
