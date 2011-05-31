@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
-from piston.resource import Resource
 from piston.authentication import NoAuthentication
 
+from api.resource import SentryResource as Resource
 from api.auth import APIKeyAuthentication
 from api.handlers import *
 
