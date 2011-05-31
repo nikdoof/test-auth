@@ -100,9 +100,11 @@ class CachedDocumentManager(models.Manager):
                 except:
                     pass
                 else:
-                    for k in ['userid', 'apikey', 'vcode', 'keyid']:
-                        if k in params: del params[k]
-                    ApiAccessLog(userid=v, service='Unknown', time_access=doc.time_retrieved, document=self.construct_url(url_path, params)).save()
+                    fparams = {}
+                    for k in params:
+                        if not k in ['userid', 'apikey', 'vcode', 'keyid']: fparams[k] = params[k]
+
+                    ApiAccessLog(userid=v, service='Unknown', time_access=doc.time_retrieved, document=self.construct_url(url_path, fparams)).save()
 
         return doc
 

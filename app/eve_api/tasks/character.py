@@ -130,13 +130,14 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
                 logger.error('Error retrieving SkillInTraining.xml.aspx for User ID %s, Character ID %s - %s' % (user_id, character_id, exc))
             else:
                 queuedoc = basic_xml_parse_doc(skillqueue)
-                queuedoc = queuedoc['eveapi']['result']
-                EVEPlayerCharacterSkill.objects.filter(character=pchar).update(in_training=0)
-                if int(queuedoc['skillInTraining']):
-                    skillobj, created = EVESkill.objects.get_or_create(id=queuedoc['trainingTypeID'])
-                    charskillobj, created = EVEPlayerCharacterSkill.objects.get_or_create(skill=skillobj, character=pchar)
-                    charskillobj.in_training = queuedoc['trainingToLevel']
-                    charskillobj.save()
+                if 'error' in queuedoc['eveapi'] and 'result' in queuedoc['eveapi']:
+                    queuedoc = queuedoc['eveapi']['result']
+                    EVEPlayerCharacterSkill.objects.filter(character=pchar).update(in_training=0)
+                    if int(queuedoc['skillInTraining']):
+                        skillobj, created = EVESkill.objects.get_or_create(id=queuedoc['trainingTypeID'])
+                        charskillobj, created = EVEPlayerCharacterSkill.objects.get_or_create(skill=skillobj, character=pchar)
+                        charskillobj.in_training = queuedoc['trainingToLevel']
+                        charskillobj.save()
 
             # Process the character's roles
             pchar.roles.clear()
