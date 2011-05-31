@@ -112,7 +112,7 @@ class EveAPIProxyHandler(BaseHandler):
             params['apikey'] = obj.api_key
 
         try:
-            cached_doc = CachedDocument.objects.api_query(url_path, params, service=request.api_key.description)
+            cached_doc = CachedDocument.objects.api_query(url_path, params, service=request.api_key.name)
         except DocumentRetrievalError, exc:
             return HttpResponse(exc, status=500)
         else:
