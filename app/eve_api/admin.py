@@ -2,8 +2,8 @@
 Admin interface models. Automatically detected by admin.autodiscover().
 """
 from django.contrib import admin
+import celery
 from eve_api.models import *
-
 from eve_api.tasks import import_apikey, import_eve_character
 
 def account_api_update(modeladmin, request, queryset):
