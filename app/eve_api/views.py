@@ -141,6 +141,11 @@ def eveapi_character(request, charid=None):
 
     if charid:
         character = get_object_or_404(EVEPlayerCharacter.objects.select_related('corporation', 'corporation__aliance'), id=charid)
+
+        # Check if the user has permission to see the character profile
+        if not request.user.has_perm('eve_api.can_view_all_characters') and (not character.account or not request.user == character.account.user):
+            raise Http404
+
         try:
             current_training = character.eveplayercharacterskill_set.get(in_training__gt=0)
         except:
