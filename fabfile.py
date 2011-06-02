@@ -153,11 +153,19 @@ def stop_celeryd():
 
     with cd('%(path)s/dreddit-auth/' % env):
         if exists('logs/celeryd.pid'):
-            run('kill `cat logs/celeryd.pid`')
+            run('kill -15 `cat logs/celeryd.pid`')
             time.sleep(2)
             run('rm -f logs/celeryd.pid')
         else:
             warn('celeryd isn\'t running')
+
+def kill_celeryd():
+    """
+    Kills all Celeryd instances
+    """
+    with cd('%(path)s/dreddit-auth/' % env):
+        run("ps auxww | grep celeryd | awk '{print $2}' | xargs kill -9")
+
 
 def restart_celeryd():
     """
