@@ -142,6 +142,9 @@ class Blacklist(models.Model):
     type = models.IntegerField(choices=BLACKLIST_TYPE_CHOICES,
                                      verbose_name="Blacklisted Type",
                                      help_text="Type of entity to be blacklisted")
+    level = models.IntegerField(choices=BLACKLIST_LEVEL_CHOICES,
+                                     verbose_name="Blacklist Level",
+                                     help_text="Level of blacklisting", default=BLACKLIST_LEVEL_BLACKLIST)
     value = models.CharField("Blacklisted Value", max_length=255, blank=False)
     reason = models.TextField(blank=False, verbose_name="Reason",
                                      help_text="Reason that the entity was blacklisted")

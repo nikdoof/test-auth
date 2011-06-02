@@ -18,6 +18,7 @@ from eve_proxy.models import CachedDocument
 from eve_proxy.exceptions import *
 from eve_api.models import EVEAccount, EVEPlayerCharacter
 from sso.models import ServiceAccount, Service
+from hr.app_defines import *
 from hr.models import Blacklist
 
 
@@ -196,7 +197,7 @@ class BlacklistHandler(BaseHandler):
 
     def read(self, request):
         if request.GET.get('value'):
-            obj = Blacklist.objects.select_related('blacklistsource').filter(value__icontains=request.GET.get('value'))
+            obj = Blacklist.objects.select_related('blacklistsource').filter(level__lte=BLACKLIST_LEVEL_ADVISORY,value__icontains=request.GET.get('value'))
             if obj.count() and request.GET.get('type'):
                 obj = obj.filter(type=request.GET.get('type'))
         else:
