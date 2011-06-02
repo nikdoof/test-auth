@@ -221,3 +221,8 @@ def clear_logs():
 def deploy_static():
     with cd('%(path)s/dreddit-auth/' % env):
         run('./app/manage.py collectstatic --settings=%(config)s -v0 --noinput' % env)
+
+def update_permissions():
+    with cd('%(path)s/dreddit-auth/' % env):
+        run('./app/manage.py updatepermissions --settings=%(config)s' % env)
+
