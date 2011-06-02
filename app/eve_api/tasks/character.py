@@ -130,7 +130,7 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
                 logger.error('Error retrieving SkillInTraining.xml.aspx for User ID %s, Character ID %s - %s' % (user_id, character_id, exc))
             else:
                 queuedoc = basic_xml_parse_doc(skillqueue)
-                if 'error' in queuedoc['eveapi'] and 'result' in queuedoc['eveapi']:
+                if not 'error' in queuedoc['eveapi'] and 'result' in queuedoc['eveapi']:
                     queuedoc = queuedoc['eveapi']['result']
                     EVEPlayerCharacterSkill.objects.filter(character=pchar).update(in_training=0)
                     if int(queuedoc['skillInTraining']):
