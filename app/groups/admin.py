@@ -6,7 +6,7 @@ from groups.models import GroupInformation, GroupRequest
 class GroupRequestAdmin(admin.ModelAdmin):
     list_display = ('group', 'user', 'status', 'created_date', 'changed_by', 'changed_date')
     search_fields = ('user__username', 'group')
-    list_filter = ('status')
+    list_filter = ('status',)
 
 admin.site.register(GroupRequest, GroupRequestAdmin)
 
