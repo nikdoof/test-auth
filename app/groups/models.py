@@ -51,7 +51,7 @@ class GroupRequest(models.Model):
     created_date = models.DateTimeField("Created Date/Time", auto_now_add=True)
 
     def __unicode__(self):
-        return u'%s - %s' % (user, group)
+        return u'%s - %s' % (self.user, self.group)
 
     class Meta:
         verbose_name = 'Group Access Request'
