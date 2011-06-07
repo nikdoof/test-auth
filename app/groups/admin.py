@@ -4,7 +4,9 @@ from django.contrib.auth.admin import GroupAdmin
 from groups.models import GroupInformation, GroupRequest
 
 class GroupRequestAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('group', 'user', 'status', 'created_date', 'changed_by', 'changed_date')
+    search_fields = ('user__username', 'group')
+    list_filter = ('status')
 
 admin.site.register(GroupRequest, GroupRequestAdmin)
 
