@@ -44,12 +44,14 @@ function refresh_apikey(key) {
 <p>
 <b>Username:</b> {{ user.username }}<br/>
 <b>Email:</b> {{ user.email }}<br/>
+<b>Primary Character:</b> {{ user.get_profile.primary_character }}<br/>
 <b>Groups:</b> {{ user.groups.all|join:", " }}<br/>
 </p>
 <p>
 <a href="{% url sso.views.refresh_access %}" class="button">Update Access</a>
-<a href="{% url django.contrib.auth.views.password_change %}" class="button">Change Your Password</a>
-<a href="{% url sso.views.email_change %}" class="button">Change Your E-mail</a>
+<a href="{% url django.contrib.auth.views.password_change %}" class="button">Change Password</a>
+<a href="{% url sso.views.email_change %}" class="button">Change E-mail</a>
+<a href="{% url sso.views.primarychar_change %}" class="button">Change Primary Character</a>
 </p>
 
 <br/>

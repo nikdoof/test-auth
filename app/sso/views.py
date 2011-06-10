@@ -22,7 +22,7 @@ from eve_api.tasks import import_apikey, import_apikey_result, update_user_acces
 from eve_proxy.models import ApiAccessLog
 
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
-from sso.forms import UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm, EmailChangeForm
+from sso.forms import UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm, EmailChangeForm, CreatePrimaryCharacterForm
 
 @login_required
 def profile(request):
@@ -34,6 +34,9 @@ def profile(request):
     except SSOUser.DoesNotExist:
         profile = SSOUser(user=request.user)
         profile.save()
+
+    if not profile.primary_character:
+        return redirect('sso.views.primarychar_change')
 
     return render_to_response('sso/profile.html', locals(), context_instance=RequestContext(request))
 
@@ -270,4 +273,23 @@ def email_change(request):
         form = EmailChangeForm() # An unbound form
 
     return render_to_response('sso/emailchange.html', locals(), context_instance=RequestContext(request))
+
+@login_required
+def primarychar_change(request):
+    """ Change the user's primary character """
+
+    clsform = CreatePrimaryCharacterForm(request.user)
+
+    if request.method == 'POST':
+        form = clsform(request.POST)
+        if form.is_valid():
+            profile = request.user.get_profile()
+            profile.primary_character = form.cleaned_data['character']
+            profile.save()
+            messages.add_message(request, messages.INFO, "Your primary character has changed to %s." % form.cleaned_data['character'])
+            return redirect('sso.views.profile') # Redirect after POST
+    else:
+        form = clsform() # An unbound form
+
+    return render_to_response('sso/primarycharchange.html', locals(), context_instance=RequestContext(request))
 

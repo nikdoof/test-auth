@@ -124,3 +124,13 @@ class EmailChangeForm(forms.Form):
                 raise forms.ValidationError("The two e-mail fields didn't match.")
         return email2
 
+
+def CreatePrimaryCharacterForm(user):
+    """ Generate a Primary Character form populated with the user's characters """
+
+    chars = EVEPlayerCharacter.objects.filter(eveaccount__user=user)
+
+    class PrimaryCharacter(forms.Form):
+        character = forms.ModelChoiceField(queryset=chars, required=True, empty_label=None)
+
+    return PrimaryCharacter

@@ -33,6 +33,7 @@ class SSOUser(models.Model):
 
     user = models.ForeignKey(User, unique=True, related_name='profile')
 
+    primary_character = models.ForeignKey(EVEPlayerCharacter, null=True)
     api_service_password = models.CharField("API Services Password", max_length=200, blank=True)
 
     def __unicode__(self):
