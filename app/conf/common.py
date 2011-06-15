@@ -88,7 +88,7 @@ LOGIN_URL = "/login"
 
 ### Celery Schedule
 
-from celeryschedule import CELERYBEAT_SCHEDULE
+from celeryschedule import *
 
 CELERY_SEND_TASK_ERROR_EMAILS = True
 CELERY_RESULT_BACKEND = "amqp"
