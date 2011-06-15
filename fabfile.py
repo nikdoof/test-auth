@@ -19,6 +19,8 @@ def production():
     env.uwsgiconfig = os.path.join(env.path, '..', 'etc', 'uwsgi', 'dreddit-auth.ini')
     env.password = sha1('%s-%s' % (env.user, env.vhost)).hexdigest()
 
+    env.celeryconf = '--settings=%(config)s --pidfile=logs/%%n.pid --logfile=logs/%%n.log -n auth.pleaseignore.com bulk default -c 5 -c:bulk 3 -E:default' % env
+
 def test():
     "Use the test enviroment on Web2"
     env.hosts = ['dreddit@web2.pleaseignore.com']
@@ -141,7 +143,7 @@ def start_celeryd():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('. env/bin/activate; app/manage.py celeryd_detach --settings=%(config)s -l INFO -B --pidfile logs/celeryd.pid -f logs/celeryd.log -n auth-processor' % env)
+        run('. env/bin/activate; app/manage.py celeryd_multi start auth %(celeryconf)s' % env)
 
 
 def stop_celeryd():
@@ -150,14 +152,10 @@ def stop_celeryd():
     """
     require('hosts')
     require('path')
+    require('config')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        if exists('logs/celeryd.pid'):
-            run('kill -15 `cat logs/celeryd.pid`')
-            time.sleep(2)
-            run('rm -f logs/celeryd.pid')
-        else:
-            warn('celeryd isn\'t running')
+        run('. env/bin/activate; app/manage.py celeryd_multi stop %(celeryconf)s' % env)
 
 def kill_celeryd():
     """
@@ -171,9 +169,8 @@ def restart_celeryd():
     """
     Restart the celery daemon
     """
-    stop_celeryd()
-    time.sleep(2)
-    start_celeryd()
+    with cd('%(path)s/dreddit-auth/' % env):
+        run('. env/bin/activate; app/manage.py celeryd_multi restart %(celeryconf)s' % env)
 
 
 def start_uwsgi():

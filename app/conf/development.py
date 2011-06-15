@@ -12,7 +12,7 @@ DATABASES = {
 }
 
 ## EVE Proxy
-EVE_API_URL = "http://apitest.eveonline.com"
+EVE_API_URL = "https://api.eveonline.com"
 EVE_PROXY_KEEP_LOGS = 30
 
 ## SSO
