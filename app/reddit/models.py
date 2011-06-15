@@ -22,7 +22,7 @@ class RedditAccount(models.Model):
 
     user = models.ForeignKey(User, blank=True, null=True)
 
-    username = models.CharField("Reddit Username", max_length=32, blank=False)
+    username = models.CharField("Reddit Username", max_length=32, blank=False, unique=True)
     reddit_id = models.CharField("Reddit ID", max_length=32)    
 
     link_karma = models.IntegerField("Link Karma")
