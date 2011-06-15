@@ -39,7 +39,7 @@ class CachedDocumentManager(models.Manager):
 
         return url
 
-    def api_query(self, url_path, params={}, no_cache=False, exceptions=True, service="Auth"):
+    def api_query(self, url_path, params={}, no_cache=False, exceptions=True, timeout=30, service="Auth"):
         """
         Transparently handles querying EVE API or retrieving the document from
         the cache.
@@ -69,7 +69,7 @@ class CachedDocumentManager(models.Manager):
                 if sys.version_info < (2, 6):
                     conn = urllib2.urlopen(req)
                 else:
-                    conn = urllib2.urlopen(req, timeout=5)
+                    conn = urllib2.urlopen(req, timeout=timeout)
             except urllib2.HTTPError, e:
                 print "HTTP Error Code: %s" % e.code
                 raise DocumentRetrievalError(e.code)
