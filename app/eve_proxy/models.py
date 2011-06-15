@@ -1,3 +1,4 @@
+import sys
 import urllib, urllib2
 from hashlib import sha1
 from datetime import datetime, timedelta
@@ -65,7 +66,10 @@ class CachedDocumentManager(models.Manager):
             req = urllib2.Request(url)
             req.add_header('CCP-Contact', 'matalok@pleaseignore.com')
             try:
-                conn = urllib2.urlopen(req)
+                if sys.version_info < (2, 6):
+                    conn = urllib2.urlopen(req)
+                else:
+                    conn = urllib2.urlopen(req, timeout=5)
             except urllib2.HTTPError, e:
                 print "HTTP Error Code: %s" % e.code
                 raise DocumentRetrievalError(e.code)
