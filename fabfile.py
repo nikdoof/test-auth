@@ -19,7 +19,7 @@ def production():
     env.uwsgiconfig = os.path.join(env.path, '..', 'etc', 'uwsgi', 'dreddit-auth.ini')
     env.password = sha1('%s-%s' % (env.user, env.vhost)).hexdigest()
 
-    env.celeryconf = '--settings=%(config)s --pidfile=logs/%%n.pid --logfile=logs/%%n.log -n auth.pleaseignore.com bulk default -c 5 -c:bulk 3 -E:default' % env
+    env.celeryconf = '-l INFO --settings=%(config)s --pidfile=logs/%%n.pid --logfile=logs/%%n.log -n auth.pleaseignore.com bulk default -c 5 -c:bulk 3 -E:default' % env
 
 def test():
     "Use the test enviroment on Web2"
@@ -143,7 +143,7 @@ def start_celeryd():
     require('path')
 
     with cd('%(path)s/dreddit-auth/' % env):
-        run('. env/bin/activate; app/manage.py celeryd_multi start auth %(celeryconf)s' % env)
+        run('. env/bin/activate; app/manage.py celeryd_multi start %(celeryconf)s' % env)
 
 
 def stop_celeryd():
@@ -171,6 +171,10 @@ def restart_celeryd():
     """
     with cd('%(path)s/dreddit-auth/' % env):
         run('. env/bin/activate; app/manage.py celeryd_multi restart %(celeryconf)s' % env)
+
+def show_celeryd():
+    with cd('%(path)s/dreddit-auth/' % env):
+        run('. env/bin/activate; app/manage.py celeryd_multi show %(celeryconf)s' % env)
 
 
 def start_uwsgi():
