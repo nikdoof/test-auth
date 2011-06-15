@@ -29,4 +29,5 @@ CELERYBEAT_SCHEDULE = {
 
 CELERY_ROUTES = {
     "sso.tasks.update_service_groups": {'queue': 'bulk'},
+    "hr.tasks.blacklist_check": {'queue': 'bulk'},
 }
