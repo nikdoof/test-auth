@@ -67,7 +67,10 @@ class CachedDocumentManager(models.Manager):
         if created or not doc.cached_until or datetime.utcnow() > doc.cached_until or no_cache:
 
             req = urllib2.Request(url)
-            req.add_header('CCP-Contact', 'matalok@pleaseignore.com')
+            # Add a header with the admin information in, so CCP can traceback the requests if needed
+            if settings.ADMINS:
+                req.add_header('CCP-Contact', str(', ').join(['%s <%s>' % (name, email) for name, email in settings.ADMINS]))
+
             try:
                 if sys.version_info < (2, 6):
                     conn = urllib2.urlopen(req)
