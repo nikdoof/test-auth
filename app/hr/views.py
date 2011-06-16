@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-import simplejson
+from django.utils import simplejson
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
