@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from xml.dom import minidom
 
 from celery.decorators import task
-from sentry.client.handlers import SentryHandler
 
 from eve_proxy.models import CachedDocument
 from eve_proxy.exceptions import DocumentRetrievalError
@@ -17,8 +16,6 @@ from eve_api.api_exceptions import APIAccessException
 def import_corp_details(corp_id, callback=None):
 
     log = import_corp_details.get_logger()
-    if SentryHandler not in map(lambda x: x.__class__, log.handlers):
-        logger.addHandler(SentryHandler())
 
     try:
         corp = import_corp_details_func(corp_id, log)
@@ -37,8 +34,6 @@ def import_corp_details(corp_id, callback=None):
 def import_corp_details_result(corp_id, callback=None):
 
     log = import_corp_details_result.get_logger()
-    if SentryHandler not in map(lambda x: x.__class__, log.handlers):
-        logger.addHandler(SentryHandler())
 
     try:
         corp = import_corp_details_func(corp_id, log)
@@ -122,8 +117,6 @@ def import_corp_members(api_userid, api_key, character_id):
     """
 
     log = import_corp_members.get_logger()
-    if SentryHandler not in map(lambda x: x.__class__, log.handlers):
-        logger.addHandler(SentryHandler())
 
     # grab and decode /corp/MemberTracking.xml.aspx
     auth_params = {'userID': api_userid, 'apiKey': api_key, 'characterID': character_id }
@@ -132,14 +125,14 @@ def import_corp_members(api_userid, api_key, character_id):
                                                    no_cache=False)
 
     set = basic_xml_parse_doc(char_doc)
-    if not 'eveapi' in set or not 'result' in ['eveapi']['result']:
+    if not 'eveapi' in set or not 'result' in set['eveapi']:
         log.error('Invalid XML document / API Error recceived', extra={'data': {'xml': char_doc.body, 'api_userid': api_userid, 'api_key': api_key, 'character_id': character_id}})
         return
 
     corp = EVEPlayerCharacter.objects.get(id=character_id).corporation
 
     charlist = []
-    for character in set['eveapi']['result']:
+    for character in set['eveapi']['result']['members']:
         charlist.append(int(character['characterID']))
         charobj, created = EVEPlayerCharacter.objects.get_or_create(id=character['characterID'])
         if created:
