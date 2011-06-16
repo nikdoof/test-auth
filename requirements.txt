@@ -8,7 +8,6 @@ xmlrpclib==1.0.1
 South==0.7.3
 fabric
 flup
-simplejson
 celery==2.2.6
 django-celery==2.2.4
 -e git+https://github.com/ericflo/django-pagination.git@47e7ec874cd7dddda5ed#egg=django-pagination
