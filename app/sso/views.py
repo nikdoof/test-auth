@@ -35,7 +35,7 @@ def profile(request):
         profile = SSOUser(user=request.user)
         profile.save()
 
-    if not profile.primary_character and user.eveaccount_set.count():
+    if not profile.primary_character and EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).count():
         return redirect('sso.views.primarychar_change')
 
     return render_to_response('sso/profile.html', locals(), context_instance=RequestContext(request))
