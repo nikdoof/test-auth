@@ -1,4 +1,5 @@
 from __future__ import with_statement
+import os
 from datetime import datetime
 import time
 
@@ -7,8 +8,6 @@ from eve_proxy.models import CachedDocument
 from eve_proxy.exceptions import *
 
 class CachedDocumentTestCase(unittest.TestCase):
-
-    params = {'apikey': 'B149FF0C66D6488CA9C0DA8B7E49F4C9CC0064BA38B043819146992510DA8C83' , 'userid': 415631 }
 
     def tearDown(self):
         CachedDocument.objects.all().delete()
@@ -29,6 +28,7 @@ class CachedDocumentTestCase(unittest.TestCase):
 
         url = '/account/Characters.xml.aspx'
 
+        params = {'userid': os.environ['API_USERID'] , 'apikey': os.environ['API_APIKEY']}
         obj = CachedDocument.objects.api_query(url, params=self.params, no_cache=True)
 
         self.assertNotEqual(obj, None, "No CachedDocument returned")
