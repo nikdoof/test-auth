@@ -1,8 +1,11 @@
+import sys
 import logging
 from datetime import datetime, timedelta
 from xml.dom import minidom
 
 from celery.decorators import task
+from sentry.client.handlers import SentryHandler
+
 from eve_proxy.models import CachedDocument
 from eve_proxy.exceptions import DocumentRetrievalError
 from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerAlliance
@@ -11,15 +14,20 @@ from eve_api.tasks.character import import_eve_character
 from eve_api.api_exceptions import APIAccessException
         
 @task(ignore_result=True)
-def import_corp_details(corp_id, callback=None, **kwargs):
+def import_corp_details(corp_id, callback=None):
+
     log = import_corp_details.get_logger()
+    if SentryHandler not in map(lambda x: x.__class__, log.handlers):
+        logger.addHandler(SentryHandler())
+
     try:
         corp = import_corp_details_func(corp_id, log)
     except APIAccessException, exc:
-        log.error('Error importing corporation - queueing for retry')
-        if not kwargs:
-            kwargs = {}
-        import_corp_details.retry(args=[corp_id, callback], exc=exc, kwargs=kwargs)
+        log.error('API Exception while retreiving the corp document', exc_info=sys.exc_info(), exra={'data': {'corp_id': corp_id}})
+        return
+    except:
+        log.error('Unknown exception while retreiving the corp document', exc_info=sys.exc_info(), exra={'data': {'corp_id': corp_id}})
+        return
     else:
         if callback:
             subtask(callback).delay(corporation=corp.id)
@@ -27,11 +35,19 @@ def import_corp_details(corp_id, callback=None, **kwargs):
 
 @task()
 def import_corp_details_result(corp_id, callback=None):
+
     log = import_corp_details_result.get_logger()
+    if SentryHandler not in map(lambda x: x.__class__, log.handlers):
+        logger.addHandler(SentryHandler())
+
     try:
         corp = import_corp_details_func(corp_id, log)
     except APIAccessException, exc:
-        log.error('Error importing corporation')
+        log.error('API Exception while retreiving the corp document', exc_info=sys.exc_info(), exra={'data': {'corp_id': corp_id}})
+        return None
+    except:
+        log.error('Unknown exception while retreiving the corp document', exc_info=sys.exc_info(), exra={'data': {'corp_id': corp_id}})
+        return None
     else:
         if callback:
             subtask(callback).delay(corporation=corp.id)
@@ -105,17 +121,25 @@ def import_corp_members(api_userid, api_key, character_id):
     API key. It'll add as much information as it can about the character.
     """
 
+    log = import_corp_members.get_logger()
+    if SentryHandler not in map(lambda x: x.__class__, log.handlers):
+        logger.addHandler(SentryHandler())
+
     # grab and decode /corp/MemberTracking.xml.aspx
     auth_params = {'userID': api_userid, 'apiKey': api_key, 'characterID': character_id }
     char_doc = CachedDocument.objects.api_query('/corp/MemberTracking.xml.aspx',
                                                    params=auth_params,
                                                    no_cache=False)
 
-    set = basic_xml_parse_doc(char_doc)['eveapi']['result']['members']
+    set = basic_xml_parse_doc(char_doc)
+    if not 'eveapi' in set or not 'result' in ['eveapi']['result']:
+        log.error('Invalid XML document / API Error recceived', extra={'data': {'xml': char_doc.body, 'api_userid': api_userid, 'api_key': api_key, 'character_id': character_id}})
+        return
+
     corp = EVEPlayerCharacter.objects.get(id=character_id).corporation
 
     charlist = []
-    for character in set:
+    for character in set['eveapi']['result']:
         charlist.append(int(character['characterID']))
         charobj, created = EVEPlayerCharacter.objects.get_or_create(id=character['characterID'])
         if created:
