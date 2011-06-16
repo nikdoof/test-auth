@@ -1,8 +1,10 @@
+from datetime import datetime, date
+import urllib
+
+from django.utils import simplejson as json
 from django.db import models
 from django.contrib.auth.models import User
-import simplejson as json
-import urllib
-from datetime import datetime, date
+
 from reddit.api import Comment
 
 
@@ -23,11 +25,11 @@ class RedditAccount(models.Model):
     user = models.ForeignKey(User, blank=True, null=True)
 
     username = models.CharField("Reddit Username", max_length=32, blank=False, unique=True)
-    reddit_id = models.CharField("Reddit ID", max_length=32)    
+    reddit_id = models.CharField("Reddit ID", max_length=32, help_text="Reddit's unique id for this user")
 
-    link_karma = models.IntegerField("Link Karma")
-    comment_karma = models.IntegerField("Comment Karma")
-    validated = models.BooleanField("Validated")
+    link_karma = models.IntegerField("Link Karma", help_text="Number of link karma")
+    comment_karma = models.IntegerField("Comment Karma", help_text="Number of comment karma")
+    validated = models.BooleanField("Validated", help_text="Indicates if the user has been validated")
 
     date_created = models.DateTimeField("Date Created")
     last_update = models.DateTimeField("Last Update from API")
@@ -40,9 +42,9 @@ class RedditAccount(models.Model):
         
         data = jsondoc['data']
         
-        self.link_karma = data['link_karma']
-        self.comment_karma = data['comment_karma']
-        self.reddit_id = data['id']
+        self.link_karma = int(data['link_karma'])
+        self.comment_karma = int(data['comment_karma'])
+        self.reddit_id = unicode(data['id'], 'utf-8')
 
         self.date_created = datetime.fromtimestamp(data['created_utc'])
         self.last_update = datetime.now()

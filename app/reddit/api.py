@@ -1,4 +1,11 @@
-import simplejson as json
+try:
+    from django.utils import simplejson as json
+except ImportError:
+    try:
+        import simplejson as json
+    except ImportError:
+        raise ImportError("simplejson is required for this library to work")
+
 import urllib2
 import urllib
 from datetime import datetime
