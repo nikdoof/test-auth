@@ -3,7 +3,8 @@ from eve_proxy.models import CachedDocument, ApiAccessLog
 
 class CachedDocumentAdmin(admin.ModelAdmin):
     model = CachedDocument
-    list_display = ('url_path', 'time_retrieved', 'cached_until')
+    list_display = ('doc_key', 'url_path', 'time_retrieved', 'cached_until')
+    readonly_fields = ('doc_key', 'url_path', 'body', 'time_retrieved', 'cached_until')
     verbose_name = 'Cached Document'
     verbose_name_plural = 'Cached Documents'
 
