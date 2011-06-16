@@ -64,7 +64,7 @@ class CachedDocumentTestCase(unittest.TestCase):
     def testInvalidApiQuery(self):
         """ Attempts to request a invalid EVE API endpoint """
 
-        url = '/server/ServerStatus.xml.aspx'
+        url = '/invalidrequest'
         
         with self.assertRaises(DocumentRetrievalError):
             obj = CachedDocument.objects.api_query(url, no_cache=True)
