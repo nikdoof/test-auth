@@ -108,6 +108,7 @@ class CachedDocumentManager(models.Manager):
                 doc.save()
                 doc = self.get(pk=doc.pk)
             elif error in ROLLBACK_ERRORS and not created:
+                logger.info("API Error %s encountered" % error, extra={'data': {'api-url': url, 'error': error, 'document': doc.body}})
                 doc = self.get(pk=doc.pk)
 
             # If this is user related, write a log instance
