@@ -74,6 +74,10 @@ class EVEPlayerCharacter(EVEAPIModel):
             return self.eveaccount_set.all()[0]
         return None
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('eveapi-character', [self.pk])
+
     def __unicode__(self):
         if self.name:
             return self.name

@@ -29,14 +29,18 @@ class EVEPlayerCorporation(EVEAPIModel):
 
     group = models.ForeignKey(Group, blank=True, null=True)
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('eveapi-corporation', [self.pk])
+
     class Meta:
         app_label = 'eve_api'
         verbose_name = 'Player Corporation'
         verbose_name_plural = 'Player Corporations'
 
-    def __str__(self):
+    def __unicode__(self):
         if self.name:
             return self.name
         else:
-            return "Corp #%d" % self.id
+            return u"Corp #%d" % self.id
 
