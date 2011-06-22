@@ -20,10 +20,10 @@ def import_corp_details(corp_id, callback=None):
     try:
         corp = import_corp_details_func(corp_id, log)
     except APIAccessException, exc:
-        log.error('API Exception while retreiving the corp document', exc_info=sys.exc_info(), exra={'data': {'corp_id': corp_id}})
+        log.error('API Exception while retreiving the corp document', exc_info=sys.exc_info(), extra={'data': {'corp_id': corp_id}})
         return
     except:
-        log.error('Unknown exception while retreiving the corp document', exc_info=sys.exc_info(), exra={'data': {'corp_id': corp_id}})
+        log.error('Unknown exception while retreiving the corp document', exc_info=sys.exc_info(), extra={'data': {'corp_id': corp_id}})
         return
     else:
         if callback:
@@ -38,10 +38,10 @@ def import_corp_details_result(corp_id, callback=None):
     try:
         corp = import_corp_details_func(corp_id, log)
     except APIAccessException, exc:
-        log.error('API Exception while retreiving the corp document', exc_info=sys.exc_info(), exra={'data': {'corp_id': corp_id}})
+        log.error('API Exception while retreiving the corp document', exc_info=sys.exc_info(), extra={'data': {'corp_id': corp_id}})
         return None
     except:
-        log.error('Unknown exception while retreiving the corp document', exc_info=sys.exc_info(), exra={'data': {'corp_id': corp_id}})
+        log.error('Unknown exception while retreiving the corp document', exc_info=sys.exc_info(), extra={'data': {'corp_id': corp_id}})
         return None
     else:
         if callback:
