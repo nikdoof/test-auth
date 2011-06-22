@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 from xml.dom import minidom
+from operator import itemgetter
 
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
@@ -187,6 +188,7 @@ class OpTimerHandler(BaseHandler):
                 'endsIn':-1,
                 'forumLink': ''}]}
         else:
+            events.sort(key=itemgetter('startsIn'))
             return {'ops': events, 'doc_time': cached_doc.time_retrieved, 'cache_until': cached_doc.cached_until, 'current_time': datetime.utcnow() }
 
 
