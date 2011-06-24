@@ -33,7 +33,7 @@ class EVEAccountAdmin(admin.ModelAdmin):
         try:
             task.wait(10)
         except celery.exceptions.TimeoutError:
-            self.message_user(request, "The API key is queued for update." % obj.api_user_id)
+            self.message_user(request, "API Key %s has been queued for an update." % obj.api_user_id)
         except:
             self.message_user(request, "An error was encountered why updating the API Key")
 
