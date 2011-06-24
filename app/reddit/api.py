@@ -108,12 +108,15 @@ class Inbox():
         if not self.login_cookie:
             raise NotLoggedIn
 
-        if not hasattr(self, '__inbox_cache'):
-            inbox = json.load(self._opener.open(self.REDDIT_API_INBOX))['data']
-            
-            self.__inbox_cache = []
-            for msg in inbox['children']:
-                self.__inbox_cache.append(Message(msg['data']))
+        if not hasattr(self, '__inbox_cache') or not len(self.__inbox_cache):
+            inbox = json.load(self._opener.open(self.REDDIT_API_INBOX))
+
+            if inbox and 'data' in inbox:
+                self.__inbox_cache = []
+                for msg in inbox['data']['children']:
+                    self.__inbox_cache.append(Message(msg['data']))
+            else:
+                self.__inbox_cache = []
              
         return self.__inbox_cache
 
