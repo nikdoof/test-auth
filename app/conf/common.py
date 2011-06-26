@@ -33,6 +33,7 @@ MIDDLEWARE_CLASSES = (
     'sso.middleware.InactiveLogoutMiddleware',
     'pagination.middleware.PaginationMiddleware',
     'sso.middleware.IGBMiddleware',
+    'sso.middleware.IPTrackingMiddleware',
 )
 
 ROOT_URLCONF = 'urls'
