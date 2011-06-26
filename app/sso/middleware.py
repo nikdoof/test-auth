@@ -59,5 +59,7 @@ class IPTrackingMiddleware(object):
 
         if request.user and not request.user.is_anonymous():
             ip, created = SSOUserIPAddress.objects.get_or_create(user=request.user, ip_address=request.META['REMOTE_ADDR'])
+            if created:
+                ip.first_seen = datetime.utcnow()
             ip.last_seen = datetime.utcnow()
             ip.save()
