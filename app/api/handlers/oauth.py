@@ -107,7 +107,7 @@ class OAuthOpTimerHandler(BaseHandler):
             return {'ops': events, 'doc_time': cached_doc.time_retrieved, 'cache_until': cached_doc.cached_until, 'current_time': datetime.utcnow() }
 
 
-class CharacterHandler(BaseHandler):
+class OAuthCharacterHandler(BaseHandler):
     allowed_methods = ('GET')
 
     fields = ('id', 'name', ('corporation', ('id', 'name', ('alliance', ('id', 'name')))), 'corporation_date', 'balance', 'total_sp', 'security_status', 'director', 'skillset')

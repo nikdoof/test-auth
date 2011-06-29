@@ -54,9 +54,14 @@ urlpatterns += patterns('api.views',
 )
 
 oauth_optimer_resource = Resource(handler=OAuthOpTimerHandler, **oauth)
+oauth_eveapi_resource = Resource(handler=OAuthOpTimerHandler, **oauth)
+oauth_chars_resource = Resource(handler=OAuthCharacterHandler, **oauth)
 
 # API
 urlpatterns += patterns('',
     url(r'^oauth/optimer/$', oauth_optimer_resource),
+    url(r'^oauth/eveapi/$', oauth_eveapi_resource),
+    url(r'^oauth/character/$', oauth_chars_resource),
+
 )
 
