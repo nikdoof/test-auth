@@ -8,6 +8,9 @@
 
     <p>You have come here because you are in the process of allowing a external application to access your private Auth data. If you are not, then please close this window. Otherwise, please confirm below if you wish to give access to your private Auth data. This can be revoked at any time from the main Auth panel.</p> 
 
+    <p><b>{{ consumer.name }}</b></p>
+    <p>{{ consumer.description }}</p>
+
     <form action="{% url piston.authentication.oauth_user_auth %}" method="POST">
       <table>
       {{ form.as_table }}

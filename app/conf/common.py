@@ -87,6 +87,11 @@ AUTH_PROFILE_MODULE = 'sso.SSOUser'
 LOGIN_REDIRECT_URL = "/profile"
 LOGIN_URL = "/login"
 
+### OAuth
+
+OAUTH_AUTH_VIEW = 'api.views.oauth_auth_view'
+OAUTH_CALLBACK_VIEW = 'api.views.oauth_callback_view'
+
 ### Celery Schedule
 
 from celeryschedule import *

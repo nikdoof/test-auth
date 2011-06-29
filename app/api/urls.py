@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from piston.authentication import NoAuthentication
+from piston.authentication import NoAuthentication, OAuthAuthentication
 
 from api.resource import SentryResource as Resource
 from api.auth import APIKeyAuthentication
@@ -7,6 +7,7 @@ from api.handlers import *
 
 noauth = {'authentication': NoAuthentication() }
 apikeyauth = {'authentication': APIKeyAuthentication() }
+oauth = {'authentication': OAuthAuthentication() }
 
 # v1 APIs
 user_resource = Resource(handler=UserHandler, **apikeyauth)
@@ -19,17 +20,6 @@ characters_resource = Resource(handler=CharacterHandler, **apikeyauth)
 announce_resource = Resource(handler=AnnounceHandler, **apikeyauth)
 
 urlpatterns = patterns('',
-    url(r'^user/$', user_resource),
-    url(r'^login/$', login_resource),
-    url(r'^eveapi/$', eveapi_resource),
-    url(r'^eveapi/', eveapiproxy_resource, name='api-eveapiproxy'),
-    url(r'^character/$', characters_resource),
-    url(r'^optimer/$', optimer_resource),
-    url(r'^blacklist/$', blacklist_resource),
-    url(r'^announce/$', announce_resource),
-)
-
-urlpatterns += patterns('',
     url(r'^1.0/user/$', user_resource),
     url(r'^1.0/login/$', login_resource),
     url(r'^1.0/eveapi/$', eveapi_resource),
@@ -50,3 +40,23 @@ urlpatterns += patterns('',
     url(r'^2.0/proxy/', v2_eveapiproxy_resource, name='v2-api-eveapiproxy'),
     url(r'^2.0/user/(?P<userid>\d+)/$', v2_user_resource, name='v2-api-user'),
 )
+
+# OAuth
+urlpatterns += patterns('piston.authentication',
+    url(r'^oauth/request_token/$','oauth_request_token'),
+    url(r'^oauth/authorize/$','oauth_user_auth'),
+    url(r'^oauth/access_token/$','oauth_access_token'), 
+)
+
+urlpatterns += patterns('api.views',
+    url(r'^oauth/tokens/$', 'oauth_list_tokens', name='oauth-list-tokens'),
+    url(r'^oauth/tokens/(?P<key>.*)$', 'oauth_revoke_token', name='oauth-revoke-token'),
+)
+
+oauth_optimer_resource = Resource(handler=OAuthOpTimerHandler, **oauth)
+
+# API
+urlpatterns += patterns('',
+    url(r'^oauth/optimer/$', oauth_optimer_resource),
+)
+

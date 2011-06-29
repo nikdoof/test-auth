@@ -19,6 +19,9 @@
                 {% if "groups"|installed %}
                     <li><a href="{% url groups.views.group_list %}">Groups</a></li>
                 {% endif %}
+                {% if "api"|installed %}
+                    <li><a href="{% url oauth-list-tokens %}">Application Access</a></li>
+                {% endif %}
                 {% if "hr"|installed %}
                     <li><a href="{% url hr.views.index %}">HR</a></li>
                 {% endif %}
