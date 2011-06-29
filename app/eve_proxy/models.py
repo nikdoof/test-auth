@@ -4,7 +4,7 @@ import urllib, urllib2
 from hashlib import sha1
 from datetime import datetime, timedelta
 from xml.dom import minidom
-from django.db import models
+from django.db import models, IntegrityError
 from django.conf import settings
 from eve_proxy.exceptions import *
 
@@ -105,7 +105,11 @@ class CachedDocumentManager(models.Manager):
 
             # If we have a error in the ignored error list use the cached doc, otherwise return the new doc
             if not error or not error in ROLLBACK_ERRORS:
-                doc.save()
+                try:
+                    doc.save()
+                except IntegrityError:
+                    # Ignore IntegrityError for this instance, just reload the doc from store
+                    pass
                 doc = self.get(pk=doc.pk)
             elif error in ROLLBACK_ERRORS and not created:
                 logger.info("API Error %s encountered" % error, extra={'data': {'api-url': url, 'error': error, 'document': doc.body}})
