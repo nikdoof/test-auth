@@ -142,7 +142,7 @@ def eveapi_character(request, charid=None):
     if charid:
         character = get_object_or_404(EVEPlayerCharacter.objects.select_related('corporation', 'corporation__aliance'), id=charid)
 
-        # Check if the user has permission to see the character profile
+        #Check if the user has permission to see the character profile
         if not request.user.has_perm('eve_api.can_view_all_characters') and (not character.account or not request.user == character.account.user):
             raise Http404
 
@@ -151,6 +151,17 @@ def eveapi_character(request, charid=None):
         except:
             current_training = None
         skills = character.eveplayercharacterskill_set.all().order_by('skill__group__name', 'skill__name')
+
+        skillTree = []
+        currentSkillGroup = 0
+        for skill in skills:
+            if not skill.skill.group.id == currentSkillGroup:
+                currentSkillGroup = skill.skill.group.id
+                skillTree.append([0, skill.skill.group.name, []])
+            
+            skillTree[-1][0] += skill.skillpoints
+            skillTree[-1][2].append(skill)
+
         return render_to_response('eve_api/character.html', locals(), context_instance=RequestContext(request))
 
     characters = EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=request.user).only('id', 'name', 'corporation__name', 'corporation__alliance__name')
