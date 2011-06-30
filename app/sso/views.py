@@ -88,7 +88,7 @@ def service_add(request):
         else:
             form = clsform() # An unbound form
 
-    return render_to_response('sso/serviceaccount/index.html', locals())
+    return render_to_response('sso/serviceaccount/index.html', locals(), context_instance=RequestContext(request))
 
 
 @login_required
