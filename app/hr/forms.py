@@ -39,7 +39,7 @@ def CreateApplicationForm(user):
             if not 'character' in self.cleaned_data or not self.cleaned_data['character']:
                 raise forms.ValidationError("Please select a character to apply with")
 
-            if Application.objects.filter(character=self.cleaned_data['character']).exclude(status__in=[APPLICATION_STATUS_COMPLETED, APPLICATION_STATUS_REJECTED]).count():
+            if Application.objects.filter(character=self.cleaned_data['character']).exclude(status__in=[APPLICATION_STATUS_NOTSUBMITTED, APPLICATION_STATUS_COMPLETED, APPLICATION_STATUS_REJECTED]).count():
                 raise forms.ValidationError("This character already has a open application")
 
             return self.cleaned_data['character']
