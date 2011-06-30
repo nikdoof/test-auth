@@ -6,12 +6,15 @@ import types
 from django.db import models
 from django.db.models import signals
 from django.contrib.auth.models import User, UserManager, Group
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 from django.utils import simplejson as json
 
 from jsonfield.fields import JSONField
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance, EVEPlayerCharacter
 
-from services import get_api
+from sso.app_defines import *
+from sso.services import get_api
 
 ## Exceptions
 
@@ -194,3 +197,52 @@ class ServiceAccount(models.Model):
             raise ServiceError('Unable to delete account on related service')
 
 signals.pre_delete.connect(ServiceAccount.pre_delete_listener, sender=ServiceAccount)
+
+
+class PermissionRuleset(models.Model):
+    """ A group of rules to assign a Group to a user """
+
+    name = models.CharField("Name", max_length=200)
+    active = models.BooleanField()
+    group = models.ForeignKey(Group)
+
+    check_type = models.BooleanField()
+
+    def check_ruleset(self, user):
+        if self.check_type == CHECK_TYPE_AND:
+            ret = False
+            for rule in self.rules:
+                ret = rule.check_rule(user)
+            return ret
+        elif self.check_type == CHECK_TYPE_OR:
+            for rule in self.rules:
+                if rule.check_rule(user) == True:
+                    return True
+        return False
+
+    class Meta:
+        verbose_name = u'Ruleset'
+        verbose_name_plural = u'Rulesets'
+
+
+class PermissionRule(models.Model):
+    ruleset = models.ForeignKey(PermissionRuleset, related_name='rules')
+
+    obj_type = models.ForeignKey(ContentType)
+    obj_id = models.IntegerField()
+    related_obj = generic.GenericForeignKey(obj_type, obj_id)
+
+    check_type = models.IntegerField()
+
+    def check_rule(self, user):
+
+        if self.obj_type.app_label == 'eve_api' and self.obj_type.model == 'eveplayercorporation':
+            return EVEPlayerCharacter.objects.filter(eveaccount__user=user, corporation=self.related_obj).count()
+        elif self.obj_type.app_label == 'eve_api' and self.obj_type.model == 'eveplayeralliance':
+            return EVEPlayerCharacter.objects.filter(eveaccount__user=user, corporation__alliance=self.related_obj).count()
+
+        return False
+
+    class Meta:
+        verbose_name = u'Rule'
+        verbose_name_plural = u'Rules'
