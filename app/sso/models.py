@@ -202,9 +202,9 @@ signals.pre_delete.connect(ServiceAccount.pre_delete_listener, sender=ServiceAcc
 class PermissionRuleset(models.Model):
     """ A group of rules to assign a Group to a user """
 
-    name = models.CharField("Name", max_length=200)
-    active = models.BooleanField()
-    group = models.ForeignKey(Group)
+    name = models.CharField("Name", max_length=200, help_text="Name of the ruleset")
+    active = models.BooleanField("Active", help_text="Indicates if the rule will be used during permissions processing")
+    group = models.ForeignKey(Group, help_text="Group that will be added to the user's profile if they match the listed rules")
 
     check_type = models.BooleanField()
 
@@ -220,6 +220,9 @@ class PermissionRuleset(models.Model):
                     return True
         return False
 
+    def __unicode__(self):
+        return self.name
+
     class Meta:
         verbose_name = u'Ruleset'
         verbose_name_plural = u'Rulesets'
@@ -228,11 +231,11 @@ class PermissionRuleset(models.Model):
 class PermissionRule(models.Model):
     ruleset = models.ForeignKey(PermissionRuleset, related_name='rules')
 
-    obj_type = models.ForeignKey(ContentType)
-    obj_id = models.IntegerField()
+    obj_type = models.ForeignKey(ContentType, verbose_name="Object Type", help_text="Type of object you want to check for")
+    obj_id = models.IntegerField("Object ID")
     related_obj = generic.GenericForeignKey(obj_type, obj_id)
 
-    check_type = models.IntegerField()
+    check_type = models.IntegerField("Check Type")
 
     def check_rule(self, user):
 
@@ -242,6 +245,10 @@ class PermissionRule(models.Model):
             return EVEPlayerCharacter.objects.filter(eveaccount__user=user, corporation__alliance=self.related_obj).count()
 
         return False
+
+    def __unicode__(self):
+        #return self.related_obj
+        return "%s %s-%s" % (self.ruleset.name, self.obj_type, self.obj_id)
 
     class Meta:
         verbose_name = u'Rule'
