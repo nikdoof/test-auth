@@ -220,7 +220,7 @@ def add_message(request, applicationid):
     """ Send a message to the end user and note it on the application """
 
     app = Application.objects.get(id=applicationid)
-    perm = check_permissions(request.user, app):
+    perm = check_permissions(request.user, app)
     if perm:
         if request.method == 'POST':
             obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_MESSAGE)
