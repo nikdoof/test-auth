@@ -1,6 +1,7 @@
 from datetime import datetime
 from django.conf import settings
 from django.db import models
+from django.template import Template, Context
 from django.contrib.auth.models import User
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
 from eve_api.app_defines import *
@@ -176,3 +177,22 @@ class ApplicationConfig(models.Model):
         verbose_name = 'Application Config'
         verbose_name_plural = 'Application Configs'
         ordering = ['corporation']
+
+
+class TemplateMessage(models.Model):
+    """ A message template for communications in applications """
+
+    config = models.ForeignKey(ApplicationConfig, related_name="templates")
+    name = models.CharField("Template Name", max_length="200", blank=False, null=False)
+    text = models.TextField("Text", blank=False, null=False)
+
+    def render_template(self, values):
+        return Template(self.text).render(Context(values))
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = u'Template Message'
+        verbose_name_plural = u'Template Messages'
+        ordering = ['config', 'name']

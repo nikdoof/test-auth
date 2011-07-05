@@ -5,7 +5,7 @@ from django.conf import settings
 from django.forms.extras.widgets import SelectDateWidget
 
 from hr.app_defines import *
-from hr.models import Application, Audit
+from hr.models import Application, Audit, TemplateMessage
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
 
 
@@ -62,6 +62,31 @@ def CreateApplicationForm(user):
 
 
 class NoteForm(forms.ModelForm):
+
+    class Meta:
+        model = Audit
+        exclude = ('application', 'user', 'event')
+
+
+class AdminNoteForm(forms.ModelForm):
+
+    template = forms.ModelChoiceField(label='Use Template', queryset=None, required=False, help_text="Use a predefined template text for this message")
+
+    def __init__(self, *args, **kwargs):
+        application = kwargs.pop('application')
+        super(AdminNoteForm, self).__init__(*args, **kwargs)
+        self.fields['template'].queryset = TemplateMessage.objects.filter(config=application.corporation.application_config)
+        self.fields['text'].required = False
+
+    def clean(self):
+        template = self.cleaned_data.get('template', None)
+        if template:
+            self.cleaned_data['text'] = template.render_template({'application': self.cleaned_data.get('application')})
+        elif not self.cleaned_data.get('text', None):
+            raise forms.ValidationError('You need to either select a template or fill in the message form')
+
+        return self.cleaned_data
+
     class Meta:
         model = Audit
         exclude = ('application', 'user', 'event')

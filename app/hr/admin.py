@@ -1,5 +1,5 @@
 from django.contrib import admin
-from hr.models import Application, Recommendation, Audit, Blacklist, BlacklistSource, ApplicationConfig
+from hr.models import Application, Recommendation, Audit, Blacklist, BlacklistSource, ApplicationConfig, TemplateMessage
 
 class ApplicationAdmin(admin.ModelAdmin):
     list_display = ('user', 'character', 'corporation', 'status', 'application_date', 'recommendations')
@@ -45,3 +45,7 @@ class ApplicationConfigAdmin(admin.ModelAdmin):
 
 admin.site.register(ApplicationConfig, ApplicationConfigAdmin)
 
+class TemplateMessageAdmin(admin.ModelAdmin):
+    list_display = ('config', 'name')
+
+admin.site.register(TemplateMessage, TemplateMessageAdmin)

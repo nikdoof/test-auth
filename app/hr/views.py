@@ -13,7 +13,7 @@ from django.conf import settings
 from utils import installed
 
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter
-from hr.forms import CreateRecommendationForm, CreateApplicationForm, NoteForm, BlacklistUserForm
+from hr.forms import CreateRecommendationForm, CreateApplicationForm, NoteForm, BlacklistUserForm, AdminNoteForm
 from hr.models import Recommendation, Application, Audit, Blacklist, BlacklistSource
 from app_defines import *
 
@@ -219,18 +219,18 @@ def add_note(request, applicationid):
 def add_message(request, applicationid):
     """ Send a message to the end user and note it on the application """
 
-    app = get_object_or_404(Application, id=applicationid)
     if check_permissions(request.user, app):
+        app = Application.objects.get(id=applicationid)
         if request.method == 'POST':
             obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_MESSAGE)
-            form = NoteForm(request.POST, instance=obj)
+            form = AdminNoteForm(request.POST, instance=obj, application=app)
             if form.is_valid():
                 obj = form.save()
                 if not app.user == request.user:
                     send_message(obj.application, 'message', note=obj.text)
                 return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
 
-        form = NoteForm()
+        form = AdminNoteForm(application=app)
         return render_to_response('hr/applications/add_message.html', locals(), context_instance=RequestContext(request))
 
     return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
@@ -240,11 +240,11 @@ def reject_application(request, applicationid):
     """ Reject the application and notify the user """
 
     if check_permissions(request.user) == HR_ADMIN and request.user.has_perm('hr.can_accept'):
+        app = Application.objects.get(id=applicationid)
         if request.method == 'POST':
-            app = Application.objects.get(id=applicationid)
             if check_permissions(request.user, app) == HR_ADMIN:
                 obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_REJECTION)
-                form = NoteForm(request.POST, instance=obj)
+                form = AdminNoteForm(request.POST, instance=obj, application=app)
                 if form.is_valid():
                     obj = form.save()
                     obj.application.status = APPLICATION_STATUS_REJECTED
@@ -252,7 +252,7 @@ def reject_application(request, applicationid):
                     send_message(obj.application, 'rejected', note=obj.text)
                     return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
 
-        form = NoteForm()
+        form = AdminNoteForm(application=app)
         return render_to_response('hr/applications/reject.html', locals(), context_instance=RequestContext(request))
 
     return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
@@ -262,11 +262,11 @@ def accept_application(request, applicationid):
     """ Accept the application and notify the user """
 
     if check_permissions(request.user) == HR_ADMIN and request.user.has_perm('hr.can_accept'):
+        app = Application.objects.get(id=applicationid)
         if request.method == 'POST':
-            app = Application.objects.get(id=applicationid)
             if check_permissions(request.user, app) == HR_ADMIN:
                 obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_ACCEPTED)
-                form = NoteForm(request.POST, instance=obj)
+                form = AdminNoteForm(request.POST, instance=obj, application=app)
                 if form.is_valid():
                     obj = form.save()
                     obj.application.status = APPLICATION_STATUS_ACCEPTED
@@ -274,7 +274,7 @@ def accept_application(request, applicationid):
                     send_message(obj.application, 'accepted', note=obj.text)
                     return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
 
-        form = NoteForm()
+        form = AdminNoteForm(application=app)
         return render_to_response('hr/applications/accept.html', locals(), context_instance=RequestContext(request))
 
     return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
