@@ -220,17 +220,24 @@ def add_message(request, applicationid):
     """ Send a message to the end user and note it on the application """
 
     app = Application.objects.get(id=applicationid)
-    if check_permissions(request.user, app):
+    perm = check_permissions(request.user, app):
+    if perm:
         if request.method == 'POST':
             obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_MESSAGE)
-            form = AdminNoteForm(request.POST, instance=obj, application=app)
+            if perm == HR_ADMIN:
+                form = AdminNoteForm(request.POST, instance=obj, application=app)
+            else:
+                form = NoteForm(request.POST, instance=obj)
             if form.is_valid():
                 obj = form.save()
                 if not app.user == request.user:
                     send_message(obj.application, 'message', note=obj.text)
                 return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
 
-        form = AdminNoteForm(application=app)
+        if perm == HR_ADMIN:
+            form = AdminNoteForm(application=app)
+        else:
+            form = NoteForm()
         return render_to_response('hr/applications/add_message.html', locals(), context_instance=RequestContext(request))
 
     return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
