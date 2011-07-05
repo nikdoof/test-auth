@@ -219,8 +219,8 @@ def add_note(request, applicationid):
 def add_message(request, applicationid):
     """ Send a message to the end user and note it on the application """
 
+    app = Application.objects.get(id=applicationid)
     if check_permissions(request.user, app):
-        app = Application.objects.get(id=applicationid)
         if request.method == 'POST':
             obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_MESSAGE)
             form = AdminNoteForm(request.POST, instance=obj, application=app)
