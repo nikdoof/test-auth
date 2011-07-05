@@ -37,8 +37,8 @@ class SSOUserNoteAdmin(admin.ModelAdmin):
 class PermissionRuleInline(generic.GenericTabularInline):
     model = PermissionRule
     extra = 1
-    ct_field = '
-    ct_fk_field = '
+    ct_field = ''
+    ct_fk_field = ''
 
 class PermissionRuleAdmin(admin.ModelAdmin):
     pass
