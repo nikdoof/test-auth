@@ -73,15 +73,15 @@ class AdminNoteForm(forms.ModelForm):
     template = forms.ModelChoiceField(label='Use Template', queryset=None, required=False, help_text="Use a predefined template text for this message")
 
     def __init__(self, *args, **kwargs):
-        application = kwargs.pop('application')
+        self.application = kwargs.pop('application')
         super(AdminNoteForm, self).__init__(*args, **kwargs)
-        self.fields['template'].queryset = TemplateMessage.objects.filter(config=application.corporation.application_config)
+        self.fields['template'].queryset = TemplateMessage.objects.filter(config=self.application.corporation.application_config)
         self.fields['text'].required = False
 
     def clean(self):
         template = self.cleaned_data.get('template', None)
         if template:
-            self.cleaned_data['text'] = template.render_template({'application': self.cleaned_data.get('application')})
+            self.cleaned_data['text'] = template.render_template({'application': self.application})
         elif not self.cleaned_data.get('text', None):
             raise forms.ValidationError('You need to either select a template or fill in the message form')
 
