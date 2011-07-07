@@ -113,8 +113,7 @@ setup.</p>
     <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
     <td><a href="{% url eve_api.views.eveapi_refresh acc.api_user_id %}"  onclick="javascript:refresh_apikey({{ acc.api_user_id }}); return false;">Refresh</a>,&nbsp;
         <a href="{% url eve_api.views.eveapi_update acc.api_user_id %}">Update Key</a>,&nbsp;
-        <a href="{% url eve_api.views.eveapi_log acc.api_user_id %}">Logs</a>,&nbsp;
-        <!--<a href="{% url eve_api.views.eveapi_del acc.api_user_id %}">Delete</a></td>-->
+        <a href="{% url eve_api.views.eveapi_log acc.api_user_id %}">Logs</a>
 </tr>
 {% endfor %}
 </table>
