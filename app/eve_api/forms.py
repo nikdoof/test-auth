@@ -12,6 +12,14 @@ class EveAPIForm(forms.ModelForm):
         fields = ('api_user_id', 'api_key', 'description', 'user')
         widgets = {'user': forms.HiddenInput()}
 
+    def __init__(self, *args, **kwargs):
+        super(EveAPIForm, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+
+        if instance and instance.pk:
+            # We're editing a existing instance, readonly the userid
+            self.fields['api_user_id'].widget.attrs['readonly'] = True
+
     def clean_api_key(self):
 
         if not len(self.cleaned_data['api_key']) == 64:
@@ -22,22 +30,25 @@ class EveAPIForm(forms.ModelForm):
 
         return self.cleaned_data['api_key']
 
-    def clean_user_id(self):
+    def clean_api_user_id(self):
 
-        if not 'user_id' in self.cleaned_data or self.cleaned_data['user_id'] == '':
+        if not 'api_user_id' in self.cleaned_data or self.cleaned_data['api_user_id'] == '':
             raise forms.ValidationError("Please provide a valid User ID")
 
         try:
-            int(self.cleaned_data['user_id'])
+            int(self.cleaned_data['api_user_id'])
         except ValueError:
             raise forms.ValidationError("Please provide a valid user ID.")
 
-        if not self.update:
+        if not getattr(self, 'instance', None):
             try:
-                eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['user_id'])
+                eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['api_user_id'])
             except EVEAccount.DoesNotExist:
                 pass
             else:
                 raise forms.ValidationError("This API User ID is already registered")
+        else:
+            if not int(self.cleaned_data['api_user_id']) == self.instance.api_user_id:
+                raise forms.ValidationError("You cannot change your API User ID")
 
-        return self.cleaned_data['user_id']
+        return self.cleaned_data['api_user_id']

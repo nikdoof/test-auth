@@ -56,11 +56,11 @@ def eveapi_update(request, userid, post_save_redirect='/'):
     if request.method == 'POST':
         form = EveAPIForm(request.POST, instance=acc)
         if form.is_valid():
-            if form.has_changed() and ('api_key' in form.changed_data or 'api_user_id' in form.changed_data):
-                acc = form.save()
+            if form.has_changed() and ('api_key' in form.changed_data):
+                #acc = form.save()
                 task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, user=request.user.id)
                 try:
-                    task.wait(10)
+                    task.wait(30)
                 except celery.exceptions.TimeoutError:
                     msg = "The addition of your API key is still processing, please check back in a minute or so."
                 except DocumentRetrievalError:
