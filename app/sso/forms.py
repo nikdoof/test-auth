@@ -125,12 +125,14 @@ class EmailChangeForm(forms.Form):
         return email2
 
 
-def CreatePrimaryCharacterForm(user):
-    """ Generate a Primary Character form populated with the user's characters """
+class PrimaryCharacterForm(forms.Form):
 
-    chars = EVEPlayerCharacter.objects.filter(eveaccount__user=user)
+    character = forms.ModelChoiceField(queryset=None, required=True, empty_label=None)
 
-    class PrimaryCharacter(forms.Form):
-        character = forms.ModelChoiceField(queryset=chars, required=True, empty_label=None)
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(PrimaryCharacterForm, self).__init__(*args, **kwargs)
 
-    return PrimaryCharacter
+        if self.user:
+            self.fields['character'].queryset = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user)
+
