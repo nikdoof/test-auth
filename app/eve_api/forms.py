@@ -40,15 +40,15 @@ class EveAPIForm(forms.ModelForm):
         except ValueError:
             raise forms.ValidationError("Please provide a valid user ID.")
 
-        if not getattr(self, 'instance', None):
+        if self.instance and self.instance.pk:
+            if not int(self.cleaned_data['api_user_id']) == self.instance.api_user_id:
+                raise forms.ValidationError("You cannot change your API User ID")
+        else:
             try:
                 eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['api_user_id'])
             except EVEAccount.DoesNotExist:
                 pass
             else:
                 raise forms.ValidationError("This API User ID is already registered")
-        else:
-            if not int(self.cleaned_data['api_user_id']) == self.instance.api_user_id:
-                raise forms.ValidationError("You cannot change your API User ID")
 
         return self.cleaned_data['api_user_id']
