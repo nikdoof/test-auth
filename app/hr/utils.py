@@ -53,9 +53,10 @@ def blacklist_values(user):
     blacklist.extend(objs)
 
     # Check Alliance blacklists
-    alliances = evechars.values_list('corporation__alliance__name', flat=True)
-    objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__iregex=r'(' + '|'.join([x for x in alliances if x]) + ')')
-    blacklist.extend(objs)
+    alliances = [x for x in evechars.values_list('corporation__alliance__name', flat=True) if x]
+    if len(alliances):
+        objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__iregex=r'(' + '|'.join([x for x in alliances if x]) + ')')
+        blacklist.extend(objs)
 
     # Check API Key blacklists
     keys = user.eveaccount_set.all().values_list('api_user_id', flat=True)
