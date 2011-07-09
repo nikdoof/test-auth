@@ -21,21 +21,26 @@ class Application(models.Model):
                                      help_text="Current status of this application request.")
     application_date = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
 
+    c = 0
+
     @models.permalink
     def get_absolute_url(self):
         return ('hr.views.view_application', [self.id])
 
     @property
     def blacklisted(self):
-        from hr.utils import blacklist_values
-        if len(self.blacklist_values) > 0:
-            return True
-        return False
+        if not hasattr(self, '_blflag'):
+            if len([x for x in self.blacklist_values if x.level == BLACKLIST_LEVEL_BLACKLIST]) > 0:
+                self._blflag = True
+            self._blflag = False
+        return self._blflag
 
     @property
     def blacklist_values(self):
-        from hr.utils import blacklist_values
-        return blacklist_values(self.user)
+        if not hasattr(self, '_blcache'):
+            from hr.utils import blacklist_values
+            self._blcache = blacklist_values(self.user)
+        return self._blcache
 
     @property
     def last_action(self):
@@ -51,11 +56,7 @@ class Application(models.Model):
 
     def save(self, *args, **kwargs):
 
-        user = None
-        if 'user' in kwargs:
-            user = kwargs['user']
-            del kwargs['user']
-
+        user = kwargs.pop('user', None)
         try:
             old_instance = Application.objects.get(id=self.id)
             if not (old_instance.status == int(self.status)):

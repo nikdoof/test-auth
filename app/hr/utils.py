@@ -40,21 +40,21 @@ def blacklist_values(user):
     blacklist.extend(bl_items.filter(type=BLACKLIST_TYPE_AUTH, value=user.username.lower()))
 
     # Check EVE Related blacklists
-    evechars = EVEPlayerCharacter.objects.filter(eveaccount__user=user).select_related('corporation__alliance')
+    evechars = EVEPlayerCharacter.objects.filter(eveaccount__user=user).select_related('corporation', 'corporation__alliance')
 
     # Check Character blacklists
     characters = evechars.values_list('name', flat=True)
-    objs = bl_items.filter(type=BLACKLIST_TYPE_CHARACTER, value__in=characters)
+    objs = bl_items.filter(type=BLACKLIST_TYPE_CHARACTER, value__iregex=r'(' + '|'.join(characters) + ')')
     blacklist.extend(objs)
 
     # Check Corporation blacklists
     corporations = evechars.values_list('corporation__name', flat=True)
-    objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__in=corporations)
+    objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__iregex=r'(' + '|'.join(corporations) + ')')
     blacklist.extend(objs)
 
     # Check Alliance blacklists
     alliances = evechars.values_list('corporation__alliance__name', flat=True)
-    objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__in=alliances)
+    objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__iregex=r'(' + '|'.join([x for x in alliances if x]) + ')')
     blacklist.extend(objs)
 
     # Check API Key blacklists

@@ -187,12 +187,14 @@ def update_application(request, applicationid, status):
 
     app = get_object_or_404(Application, id=applicationid)
 
-    if not app.status in [APPLICATION_STATUS_REJECTED, APPLICATION_STATUS_COMPLETED]:
+    if int(status) in APPLICATION_STATUS_ROUTES[app.status]:
         perm = check_permissions(request.user, app)
         if perm == HR_ADMIN or (perm == HR_VIEWONLY and int(status) <= 1):
             if not app.status == status:
                 app.status = status
                 app.save(user=request.user)
+    else:
+         messages.add_message(request, messages.ERROR, "Invalid status change request")
     return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
 
 @login_required
@@ -270,6 +272,11 @@ def accept_application(request, applicationid):
 
     if check_permissions(request.user) == HR_ADMIN and request.user.has_perm('hr.can_accept'):
         app = Application.objects.get(id=applicationid)
+
+        if app.blacklisted:
+            messages.add_message(request, messages.INFO, "This application has one or more blacklist entries and cannot be accepted.")
+            return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
+
         if request.method == 'POST':
             if check_permissions(request.user, app) == HR_ADMIN:
                 obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_ACCEPTED)
@@ -279,7 +286,7 @@ def accept_application(request, applicationid):
                     obj.application.status = APPLICATION_STATUS_ACCEPTED
                     obj.application.save(user=request.user)
                     send_message(obj.application, 'accepted', note=obj.text)
-                    return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
+            return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
 
         form = AdminNoteForm(application=app)
         return render_to_response('hr/applications/accept.html', locals(), context_instance=RequestContext(request))
