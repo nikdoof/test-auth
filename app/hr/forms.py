@@ -96,6 +96,7 @@ class BlacklistUserForm(forms.Form):
     """ A form to capture the reasons for blacklisting a user
         and the related expiry date """
 
-    reason = forms.CharField(required=True, widget=forms.widgets.Textarea())
-    expiry_date = forms.DateTimeField(required=False, widget=SelectDateWidget())
-    disable = forms.BooleanField(required=False)
+    level = forms.ChoiceField(label="Blacklist Level", required=True, choices=BLACKLIST_LEVEL_CHOICES, help_text="The level of entry to be added to the account")
+    reason = forms.CharField(label="Reason / Description", required=True, widget=forms.widgets.Textarea(), help_text="Brief description of why this account is being blacklisted")
+    expiry_date = forms.DateTimeField(label="Expiry Date", required=False, widget=SelectDateWidget(), help_text="The date on which the blacklist entry should expire")
+    disable = forms.BooleanField(label="Disable User?", required=False, help_text="Enabling this will disable the user's account once blacklisted")
