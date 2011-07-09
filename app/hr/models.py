@@ -21,19 +21,13 @@ class Application(models.Model):
                                      help_text="Current status of this application request.")
     application_date = models.DateTimeField(auto_now_add=True, verbose_name="Created Date")
 
-    c = 0
-
     @models.permalink
     def get_absolute_url(self):
         return ('hr.views.view_application', [self.id])
 
     @property
     def blacklisted(self):
-        if not hasattr(self, '_blflag'):
-            if len([x for x in self.blacklist_values if x.level == BLACKLIST_LEVEL_BLACKLIST]) > 0:
-                self._blflag = True
-            self._blflag = False
-        return self._blflag
+        return len([x for x in self.blacklist_values if x.level == BLACKLIST_LEVEL_BLACKLIST]) > 0
 
     @property
     def blacklist_values(self):
