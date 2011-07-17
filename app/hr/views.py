@@ -31,7 +31,9 @@ def send_message(application, message_type, note=None):
 
     if installed('reddit') and len(application.user.redditaccount_set.all()) > 0:
             from reddit.tasks import send_reddit_message
-            send_reddit_message.delay(to=application.user.redditaccount_set.all()[0].username, subject=subject, message=message)
+
+            for account in application.user.redditaccount_set.all():
+                send_reddit_message.delay(to=account.username, subject=subject, message=message)
 
 
 def check_permissions(user, application=None):
