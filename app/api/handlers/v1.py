@@ -75,7 +75,7 @@ class LoginHandler(BaseHandler):
             if request.GET.get('pass', None) and u.is_active and request.GET['pass'] == u.get_profile().api_service_password:
                 return {'auth': 'ok', 'id': u.id, 'username': u.username,
                         'email': u.email, 'groups': u.groups.all().values('id', 'name'),
-                        'staff': u.is_staff, 'superuser': u.is_superuser, 'primarycharacter': u.get_profile().primary_character.values('id', 'name', 'corporation')}
+                        'staff': u.is_staff, 'superuser': u.is_superuser, 'primarycharacter': u.get_profile().primary_character}
             else:
                 return {'auth': 'failed'}
 
