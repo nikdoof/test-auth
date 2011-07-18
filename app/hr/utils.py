@@ -44,13 +44,15 @@ def blacklist_values(user):
 
     # Check Character blacklists
     characters = evechars.values_list('name', flat=True)
-    objs = bl_items.filter(type=BLACKLIST_TYPE_CHARACTER, value__iregex=r'(' + '|'.join(characters) + ')')
-    blacklist.extend(objs)
+    if len(characters):
+        objs = bl_items.filter(type=BLACKLIST_TYPE_CHARACTER, value__iregex=r'(' + '|'.join(characters) + ')')
+        blacklist.extend(objs)
 
     # Check Corporation blacklists
     corporations = evechars.values_list('corporation__name', flat=True)
-    objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__iregex=r'(' + '|'.join(corporations) + ')')
-    blacklist.extend(objs)
+    if len(corporations):
+        objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__iregex=r'(' + '|'.join(corporations) + ')')
+        blacklist.extend(objs)
 
     # Check Alliance blacklists
     alliances = [x for x in evechars.values_list('corporation__alliance__name', flat=True) if x]
