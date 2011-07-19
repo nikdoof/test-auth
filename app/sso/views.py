@@ -28,7 +28,6 @@ from sso.forms import UserServiceAccountForm, ServiceAccountResetForm, UserLooku
 def profile(request):
     """ Displays the user's profile page """
 
-    user = request.user
     try:
         profile = request.user.get_profile()
     except SSOUser.DoesNotExist:
@@ -38,7 +37,10 @@ def profile(request):
     if not profile.primary_character and EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).count():
         return redirect('sso.views.primarychar_change')
 
-    return render_to_response('sso/profile.html', locals(), context_instance=RequestContext(request))
+    context = {
+        'profile': request.user.get_profile()
+    }
+    return render_to_response('sso/profile.html', context, context_instance=RequestContext(request))
 
 
 @login_required
@@ -92,7 +94,7 @@ def service_add(request):
 
 
 @login_required
-def service_del(request, serviceid=0):
+def service_del(request, serviceid=0, confirm_template='sso/serviceaccount/deleteconfirm.html'):
     """ Delete a service from a user's account """
 
     if serviceid > 0:
@@ -113,71 +115,65 @@ def service_del(request, serviceid=0):
                 else:
                     messages.add_message(request, messages.INFO, "Service account successfully deleted.")
         else:
-            return render_to_response('sso/serviceaccount/deleteconfirm.html', locals(), context_instance=RequestContext(request))
+            return render_to_response(confirm_template, locals(), context_instance=RequestContext(request))
 
     return redirect('sso.views.profile')
 
 
 @login_required
-def service_reset(request, serviceid=0):
+def service_reset(request, serviceid, template='sso/serviceaccount/reset.html', complete_template='sso/serviceaccount/resetcomplete.html'):
     """ Reset a user's password on a service """
 
-    if serviceid > 0:
-        try:
-            acc = ServiceAccount.objects.get(id=serviceid)
-        except ServiceAccount.DoesNotExist:
-            return redirect('sso.views.profile')
+    acc = get_object_or_404(ServiceAccount, id=serviceid)
 
-        # If the account is inactive, or the service doesn't require a password, redirect
-        if not acc.active or ('require_password' in acc.service.settings and not acc.service.settings['require_password']):
-            return redirect('sso.views.profile')
+    # If the account is inactive, or the service doesn't require a password, redirect
+    if not acc.active or ('require_password' in acc.service.settings and not acc.service.settings['require_password']):
+        return redirect('sso.views.profile')
 
-        if acc.user == request.user:
-            if not request.method == 'POST':
-                form = ServiceAccountResetForm()
-                return render_to_response('sso/serviceaccount/reset.html', locals(), context_instance=RequestContext(request))
+    # Check if the ServiceAccount belongs to the requesting user
+    if not acc.user == request.user:
+        return redirect('sso.views.profile')
 
-            form = ServiceAccountResetForm(request.POST)
-            if form.is_valid():
-                if settings.GENERATE_SERVICE_PASSWORD:
-                    passwd = hashlib.sha1('%s%s%s' % (acc.service_uid, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
-                else:
-                    passwd = form.cleaned_data['password']
-
-                api = acc.service.api_class
-                if not api.reset_password(acc.service_uid, passwd):
-                    error = True
-                return render_to_response('sso/serviceaccount/resetcomplete.html', locals(), context_instance=RequestContext(request))
+    if request.method == 'POST':
+        form = ServiceAccountResetForm(request.POST)
+        if form.is_valid():
+            if settings.GENERATE_SERVICE_PASSWORD:
+                passwd = hashlib.sha1('%s%s%s' % (acc.service_uid, settings.SECRET_KEY, random.randint(0, 2147483647))).hexdigest()
             else:
-                return render_to_response('sso/serviceaccount/reset.html', locals(), context_instance=RequestContext(request))
+                passwd = form.cleaned_data['password']
 
-    return redirect('sso.views.profile')
+            if not acc.service.api_class.reset_password(acc.service_uid, passwd):
+                error = True
+            return render_to_response(complete_template, locals(), context_instance=RequestContext(request))
+    else:
+        form = ServiceAccountResetForm()
+
+    return render_to_response(template, locals(), context_instance=RequestContext(request))
 
 
 @login_required
-def user_view(request, username=None):
+def user_view(request, username, template='sso/lookup/user.html'):
     """ View a user's profile as a admin """
 
     if not request.user.has_perm('sso.can_view_users') and not request.user.has_perm('sso.can_view_users_restricted'):
         return redirect('sso.views.profile')
 
-    if username:
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            return redirect('sso.views.user_lookup')
-    else:
-        return redirect('sso.views.user_lookup')
+    user = get_object_or_404(User, username=username)
 
-    profile = user.get_profile()
+    context = {
+        'user': user,
+        'profile': user.get_profile(),
+        'services':  ServiceAccount.objects.select_related('service').filter(user=user).only('service__name', 'service_uid', 'active'),
+        'characters': EVEPlayerCharacter.objects.select_related('corporation').filter(eveaccount__user=user).only('id', 'name', 'corporation__name'),
+    }
+
+    # If the HR app is installed, check the blacklist
     if installed('hr'):
         if request.user.has_perm('hr.add_blacklist'):
             from hr.utils import blacklist_values
-            blacklisted = len(blacklist_values(user))
-        services = ServiceAccount.objects.select_related('service').filter(user=user).only('service__name', 'service_uid', 'active')
-        characters = EVEPlayerCharacter.objects.select_related('corporation').filter(eveaccount__user=user).only('id', 'name', 'corporation__name')
+            context['blacklisted'] = len(blacklist_values(user))
 
-    return render_to_response('sso/lookup/user.html', locals(), context_instance=RequestContext(request))
+    return render_to_response(template, context, context_instance=RequestContext(request))
 
 
 @login_required

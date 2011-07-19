@@ -14,7 +14,7 @@
 	</div>
 	<div id="navigation">
 		<ul>
-            {% if request.user %}
+            {% if user %}
 	           <li><a href="{% url sso.views.profile %}">Profile</a></li>
                 {% if "groups"|installed %}
                     <li><a href="{% url groups.views.group_list %}">Groups</a></li>
