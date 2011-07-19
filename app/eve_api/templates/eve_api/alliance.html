@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+{% load naturaltimediff %}
+
+{% block content %}
+<div class="alliance_info">
+	<h1>{{ alliance.name }}</h1>
+
+        <ul>
+            <li><b>Member Count:</b> {{ alliance.member_count }}</li>
+            <li><b>Executor Corporation:</b> <a href="{% url eveapi-corporation alliance.executor.id %}">{{ alliance.executor }}</a></li>
+            <li><b>Alliance Leader:</b> {{ executor }}</li>
+        </ul>
+
+        <h2>Corporations</h2>
+
+        <table>
+        <tr><th>Name</td><th>Average SP</th><th>API Coverage</th><th>Director Key?</th></tr>
+        {% for corp in alliance.eveplayercorporation_set.all %}
+        <tr><td><a href="{% url eveapi-corporation corp.id %}">{{ corp }}</a></td><td>{{ corp.average_sp|intcomma }}</td><td>{{ corp.api_key_coverage }}%</td><td>{{ corp.director_api_keys.count }}</td></tr>
+        {% endfor %}
+        </table>
+</div>
+{% endblock %}
