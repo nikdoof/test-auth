@@ -14,5 +14,5 @@ urlpatterns = patterns('',
     url(r'^character/(?P<charid>\d+)/$', views.eveapi_character, name="eveapi-character"),
 
     url(r'^corporation/(?P<corporationid>\d+)/$', views.eveapi_corporation, name="eveapi-corporation"),
-
+    url(r'^alliance/(?P<allianceid>\d+)/$', views.eveapi_alliance, name="eveapi-alliance"),
 )

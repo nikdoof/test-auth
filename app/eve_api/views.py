@@ -13,7 +13,7 @@ from eve_proxy.models import ApiAccessLog
 from eve_proxy.exceptions import DocumentRetrievalError
 from eve_api.app_defines import *
 from eve_api.forms import EveAPIForm
-from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
+from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation, EVEPlayerAlliance
 from eve_api.tasks import import_apikey_result
 
 
@@ -195,3 +195,16 @@ def eveapi_corporation(request, corporationid, template='eve_api/corporation.htm
         'view_members': corporation.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="roleDirector").count() or request.user.is_superuser,
     }
     return render_to_response(template, context, context_instance=RequestContext(request))
+
+
+@login_required
+def eveapi_alliance(request, allianceid, template='eve_api/alliance.html'):
+
+    alliance = get_object_or_404(EVEPlayerAlliance, pk=allianceid)
+
+    context = {
+        'alliance': alliance,
+        'executor': alliance.executor.ceo_character,
+    }
+    return render_to_response(template, context, context_instance=RequestContext(request))
+

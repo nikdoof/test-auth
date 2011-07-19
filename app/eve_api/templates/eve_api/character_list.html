@@ -15,7 +15,7 @@
 {% for char in acc.list %}
 <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td>
     <td><a href="{% url eveapi-corporation char.corporation.id %}">{{ char.corporation }}</a></td>
-    <td>{% if char.corporation.alliance %}{{ char.corporation.alliance }}{% endif %}</td>
+    <td>{% if char.corporation.alliance %}<a href="{% url eveapi-alliance char.corporation.alliance.id %}">{{ char.corporation.alliance }}</a>{% endif %}</td>
     <td style="text-align: right;">{{ char.total_sp|intcomma }} SP</td>
     <td>{% if char.current_training %}{{ char.current_training.skill.name }} to Level {{ char.current_training.in_training }}{% endif %}</td> 
 </tr>

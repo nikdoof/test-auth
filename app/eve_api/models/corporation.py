@@ -55,6 +55,10 @@ class EVEPlayerCorporation(EVEAPIModel):
             membercount = self.member_count
         return (float(self.api_keys) / membercount) * 100
 
+    @property
+    def average_sp(self):
+        return self.eveplayercharacter_set.aggregate(models.Avg('total_sp'))['total_sp__avg']
+
     @models.permalink
     def get_absolute_url(self):
         return ('eveapi-corporation', [self.pk])
