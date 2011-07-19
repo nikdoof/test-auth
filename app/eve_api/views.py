@@ -41,7 +41,10 @@ def eveapi_add(request, post_save_redirect='/', template='eve_api/add.html'):
     else:
         form = EveAPIForm(initial={'user': request.user.id }) # An unbound form
 
-    return render_to_response(template, locals(), context_instance=RequestContext(request))
+    context = {
+        'form': form,
+    }
+    return render_to_response(template, context, context_instance=RequestContext(request))
 
 
 @login_required
@@ -78,7 +81,10 @@ def eveapi_update(request, userid, post_save_redirect='/', template='eve_api/upd
     else:
         form = EveAPIForm(instance=acc) # An unbound form
 
-    return render_to_response(template, locals(), context_instance=RequestContext(request))
+    context = {
+        'form': form,
+    }
+    return render_to_response(template, context, context_instance=RequestContext(request))
 
 
 @login_required
@@ -100,25 +106,20 @@ def eveapi_del(request, userid, post_save_redirect='/'):
 def eveapi_refresh(request, userid, post_save_redirect='/'):
     """ Force refresh a EVE API key """
 
-    try:
-        acc = EVEAccount.objects.get(pk=userid)
-    except EVEAccount.DoesNotExist:
-        pass
-    else:
-        if acc.user == request.user or request.user.is_superuser:
-            task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, force_cache=True, user=request.user.id)
-            if request.is_ajax():
-                try:
-                    acc = task.wait(30)
-                except (celery.exceptions.TimeoutError, DocumentRetrievalError):
-                    acc = EVEAccount.objects.get(pk=userid)
-                if acc:
-                    ret = [acc]
-                else:
-                    ret = []
-                return HttpResponse(serializers.serialize('json', ret), mimetype='application/javascript')
-            else:
-                messages.add_message(request, messages.INFO, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
+    acc = get_object_or_404(EVEAccount, pk=userid)
+    if acc.user == request.user or request.user.is_superuser:
+        task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, force_cache=True, user=request.user.id)
+        if request.is_ajax():
+            try:
+                acc = task.wait(30)
+            except (celery.exceptions.TimeoutError, DocumentRetrievalError):
+                acc = EVEAccount.objects.get(pk=userid)
+            ret = []
+            if acc:
+                ret = [acc]
+            return HttpResponse(serializers.serialize('json', ret), mimetype='application/javascript')
+        else:
+            messages.add_message(request, messages.INFO, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
 
     return redirect(post_save_redirect)
 
@@ -134,6 +135,8 @@ def eveapi_log(request, userid, template='eve_api/log.html'):
             'logs': ApiAccessLog.objects.filter(userid=userid).order_by('-time_access')[:50],
         }
         return render_to_response(template, context, context_instance=RequestContext(request))
+    else:
+        raise Http404
 
 
 @login_required
@@ -163,10 +166,18 @@ def eveapi_character(request, charid=None, template='eve_api/character.html', li
             skillTree[-1][0] += skill.skillpoints
             skillTree[-1][2].append(skill)
 
-        return render_to_response(template, locals(), context_instance=RequestContext(request))
+        context = {
+            'character': character,
+            'current_training': current_training,
+            'skills': skills,
+            'skillTree': skillTree,
+        }
+        return render_to_response(template, context, context_instance=RequestContext(request))
 
-    characters = EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=request.user).only('id', 'name', 'corporation__name', 'corporation__alliance__name')
-    return render_to_response(list_template, locals(), context_instance=RequestContext(request))
+    context = {
+        'characters': EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=request.user).only('id', 'name', 'corporation__name', 'corporation__alliance__name'),
+    }
+    return render_to_response(list_template, context, context_instance=RequestContext(request))
 
 
 @login_required
@@ -176,8 +187,10 @@ def eveapi_corporation(request, corporationid, template='eve_api/corporation.htm
     """
 
     corporation = get_object_or_404(EVEPlayerCorporation, id=corporationid)
-    if corporation.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="Director").count() or request.user.is_superuser:
-        view_members = True
-        members = corporation.eveplayercharacter_set.select_related('eveaccount', 'roles').order_by('corporation_date').only('id', 'name', 'corporation_date')
 
-    return render_to_response(template, locals(), context_instance=RequestContext(request))
+    context = {
+        'corporation': corporation,
+        'members': corporation.eveplayercharacter_set.select_related('eveaccount', 'roles').order_by('corporation_date').only('id', 'name', 'corporation_date'),
+        'view_members': corporation.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="Director").count() or request.user.is_superuser,
+    }
+    return render_to_response(template, context, context_instance=RequestContext(request))
