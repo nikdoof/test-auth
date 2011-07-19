@@ -83,6 +83,7 @@ def eveapi_update(request, userid, post_save_redirect='/', template='eve_api/upd
         form = EveAPIForm(instance=acc) # An unbound form
 
     context = {
+        'acc': acc,
         'form': form,
     }
     return render_to_response(template, context, context_instance=RequestContext(request))
