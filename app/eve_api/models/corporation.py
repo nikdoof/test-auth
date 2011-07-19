@@ -54,7 +54,7 @@ class EVEPlayerCorporation(EVEAPIModel):
         else:
             membercount = self.member_count
 
-        if len(self.api_keys) and membercount:
+        if self.api_keys and membercount:
             return (float(self.api_keys) / membercount) * 100
         else:
             return float(0.0)
