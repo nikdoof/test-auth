@@ -18,7 +18,7 @@
         <table>
         <tr><th>Name</td><th>Average SP</th><th>API Coverage</th><th>Director Key?</th></tr>
         {% for corp in alliance.eveplayercorporation_set.all %}
-        <tr><td><a href="{% url eveapi-corporation corp.id %}">{{ corp }}</a></td><td>{{ corp.average_sp|intcomma }}</td><td>{{ corp.api_key_coverage }}%</td><td>{{ corp.director_api_keys.count }}</td></tr>
+        <tr><td><a href="{% url eveapi-corporation corp.id %}">{{ corp }}</a></td><td>{{ corp.average_sp|intcomma }}</td><td>{{ corp.api_key_coverage|floatformat:2 }}%</td><td>{{ corp.director_api_keys.count }}</td></tr>
         {% endfor %}
         </table>
 </div>
