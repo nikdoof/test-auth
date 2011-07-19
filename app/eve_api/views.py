@@ -17,7 +17,7 @@ from eve_api.tasks import import_apikey_result
 
 
 @login_required
-def eveapi_add(request, post_save_redirect='/'):
+def eveapi_add(request, post_save_redirect='/', template='eve_api/add.html'):
     """ Add a EVE API key to a user's account """
 
     if request.method == 'POST':
@@ -25,7 +25,6 @@ def eveapi_add(request, post_save_redirect='/'):
         if form.is_valid():
 
             acc = form.save()
-            print acc
             task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, user=request.user.id)
             try:
                 task.wait(10)
@@ -42,11 +41,11 @@ def eveapi_add(request, post_save_redirect='/'):
     else:
         form = EveAPIForm(initial={'user': request.user.id }) # An unbound form
 
-    return render_to_response('eve_api/add.html', locals(), context_instance=RequestContext(request))
+    return render_to_response(template, locals(), context_instance=RequestContext(request))
 
 
 @login_required
-def eveapi_update(request, userid, post_save_redirect='/'):
+def eveapi_update(request, userid, post_save_redirect='/', template='eve_api/update.html'):
     """ Update a EVE API Key """
 
     acc = get_object_or_404(EVEAccount, pk=userid)
@@ -74,13 +73,12 @@ def eveapi_update(request, userid, post_save_redirect='/'):
                     form.save()
                 msg = "EVE API key %d successfully updated." % acc.api_user_id
 
-
             messages.success(request, msg, fail_silently=True)
             return redirect(post_save_redirect)
     else:
         form = EveAPIForm(instance=acc) # An unbound form
 
-    return render_to_response('eve_api/update.html', locals(), context_instance=RequestContext(request))
+    return render_to_response(template, locals(), context_instance=RequestContext(request))
 
 
 @login_required
@@ -126,17 +124,20 @@ def eveapi_refresh(request, userid, post_save_redirect='/'):
 
 
 @login_required
-def eveapi_log(request, userid):
+def eveapi_log(request, userid, template='eve_api/log.html'):
     """ Provides a list of access logs for a specific EVE API key """
 
     acc = get_object_or_404(EVEAccount, pk=userid)
     if acc and (acc.user == request.user or request.user.is_staff):
-        logs = ApiAccessLog.objects.filter(userid=userid).order_by('-time_access')[:50]
-        return render_to_response('eve_api/log.html', locals(), context_instance=RequestContext(request))
+        context = {
+            'userid': userid,
+            'logs': ApiAccessLog.objects.filter(userid=userid).order_by('-time_access')[:50],
+        }
+        return render_to_response(template, context, context_instance=RequestContext(request))
 
 
 @login_required
-def eveapi_character(request, charid=None):
+def eveapi_character(request, charid=None, template='eve_api/character.html', list_template='eve_api/character_list.html'):
     """ Provide a list of characters, or a indivdual character sheet """
 
     if charid:
@@ -162,14 +163,14 @@ def eveapi_character(request, charid=None):
             skillTree[-1][0] += skill.skillpoints
             skillTree[-1][2].append(skill)
 
-        return render_to_response('eve_api/character.html', locals(), context_instance=RequestContext(request))
+        return render_to_response(template, locals(), context_instance=RequestContext(request))
 
     characters = EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=request.user).only('id', 'name', 'corporation__name', 'corporation__alliance__name')
-    return render_to_response('eve_api/character_list.html', locals(), context_instance=RequestContext(request))
+    return render_to_response(list_template, locals(), context_instance=RequestContext(request))
 
 
 @login_required
-def eveapi_corporation(request, corporationid):
+def eveapi_corporation(request, corporationid, template='eve_api/corporation.html'):
     """
     Provide details of a corporation, and for admins, a list of members
     """
@@ -179,4 +180,4 @@ def eveapi_corporation(request, corporationid):
         view_members = True
         members = corporation.eveplayercharacter_set.select_related('eveaccount', 'roles').order_by('corporation_date').only('id', 'name', 'corporation_date')
 
-    return render_to_response('eve_api/corporation.html', locals(), context_instance=RequestContext(request))
+    return render_to_response(template, locals(), context_instance=RequestContext(request))
