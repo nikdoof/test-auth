@@ -20,10 +20,10 @@
 
         {% if view_members %}
         <table>
-        <tr><th>Name</th><th>Join Date</th></tr>
+        <tr><th>Name</th><th>Join Date</th><th>API Key?</th></tr>
         {% autopaginate members 10 %}
         {% for char in members %}
-        <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td><td>{{ char.corporation_date }}</td></tr>
+        <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td><td>{{ char.corporation_date }}</td><td>{% if char.eveaccount_set.count %}Yes{% else %}<span style="color: red;">No</span>{% endif %}</td></tr>
         {% endfor %}
         </table>
         {% paginate %}
