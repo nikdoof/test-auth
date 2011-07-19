@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import Group
 from eve_api.models import EVEAPIModel
+from eve_api.app_defines import *
 
 class EVEPlayerCorporation(EVEAPIModel):
     """
@@ -28,6 +29,27 @@ class EVEPlayerCorporation(EVEAPIModel):
     logo_color3 = models.IntegerField(blank=True, null=True)
 
     group = models.ForeignKey(Group, blank=True, null=True)
+
+    @property
+    def directors(self):
+        """ Return a queryset of corporate Directors """
+        return self.eveplayercharacter_set.filter(roles__name="roleDirector")
+
+    @property
+    def api_keys(self):
+        """ Returns the number of characters with stored API keys """
+        return self.eveplayercharacter_set.filter(eveaccount__isnull=False).count()
+
+    @property
+    def api_key_coverage(self):
+        """ Returns the percentage coverage of API keys for the corporation's members """
+
+        # Check if we have a full director key, see if we can base our assumptions off what is in auth already
+        if self.directors.filter(eveaccount__isnull=False, eveaccount__api_keytype=API_KEYTYPE_FULL).count():
+            membercount = self.eveplayercharacter_set.count()
+        else:
+            membercount = self.member_count
+        return (float(self.api_keys) / membercount) * 100
 
     @models.permalink
     def get_absolute_url(self):

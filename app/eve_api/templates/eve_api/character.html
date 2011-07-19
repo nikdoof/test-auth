@@ -12,7 +12,7 @@
 	</div>
 	
 	<div class="character_corporation">
-		<span><a href="http://evemaps.dotlan.net/corp/{{ character.corporation.name }}">{{ character.corporation.ticker }}</a></span>
+		<span><a href="{% url eveapi-corporation character.corporation.id %}">{{ character.corporation.ticker }}</a></span>
 		<img src="https://image.eveonline.com/Corporation/{{ character.corporation.id }}_64.png" />
 	</div>
 	

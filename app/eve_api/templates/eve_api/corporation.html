@@ -11,10 +11,10 @@
 
         <ul>
         <li><b>Member Count:</b> {{ corporation.member_count }}</li>
-        <li><b>Known Members:</b> {{ corporation.eveplayercharacter_set.all.count }}</li>
+        <li><b>Known Members:</b> {{ corporation.eveplayercharacter_set.count }}</li>
         {% if view_members %}
-        <li><b>Members with API Keys:</b> {{ api_members }}</li>
-        <li><b>API Coverage:</b> {{ percentage|floatformat:2 }}%</li>
+        <li><b>Members with API Keys:</b> {{ corporation.api_keys }}</li>
+        <li><b>API Coverage:</b> {{ corporation.api_key_coverage|floatformat:2 }}%</li>
         {% endif %}
         </ul>
 
