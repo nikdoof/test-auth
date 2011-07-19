@@ -53,7 +53,11 @@ class EVEPlayerCorporation(EVEAPIModel):
             membercount = self.eveplayercharacter_set.count()
         else:
             membercount = self.member_count
-        return (float(self.api_keys) / membercount) * 100
+
+        if len(self.api_keys) and membercount:
+            return (float(self.api_keys) / membercount) * 100
+        else:
+            return float(0.0)
 
     @property
     def average_sp(self):
