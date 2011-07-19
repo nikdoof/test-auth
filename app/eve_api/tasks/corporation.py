@@ -125,15 +125,15 @@ def import_corp_members(api_userid, api_key, character_id):
                                                    no_cache=False,
                                                    timeout=60)
 
-    set = basic_xml_parse_doc(char_doc)
-    if not 'eveapi' in set or not 'result' in set['eveapi']:
+    pdoc = basic_xml_parse_doc(char_doc)
+    if not 'eveapi' in pdoc or not 'result' in pdoc['eveapi']:
         log.error('Invalid XML document / API Error recceived', extra={'data': {'xml': char_doc.body, 'api_userid': api_userid, 'api_key': api_key, 'character_id': character_id}})
         return
 
     corp = EVEPlayerCharacter.objects.get(id=character_id).corporation
 
     charlist = []
-    for character in set['eveapi']['result']['members']:
+    for character in pdoc['eveapi']['result']['members']:
         charlist.append(int(character['characterID']))
         charobj, created = EVEPlayerCharacter.objects.get_or_create(id=character['characterID'])
         if created:
@@ -147,6 +147,7 @@ def import_corp_members(api_userid, api_key, character_id):
         if created:
             import_eve_character.delay(character['characterID'])
 
-    for char in EVEPlayerCharacter.objects.filter(corporation=corp).exclude(id__in=charlist):
-        import_eve_character.delay(char.id)
+    leftlist = set(corp.eveplayercharacter_set.all().values_list('id', flat=True)) - set(charlist)
+    for id in leftlist:
+        import_eve_character.delay(id)
 
