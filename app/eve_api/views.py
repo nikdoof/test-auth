@@ -11,6 +11,7 @@ from django.core import serializers
 
 from eve_proxy.models import ApiAccessLog
 from eve_proxy.exceptions import DocumentRetrievalError
+from eve_api.app_defines import *
 from eve_api.forms import EveAPIForm
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 from eve_api.tasks import import_apikey_result
@@ -191,6 +192,6 @@ def eveapi_corporation(request, corporationid, template='eve_api/corporation.htm
     context = {
         'corporation': corporation,
         'members': corporation.eveplayercharacter_set.select_related('eveaccount', 'roles').order_by('corporation_date').only('id', 'name', 'corporation_date'),
-        'view_members': corporation.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="Director").count() or request.user.is_superuser,
+        'view_members': corporation.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="roleDirector").count() or request.user.is_superuser,
     }
     return render_to_response(template, context, context_instance=RequestContext(request))

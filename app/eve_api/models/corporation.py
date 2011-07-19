@@ -41,11 +41,15 @@ class EVEPlayerCorporation(EVEAPIModel):
         return self.eveplayercharacter_set.filter(eveaccount__isnull=False).count()
 
     @property
+    def director_api_keys(self):
+        return self.directors.filter(eveaccount__isnull=False, eveaccount__api_keytype=API_KEYTYPE_FULL, eveaccount__api_status=API_STATUS_OK)
+
+    @property
     def api_key_coverage(self):
         """ Returns the percentage coverage of API keys for the corporation's members """
 
         # Check if we have a full director key, see if we can base our assumptions off what is in auth already
-        if self.directors.filter(eveaccount__isnull=False, eveaccount__api_keytype=API_KEYTYPE_FULL).count():
+        if self.director_api_keys.count():
             membercount = self.eveplayercharacter_set.count()
         else:
             membercount = self.member_count
