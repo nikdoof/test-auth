@@ -205,6 +205,7 @@ def eveapi_alliance(request, allianceid, template='eve_api/alliance.html'):
     context = {
         'alliance': alliance,
         'executor': alliance.executor.ceo_character,
+        'corporations': alliance.eveplayercorporation_set.exclude(member_count=0).order_by('name'),
     }
     return render_to_response(template, context, context_instance=RequestContext(request))
 
