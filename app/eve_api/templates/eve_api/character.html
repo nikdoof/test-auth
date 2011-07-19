@@ -18,7 +18,7 @@
 	
         {% if character.corporation.alliance %}
 	<div class="character_alliance">
-		<span><a href="{% url eveapi-alliance char.corporation.alliance.id %}">{{ character.corporation.alliance.ticker }}</a></span>
+		<span><a href="{% url eveapi-alliance character.corporation.alliance.id %}">{{ character.corporation.alliance.ticker }}</a></span>
 		<img src="https://image.eveonline.com/Alliance/{{ character.corporation.alliance.id }}_64.png" />
 	</div>
         {% endif %}
@@ -32,7 +32,7 @@
 			<li><span class="stat">Corporation:</span> <a href="{% url eveapi-corporation character.corporation.id %}">{{ character.corporation.name }}</a></span></li>
 			<li><span class="stat">Joined Corporation:</span> <span class="value">{{ character.corporation_date|date:"Y/m/d H:i:s" }} ({{ character.corporation_date|naturaltimediff }})</span></li>
                         {% if character.corporation.alliance %}
-			<li><span class="stat">Alliance:</span> <span class="value"><a href="{% url eveapi-alliance char.corporation.alliance.id %}">{{ character.corporation.alliance.name }}</a></span></li>
+			<li><span class="stat">Alliance:</span> <span class="value"><a href="{% url eveapi-alliance character.corporation.alliance.id %}">{{ character.corporation.alliance.name }}</a></span></li>
                         {% endif %}
 			<li><span class="stat">Security Status:</span> {{ character.security_status|floatformat:2 }}</span></li>
 			<li><span class="stat">Director:</span> <span class="value">{{ character.director }}</span></li>
