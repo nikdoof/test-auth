@@ -122,7 +122,8 @@ def import_corp_members(api_userid, api_key, character_id):
     auth_params = {'userID': api_userid, 'apiKey': api_key, 'characterID': character_id }
     char_doc = CachedDocument.objects.api_query('/corp/MemberTracking.xml.aspx',
                                                    params=auth_params,
-                                                   no_cache=False)
+                                                   no_cache=False,
+                                                   timeout=60)
 
     set = basic_xml_parse_doc(char_doc)
     if not 'eveapi' in set or not 'result' in set['eveapi']:
