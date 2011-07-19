@@ -177,6 +177,6 @@ def eveapi_corporation(request, corporationid):
     corporation = get_object_or_404(EVEPlayerCorporation, id=corporationid)
     if corporation.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="Director").count() or request.user.is_superuser:
         view_members = True
-        members = corporation.eveplayercharacter_set.select_related('eveaccount').order_by('corporation_date').only('id', 'name', 'corporation_date')
+        members = corporation.eveplayercharacter_set.select_related('eveaccount', 'roles').order_by('corporation_date').only('id', 'name', 'corporation_date')
 
     return render_to_response('eve_api/corporation.html', locals(), context_instance=RequestContext(request))
