@@ -28,6 +28,8 @@
         {% endfor %}
         </table>
         {% paginate %}
+
+        <p><a href="{% url eveapi-corporation-members-csv corporation.id %}">Export as CSV</a></p>
         {% endif %}
 
 </div>

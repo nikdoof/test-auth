@@ -1,3 +1,5 @@
+import csv
+
 import celery
 
 from django.http import HttpResponse
@@ -196,6 +198,27 @@ def eveapi_corporation(request, corporationid, template='eve_api/corporation.htm
         'view_members': corporation.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="roleDirector").count() or request.user.is_superuser,
     }
     return render_to_response(template, context, context_instance=RequestContext(request))
+
+
+@login_required
+def eveapi_corporation_members_csv(request, corporationid):
+
+    corporation = get_object_or_404(EVEPlayerCorporation, id=corporationid)
+
+    print corporation
+
+    if not corporation.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="roleDirector").count() and not request.user.is_superuser:
+        raise Http404
+
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=%s-members_export.csv' % corporation.id
+
+    writer = csv.writer(response)
+    writer.writerow(['Name', 'Skillpoints', 'Join Date', 'Last Login', 'Director?', 'Roles?', 'API Key?'])
+    for char in corporation.eveplayercharacter_set.all():
+        writer.writerow([char.name, char.total_sp, char.corporation_date, char.last_login, char.director, char.roles.count(), char.eveaccount_set.all().count()])
+
+    return response
 
 
 @login_required
