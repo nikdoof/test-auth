@@ -63,6 +63,8 @@ def eveapi_update(request, userid, post_save_redirect='/', template='eve_api/upd
         if form.is_valid():
             if form.has_changed() and ('api_key' in form.changed_data):
                 #acc = form.save()
+                acc.api_keytype = API_KEYTYPE_UKNOWN
+                acc.save()
                 task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, user=request.user.id)
                 try:
                     task.wait(30)
