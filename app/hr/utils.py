@@ -1,3 +1,5 @@
+import re
+
 from datetime import datetime
 from hr.app_defines import *
 from hr.models import Blacklist, Application
@@ -43,19 +45,19 @@ def blacklist_values(user):
     evechars = EVEPlayerCharacter.objects.filter(eveaccount__user=user).select_related('corporation', 'corporation__alliance')
 
     # Check Character blacklists
-    characters = evechars.values_list('name', flat=True)
+    characters = [re.escape(x) for x in evechars.values_list('name', flat=True)]
     if len(characters):
         objs = bl_items.filter(type=BLACKLIST_TYPE_CHARACTER, value__iregex=r'(' + '|'.join(characters) + ')')
         blacklist.extend(objs)
 
     # Check Corporation blacklists
-    corporations = evechars.values_list('corporation__name', flat=True)
+    corporations = [re.escape(x) for x in evechars.values_list('corporation__name', flat=True)]
     if len(corporations):
         objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__iregex=r'(' + '|'.join(corporations) + ')')
         blacklist.extend(objs)
 
     # Check Alliance blacklists
-    alliances = [x for x in evechars.values_list('corporation__alliance__name', flat=True) if x]
+    alliances = [re.escape(x) for x in evechars.values_list('corporation__alliance__name', flat=True) if x]
     if len(alliances):
         objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__iregex=r'(' + '|'.join([x for x in alliances if x]) + ')')
         blacklist.extend(objs)
