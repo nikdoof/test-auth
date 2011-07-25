@@ -47,19 +47,19 @@ def blacklist_values(user):
     # Check Character blacklists
     characters = [re.escape(x) for x in evechars.values_list('name', flat=True) if x]
     if len(characters):
-        objs = bl_items.filter(type=BLACKLIST_TYPE_CHARACTER, value__iregex=r'(' + '|'.join(characters) + ')')
+        objs = bl_items.filter(type=BLACKLIST_TYPE_CHARACTER, value__iregex=r'^(' + '|'.join(characters) + ')$')
         blacklist.extend(objs)
 
     # Check Corporation blacklists
     corporations = [re.escape(x) for x in evechars.values_list('corporation__name', flat=True) if x]
     if len(corporations):
-        objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__iregex=r'(' + '|'.join(corporations) + ')')
+        objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__iregex=r'^(' + '|'.join(corporations) + ')$')
         blacklist.extend(objs)
 
     # Check Alliance blacklists
     alliances = [re.escape(x) for x in evechars.values_list('corporation__alliance__name', flat=True) if x]
     if len(alliances):
-        objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__iregex=r'(' + '|'.join([x for x in alliances if x]) + ')')
+        objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__iregex=r'^(' + '|'.join([x for x in alliances if x]) + ')$')
         blacklist.extend(objs)
 
     # Check API Key blacklists
