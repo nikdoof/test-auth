@@ -121,6 +121,9 @@ class Audit(models.Model):
     def __unicode__(self):
         return u"(%s) %s: %s" % (self.get_event_display(), self.user, self.text)
 
+    class Meta:
+        get_latest_by = 'date'
+        ordering = ['date']
 
 class BlacklistSource(models.Model):
     """ Blacklist Source """
