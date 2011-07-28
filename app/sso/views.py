@@ -298,7 +298,7 @@ def toggle_reddit_tagging(request):
         tag = 'Enabled'
     else:
         tag = 'Disabled'
-    messages.add_message(request, message.INFO, "Reddit account tagging is now %s" % tag)
+    messages.add_message(request, messages.INFO, "Reddit account tagging is now %s" % tag)
 
     if profile.tag_reddit_accounts:
         name = profile.primary_character.name
