@@ -107,3 +107,11 @@ def update_service_groups(user_id):
         except:
             print "Error updating %s %s" % (service.service, service.service_uid)
             pass
+
+
+@task(ignore_result=True)
+def update_reddit_tag():
+    for sobj in SSOUser.objects.filter(tag_reddit_accounts=True)
+        if sobj.primary_character and sobj.user.redditaccount_set.count():
+            for redditacc in sobj.user.redditaccount_set.all():
+                update_user_flair.delay(redditacc.username, sobj.primary_character.name)

@@ -3,7 +3,7 @@ from urllib2 import HTTPError, URLError
 from celery.task import Task
 from celery.decorators import task
 from reddit.models import RedditAccount
-from reddit.api import Inbox, LoginError
+from reddit.api import Inbox, LoginError, Flair
 from django.conf import settings
 
 class send_reddit_message(Task):
@@ -81,4 +81,13 @@ def queue_account_updates(update_delay=604800, batch_size=50):
             acc.delete()
             continue
         update_account.delay(username=acc.pk)
+
+
+@task(ignore_result=True)
+def update_user_flair(username, character_name)
+    try:
+        ib = Flair(username=settings.REDDIT_USER, password=settings.REDDIT_PASSWORD)
+        ib.set_flair(settings.REDDIT_SUBREDDIT, username, character_name, '')
+    except LoginError, exc:
+        logger.error("Error logging into Reddit")
 

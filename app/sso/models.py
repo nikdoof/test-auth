@@ -37,6 +37,7 @@ class SSOUser(models.Model):
     user = models.ForeignKey(User, unique=True, related_name='profile')
 
     primary_character = models.ForeignKey(EVEPlayerCharacter, null=True)
+    tag_reddit_accounts = models.BooleanField("Tag Reddit Accounts?", default=False)
     api_service_password = models.CharField("API Services Password", max_length=200, blank=True)
 
     def __unicode__(self):
