@@ -21,6 +21,8 @@ from eve_api.tasks import import_apikey, import_apikey_result, update_user_acces
 
 from eve_proxy.models import ApiAccessLog
 
+from reddit.tasks import update_user_flair
+
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
 from sso.forms import UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm, EmailChangeForm, PrimaryCharacterForm
 
@@ -287,3 +289,21 @@ def primarychar_change(request):
 
     return render_to_response('sso/primarycharchange.html', locals(), context_instance=RequestContext(request))
 
+
+@login_required
+def toggle_reddit_tagging(request):
+    profile = request.user.get_profile()
+    profile.tag_reddit_accounts = not profile.tag_reddit_accounts
+    if profile.tag_reddit_accounts:
+        tag = 'Enabled'
+    else:
+        tag = 'Disabled'
+    messages.add_messages(request, message.INFO, "Reddit account tagging is now %s" % tag)
+
+    if profile.tag_reddit_accounts:
+        name = profile.primary_character.name
+    else:
+        name = ''
+    for acc in request.user.redditaccount_set.all():
+        update_user_flair.delay(acc.username, name)
+    return redirect('sso.views.profile')

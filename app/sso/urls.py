@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     (r'^profile/change/password/$', password_change),
     (r'^profile/change/email/$', views.email_change),
     (r'^profile/change/primary/$', views.primarychar_change),
+    (r'^profile/change/reddittag/$', views.toggle_reddit_tagging),
     (r'^users/(?P<username>.*)/$', views.user_view),
     (r'^users/$', views.user_lookup),
 )
