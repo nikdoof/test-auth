@@ -84,7 +84,7 @@ def queue_account_updates(update_delay=604800, batch_size=50):
 
 
 @task(ignore_result=True)
-def update_user_flair(username, character_name)
+def update_user_flair(username, character_name):
     try:
         ib = Flair(username=settings.REDDIT_USER, password=settings.REDDIT_PASSWORD)
         ib.set_flair(settings.REDDIT_SUBREDDIT, username, character_name, '')
