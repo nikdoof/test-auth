@@ -294,6 +294,7 @@ def primarychar_change(request):
 def toggle_reddit_tagging(request):
     profile = request.user.get_profile()
     profile.tag_reddit_accounts = not profile.tag_reddit_accounts
+    profile.save()
     if profile.tag_reddit_accounts:
         tag = 'Enabled'
     else:
