@@ -4,7 +4,8 @@ from celery.signals import task_failure
 from celery.decorators import task
 from sentry.client.handlers import SentryHandler
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
-from sso.models import ServiceAccount
+from sso.models import ServiceAccount, SSOUser
+from reddit.tasks import update_user_flair
 from django.contrib.auth.models import User
 from django.db.models import signals
 from utils import installed
