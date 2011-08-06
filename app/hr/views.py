@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from django.utils import simplejson
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -10,7 +10,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.conf import settings
 
-from utils import installed
+from utils import installed, blacklist_values
 
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter
 from hr.forms import CreateRecommendationForm, CreateApplicationForm, NoteForm, BlacklistUserForm, AdminNoteForm
@@ -64,6 +64,7 @@ def check_permissions(user, application=None):
 @login_required
 def index(request):
     hrstaff = check_permissions(request.user)
+    can_recommend = len(blacklist_values(request.user, BLACKLIST_LEVEL_ADVISORY))
     return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
 
 ### Application Management
@@ -135,6 +136,11 @@ def view_recommendations(request):
 
 @login_required
 def add_recommendation(request):
+    """ Add a recommendation to a user's application """
+
+    # If the person has a blacklist, stop recommendations
+    if len(blacklist_values(request.user, BLACKLIST_LEVEL_ADVISORY)):
+        raise Http404
 
     clsform = CreateRecommendationForm(request.user)
     if request.method == 'POST': 

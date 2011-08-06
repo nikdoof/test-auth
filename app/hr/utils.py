@@ -21,13 +21,13 @@ def installed(value):
     return False
 
 
-def blacklist_values(user):
+def blacklist_values(user, level=BLACKLIST_LEVEL_NOTE):
     """
     Returns a list of blacklist values that apply to the application
     """
 
     blacklist = []
-    bl_items = Blacklist.objects.filter(models.Q(expiry_date__gt=datetime.now()) | models.Q(expiry_date=None))
+    bl_items = Blacklist.objects.filter(level__lte=level, models.Q(expiry_date__gt=datetime.now()) | models.Q(expiry_date=None))
 
     # Check Reddit blacklists
     if installed('reddit'):
