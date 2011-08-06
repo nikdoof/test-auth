@@ -63,6 +63,12 @@ class RedditAPI:
 
         return False
 
+    @property
+    def loggedin(self):
+        if hasattr(self, 'login_cookie') and not self.login_cookie == '':
+            return True
+        return False
+
     def _request(self, url, data, method='GET'):
         if not hasattr(self, '_opener'):
             self._opener = urllib2.build_opener(urllib2.HTTPCookieProcessor())
@@ -149,7 +155,7 @@ class Inbox(RedditAPI):
     @property
     def _inbox_data(self):
 
-        if not self.login_cookie:
+        if not self.loggedin:
             raise NotLoggedIn
 
         if not hasattr(self, '__inbox_cache') or not len(self.__inbox_cache):
@@ -174,7 +180,7 @@ class Inbox(RedditAPI):
         return self._inbox_data.__iter__()
 
     def send(self, to, subject, text):
-        if not hasattr(self, 'login_cookie') or not self.login_cookie:
+        if not self.loggedin:
             raise NotLoggedIn
 
         data = { 'to': to,
@@ -196,7 +202,7 @@ class Flair(RedditAPI):
 
     def flairlist(self, subreddit, start=None):
 
-        if not self.login_cookie:
+        if not self.loggedin:
             raise NotLoggedIn
 
         data = { 'r': subreddit, 'limit': 1000, 'uh': self.modhash }
@@ -218,6 +224,9 @@ class Flair(RedditAPI):
         return self.set_flair(subreddit, user, '', '')
 
     def set_flair(self, subreddit, user, text, css_class):
+
+        if not self.loggedin:
+            raise NotLoggedIn
 
         data = { 'r': subreddit, 'name': user, 'uh': self.modhash, 'text': text, 'css_class': css_class }
         url = self._url(self.REDDIT_API_FLAIR)
