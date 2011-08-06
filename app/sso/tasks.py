@@ -51,7 +51,7 @@ def update_user_access(user, **kwargs):
             for char in eacc.characters.all():
                 if char.corporation.group:
                     chargroups.append(char.corporation.group)
-                if char.corporation.alliance and char.corporation.alliance.group:
+                elif char.corporation.alliance and char.corporation.alliance.group:
                         chargroups.append(char.corporation.alliance.group)
 
     # Generate the list of groups to add/remove
