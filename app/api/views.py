@@ -9,7 +9,7 @@ from piston.models import Token
 
 @login_required
 def oauth_callback_view(request, token):
-    return render_to_response('piston/callback_view.html', {'token': token })
+    return render_to_response('piston/callback_view.html', {'token': token }, context_instance=RequestContext(request))
 
 
 @login_required
