@@ -30,7 +30,7 @@ class MumbleSQLService(BaseDBService):
     def _gen_pwhash(password):
         return hashlib.sha1(password).hexdigest()
 
-    def _gen_name(character):
+    def _gen_name(self, character):
         details = { 'name': character.name,
                     'corporation': character.corporation.ticker }
         if character.corporation.alliance:
