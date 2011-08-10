@@ -67,7 +67,7 @@ class EVEPlayerCorporationInline(admin.TabularInline):
 
 class EVEPlayerAllianceAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'ticker', 'member_count', 'date_founded')
-    list_filter = ('group')
+    list_filter = ('group',)
     search_fields = ['name', 'ticker']
     date_hierarchy = 'date_founded'
     readonly_fields = ('name', 'ticker', 'executor', 'member_count', 'date_founded')
@@ -84,7 +84,7 @@ admin.site.register(EVEPlayerAlliance, EVEPlayerAllianceAdmin)
 
 class EVEPlayerCorporationAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'ticker', 'member_count', 'alliance')
-    list_filter = ('group')
+    list_filter = ('group',)
     search_fields = ['name', 'ticker']
     readonly_fields = ('name', 'ticker', 'description', 'url', 'ceo_character', 'alliance', 'alliance_join_date', 'tax_rate', 'member_count', 'shares')
     exclude = ('logo_graphic_id', 'logo_shape1', 'logo_shape2', 'logo_shape3', 'logo_color1', 'logo_color2', 'logo_color3')
