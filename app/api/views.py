@@ -26,7 +26,7 @@ def oauth_auth_view(request, token, callback, params):
 @login_required
 def oauth_list_tokens(request):
     # List all Access tokens
-    tokens = Token.objects.filter(token_type=Token.ACCESS)
+    tokens = Token.objects.filter(token_type=Token.ACCESS, user=request.user)
     return render_to_response('api/view_tokens.html', { 'tokens': tokens, 'request': request }, context_instance=RequestContext(request))
 
 
