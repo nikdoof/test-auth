@@ -131,7 +131,7 @@ class MumbleSQLService(BaseDBService):
         remgroups = user_groups - act_groups
 
         for g in addgroups:
-            if not g in mumble_groups
+            if not g in mumble_groups:
                 mumble_groups[g] = self._add_group(g)
             self._add_user_group(userid, mumble_groups[g])
 
