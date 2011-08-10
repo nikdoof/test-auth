@@ -170,12 +170,12 @@ class OpTimerHandler(BaseHandler):
                     if endsIn > 0:
                         event = {
                             'startsIn': startsIn,
-                            'eventID': node.getAttribute('eventID'),
+                            'eventID': int(node.getAttribute('eventID')),
                             'ownerName': node.getAttribute('ownerName'),
                             'eventDate': date,
                             'eventTitle': node.getAttribute('eventTitle'),
                             'duration': duration,
-                            'isImportant': node.getAttribute('importance'),
+                            'isImportant': int(node.getAttribute('importance')),
                             'eventText': node.getAttribute('eventText'),
                             'endsIn':endsIn,
                             'forumLink': forumlink}                

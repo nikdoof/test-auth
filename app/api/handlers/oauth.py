@@ -76,12 +76,12 @@ class OAuthOpTimerHandler(BaseHandler):
                         if endsIn > 0:
                             event = {
                                 'startsIn': startsIn,
-                                'eventID': node.getAttribute('eventID'),
+                                'eventID': int(node.getAttribute('eventID')),
                                 'ownerName': node.getAttribute('ownerName'),
                                 'eventDate': date,
                                 'eventTitle': node.getAttribute('eventTitle'),
                                 'duration': duration,
-                                'isImportant': node.getAttribute('importance'),
+                                'isImportant': int(node.getAttribute('importance')),
                                 'eventText': node.getAttribute('eventText'),
                                 'endsIn':endsIn,
                                 'forumLink': forumlink}                
@@ -90,12 +90,12 @@ class OAuthOpTimerHandler(BaseHandler):
         if len(events) == 0:
             return {'ops':[{
                 'startsIn': -1,
-                'eventID': '0',
+                'eventID': 0,
                 'ownerName': '',
                 'eventDate': '',
                 'eventTitle': '<div style="text-align:center">No ops are currently scheduled</div>',
                 'duration': 0,
-                'isImportant': '0',
+                'isImportant': 0,
                 'eventText': 'Add ops using EVE-Gate or the in-game calendar',
                 'endsIn':-1,
                 'forumLink': ''}]}
