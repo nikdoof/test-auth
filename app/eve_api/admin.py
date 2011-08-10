@@ -47,6 +47,10 @@ class EVEPlayerCharacterAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def has_delete_permission(self, request):
+        return False
+
+
 admin.site.register(EVEPlayerCharacter, EVEPlayerCharacterAdmin)
 
 class EVEPlayerCharacterRoleAdmin(admin.ModelAdmin):
@@ -55,6 +59,10 @@ class EVEPlayerCharacterRoleAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def has_delete_permission(self, request):
+        return False
+
 
 admin.site.register(EVEPlayerCharacterRole, EVEPlayerCharacterRoleAdmin)
 
@@ -66,24 +74,37 @@ class EVEPlayerCorporationInline(admin.TabularInline):
     def has_add_permission(self, request):
         return False
 
+    def has_delete_permission(self, request):
+        return False
+
 
 class EVEPlayerAllianceAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'ticker', 'member_count', 'date_founded')
     search_fields = ['name', 'ticker']
     date_hierarchy = 'date_founded'
+    readonly_fields = ('name', 'ticker', 'executor', 'member_count', 'date_founded')
     inlines = [EVEPlayerCorporationInline]
 
     def has_add_permission(self, request):
         return False
+
+    def has_delete_permission(self, request):
+        return False
+
 
 admin.site.register(EVEPlayerAlliance, EVEPlayerAllianceAdmin)
 
 class EVEPlayerCorporationAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'ticker', 'member_count', 'alliance')
     search_fields = ['name', 'ticker']
+    readonly_fields = ('name', 'ticker', 'description', 'url', 'ceo_character', 'alliance', 'alliance_join_date', 'tax_rate', 'member_count', 'shares')
 
     def has_add_permission(self, request):
         return False
+
+    def has_delete_permission(self, request):
+        return False
+
 
 admin.site.register(EVEPlayerCorporation, EVEPlayerCorporationAdmin)
 
@@ -94,6 +115,10 @@ class EVESkillAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def has_delete_permission(self, request):
+        return False
+
+
 admin.site.register(EVESkill, EVESkillAdmin)
 
 class EVESkillGroupAdmin(admin.ModelAdmin):
@@ -102,6 +127,10 @@ class EVESkillGroupAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def has_delete_permission(self, request):
+        return False
+
 
 admin.site.register(EVESkillGroup, EVESkillGroupAdmin)
 
