@@ -7,8 +7,9 @@ from django.contrib import messages
 from piston import forms
 from piston.models import Token
 
-def oauth_callback_view(request, other):
-    return HttpResponse("The application you allowed access to didn't request a callback, thats odd and should be fixed")
+@login_required
+def oauth_callback_view(request, token):
+    return render_to_response('piston/callback_view.html', {'token': token })
 
 
 @login_required
