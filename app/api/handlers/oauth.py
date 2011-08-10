@@ -37,10 +37,7 @@ class OAuthOpTimerHandler(BaseHandler):
 
     def read(self, request, id=None):
 
-        objs = EVEAccount.objects.filter(user=request.user, api_keytype=API_KEYTYPE_FULL)
-
-        if not objs.count():
-            objs = [get_object_or_404(EVEAccount, pk=settings.FULL_API_USER_ID)]
+        objs = [get_object_or_404(EVEAccount, pk=settings.FULL_API_USER_ID)]
 
         events = []
         for obj in objs:
@@ -93,12 +90,12 @@ class OAuthOpTimerHandler(BaseHandler):
         if len(events) == 0:
             return {'ops':[{
                 'startsIn': -1,
-                'eventID': 0,
+                'eventID': '0',
                 'ownerName': '',
                 'eventDate': '',
                 'eventTitle': '<div style="text-align:center">No ops are currently scheduled</div>',
                 'duration': 0,
-                'isImportant': 0,
+                'isImportant': '0',
                 'eventText': 'Add ops using EVE-Gate or the in-game calendar',
                 'endsIn':-1,
                 'forumLink': ''}]}
