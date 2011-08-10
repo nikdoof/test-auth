@@ -31,6 +31,10 @@ class MumbleSQLService(BaseDBService):
             details['alliance'] = None
         return self.settings['name_format'] % details
 
+    def _add_log(self, log):
+        self.dbcursor.execute(r"INSERT INTO murmur_slog (server_id, msg) VALUES (%s, %s)", [self.settings['server_id'], log])
+        self.commit()
+
     def _get_id(self, name):
         self.dbcursor.execute(r"SELECT user_id from murmur_users WHERE name = %s AND server_id = %s", [name, self.settings['server_id']])
         row = self.dbcursor.fetchone()
@@ -70,6 +74,7 @@ class MumbleSQLService(BaseDBService):
     def _add_user_group(self, userid, groupid):
         self.dbcursor.execute(r"INSERT INTO murmur_group_members (group_id, server_id, user_id, addit) VALUES (%s, %s, %s, 1)", [groupid, self.settings['server_id'], userid])
         self.commit()
+        self._add_log("Added user id %s to group id %s" % (userid, groupid))
 
     def _rem_user_group(self, userid, groupid):
         self.dbcursor.execute(r"DELETE FROM murmur_group_members WHERE group_id = %s AND server_id = %s AND user_id = %s", [groupid, self.settings['server_id'], userid])
@@ -98,6 +103,7 @@ class MumbleSQLService(BaseDBService):
         """ Delete a user """
         id = self._get_id(uid)
         self.dbcursor.execute(r"DELETE FROM murmur_users WHERE user_id = %s AND server_id = %s", [id, self.settings['server_id']])
+        self.commit()
         return True
 
     def disable_user(self, username):
