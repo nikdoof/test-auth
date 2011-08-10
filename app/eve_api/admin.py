@@ -42,6 +42,8 @@ admin.site.register(EVEAccount, EVEAccountAdmin)
 class EVEPlayerCharacterAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'corporation')
     search_fields = ['id', 'name']
+    fields = ('name', 'corporation', 'corporation_date', 'total_sp', 'last_login', 'last_logoff')
+    readonly_fields = ('name', 'corporation', 'corporation_date', 'total_sp', 'last_login', 'last_logoff')
     actions = [char_api_update]
 
     def has_add_permission(self, request):
