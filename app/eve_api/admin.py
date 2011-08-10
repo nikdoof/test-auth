@@ -44,11 +44,17 @@ class EVEPlayerCharacterAdmin(admin.ModelAdmin):
     search_fields = ['id', 'name']
     actions = [char_api_update]
 
+    def has_add_permission(self, request):
+        return False
+
 admin.site.register(EVEPlayerCharacter, EVEPlayerCharacterAdmin)
 
 class EVEPlayerCharacterRoleAdmin(admin.ModelAdmin):
     list_display = ('id', 'roleid', 'name')
     search_fields = ['roleid', 'name']
+
+    def has_add_permission(self, request):
+        return False
 
 admin.site.register(EVEPlayerCharacterRole, EVEPlayerCharacterRoleAdmin)
 
@@ -57,25 +63,45 @@ class EVEPlayerCorporationInline(admin.TabularInline):
     fields = ('name', 'ticker')
     extra = 0
 
+    def has_add_permission(self, request):
+        return False
+
+
 class EVEPlayerAllianceAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'ticker', 'member_count', 'date_founded')
     search_fields = ['name', 'ticker']
     date_hierarchy = 'date_founded'
     inlines = [EVEPlayerCorporationInline]
+
+    def has_add_permission(self, request):
+        return False
+
 admin.site.register(EVEPlayerAlliance, EVEPlayerAllianceAdmin)
 
 class EVEPlayerCorporationAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'ticker', 'member_count', 'alliance')
     search_fields = ['name', 'ticker']
+
+    def has_add_permission(self, request):
+        return False
+
 admin.site.register(EVEPlayerCorporation, EVEPlayerCorporationAdmin)
 
 class EVESkillAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'group' )
     search_fields = ['id', 'name']
+
+    def has_add_permission(self, request):
+        return False
+
 admin.site.register(EVESkill, EVESkillAdmin)
 
 class EVESkillGroupAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', )
     search_fields = ['id', 'name']
+
+    def has_add_permission(self, request):
+        return False
+
 admin.site.register(EVESkillGroup, EVESkillGroupAdmin)
 
