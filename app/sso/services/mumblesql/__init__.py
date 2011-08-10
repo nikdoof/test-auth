@@ -47,7 +47,7 @@ class MumbleSQLService(BaseDBService):
         userid = self.dbcursor.fetchone()[0]
 
         self.dbcursor.execute(self.SQL_ADD_USER, [self.settings['server_id'], userid, username, self._gen_pwhash(password)])
-        transaction.commit_unless_managed()
+        self.commit()
         return { 'username': username, 'password': password }
 
     def check_user(self, username):
@@ -67,13 +67,13 @@ class MumbleSQLService(BaseDBService):
     def disable_user(self, uid):
         """ Disable a user """
         self.dbcursor.execute(self.SQL_DIS_USER, [uid])
-        transaction.commit_unless_managed()
+        self.commit()
         return True
 
     def enable_user(self, uid, password):
         """ Enable a user """
         self.dbcursor.execute(self.SQL_ENABLE_USER, [self._gen_pwhash(password), uid])
-        transaction.commit_unless_managed()
+        self.commit()
         return True
 
     def reset_password(self, uid, password):

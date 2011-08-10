@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.db import connections
+from django.db import connections, transaction
 
 def get_api(api):
 
@@ -81,4 +81,7 @@ class BaseDBService(BaseService):
         if not hasattr(self, '_dbcursor'):
             self._dbcursor = self.db.cursor()
         return self._dbcursor
+
+    def commit(self):
+        transaction.commit_unless_managed(using=self.settings['database_name'])
 
