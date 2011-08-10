@@ -53,7 +53,7 @@ class MumbleSQLService(BaseDBService):
         """ Check if the username exists """
         self.dbcursor.execute(self.SQL_CHECK_USER, [username])
         row = self.dbcursor.fetchone()
-        if row[0].lower() == username.lower():
+        if row and row[0].lower() == username.lower():
             return True        
         return False
 
