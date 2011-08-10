@@ -27,7 +27,7 @@ def blacklist_values(user, level=BLACKLIST_LEVEL_NOTE):
     """
 
     blacklist = []
-    bl_items = Blacklist.objects.filter(level__lte=level, models.Q(expiry_date__gt=datetime.now()) | models.Q(expiry_date=None))
+    bl_items = Blacklist.objects.filter(models.Q(expiry_date__gt=datetime.now()) | models.Q(expiry_date=None), level__lte=level)
 
     # Check Reddit blacklists
     if installed('reddit'):

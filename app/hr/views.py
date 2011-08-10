@@ -64,7 +64,9 @@ def check_permissions(user, application=None):
 @login_required
 def index(request):
     hrstaff = check_permissions(request.user)
-    can_recommend = len(blacklist_values(request.user, BLACKLIST_LEVEL_ADVISORY))
+    can_recommend = False
+    if len(blacklist_values(request.user, BLACKLIST_LEVEL_ADVISORY)) == 0:
+        can_recommend = True
     return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
 
 ### Application Management
