@@ -83,11 +83,22 @@ def queue_account_updates(update_delay=604800, batch_size=50):
         update_account.delay(username=acc.pk)
 
 
-@task(ignore_result=True)
-def update_user_flair(username, character_name):
-    try:
-        ib = Flair(username=settings.REDDIT_USER, password=settings.REDDIT_PASSWORD)
-        ib.set_flair(settings.REDDIT_SUBREDDIT, username, character_name, '')
-    except LoginError, exc:
-        logger.error("Error logging into Reddit")
+class update_user_flair(Task):
+    """
+    Updates a user's flair on Reddit
+    """
+
+    default_retry_delay = 5 * 60 # retry in 5 minutes
+    ignore_result = True
+
+    def run(self, username, character_name, **kwargs):
+        try:
+            ib = Flair(username=settings.REDDIT_USER, password=settings.REDDIT_PASSWORD)
+            ib.set_flair(settings.REDDIT_SUBREDDIT, username, character_name, '')
+        except (HTTPError, URLError), exc:
+            logger.error("Error updating flair, queueing for retry")
+            update_user_flair.retry(args=[username, character_name], kwargs=kwargs, exc=exc)
+            pass
+        except LoginError, exc:
+            logger.error("Error logging into Reddit")
 

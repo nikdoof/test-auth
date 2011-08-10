@@ -293,18 +293,22 @@ def primarychar_change(request):
 @login_required
 def toggle_reddit_tagging(request):
     profile = request.user.get_profile()
-    profile.tag_reddit_accounts = not profile.tag_reddit_accounts
-    profile.save()
-    if profile.tag_reddit_accounts:
-        tag = 'Enabled'
-    else:
-        tag = 'Disabled'
-    messages.add_message(request, messages.INFO, "Reddit account tagging is now %s" % tag)
+    if profile.primary_character:
+        profile.tag_reddit_accounts = not profile.tag_reddit_accounts
+        profile.save()
+        if profile.tag_reddit_accounts:
+            tag = 'Enabled'
+        else:
+            tag = 'Disabled'
+        messages.add_message(request, messages.INFO, "Reddit account tagging is now %s" % tag)
 
-    if profile.tag_reddit_accounts:
-        name = profile.primary_character.name
+        if profile.tag_reddit_accounts:
+            name = profile.primary_character.name
+        else:
+            name = ''
+        for acc in request.user.redditaccount_set.all():
+            update_user_flair.delay(acc.username, name)
     else:
-        name = ''
-    for acc in request.user.redditaccount_set.all():
-        update_user_flair.delay(acc.username, name)
+        messages.add_message(request, messages.ERROR, "You need to set a primary character before using this feature!")
+
     return redirect('sso.views.profile')
