@@ -98,13 +98,13 @@ class MumbleSQLService(BaseDBService):
         """ Delete a user """
         id = self._get_id(uid)
         self.dbcursor.execute(r"DELETE FROM murmur_users WHERE user_id = %s AND server_id = %s", [id, self.settings['server_id']])
-        self.dbcursor.execute(r"DELETE FROM murmur_group_members WHERE user_id = %s AND server_id = %s", [id, self.settings['server_id']])
         return True
 
     def disable_user(self, username):
         """ Disable a user """
         uid = self._get_id(username)
         self.dbcursor.execute(r"UPDATE murmur_users SET pw = null WHERE user_id = %s AND server_id = %s", [uid, self.settings['server_id']])
+        self.commit()
         self.dbcursor.execute(r"DELETE FROM murmur_user_info WHERE user_id = %s AND server_id = %s AND key = 3", [uid, self.settings['server_id']])
         self.commit()
         return True
