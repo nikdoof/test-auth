@@ -17,8 +17,8 @@ class EVEPlayerAlliance(EVEAPIModel):
     class Meta:
         app_label = 'eve_api'
         ordering = ['date_founded']
-        verbose_name = 'Player Alliance'
-        verbose_name_plural = 'Player Alliances'
+        verbose_name = 'Alliance'
+        verbose_name_plural = 'Alliances'
 
     def __unicode__(self):
         if self.name:

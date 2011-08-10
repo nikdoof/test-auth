@@ -69,8 +69,8 @@ class EVEPlayerCorporation(EVEAPIModel):
 
     class Meta:
         app_label = 'eve_api'
-        verbose_name = 'Player Corporation'
-        verbose_name_plural = 'Player Corporations'
+        verbose_name = 'Corporation'
+        verbose_name_plural = 'Corporations'
 
     def __unicode__(self):
         if self.name:

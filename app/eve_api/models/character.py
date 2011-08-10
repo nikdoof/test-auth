@@ -86,8 +86,8 @@ class EVEPlayerCharacter(EVEAPIModel):
 
     class Meta:
         app_label = 'eve_api'
-        verbose_name = 'Player Character'
-        verbose_name_plural = 'Player Characters'
+        verbose_name = 'Character'
+        verbose_name_plural = 'Characters'
 
         permissions = (
             ("can_view_all_characters", "Can view any character profile"),

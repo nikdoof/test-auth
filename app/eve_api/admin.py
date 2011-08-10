@@ -53,19 +53,6 @@ class EVEPlayerCharacterAdmin(admin.ModelAdmin):
 
 admin.site.register(EVEPlayerCharacter, EVEPlayerCharacterAdmin)
 
-class EVEPlayerCharacterRoleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'roleid', 'name')
-    search_fields = ['roleid', 'name']
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-
-admin.site.register(EVEPlayerCharacterRole, EVEPlayerCharacterRoleAdmin)
-
 class EVEPlayerCorporationInline(admin.TabularInline):
     model = EVEPlayerCorporation
     fields = ('name', 'ticker')
@@ -98,6 +85,7 @@ class EVEPlayerCorporationAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'ticker', 'member_count', 'alliance')
     search_fields = ['name', 'ticker']
     readonly_fields = ('name', 'ticker', 'description', 'url', 'ceo_character', 'alliance', 'alliance_join_date', 'tax_rate', 'member_count', 'shares')
+    exclude = ('logo_graphic_id', 'logo_shape1', 'logo_shape2', 'logo_shape3', 'logo_color1', 'logo_color2', 'logo_color3')
 
     def has_add_permission(self, request):
         return False
@@ -107,30 +95,3 @@ class EVEPlayerCorporationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(EVEPlayerCorporation, EVEPlayerCorporationAdmin)
-
-class EVESkillAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'group' )
-    search_fields = ['id', 'name']
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-
-admin.site.register(EVESkill, EVESkillAdmin)
-
-class EVESkillGroupAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', )
-    search_fields = ['id', 'name']
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-
-admin.site.register(EVESkillGroup, EVESkillGroupAdmin)
-
