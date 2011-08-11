@@ -26,7 +26,7 @@ def eveapi_add(request, post_save_redirect='/', template='eve_api/add.html'):
     if request.method == 'POST':
         form = EveAPIForm(request.POST)
         if form.is_valid():
-            task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, user=request.user.id)
+            task = import_apikey_result.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['api_user_id'], user=request.user.id)
             try:
                 task.wait(10)
             except celery.exceptions.TimeoutError:
