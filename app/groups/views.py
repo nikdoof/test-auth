@@ -136,7 +136,7 @@ def admin_group(request, groupid):
 
             char = member.get_profile().primary_character
             if char:
-                charname = "[%s]%s" % char.corporation.ticker, char.name
+                charname = "[%s]%s" % (char.corporation.ticker, char.name)
             else:
                 charname = "Unknown"
 
