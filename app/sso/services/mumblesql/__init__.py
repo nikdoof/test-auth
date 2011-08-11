@@ -128,7 +128,7 @@ class MumbleSQLService(BaseDBService):
     def update_groups(self, username, groups, character=None):
         """ Update user's groups """
 
-        userid = self._get_id(uid)
+        userid = self._get_id(username)
         mumble_groups = self._get_groups()
         user_groups = set(self._get_user_groups(userid))
         act_groups = set([g.name.replace(' ', '-').lower() for g in groups])
