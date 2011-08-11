@@ -134,11 +134,13 @@ def admin_group(request, groupid):
             else:
                 status = "Member"
 
-            chars = []
-            for acc in member.eveaccount_set.all():
-                chars.extend(acc.characters.all().values_list('name', flat=True))
+            char = member.get_profile().primary_character
+            if char:
+                charname = "[%s]%s" % char.corporation.ticker, char.name
+            else:
+                charname = "Unknown"
 
-            member_list.append((member, ', '.join(chars), status))
+            member_list.append((member, charname, status))
 
         requests = group.requests.filter(status=REQUEST_PENDING)
         return render_to_response('groups/group_admin.html', locals(), context_instance=RequestContext(request))

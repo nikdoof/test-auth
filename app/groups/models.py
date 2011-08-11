@@ -50,6 +50,14 @@ class GroupRequest(models.Model):
 
     created_date = models.DateTimeField("Created Date/Time", auto_now_add=True)
 
+    @property
+    def character(self):
+        char = self.user.get_profile().primary_character
+        if char:
+            return "[%s]%s" % (char.corporation.ticker, char.name)
+        else:
+            return "Unknown"
+
     def __unicode__(self):
         return u'%s - %s' % (self.user, self.group)
 

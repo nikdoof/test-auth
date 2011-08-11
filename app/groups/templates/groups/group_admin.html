@@ -8,7 +8,7 @@
 
 {% if group.user_set.all %}
 <table>
-<tr><th>Member Username</th><th>Characters</th><th>Status</th><th>Actions</th></tr>
+<tr><th>Member Username</th><th>Character</th><th>Status</th><th>Actions</th></tr>
 {% for user, chars, status in member_list %}
 <tr><td><a href="{% url sso.views.user_view user.username %}">{{ user.username }}</a></td>
     <td>{{ chars }}</td>
@@ -26,9 +26,10 @@
 
 {% if requests %}
 <table>
-<tr><th>Username</th><th>Reason</th><th>Status</th><th>Created Date</th><th>Actions</th></tr>
+<tr><th>Username</th><th>Character</th><th>Reason</th><th>Status</th><th>Created Date</th><th>Actions</th></tr>
 {% for req in requests %}
 <tr><td><a href="{% url sso.views.user_view req.user.username %}">{{ req.user }}</a></td>
+    <td>{{ req.character }}</td>
     <td>{{ req.reason }}</td>
     <td>{{ req.get_status_description }}</td>
     <td>{{ req.created_date }}</td>
