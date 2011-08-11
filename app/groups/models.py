@@ -54,7 +54,7 @@ class GroupRequest(models.Model):
     def character(self):
         char = self.user.get_profile().primary_character
         if char:
-            return "[%s]%s" % (char.corporation.ticker, char.name)
+            return "[%s] %s" % (char.corporation.ticker, char.name)
         else:
             return "Unknown"
 
