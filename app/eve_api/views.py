@@ -26,8 +26,6 @@ def eveapi_add(request, post_save_redirect='/', template='eve_api/add.html'):
     if request.method == 'POST':
         form = EveAPIForm(request.POST)
         if form.is_valid():
-
-            acc = form.save()
             task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, user=request.user.id)
             try:
                 task.wait(10)
@@ -62,9 +60,6 @@ def eveapi_update(request, userid, post_save_redirect='/', template='eve_api/upd
         form = EveAPIForm(request.POST, instance=acc)
         if form.is_valid():
             if form.has_changed() and ('api_key' in form.changed_data):
-                #acc = form.save()
-                acc.api_keytype = API_KEYTYPE_UNKNOWN
-                acc.save()
                 task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, user=request.user.id)
                 try:
                     task.wait(30)
