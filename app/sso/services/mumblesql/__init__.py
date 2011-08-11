@@ -42,7 +42,7 @@ class MumbleSQLService(BaseDBService):
             return row[0]
 
     def _get_groups(self):
-        self.dbcursor.execute(r"SELECT group_id, name FROM murmur_groups WHERE server_id = % AND channel_id = 0", [self.settings['server_id']])
+        self.dbcursor.execute(r"SELECT group_id, name FROM murmur_groups WHERE server_id = %s AND channel_id = 0", [self.settings['server_id']])
         rows = self.dbcursor.fetchall()
 
         out = {}
@@ -52,12 +52,13 @@ class MumbleSQLService(BaseDBService):
         return out
 
     def _get_group(self, name):
-        self.dbcursor.execute(r"SELECT group_id, name FROM murmur_groups WHERE server_id = % AND channel_id = 0 AND name = %s", [self.settings['server_id'], name])
+        self.dbcursor.execute(r"SELECT group_id, name FROM murmur_groups WHERE server_id = %s AND channel_id = 0 AND name = %s", [self.settings['server_id'], name])
         row = self.dbcursor.fetchone()
         if row:
             return row[0]
 
     def _get_user_groups(self, name):
+        user_id = self._get_id(name)
         self.dbcursor.execute(r"SELECT murmur_groups.name FROM murmur_groups, murmur_group_members WHERE murmur_group_members.group_id = murmur_groups.group_id AND murmur_group_members.server_id = murmur_groups.server_id AND murmur_group_members.user_id = %s", [user_id])
         return [row[0] for row in self.dbcursor.fetchall()]
 
