@@ -42,7 +42,9 @@ def import_alliance_details():
             EVEPlayerCorporation.objects.filter(id__in=members).update(alliance=allobj)
             EVEPlayerCorporation.objects.filter(alliance=allobj).exclude(id__in=members).update(alliance=None)
 
-            for id in members:
+            # Import any corps missing from DB
+            importlist = set(members) - set(EVEPlayerCorporation.objects.filter(id__in=members).values_list('id', flat=True))
+            for id in importlist:
                 import_corp_details.delay(id)
     else:
         # We got a error, retry
