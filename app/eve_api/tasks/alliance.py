@@ -38,7 +38,7 @@ def import_alliance_details():
             allobj.api_last_updated = datetime.utcnow()
             allobj.save()
 
-            members = [int(corp['corporationID']) for corp in alliance['memberCorporations']
+            members = [int(corp['corporationID']) for corp in alliance['memberCorporations']]
             EVEPlayerCorporation.objects.filter(id__in=members).update(alliance=allobj)
             EVEPlayerCorporation.objects.filter(alliance=allobj).exclude(id__in=members).update(alliance=None)
 
