@@ -27,7 +27,7 @@ def CreateRecommendationForm(user):
 def CreateApplicationForm(user):
     """ Generate a Application form based on the user's permissions """
 
-    characters = EVEPlayerCharacter.objects.filter(eveaccount__user=user, eveaccount__status=API_STATUS_OK)
+    characters = EVEPlayerCharacter.objects.filter(eveaccount__user=user, eveaccount__api_status=API_STATUS_OK)
     corporations = EVEPlayerCorporation.objects.filter(application_config__is_accepting=True)
 
     class ApplicationForm(forms.Form):
