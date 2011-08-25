@@ -92,6 +92,8 @@ class EveAPIHandler(BaseHandler):
     exclude = ('api_key')
 
     def read(self, request):
+
+        s = None
         if request.GET.get('id', None):
             s = get_object_or_404(EVEAccount, pk=id)
         elif request.GET.get('userid', None):
@@ -101,7 +103,10 @@ class EveAPIHandler(BaseHandler):
         elif request.GET.get('allianceid', None):
             s = EVEAccount.objects.filter(characters__corporation__alliance__id=request.GET['allianceid'])
 
-        return {'keys': s.values('api_user_id', 'user_id', 'api_status', 'api_last_updated')}
+        if s:
+            return {'keys': s.values('api_user_id', 'user_id', 'api_status', 'api_last_updated')}
+
+        return {'keys': []}
 
 
 class EveAPIProxyHandler(BaseHandler):
