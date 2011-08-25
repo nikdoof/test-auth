@@ -7,7 +7,7 @@ from django.forms.extras.widgets import SelectDateWidget
 from hr.app_defines import *
 from hr.models import Application, Audit, TemplateMessage
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
-
+from eve_api.app_defines import API_STATUS_OK
 
 def CreateRecommendationForm(user):
     """ Generate a Recommendation form based on the user's permissions """
@@ -27,7 +27,7 @@ def CreateRecommendationForm(user):
 def CreateApplicationForm(user):
     """ Generate a Application form based on the user's permissions """
 
-    characters = EVEPlayerCharacter.objects.filter(eveaccount__user=user)
+    characters = EVEPlayerCharacter.objects.filter(eveaccount__user=user, eveaccount__status=API_STATUS_OK)
     corporations = EVEPlayerCorporation.objects.filter(application_config__is_accepting=True)
 
     class ApplicationForm(forms.Form):
