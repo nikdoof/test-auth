@@ -62,6 +62,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.humanize',
     'django.contrib.staticfiles',
+    'nexus',
+    'gargoyle',
     'sentry',
     'sentry.client',
     'south',

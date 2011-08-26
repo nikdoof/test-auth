@@ -30,7 +30,7 @@
                     <li><a href="{% url sso.views.user_lookup %}">Lookup User</a></li>
                 {% endif %}
                 {% if request.user.is_staff %}
-                    <li><a href="/admin/">Admin</a></li>
+                    <li><a href="/nexus/">Admin</a></li>
                 {% endif %}
                     <li><a href="{% url django.contrib.auth.views.logout %}">Logout</a></li>
             {% else %}
