@@ -6,6 +6,7 @@
 <p>Please fill in a reason why you like to be a member of this group and any supporting evidence as requested by the group adminship</p>
 
 <form action="{% url groups.views.create_request groupid %}" method="post">
+{% csrf_token %}
 <table>
 {{ form.as_table }}
 </table>

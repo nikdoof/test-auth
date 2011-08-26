@@ -5,6 +5,7 @@
 {% block content %}
 <h1>User Lookup</h1>
 <form action="{% url sso.views.user_lookup %}" method="post">
+{% csrf_token %}
 <table>
 {{ form.as_table }}
 </table>
