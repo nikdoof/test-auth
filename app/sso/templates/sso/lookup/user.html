@@ -2,6 +2,7 @@
 
 {% load naturaltimediff %}
 {% load installed %}
+{% load gargoyle_tags %}
 
 {% block content %}
 
@@ -108,6 +109,7 @@
 {% endif %}
 
 {% if "reddit"|installed %}
+{% ifswitch reddit %}
 <br/>
 <h2>Reddit Accounts</h2>
 {% if user.redditaccount_set.all %}
@@ -125,6 +127,7 @@
 </tbody>
 </table>
 {% endif %}
+{% endifswitch %}
 {% endif %}
 
 {% endblock %}

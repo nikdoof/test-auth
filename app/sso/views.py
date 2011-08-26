@@ -14,15 +14,14 @@ from django.template import RequestContext
 from django.core import serializers
 from django.conf import settings
 
-from utils import installed
+from gargoyle import gargoyle
+from gargoyle.decorators import switch_is_active
 
+from utils import installed
 from eve_api.models import EVEAccount, EVEPlayerCharacter
 from eve_api.tasks import import_apikey, import_apikey_result, update_user_access
-
 from eve_proxy.models import ApiAccessLog
-
 from reddit.tasks import update_user_flair
-
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
 from sso.forms import UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm, EmailChangeForm, PrimaryCharacterForm
 
@@ -182,13 +181,13 @@ def user_view(request, username, template='sso/lookup/user.html'):
 def user_lookup(request):
     """ Lookup a user's account by providing a matching criteria """
 
-    form = UserLookupForm()
+    form = UserLookupForm(request=request)
 
     if not request.user.has_perm('sso.can_search_users'):
         return redirect('sso.views.profile')
 
     if request.method == 'POST':
-        form = UserLookupForm(request.POST)
+        form = UserLookupForm(request.POST, request=request)
         if form.is_valid():
             users = None
             uids = []
@@ -200,7 +199,7 @@ def user_lookup(request):
                 for u in uid:
                     uids.append(u['user'])
                 users = User.objects.filter(id__in=uids).only('username')
-            elif installed('reddit') and form.cleaned_data['type'] == '3':
+            elif installed('reddit') and gargoyle.is_active('reddit', request) and form.cleaned_data['type'] == '3':
                 from reddit.models import RedditAccount
                 uid = RedditAccount.objects.filter(username__icontains=username).values('user')
                 for u in uid:
@@ -291,6 +290,7 @@ def primarychar_change(request):
 
 
 @login_required
+@switch_is_active('reddit')
 def toggle_reddit_tagging(request):
     profile = request.user.get_profile()
     if profile.primary_character:

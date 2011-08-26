@@ -2,6 +2,7 @@
 
 {% load naturaltimediff %}
 {% load installed %}
+{% load gargoyle_tags %}
 
 {% block title %}Your Profile{% endblock %}
 
@@ -125,6 +126,7 @@ setup.</p>
 <br/>
 
 {% if "reddit"|installed %}
+{% ifswitch reddit %}
 <h2>Reddit Accounts</h2>
 <p>This is a list of all your current linked Reddit accounts</p>
 {% if user.redditaccount_set.all %}
@@ -144,6 +146,7 @@ setup.</p>
 </p>
 <p>
 Reddit account tagging is {% if user.get_profile.tag_reddit_accounts %}Enabled{% else %}Disabled{% endif %}. <a href="{% url sso.views.toggle_reddit_tagging %}">{% if user.get_profile.tag_reddit_accounts %}Disable{% else %}Enable{% endif %}</a>
+{% endifswitch %}
 {% endif %}
 
 {% endblock %}

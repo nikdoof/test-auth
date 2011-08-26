@@ -10,8 +10,9 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.conf import settings
 
-from utils import installed, blacklist_values
+from gargoyle import gargoyle
 
+from utils import installed, blacklist_values
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter
 from hr.forms import CreateRecommendationForm, CreateApplicationForm, NoteForm, BlacklistUserForm, AdminNoteForm
 from hr.models import Recommendation, Application, Audit, Blacklist, BlacklistSource
@@ -95,7 +96,7 @@ def view_application(request, applicationid):
 
     # Respond to Reddit Comment Load
     # TODO: Move to reddit app?
-    if installed('reddit') and request.GET.has_key('redditxhr') and request.is_ajax():
+    if installed('reddit') and gargoyle.is_active('reddit', request) and request.GET.has_key('redditxhr') and request.is_ajax():
         posts = []
         for acc in app.user.redditaccount_set.all():
             try:
@@ -330,8 +331,9 @@ def blacklist_user(request, userid):
                 for ea in u.eveaccount_set.all():
                     blacklist_item(BLACKLIST_TYPE_APIUSERID, ea.api_user_id)
 
-                for ra in u.redditaccount_set.all():
-                    blacklist_item(BLACKLIST_TYPE_REDDIT, ra.username)
+                if installed('reddit'):
+                    for ra in u.redditaccount_set.all():
+                        blacklist_item(BLACKLIST_TYPE_REDDIT, ra.username)
 
                 for char in EVEPlayerCharacter.objects.filter(eveaccount__user=u):
                     blacklist_item(BLACKLIST_TYPE_CHARACTER, char.name)

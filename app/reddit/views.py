@@ -3,10 +3,13 @@ from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from django.contrib import messages
 
+from gargoyle.decorators import switch_is_active
+
 from reddit.forms import RedditAccountForm
 from reddit.models import RedditAccount
 
 @login_required
+@switch_is_active('reddit')
 def reddit_add(request):
     """ Add a Reddit account to a user's account """
 
@@ -32,6 +35,7 @@ def reddit_add(request):
     return render_to_response('reddit/add_reddit_account.html', locals(), context_instance=RequestContext(request))
 
 @login_required
+@switch_is_active('reddit')
 def reddit_del(request, redditid=0):
     """ Delete a Reddit account from a user's account """
 

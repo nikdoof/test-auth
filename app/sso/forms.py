@@ -4,6 +4,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.conf import settings
 
+from gargoyle import gargoyle
+
 from utils import installed
 
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
@@ -92,12 +94,13 @@ class UserLookupForm(forms.Form):
     """ User Lookup Form """
 
     def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request', None)
         super(UserLookupForm, self).__init__(*args, **kwargs)
         choices = [(1, "Auth Username"),
                    (2, "Character"),
                    (4, "Email Address"),
                    (5, "EVE API User ID"), ]
-        if installed('reddit'):
+        if installed('reddit') and gargoyle.is_active('reddit', request):
             choices.append((3, "Reddit ID"))
 
         self.fields['type'] = forms.ChoiceField(label=u'Search type', choices=choices)

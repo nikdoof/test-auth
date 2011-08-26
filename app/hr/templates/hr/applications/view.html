@@ -4,6 +4,7 @@
 {% load if_extra %}
 {% load installed %}
 {% load naturaltimediff %}
+{% load gargoyle_tags %}
 
 {% block title %}View Application{% endblock %}
 
@@ -128,6 +129,7 @@
 {% endfor %}
 </table>
 {% if "reddit"|installed %}
+{% ifswitch reddit %}
 {% if app.user.redditaccount_set.all %}
 <h3>Reddit Accounts</h3>
 <table>
@@ -193,6 +195,7 @@ function handleResponse() {
 <div id="redditposts">
 </div>
 {% endif %}
+{% endifswitch %}
 {% endif %}
 {% endif %}
 {% endblock %}
