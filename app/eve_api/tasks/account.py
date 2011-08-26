@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime, timedelta
 from xml.dom import minidom
 import logging
@@ -49,7 +50,7 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False, **kwargs):
     try:
         import_apikey_func(api_userid, api_key, user, force_cache, log)
     except (APIAccessException, DocumentRetrievalError), exc:
-        log.error('Error importing API Key - flagging for retry')
+        log.error('Error importing API Key - flagging for retry', exc_info=sys.exc_info(), extra={'data': {'api_userid': api_userid, 'api_key': api_key}})
         import_apikey.retry(args=[api_userid, api_key, user, force_cache], exc=exc, kwargs=kwargs)
 
 
@@ -63,7 +64,7 @@ def import_apikey_result(api_userid, api_key, user=None, force_cache=False, call
     try:
         results = import_apikey_func(api_userid, api_key, user, force_cache, log)
     except (APIAccessException, DocumentRetrievalError), exc:
-        log.error('Error importing API Key - flagging for retry')
+        log.error('Error importing API Key - flagging for retry', exc_info=sys.exc_info(), extra={'data': {'api_userid': api_userid, 'api_key': api_key}})
         import_apikey_result.retry(args=[api_userid, api_key, user, force_cache, callback], exc=exc, kwargs=kwargs)
     else:
         if callback:

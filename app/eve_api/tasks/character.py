@@ -73,12 +73,15 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
 
     values = d['result']
     pchar, created = EVEPlayerCharacter.objects.get_or_create(id=character_id)
+
+    # Set the character's name, avoid oddities in the XML feed
     if not values['characterName'] == {}:
         pchar.name = values['characterName']
     else:
         pchar.name = ""
     pchar.security_status = values['securityStatus']
 
+    # Set corporation and join date
     corp, created = EVEPlayerCorporation.objects.get_or_create(id=values['corporationID'])
     from eve_api.tasks.corporation import import_corp_details
     if created or not corp.name or corp.api_last_updated < (datetime.utcnow() - timedelta(hours=12)):
@@ -87,12 +90,14 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
     pchar.corporation = corp
     pchar.corporation_date = values['corporationDate']
 
+    # Derrive Race value from the choices
     for v in API_RACES_CHOICES:
         val, race = v
         if race == values['race']:
             pchar.race = val
             break
 
+    # If we have a valid API key, import the full character sheet
     if api_key and user_id:
         auth_params = {'userID': user_id, 'apiKey': api_key, 'characterID': character_id }
         try:
