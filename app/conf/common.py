@@ -28,6 +28,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'sso.middleware.InactiveLogoutMiddleware',
@@ -107,3 +108,19 @@ CELERY_EAGER_PROPAGATES_EXCEPTIONS = DEBUG
 
 # Load the Celery tasks
 djcelery.setup_loader()
+
+GARGOYLE_AUTO_CREATE = True
+
+# Switches for Gargoyle
+GARGOYLE_SWITCH_DEFAULTS = {
+    'reddit': {
+      'is_active': True,
+      'label': 'Reddit Functionality',
+      'description': 'Enables/Disables the Reddit integration for HR and SSO.',
+    },
+    'hr': {
+      'is_active': True,
+      'label': 'HR Functions',
+      'description': 'Enables/Disables the HR functionality.',
+    },
+}
