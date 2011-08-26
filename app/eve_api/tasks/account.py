@@ -5,6 +5,7 @@ import logging
 from celery.decorators import task
 from celery.task.sets import TaskSet
 
+from eve_proxy.exceptions import *
 from eve_proxy.models import CachedDocument
 
 from eve_api.models import EVEAccount, EVEPlayerCharacter
