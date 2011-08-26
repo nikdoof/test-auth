@@ -188,7 +188,6 @@ def eveapi_corporation(request, corporationid, template='eve_api/corporation.htm
     """
 
     corporation = get_object_or_404(EVEPlayerCorporation, id=corporationid)
-
     context = {
         'corporation': corporation,
         'members': corporation.eveplayercharacter_set.select_related('eveaccount', 'roles').order_by('corporation_date').only('id', 'name', 'corporation_date'),
@@ -201,9 +200,6 @@ def eveapi_corporation(request, corporationid, template='eve_api/corporation.htm
 def eveapi_corporation_members_csv(request, corporationid):
 
     corporation = get_object_or_404(EVEPlayerCorporation, id=corporationid)
-
-    print corporation
-
     if not corporation.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="roleDirector").count() and not request.user.is_superuser:
         raise Http404
 
@@ -222,7 +218,6 @@ def eveapi_corporation_members_csv(request, corporationid):
 def eveapi_alliance(request, allianceid, template='eve_api/alliance.html'):
 
     alliance = get_object_or_404(EVEPlayerAlliance, pk=allianceid)
-
     context = {
         'alliance': alliance,
         'executor': alliance.executor.ceo_character,
