@@ -14,7 +14,7 @@
 	</div>
 	<div id="navigation">
 		<ul>
-            {% if user %}
+            {% if user.is_authenticated %}
 	           <li><a href="{% url sso.views.profile %}">Profile</a></li>
                 {% if "groups"|installed %}
                     <li><a href="{% url groups.views.group_list %}">Groups</a></li>
@@ -29,7 +29,7 @@
                 {% if perms.sso.can_search_users %}
                     <li><a href="{% url sso.views.user_lookup %}">Lookup User</a></li>
                 {% endif %}
-                {% if request.user.is_staff %}
+                {% if user.is_staff %}
                     <li><a href="/nexus/">Admin</a></li>
                 {% endif %}
                     <li><a href="{% url django.contrib.auth.views.logout %}">Logout</a></li>
