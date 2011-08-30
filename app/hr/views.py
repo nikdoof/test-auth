@@ -322,7 +322,6 @@ def blacklist_user(request, userid):
                     expiry = form.cleaned_data['expiry_date']
 
                 level = form.cleaned_data.get('level', 0)
-                print level
 
                 def blacklist_item(type, value):
                     o = Blacklist(type=type, value=value, level=level, source=source, expiry_date=expiry, created_by=request.user, reason=form.cleaned_data['reason'])

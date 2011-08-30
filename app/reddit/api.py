@@ -82,7 +82,6 @@ class RedditAPI:
                 url = '%s?%s' % (url, data)
             data = None
 
-        print url
         resp = self._opener.open(urllib2.Request(url, data))
         resptxt = resp.read()
         if resp.info()['Content-Type'] == 'text/plain':

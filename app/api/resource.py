@@ -8,8 +8,6 @@ class SentryResource(Resource):
 
     def error_handler(self, e, request, meth, em_format):
 
-        print e
-
         logger = logging.getLogger('piston')
         logger.addHandler(SentryHandler())
 

@@ -62,7 +62,6 @@ def update_user_access(user, **kwargs):
     # Check that user's groups fufil requirements
     if installed('groups'):
         for g in user.groups.filter(groupinformation__parent__isnull=False):
-            print g
             if not g in delgroups and not g.groupinformation.parent in user.groups.all():
                 delgroups.add(g)
 
