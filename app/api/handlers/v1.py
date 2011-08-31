@@ -13,6 +13,7 @@ from django.conf import settings
 
 from piston.handler import BaseHandler
 from piston.utils import rc, throttle
+from gargoyle import gargoyle
 
 from api.models import AuthAPIKey, AuthAPILog
 from eve_proxy.models import CachedDocument
