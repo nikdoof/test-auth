@@ -70,9 +70,15 @@ class EVEPlayerCharacter(EVEAPIModel):
 
     @property
     def account(self):
-        if self.eveaccount_set.count():
-            return self.eveaccount_set.all()[0]
+        if self.eveaccount_set.filter(api_status=API_STATUS_OK).count():
+            return self.eveaccount_set.filter(api_status=API_STATUS_OK)[0]
         return None
+
+    @property
+    def active_key(self):
+        if self.eveaccount_set.count():
+            return self.eveaccount_set.filter(api_status=API_STATUS_OK).count() > 0
+        return False
 
     @models.permalink
     def get_absolute_url(self):
