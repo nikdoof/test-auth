@@ -15,6 +15,7 @@
         {% if view_members %}
         <li><b>Full Director API Available: {% if corporation.director_api_keys %}<span style="color: green;">Yes</span>{% else %}<span style="color: red;">No</span>{% endif %}</b></li>
         <li><b>Members with API Keys:</b> {{ corporation.api_keys }}</li>
+        <li><b>Members with Active API Keys:</b> {{ corporation.active_api_keys }}</li>
         <li><b>API Coverage:</b> {{ corporation.api_key_coverage|floatformat:2 }}%</li>
         {% endif %}
         </ul>

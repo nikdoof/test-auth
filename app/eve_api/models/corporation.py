@@ -41,6 +41,11 @@ class EVEPlayerCorporation(EVEAPIModel):
         return self.eveplayercharacter_set.filter(eveaccount__isnull=False).count()
 
     @property
+    def active_api_keys(self):
+        """ Returns the number of characters with stored and active API keys """
+        return self.eveplayercharacter_set.filter(eveaccount__isnull=False, eveaccount__api_status=API_STATUS_OK).count()
+
+    @property
     def director_api_keys(self):
         return self.directors.filter(eveaccount__isnull=False, eveaccount__api_keytype=API_KEYTYPE_FULL, eveaccount__api_status=API_STATUS_OK)
 
