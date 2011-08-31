@@ -1,6 +1,8 @@
 import re
 
 from django import forms
+from gargoyle import gargoyle
+
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 
 
@@ -20,9 +22,13 @@ class EveAPIForm(forms.ModelForm):
             # We're editing a existing instance, readonly the userid
             self.fields['api_user_id'].widget.attrs['readonly'] = True
 
+        if gargoyle.is_active('eve-cak'):
+            self.fields['api_user_id'].label = 'Key ID'
+            self.fields['api_key'].label = 'Verification Code'
+
     def clean_api_key(self):
 
-        if not len(self.cleaned_data['api_key']) == 64:
+        if not gargoyle.is_active('eve-cak') and not len(self.cleaned_data['api_key']) == 64:
             raise forms.ValidationError("Provided API Key is not 64 characters long.")
 
         if re.search(r'[^\.a-zA-Z0-9]', self.cleaned_data['api_key']):

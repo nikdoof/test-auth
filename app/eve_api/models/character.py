@@ -23,6 +23,30 @@ class EVEPlayerCharacterSkill(models.Model):
         verbose_name_plural = 'Player Character Skills'
 
 
+class EVEPlayerCharacterEmploymentHistory(models.Model):
+    """
+    Player's corporation history
+    """
+    record_id = models.IntegerField(primary_key=True, verbose_name="Record ID")
+    character = models.ForeignKey('eve_api.EVEPlayerCharacter', related_name='employmenthistory')
+    corporation = models.ForeignKey('eve_api.EVEPlayerCorporation', related_name='+')
+    start_date = models.DateTimeField(blank=False, null=False, verbose_name="Corporation Join Date")
+
+    @property
+    def end_date(self):
+        if self.character.employmenthistory.filter(record_id__gt=self.record_id).count():
+            return self.character.employmenthistory.filter(record_id__gt=self.record_id)[0].start_date
+        return None
+
+    def __unicode__(self):
+        return u'%s - %s - %s' % (self.record_id, self.character, self.corporation)
+
+    class Meta:
+        app_label = 'eve_api'
+        verbose_name = 'Player Character Employment History'
+        verbose_name_plural = 'Player Character Employment Histories'
+
+
 class EVEPlayerCharacter(EVEAPIModel):
     """
     Represents an individual player character within the game. Not to be

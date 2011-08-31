@@ -47,7 +47,10 @@ class EVEPlayerCorporation(EVEAPIModel):
 
     @property
     def director_api_keys(self):
-        return self.directors.filter(eveaccount__isnull=False, eveaccount__api_keytype=API_KEYTYPE_FULL, eveaccount__api_status=API_STATUS_OK)
+        if gargoyle.is_active('eve-cak'):
+            return self.directors.filter(eveaccount__isnull=False, eveaccount__api_keytype__in=[API_KEYTYPE_CORPORATION, API_KEYTYPE_FULL], eveaccount__api_status=API_STATUS_OK)
+        else:
+            return self.directors.filter(eveaccount__isnull=False, eveaccount__api_keytype=API_KEYTYPE_FULL, eveaccount__api_status=API_STATUS_OK)
 
     @property
     def api_key_coverage(self):

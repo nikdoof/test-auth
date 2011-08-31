@@ -123,4 +123,20 @@ GARGOYLE_SWITCH_DEFAULTS = {
       'label': 'HR Functions',
       'description': 'Enables/Disables the HR functionality.',
     },
+    'eve-cak': {
+      'is_active': False,
+      'label': 'EVE Customizable API Keys',
+      'description': 'Enables/Disables EVE API CAK support.',
+    },
+    'eve-testapi': {
+      'is_active': False,
+      'label': 'EVE Test API Endpoints',
+      'description': 'Use the Test API endpoints instead of Live.',
+    },
+    'api-disableprocessing': {
+      'is_active': False,
+      'label': 'Disable API Backend Processing',
+      'description': 'Disables backend processing for the EVE API, stops Auth hammering the API during outages',
+    }
+
 }

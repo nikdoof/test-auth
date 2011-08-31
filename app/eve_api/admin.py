@@ -24,7 +24,7 @@ char_api_update.short_description = "Update character information from the EVE A
 class EVEAccountAdmin(admin.ModelAdmin):
     list_display = ('api_user_id', 'user', 'api_keytype', 'api_status', 'api_last_updated')
     search_fields = ['api_user_id', 'user__username']
-    readonly_fields = ('api_keytype', 'api_status', 'characters', 'api_last_updated', 'characters')
+    readonly_fields = ('api_keytype', 'api_status', 'api_accessmask', 'api_expiry', 'characters', 'api_last_updated')
     actions = [account_api_update]
 
     def save_model(self, request, obj, form, change):
@@ -39,11 +39,21 @@ class EVEAccountAdmin(admin.ModelAdmin):
 
 admin.site.register(EVEAccount, EVEAccountAdmin)
 
+class EVEPlayerCharacterEmploymentHistoryInline(admin.TabularInline):
+    model = EVEPlayerCharacterEmploymentHistory
+    list_display = ('record_id', 'character', 'corporation', 'start_date', 'end_date')
+    search_fields = ['character__name', 'corporation__name', 'corporation__alliance__name']
+    readonly_fields = list_display
+    extra = 0
+    can_delete = False
+    verbose_name_plural = "Employment History"
+
 class EVEPlayerCharacterAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'corporation')
     search_fields = ['id', 'name']
     fields = ('name', 'corporation', 'corporation_date', 'total_sp', 'last_login', 'last_logoff')
     readonly_fields = ('name', 'corporation', 'corporation_date', 'total_sp', 'last_login', 'last_logoff')
+    inlines = [EVEPlayerCharacterEmploymentHistoryInline]
     actions = [char_api_update]
 
     def has_add_permission(self, request):
@@ -55,17 +65,12 @@ class EVEPlayerCharacterAdmin(admin.ModelAdmin):
 
 admin.site.register(EVEPlayerCharacter, EVEPlayerCharacterAdmin)
 
+
 class EVEPlayerCorporationInline(admin.TabularInline):
     model = EVEPlayerCorporation
     fields = ('name', 'ticker')
     extra = 0
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
+    can_delete = False
 
 class EVEPlayerAllianceAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'ticker', 'member_count', 'date_founded')

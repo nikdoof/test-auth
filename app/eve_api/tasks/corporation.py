@@ -4,10 +4,12 @@ from datetime import datetime, timedelta
 from xml.dom import minidom
 
 from celery.decorators import task
+from gargoyle import gargoyle
 
 from eve_proxy.models import CachedDocument
 from eve_proxy.exceptions import DocumentRetrievalError
-from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerAlliance
+from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerAlliance, EVEAccount
+from eve_api.app_defines import *
 from eve_api.utils import basic_xml_parse_doc
 from eve_api.tasks.character import import_eve_character
 from eve_api.api_exceptions import APIAccessException
@@ -110,7 +112,7 @@ def link_ceo(corporation, character):
 
 
 @task(ignore_result=True)
-def import_corp_members(api_userid, api_key, character_id):
+def import_corp_members(key_id, character_id):
     """
     This function pulls all corporation members from the EVE API using a director's
     API key. It'll add as much information as it can about the character.
@@ -118,8 +120,19 @@ def import_corp_members(api_userid, api_key, character_id):
 
     log = import_corp_members.get_logger()
 
+    try:
+        acc = EVEAccount.objects.get(pk=key_id)
+    except EVEAccount.DoesNotExist:
+        return
+
     # grab and decode /corp/MemberTracking.xml.aspx
-    auth_params = {'userID': api_userid, 'apiKey': api_key, 'characterID': character_id }
+    if gargoyle.is_active('eve-cak') and acc.api_keytype == API_KEYTYPE_CORPORATION:
+        if not acc.has_access(11):
+            log.error('Key does not have access to MemberTracking', extra={'data': {'key_id': key_id, 'character_id': character_id}})
+            return
+        auth_params = {'keyid': acc.api_user_id, 'vcode': acc.api_key, 'characterID': character_id }
+    else:
+        auth_params = {'userID': acc.api_user_id, 'apiKey': acc.api_key, 'characterID': character_id }
     char_doc = CachedDocument.objects.api_query('/corp/MemberTracking.xml.aspx',
                                                    params=auth_params,
                                                    no_cache=False,
@@ -127,7 +140,7 @@ def import_corp_members(api_userid, api_key, character_id):
 
     pdoc = basic_xml_parse_doc(char_doc)
     if not 'eveapi' in pdoc or not 'result' in pdoc['eveapi']:
-        log.error('Invalid XML document / API Error recceived', extra={'data': {'xml': char_doc.body, 'api_userid': api_userid, 'api_key': api_key, 'character_id': character_id}})
+        log.error('Invalid XML document / API Error recceived', extra={'data': {'xml': char_doc.body, 'key_id': key_id, 'character_id': character_id}})
         return
 
     corp = EVEPlayerCharacter.objects.get(id=character_id).corporation

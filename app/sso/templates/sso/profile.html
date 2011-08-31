@@ -112,15 +112,18 @@ setup.</p>
     <td>{{ acc.get_api_keytype_display }}</td>
     <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
     <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
-    <td><a href="{% url eve_api.views.eveapi_refresh acc.api_user_id %}"  onclick="javascript:refresh_apikey({{ acc.api_user_id }}); return false;">Refresh</a>,&nbsp;
-        <a href="{% url eve_api.views.eveapi_update acc.api_user_id %}">Update Key</a>,&nbsp;
+    <td>{% ifswitch api-disableprocessing %}{% else %}<a href="{% url eve_api.views.eveapi_refresh acc.api_user_id %}"  onclick="javascript:refresh_apikey({{ acc.api_user_id }}); return false;">Refresh</a>,&nbsp;
+        <a href="{% url eve_api.views.eveapi_update acc.api_user_id %}">Update Key</a>,&nbsp;{% endifswitch %}
         <a href="{% url eve_api.views.eveapi_log acc.api_user_id %}">Logs</a>
 </tr>
 {% endfor %}
 </table>
 {% endif %}
 <p>
+{% ifswitch api-disableprocessing %}
+{% else %}
 <a href="{% url eve_api.views.eveapi_add %}" class="button">Add a Eve API key</a>
+{% endifswitch %}
 </p>
 
 <br/>

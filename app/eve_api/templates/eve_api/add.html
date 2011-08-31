@@ -1,11 +1,16 @@
 {% extends "base.html" %}
 
+{% load gargoyle_tags %}
+
 {% block title %}Add EVE API Key{% endblock %}
 
 {% block content %}
-<p>Please fill in your API key as provided on the <a
-href="http://eve-online.com/api">EVE Online API
-page</a> and a optional description.</p>
+
+{% ifswitch switch_name %}
+<p>Please fill in your API key as provided on the <a href="http://eve-online.com/api">EVE Online API page</a> and a optional description.</p>
+{% else %}
+<p>Please fill in your API key details and a optional description. You can create a API key on the <a href="https://support.eveonline.com/api/Key/CreatePredefined/59638024/0/false">API support site</a></p>
+{% endifswitch %}
 
 <form action="{% url eve_api.views.eveapi_add %}" method="post">
 <table>

@@ -53,7 +53,7 @@ def CreateApplicationForm(user):
             if char and corp:
                 if char.corporation == corp:
                     raise forms.ValidationError("%s is already a member of %s" % (char, corp))
-                if not char.account.api_keytype >= corp.application_config.api_required:
+                if not char.account.api_keytype == corp.application_config.api_required:
                     raise forms.ValidationError("%s requires a %s API key for this application" % (corp, corp.application_config.get_api_required_display()))
 
             return self.cleaned_data

@@ -4,18 +4,19 @@ import logging
 
 from celery.decorators import task
 from celery.task.sets import subtask
+from gargoyle import gargoyle
 
 from eve_proxy.exceptions import *
 from eve_proxy.models import CachedDocument
 
 from eve_api.api_exceptions import *
-from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerCharacterRole, EVEPlayerCharacterSkill, EVESkill, EVEAccount
+from eve_api.models import EVEPlayerCorporation, EVEPlayerCharacter, EVEPlayerCharacterRole, EVEPlayerCharacterSkill, EVESkill, EVEAccount, EVEPlayerCharacterEmploymentHistory
 from eve_api.app_defines import *
 from eve_api.utils import basic_xml_parse, basic_xml_parse_doc
 
 
 @task()
-def import_eve_character(character_id, api_key=None, user_id=None, callback=None, **kwargs):
+def import_eve_character(character_id, key_id=None, callback=None, **kwargs):
     """ 
     Imports a character from the API, providing a API key will populate 
     further details. Returns a single EVEPlayerCharacter object
@@ -24,10 +25,10 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
 
     log = import_eve_character.get_logger()
     try:
-        pchar = import_eve_character_func(character_id, api_key, user_id, log)
+        pchar = import_eve_character_func(character_id, key_id, log)
     except APIAccessException, exc:
         log.error('Error importing character - flagging for retry')
-        import_eve_character.retry(args=[character_id, api_key, user_id, callback], exc=exc, kwargs=kwargs)
+        import_eve_character.retry(args=[character_id, key_id, callback], exc=exc, kwargs=kwargs)
 
     if not pchar:
         log.error('Error importing character %s' % character_id)
@@ -39,7 +40,7 @@ def import_eve_character(character_id, api_key=None, user_id=None, callback=None
 
 
 @task()
-def import_eve_characters(character_list, api_key=None, user_id=None, callback=None, **kwargs):
+def import_eve_characters(character_list, key_id=None, callback=None, **kwargs):
     """
     Imports characters from the API, providing a API key will populate
     further details. Returns a list of EVEPlayerCharacter objects
@@ -48,17 +49,17 @@ def import_eve_characters(character_list, api_key=None, user_id=None, callback=N
 
     log = import_eve_characters.get_logger()
     try:
-        results = [import_eve_character_func(char, api_key, user_id, log) for char in character_list]
+        results = [import_eve_character_func(char, key_id, log) for char in character_list]
     except APIAccessException, exc:
         log.error('Error importing characters - flagging for retry')
-        import_eve_characters.retry(args=[character_list, api_key, user_id, callback], exc=exc, kwargs=kwargs)
+        import_eve_characters.retry(args=[character_list, key_id, callback], exc=exc, kwargs=kwargs)
     if callback:
         subtask(callback).delay(characters=results)
     else:
         return results
 
 
-def import_eve_character_func(character_id, api_key=None, user_id=None, logger=logging.getLogger(__name__)):
+def import_eve_character_func(character_id, key_id=None, logger=logging.getLogger(__name__)):
 
     try:
         char_doc = CachedDocument.objects.api_query('/eve/CharacterInfo.xml.aspx', params={'characterID': character_id}, no_cache=False)
@@ -82,7 +83,7 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
     pchar.security_status = values['securityStatus']
 
     # Set corporation and join date
-    corp, created = EVEPlayerCorporation.objects.get_or_create(id=values['corporationID'])
+    corp, created = EVEPlayerCorporation.objects.get_or_create(pk=values['corporationID'])
     from eve_api.tasks.corporation import import_corp_details
     if created or not corp.name or corp.api_last_updated < (datetime.utcnow() - timedelta(hours=12)):
         import_corp_details.delay(values['corporationID'])
@@ -97,9 +98,34 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
             pchar.race = val
             break
 
-    # If we have a valid API key, import the full character sheet
-    if api_key and user_id:
-        auth_params = {'userID': user_id, 'apiKey': api_key, 'characterID': character_id }
+    # Import employment history if its made available
+    if 'employmentHistory' in values:
+        reclist = pchar.employmenthistory.values_list('pk', flat=True)
+        for emp in values['employmentHistory']:
+            if not emp['recordID'] in reclist:
+                corp, created = EVEPlayerCorporation.objects.get_or_create(pk=emp['corporationID'])
+                if created:
+                    import_corp_details.delay(emp['corporationID'])
+                eobj, created = EVEPlayerCharacterEmploymentHistory.objects.get_or_create(pk=emp['recordID'], corporation=corp, character=pchar, start_date=emp['startDate'])
+
+    # We've been passed a Key ID, try and work with it
+    if key_id:
+        try:
+            acc = EVEAccount.objects.get(pk=key_id)
+        except EVEAccount.DoesNotExist:
+            acc = None
+    else:
+        acc = None
+
+    # Actual Key? Get further information
+    if acc:
+        if gargoyle.is_active('eve-cak') and acc.is_cak:
+            if not acc.has_access(3):
+                logger.error('Key %s does not have access to CharacterSheet' % acc.pk)
+                raise APIAccessException                
+            auth_params = {'keyid': acc.api_user_id, 'vcode': acc.api_key, 'characterid': character_id }
+        else:
+            auth_params = {'userID': acc.api_user_id, 'apiKey': acc.api_key, 'characterID': character_id }
         try:
             char_doc = CachedDocument.objects.api_query('/char/CharacterSheet.xml.aspx', params=auth_params, no_cache=False)
         except DocumentRetrievalError, exc:
@@ -121,7 +147,7 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
             # Process the character's skills
             pchar.total_sp = 0
             for skill in values.get('skills', None):
-                skillobj, created = EVESkill.objects.get_or_create(id=skill['typeID'])
+                skillobj, created = EVESkill.objects.get_or_create(pk=skill['typeID'])
                 charskillobj, created = EVEPlayerCharacterSkill.objects.get_or_create(skill=skillobj, character=pchar)
                 if created or not charskillobj.level == int(skill['level']) or not charskillobj.skillpoints == int(skill['skillpoints']):
                     charskillobj.level = int(skill['level'])
@@ -139,7 +165,7 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
                     queuedoc = queuedoc['eveapi']['result']
                     EVEPlayerCharacterSkill.objects.filter(character=pchar).update(in_training=0)
                     if int(queuedoc['skillInTraining']):
-                        skillobj, created = EVESkill.objects.get_or_create(id=queuedoc['trainingTypeID'])
+                        skillobj, created = EVESkill.objects.get_or_create(pk=queuedoc['trainingTypeID'])
                         charskillobj, created = EVEPlayerCharacterSkill.objects.get_or_create(skill=skillobj, character=pchar)
                         charskillobj.in_training = queuedoc['trainingToLevel']
                         charskillobj.save()
@@ -157,19 +183,14 @@ def import_eve_character_func(character_id, api_key=None, user_id=None, logger=l
             else:
                 pchar.gender = API_GENDER_FEMALE
 
-
     pchar.api_last_updated = datetime.utcnow()
     pchar.save()
 
-    try:
-        acc = EVEAccount.objects.get(pk=user_id)
+    if acc:
         if not pchar.id in acc.characters.all().values_list('id', flat=True):
             acc.characters.add(pchar)
-
-        if pchar.director and acc.api_keytype == API_KEYTYPE_FULL:
+        if pchar.director and acc.api_keytype in [API_KEYTYPE_FULL, API_KEYTYPE_CORPORATION]:
             from eve_api.tasks.corporation import import_corp_members
-            import_corp_members.delay(api_key=api_key, api_userid=user_id, character_id=pchar.id)
-    except EVEAccount.DoesNotExist:
-        pass
+            import_corp_members.delay(key_id=acc.pk, character_id=pchar.id)
 
     return pchar

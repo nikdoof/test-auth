@@ -34,6 +34,10 @@ def basic_xml_parse(nodes):
                     values[node.attributes['name'].value] = rset
                 else:
                     values[node.tagName] = basic_xml_parse(node.childNodes)
+                    if node.attributes.keys():
+                        for e in node.attributes.keys():
+                            values[node.tagName][e] = node.attributes[e].value
+
 
     return values
 

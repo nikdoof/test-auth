@@ -176,7 +176,7 @@ def eveapi_character(request, charid=None, template='eve_api/character.html', li
         return render_to_response(template, context, context_instance=RequestContext(request))
 
     context = {
-        'characters': EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=request.user).only('id', 'name', 'corporation__name', 'corporation__alliance__name'),
+        'accounts': EVEAccount.objects.select_related('characters', 'characters__corporation', 'characters__corporation__alliance').filter(user=request.user),
     }
     return render_to_response(list_template, context, context_instance=RequestContext(request))
 

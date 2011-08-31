@@ -137,7 +137,10 @@ class OpTimerHandler(BaseHandler):
     def read(self, request, id=None):
         obj = get_object_or_404(EVEAccount, pk=settings.FULL_API_USER_ID)
 
-        params = {'userID': obj.pk, 'apiKey': obj.api_key, 'characterID': settings.FULL_API_CHARACTER_ID}
+        if gargoyle.is_active('eve-cak'):
+            params = {'keyid': obj.pk, 'vcode': obj.api_key, 'characterID': settings.FULL_API_CHARACTER_ID}
+        else:
+            params = {'userID': obj.pk, 'apiKey': obj.api_key, 'characterID': settings.FULL_API_CHARACTER_ID}
 
         error_doc = {'ops': [{'startsIn': -1, 'eventID': 0, 'ownerName': '', 'eventDate': '', 'eventTitle': '<div style="text-align:center">The EVE API calendar is unavailable</div>', 'duration': 0, 'isImportant': 0, 'eventText': 'Fuck CCP tbqh imho srsly', 'endsIn':-1, 'forumLink': ''}]}
 

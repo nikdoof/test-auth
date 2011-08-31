@@ -4,15 +4,11 @@
 
 <h1>Character List</h1>
 
-{% if characters %}
-
-{% regroup characters by account as acc_list %}
-
 <table>
 <tr><th>Character Name</th><th>Corporation</th><th>Alliance</th><th>Skillpoints</th><th>Training</th></tr>
-{% for acc in acc_list %}
-<tr><th colspan=5>Account {{ acc.grouper }} {% if acc.grouper.training == 0 %}<font color="#F87217">(No Character Training)</font>{% endif %}</th></tr>
-{% for char in acc.list %}
+{% for acc in accounts %}
+<tr><th colspan=5>Key {{ acc.pk }} {% if acc.training == 0 %}<font color="#F87217">(No Character Training)</font>{% endif %}</th></tr>
+{% for char in acc.characters.all %}
 <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td>
     <td><a href="{% url eveapi-corporation char.corporation.id %}">{{ char.corporation }}</a></td>
     <td>{% if char.corporation.alliance %}<a href="{% url eveapi-alliance char.corporation.alliance.id %}">{{ char.corporation.alliance }}</a>{% endif %}</td>
@@ -22,6 +18,5 @@
 {% endfor %}
 {% endfor %}
 </table>
-{% endif %}
 
 {% endblock %}

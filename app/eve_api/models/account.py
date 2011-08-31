@@ -26,6 +26,12 @@ class EVEAccount(EVEAPIModel):
                                      default=API_KEYTYPE_UNKNOWN,
                                      verbose_name="API Key Type",
                                      help_text="Type of API key")
+    api_accessmask = models.IntegerField(default=0,
+                                         verbose_name="API Key Access Mask",
+                                         help_text="Describes the level of access this API key gives to the user's data")
+    api_expiry = models.DateTimeField(blank=True, null=True,
+                                      verbose_name="API Key Expiry Date",
+                                       help_text="Indicates when the API key will expire.")
 
     def __unicode__(self):
         return u"%s" % self.pk
@@ -33,9 +39,38 @@ class EVEAccount(EVEAPIModel):
     def in_corp(self, corpid):
         return self.character.filter(corporation__id=corpid).count()
 
+    @staticmethod
+    def _mask_check(accessmask, bit):
+        """ Returns a bool indicating if the bit is set in the accessmask """
+        mask = 1 << bit
+        return (accessmask & mask) > 0
+
+    def has_access(self, bit):
+        """ Checks if a specific bit is enabled in the key's access mask """
+        return self._mask_check(self.api_accessmask, bit)
+
+    def check_access(self, accessmask):
+        """ Checks if the account has equal or higher access than the bitmask provided """
+
+        length = 0
+        i = accessmask
+        while i:
+            i >>= 1
+            length += 1
+
+        for bit in range(0, length-1):
+            if self._mask_check(accessmask, bit) and not self.has_access(bit):
+                return False
+
+        return True
+
     @property
     def training(self):
         return self.characters.filter(eveplayercharacterskill__in_training__gt=0).count()
+
+    @property
+    def is_cak(self):
+        return self.api_keytype in [API_KEYTYPE_CHARACTER, API_KEYTYPE_CORPORATION, API_KEYTYPE_ACCOUNT]
 
     class Meta:
         app_label = 'eve_api'
