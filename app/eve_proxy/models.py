@@ -160,6 +160,9 @@ class ApiAccessLog(models.Model):
     time_access = models.DateTimeField("Date/Time Accessed", help_text="The date/time the document was requested")
     document = models.CharField("Document Path", max_length=255, help_text="The path to the requested document")
 
+    def __unicode__(self):
+        return u'Key %s - %s' % (self.userid, self.document)
+
     class Meta:
         verbose_name = 'API Access Log'
         verbose_name_plural = 'API Access Logs'
