@@ -57,6 +57,8 @@ class CachedDocumentManager(models.Manager):
         url = self.construct_url(url_path, params)
         doc_key = sha1(url).hexdigest()
 
+        print url
+
         try:
             doc = super(CachedDocumentManager, self).get_query_set().get(pk=doc_key)
             created = False

@@ -129,7 +129,7 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
         try:
             char_doc = CachedDocument.objects.api_query('/char/CharacterSheet.xml.aspx', params=auth_params, no_cache=False)
         except DocumentRetrievalError, exc:
-            logger.error('Error retrieving CharacterSheet.xml.aspx for User ID %s, Character ID %s - %s' % (user_id, character_id, exc))
+            logger.error('Error retrieving CharacterSheet.xml.aspx for User ID %s, Character ID %s - %s' % (acc.pk, character_id, exc))
             raise APIAccessException
 
         doc = basic_xml_parse_doc(char_doc)['eveapi']
