@@ -28,7 +28,7 @@ def eveapi_add(request, post_save_redirect='/', template='eve_api/add.html'):
         if form.is_valid():
             task = import_apikey_result.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['api_user_id'], user=request.user.id)
             try:
-                task.wait(10)
+                out = task.wait(10)
             except celery.exceptions.TimeoutError:
                 msg = "The addition of your API key is still processing, please check back in a minute or so."
             except DocumentRetrievalError:
@@ -36,7 +36,10 @@ def eveapi_add(request, post_save_redirect='/', template='eve_api/add.html'):
             except:
                 msg = "An unknown error was encountered while trying to add your API key, please try again later."
             else:
-                msg = "EVE API key %d successfully added." % form.cleaned_data['api_user_id']
+                if out:
+                    msg = "Key %d successfully added." % form.cleaned_data['api_user_id']
+                else:
+                    msg = "An issue was encountered why trying to import key %s, please recheck and try again." % form.cleaned_data['api_user_id']
             messages.success(request, msg, fail_silently=True)
             return redirect(post_save_redirect)
     else:
