@@ -126,7 +126,7 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
                 cb = update_user_access.subtask(kwargs={'user': account.user.id })
             else:
                 cb = None
-            import_eve_characters.delay(account.characters.all().values_list('id', flat=True), key_id=account.pk, callback=cb)
+            import_eve_characters.delay(newcharlist, key_id=account.pk, callback=cb)
 
         else:
             # No account object, just return
@@ -180,7 +180,7 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
                 cb = update_user_access.subtask(kwargs={'user': account.user.id })
             else:
                 cb = None
-            import_eve_characters.delay(account.characters.all().values_list('id', flat=True), key_id=account.pk, callback=cb)
+            import_eve_characters.delay(newcharlist, key_id=account.pk, callback=cb)
 
         else:
             # No account object, just return
