@@ -39,7 +39,7 @@ def UserServiceAccountForm(user):
     """ Generate a Service Account form based on the user's permissions """
 
     services = Service.objects.filter(groups__in=user.groups.all(), active=1).exclude(id__in=ServiceAccount.objects.filter(user=user).values('service')).distinct()
-    chars = EVEPlayerCharacter.objects.filter(eveaccount__user=user)
+    chars = EVEPlayerCharacter.objects.filter(eveaccount__user=user).distinct()
 
     class ServiceAccountForm(forms.Form):
         """ Service Account Form """
@@ -130,7 +130,7 @@ class EmailChangeForm(forms.Form):
 
 class PrimaryCharacterForm(forms.Form):
 
-    character = forms.ModelChoiceField(queryset=None, required=True, empty_label=None)
+    character = forms.ModelChoiceField(queryset=None, required=True, empty_label=None).distinct()
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
