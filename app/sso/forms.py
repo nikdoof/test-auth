@@ -130,12 +130,12 @@ class EmailChangeForm(forms.Form):
 
 class PrimaryCharacterForm(forms.Form):
 
-    character = forms.ModelChoiceField(queryset=None, required=True, empty_label=None).distinct()
+    character = forms.ModelChoiceField(queryset=None, required=True, empty_label=None)
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(PrimaryCharacterForm, self).__init__(*args, **kwargs)
 
         if self.user:
-            self.fields['character'].queryset = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user)
+            self.fields['character'].queryset = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).distinct()
 
