@@ -12,7 +12,7 @@ from eve_api.app_defines import API_STATUS_OK
 def CreateRecommendationForm(user):
     """ Generate a Recommendation form based on the user's permissions """
 
-    characters = EVEPlayerCharacter.objects.filter(eveaccount__user=user)
+    characters = EVEPlayerCharacter.objects.filter(eveaccount__user=user).distinct()
     applications = Application.objects.filter(status=APPLICATION_STATUS_NOTSUBMITTED)
 
     class RecommendationForm(forms.Form):
@@ -27,7 +27,7 @@ def CreateRecommendationForm(user):
 def CreateApplicationForm(user):
     """ Generate a Application form based on the user's permissions """
 
-    characters = EVEPlayerCharacter.objects.filter(eveaccount__user=user, eveaccount__api_status=API_STATUS_OK)
+    characters = EVEPlayerCharacter.objects.filter(eveaccount__user=user, eveaccount__api_status=API_STATUS_OK).distinct()
     corporations = EVEPlayerCorporation.objects.filter(application_config__is_accepting=True)
 
     class ApplicationForm(forms.Form):
