@@ -133,6 +133,10 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
             if not account:
                 return
 
+            if not account.api_key == api_key:
+                # Attempted change of key failed, ignore
+                return
+
             error = doc['error']['code']
             if int(error) >= 500:
                 # API disabled, down or rejecting, return without changes
@@ -185,6 +189,10 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
         else:
             # No account object, just return
             if not account:
+                return
+
+            if not account.api_key == api_key:
+                # Attempted change of key failed, ignore
                 return
 
             error = doc['error']['code']
