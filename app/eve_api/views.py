@@ -95,13 +95,14 @@ def eveapi_update(request, userid, post_save_redirect='/', template='eve_api/upd
 def eveapi_del(request, userid, post_save_redirect='/'):
     """ Delete a EVE API key from a account """
 
-    try:
-        acc = EVEAccount.objects.get(pk=userid)
-    except EVEAccount.DoesNotExist:
-        return redirect(post_save_redirect)
-    if acc.user == request.user:
-        acc.delete()
-        messages.success(request, "EVE API key successfully deleted.", fail_silently=True)
+    if gargoyle.is_active('eve-keydelete'):
+        try:
+            acc = EVEAccount.objects.get(pk=userid)
+        except EVEAccount.DoesNotExist:
+            return redirect(post_save_redirect)
+        if acc.user == request.user:
+            acc.delete()
+            messages.success(request, "EVE API key successfully deleted.", fail_silently=True)
 
     return redirect(post_save_redirect)
 

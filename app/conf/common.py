@@ -133,6 +133,11 @@ GARGOYLE_SWITCH_DEFAULTS = {
       'label': 'EVE Test API Endpoints',
       'description': 'Use the Test API endpoints instead of Live.',
     },
+    'eve-keydelete': {
+      'is_active': False,
+      'label': 'Allow EVE API Key Delete',
+      'description': 'Allows API keys to be deleted by th end user.',
+    },
     'api-disableprocessing': {
       'is_active': False,
       'label': 'Disable API Backend Processing',
