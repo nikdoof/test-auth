@@ -79,6 +79,20 @@
 			<tr><th colspan=2>Total SP</th><th>{{ character.total_sp|intcomma }} SP</th></tr>
 		</table>
 	</div>
+
+        {% if character.employmenthistory.count %}
+        <div class="character_employmenthistory">
+                <h2>Employment History</h2>
+
+                <table>
+                <tr><th>Corporation</th><th>Join Date</th><th>Leave Date</th></tr>
+                {% for hist in character.employmenthistory.all %}
+                <tr><td><a href="{% url eveapi-corporation hist.corporation.id %}">{{ hist.corporation.name }}</a></td><td>{{ hist.start_date }}</td><td>{% if hist.end_date %}{{ hist.end_date }}{% endif %}</td></tr>
+                {% endfor %}
+                </table>
+        </div>
+        {% endif %}
+
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
