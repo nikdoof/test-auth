@@ -11,6 +11,8 @@ from django.template import RequestContext
 from django.http import Http404
 from django.core import serializers
 
+from gargoyle import gargoyle
+
 from eve_proxy.models import ApiAccessLog
 from eve_proxy.exceptions import DocumentRetrievalError
 from eve_api.app_defines import *
