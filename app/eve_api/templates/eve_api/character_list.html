@@ -7,6 +7,7 @@
 <table>
 <tr><th>Character Name</th><th>Corporation</th><th>Alliance</th><th>Skillpoints</th><th>Training</th></tr>
 {% for acc in accounts %}
+{% if acc.characters.count() %}
 <tr><th colspan=5>Key {{ acc.pk }} {% if acc.training == 0 %}<font color="#F87217">(No Character Training)</font>{% endif %}</th></tr>
 {% for char in acc.characters.all %}
 <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td>
@@ -16,6 +17,7 @@
     <td>{% if char.current_training %}{{ char.current_training.skill.name }} to Level {{ char.current_training.in_training }}{% endif %}</td> 
 </tr>
 {% endfor %}
+{% endif %}
 {% endfor %}
 </table>
 
