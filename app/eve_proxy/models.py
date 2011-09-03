@@ -57,7 +57,7 @@ class CachedDocumentManager(models.Manager):
         url = self.construct_url(url_path, params)
         doc_key = sha1(url).hexdigest()
 
-        logger.debug('Requesting URL: %s' 5 url)
+        logger.debug('Requesting URL: %s' % url)
 
         try:
             doc = super(CachedDocumentManager, self).get_query_set().get(pk=doc_key)
