@@ -39,7 +39,7 @@ class CachedDocumentManager(models.Manager):
 
         return url
 
-    def api_query(self, url_path, params={}, no_cache=False, exceptions=True, timeout=settings.get('EVE_PROXY_TIMEOUT', 60), service="Auth"):
+    def api_query(self, url_path, params={}, no_cache=False, exceptions=True, timeout=getattr(settings, 'EVE_PROXY_TIMEOUT', 60), service="Auth"):
         """
         Transparently handles querying EVE API or retrieving the document from
         the cache.
