@@ -122,7 +122,7 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
         if gargoyle.is_active('eve-cak') and acc.is_cak:
             if not acc.has_access(3):
                 logger.error('Key %s does not have access to CharacterSheet' % acc.pk)
-                raise APIAccessException                
+                return
             auth_params = {'keyid': acc.api_user_id, 'vcode': acc.api_key, 'characterid': character_id }
         else:
             auth_params = {'userID': acc.api_user_id, 'apiKey': acc.api_key, 'characterID': character_id }
