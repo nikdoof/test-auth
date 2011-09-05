@@ -173,13 +173,12 @@ def eveapi_character(request, charid=None, template='eve_api/character.html', li
             skillTree[-1][0] += skill.skillpoints
             skillTree[-1][2].append(skill)
 
-        employmenthistory = character.employmenthistory.all().order_by('-record_id')
-
         context = {
             'character': character,
             'current_training': current_training,
             'skills': skills,
             'skillTree': skillTree,
+            'employmenthistory': character.employmenthistory.all().order_by('-record_id'),
         }
         return render_to_response(template, context, context_instance=RequestContext(request))
 
