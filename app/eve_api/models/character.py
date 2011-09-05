@@ -35,7 +35,7 @@ class EVEPlayerCharacterEmploymentHistory(models.Model):
     @property
     def end_date(self):
         if self.character.employmenthistory.filter(record_id__gt=self.record_id).count():
-            return self.character.employmenthistory.filter(record_id__gt=self.record_id)[0].start_date
+            return self.character.employmenthistory.filter(record_id__gt=self.record_id).order_by('record_id')[0].start_date
         return None
 
     def __unicode__(self):
