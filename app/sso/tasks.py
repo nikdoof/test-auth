@@ -51,7 +51,7 @@ def update_user_access(user, **kwargs):
 
     # Create a list of Char groups
     chargroups = []
-    for eacc in EVEAccount.objects.filter(user=user, api_status__in=[API_STATUS_OK, API_STATUS_OTHER_ERR], api_keytype__in=getattr(settings, 'SSO_ACCEPTED_KEYTYPES', [API_KEYTYPE_LIMITED, API_KEYTYPE_FULL, API_KEYTYPE_ACCOUNT])):
+    for eacc in EVEAccount.objects.filter(user=user, api_status__in=[API_STATUS_OK, API_STATUS_OTHER_ERROR], api_keytype__in=getattr(settings, 'SSO_ACCEPTED_KEYTYPES', [API_KEYTYPE_LIMITED, API_KEYTYPE_FULL, API_KEYTYPE_ACCOUNT])):
         for char in eacc.characters.all():
             if char.corporation.group:
                 chargroups.append(char.corporation.group)
