@@ -1,13 +1,17 @@
 import logging
 
+from django.conf import settings
+from django.db.models import signals
+
+from django.contrib.auth.models import User
 from celery.signals import task_failure
 from celery.decorators import task
 from sentry.client.handlers import SentryHandler
+
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
+from eve_api.app_defines import *
 from sso.models import ServiceAccount, SSOUser
 from reddit.tasks import update_user_flair
-from django.contrib.auth.models import User
-from django.db.models import signals
 from utils import installed
 
 # Add Sentry error logging for Celery
@@ -47,13 +51,12 @@ def update_user_access(user, **kwargs):
 
     # Create a list of Char groups
     chargroups = []
-    for eacc in EVEAccount.objects.filter(user=user):
-        if eacc.api_status in [1, 3]:
-            for char in eacc.characters.all():
-                if char.corporation.group:
-                    chargroups.append(char.corporation.group)
-                elif char.corporation.alliance and char.corporation.alliance.group:
-                    chargroups.append(char.corporation.alliance.group)
+    for eacc in EVEAccount.objects.filter(user=user, api_status__in=[API_STATUS_OK, API_STATUS_OTHER_ERR], api_keytype__in=getattr(settings, 'SSO_ACCEPTED_KEYTYPES', [API_KEYTYPE_LIMITED, API_KEYTYPE_FULL, API_KEYTYPE_ACCOUNT])):
+        for char in eacc.characters.all():
+            if char.corporation.group:
+                chargroups.append(char.corporation.group)
+            elif char.corporation.alliance and char.corporation.alliance.group:
+                chargroups.append(char.corporation.alliance.group)
 
     # Generate the list of groups to add/remove
     delgroups = set(set(user.groups.all()) & set(corpgroups)) - set(chargroups)
