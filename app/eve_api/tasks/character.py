@@ -155,20 +155,23 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
                     charskillobj.save()
                 pchar.total_sp = pchar.total_sp + int(skill['skillpoints'])
 
-            try:
-                skillqueue = CachedDocument.objects.api_query('/char/SkillInTraining.xml.aspx', params=auth_params, no_cache=False)
-            except DocumentRetrievalError, exc:
-                logger.error('Error retrieving SkillInTraining.xml.aspx for User ID %s, Character ID %s - %s' % (user_id, character_id, exc))
+            if not acc.is_cak or acc.has_access(18):
+                try:
+                    skillqueue = CachedDocument.objects.api_query('/char/SkillInTraining.xml.aspx', params=auth_params, no_cache=False)
+                except DocumentRetrievalError, exc:
+                    logger.error('Error retrieving SkillInTraining.xml.aspx for User ID %s, Character ID %s - %s' % (key_id, character_id, exc))
+                else:
+                    queuedoc = basic_xml_parse_doc(skillqueue)
+                    if not 'error' in queuedoc['eveapi'] and 'result' in queuedoc['eveapi']:
+                        queuedoc = queuedoc['eveapi']['result']
+                        EVEPlayerCharacterSkill.objects.filter(character=pchar).update(in_training=0)
+                        if int(queuedoc['skillInTraining']):
+                            skillobj, created = EVESkill.objects.get_or_create(pk=queuedoc['trainingTypeID'])
+                            charskillobj, created = EVEPlayerCharacterSkill.objects.get_or_create(skill=skillobj, character=pchar)
+                            charskillobj.in_training = queuedoc['trainingToLevel']
+                            charskillobj.save()
             else:
-                queuedoc = basic_xml_parse_doc(skillqueue)
-                if not 'error' in queuedoc['eveapi'] and 'result' in queuedoc['eveapi']:
-                    queuedoc = queuedoc['eveapi']['result']
-                    EVEPlayerCharacterSkill.objects.filter(character=pchar).update(in_training=0)
-                    if int(queuedoc['skillInTraining']):
-                        skillobj, created = EVESkill.objects.get_or_create(pk=queuedoc['trainingTypeID'])
-                        charskillobj, created = EVEPlayerCharacterSkill.objects.get_or_create(skill=skillobj, character=pchar)
-                        charskillobj.in_training = queuedoc['trainingToLevel']
-                        charskillobj.save()
+                EVEPlayerCharacterSkill.objects.filter(character=pchar).update(in_training=0)
 
             # Process the character's roles
             pchar.roles.clear()
