@@ -11,6 +11,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 
+from BeautifulSoup import BeautifulSoup
 from piston.handler import BaseHandler
 from piston.utils import rc, throttle
 from gargoyle import gargoyle
@@ -185,7 +186,7 @@ class OpTimerHandler(BaseHandler):
                             'eventTitle': node.getAttribute('eventTitle'),
                             'duration': duration,
                             'isImportant': int(node.getAttribute('importance')),
-                            'eventText': node.getAttribute('eventText'),
+                            'eventText': ''.join(BeautifulSoup(node.getAttribute('eventText')).findAll(text=True)),
                             'endsIn':endsIn,
                             'forumLink': forumlink}                
                         events.append(event)

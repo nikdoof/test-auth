@@ -14,4 +14,5 @@ django-celery==2.2.4
 xmpppy
 django-sentry
 nexus
--e git+https://nikdoof@github.com/nikdoof/gargoyle.git@dca57fc4b437b85f8cbc#egg=gargoyle
+-e git+https://github.com/nikdoof/gargoyle.git@dca57fc4b437b85f8cbc#egg=gargoyle
+beautifulsoup
