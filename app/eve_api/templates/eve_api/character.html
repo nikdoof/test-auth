@@ -80,13 +80,13 @@
 		</table>
 	</div>
 
-        {% if character.employmenthistory.count %}
+        {% if employmenthistory.count %}
         <div class="character_employmenthistory">
                 <h2>Employment History</h2>
 
                 <table>
                 <tr><th>Corporation</th><th>Join Date</th><th>Leave Date</th></tr>
-                {% for hist in character.employmenthistory.all %}
+                {% for hist in employmenthistory %}
                 <tr><td><a href="{% url eveapi-corporation hist.corporation.id %}">{{ hist.corporation.name }}</a></td><td>{{ hist.start_date }}</td><td>{% if hist.end_date %}{{ hist.end_date }}{% endif %}</td></tr>
                 {% endfor %}
                 </table>
