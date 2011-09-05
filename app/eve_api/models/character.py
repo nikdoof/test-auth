@@ -45,7 +45,7 @@ class EVEPlayerCharacterEmploymentHistory(models.Model):
         app_label = 'eve_api'
         verbose_name = 'Player Character Employment History'
         verbose_name_plural = 'Player Character Employment Histories'
-
+        ordering = ['-record_id']
 
 class EVEPlayerCharacter(EVEAPIModel):
     """
