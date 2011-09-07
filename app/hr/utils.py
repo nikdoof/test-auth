@@ -69,14 +69,14 @@ def blacklist_values(user, level=BLACKLIST_LEVEL_NOTE):
 
     return blacklist
 
-def recommendation_chain(application):
+def recommendation_chain(application, first=True):
     """ Returns the recommendation chain for a application (as a nested dict) """
 
-    t = {}
-    for rec in application.recommendation_set.all():
-        try:
-            app = Application.objects.get(character=rec.user_character, status=APPLICATION_STATUS_COMPLETED)
-            t[rec.user_character.name] = recommendation_chain(app)
-        except Application.DoesNotExist:
-            t[rec.user_character.name] = {}
-    return t
+    output = {}
+    for rec in Recommendation.objects.filter(user__username=name):
+        # Avoid infinite loops
+        if not rec.user == rec.recommended_user:
+            output[rec.recommended_user.username] = recommendation_chain(rec.recommended_user.username, False)
+    if first:
+        return {name: output}
+    return output
