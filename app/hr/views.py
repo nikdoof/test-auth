@@ -14,7 +14,7 @@ from gargoyle import gargoyle
 
 from utils import installed, blacklist_values
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter
-from hr.forms import CreateRecommendationForm, CreateApplicationForm, NoteForm, BlacklistUserForm, AdminNoteForm
+from hr.forms import RecommendationForm, ApplicationForm, NoteForm, BlacklistUserForm, AdminNoteForm
 from hr.models import Recommendation, Application, Audit, Blacklist, BlacklistSource
 from app_defines import *
 
@@ -112,16 +112,15 @@ def view_application(request, applicationid):
 def add_application(request):
     """ Create a new application to a corporation """
 
-    clsform = CreateApplicationForm(request.user)
     if request.method == 'POST': 
-        form = clsform(request.POST) 
+        form = ApplicationForm(request.POST, user=request.user) 
         if form.is_valid():
             app = Application(user=request.user, character=form.cleaned_data['character'], corporation=form.cleaned_data['corporation'])
             app.save()
             messages.add_message(request, messages.INFO, "Your application to %s has been created." % app.corporation)
             return HttpResponseRedirect(reverse('hr.views.view_application', args=[app.id]))
     else:
-        form = clsform() # An unbound form
+        form = ApplicationForm(user=request.user)
 
     if len(EVEPlayerCorporation.objects.filter(application_config__is_accepting=True)):
         return render_to_response('hr/applications/add.html', locals(), context_instance=RequestContext(request))
@@ -145,9 +144,8 @@ def add_recommendation(request):
     if len(blacklist_values(request.user, BLACKLIST_LEVEL_ADVISORY)):
         raise Http404
 
-    clsform = CreateRecommendationForm(request.user)
     if request.method == 'POST': 
-        form = clsform(request.POST) 
+        form = RecommendationForm(request.POST, user=request.user) 
         if form.is_valid():
             rec = Recommendation(user=request.user)
             rec.user_character = form.cleaned_data['character']
@@ -156,9 +154,8 @@ def add_recommendation(request):
 
             messages.add_message(request, messages.INFO, "Recommendation added to %s's application" % rec.application )
             return HttpResponseRedirect(reverse('hr.views.view_recommendations'))
-            
     else:
-        form = clsform() # An unbound form
+        form = RecommendationForm(user=request.user) # An unbound form
 
     return render_to_response('hr/recommendations/add.html', locals(), context_instance=RequestContext(request))
 

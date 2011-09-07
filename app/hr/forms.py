@@ -10,66 +10,58 @@ from hr.models import Application, Audit, TemplateMessage
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
 from eve_api.app_defines import API_STATUS_OK
 
-def CreateRecommendationForm(user):
-    """ Generate a Recommendation form based on the user's permissions """
 
-    characters = EVEPlayerCharacter.objects.filter(eveaccount__user=user).distinct()
-    applications = Application.objects.filter(status=APPLICATION_STATUS_NOTSUBMITTED)
+class RecommendationForm(forms.Form):
+    """ Add Recommendation Form """
 
-    class RecommendationForm(forms.Form):
-        """ Service Account Form """
+    character = forms.ModelChoiceField(queryset=EVEPlayerCharacter.objects.all(), required=True, empty_label=None)
+    application = forms.ModelChoiceField(queryset=Application.objects.filter(status=APPLICATION_STATUS_NOTSUBMITTED), required=True, empty_label=None)
 
-        character = forms.ModelChoiceField(queryset=characters, required=True, empty_label=None)
-        application = forms.ModelChoiceField(queryset=applications, required=True, empty_label=None)
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(RecommendationForm, self).__init__(*args, **kwargs)
+        self.fields['character'].queryset = EVEPlayerCharacter.objects.filter(eveaccount__user=user, eveaccount__api_status=API_STATUS_OK).distinct()
 
-        def clean(self):
+    def clean(self):
+        char = self.cleaned_data.get('character')
+        app = self.cleaned_data.get('application')
 
-            char = self.cleaned_data.get('character')
-            app = self.cleaned_data.get('application')
+        if app.user in User.objects.filter(eveaccount__characters__id=char.id):
+            raise forms.ValidationError("You cannot recommend your own character")
 
-            if app.user in User.objects.filter(eveaccount__characters__id=char.id):
-                raise forms.ValidationError("You cannot recommend your own character")
-
-            return self.cleaned_data
-
-    return RecommendationForm
+        return self.cleaned_data
 
 
-def CreateApplicationForm(user):
-    """ Generate a Application form based on the user's permissions """
+class ApplicationForm(forms.Form):
 
-    characters = EVEPlayerCharacter.objects.filter(eveaccount__user=user, eveaccount__api_status=API_STATUS_OK).distinct()
-    corporations = EVEPlayerCorporation.objects.filter(application_config__is_accepting=True)
+    character = forms.ModelChoiceField(queryset=EVEPlayerCharacter.objects.all(), required=True, empty_label=None)
+    corporation = forms.ModelChoiceField(queryset=EVEPlayerCorporation.objects.filter(application_config__is_accepting=True), required=True, empty_label=None)
 
-    class ApplicationForm(forms.Form):
-        character = forms.ModelChoiceField(queryset=characters, required=True, empty_label=None)
-        corporation = forms.ModelChoiceField(queryset=corporations, required=True, empty_label=None)
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(ApplicationForm, self).__init__(*args, **kwargs)
+        self.fields['character'].queryset = EVEPlayerCharacter.objects.filter(eveaccount__user=user, eveaccount__api_status=API_STATUS_OK).distinct()
 
-        def clean_character(self):
- 
-            if not 'character' in self.cleaned_data or not self.cleaned_data['character']:
-                raise forms.ValidationError("Please select a character to apply with")
+    def clean_character(self):
+        if not 'character' in self.cleaned_data or not self.cleaned_data['character']:
+            raise forms.ValidationError("Please select a character to apply with")
 
-            if Application.objects.filter(character=self.cleaned_data['character']).exclude(status__in=[APPLICATION_STATUS_NOTSUBMITTED, APPLICATION_STATUS_COMPLETED, APPLICATION_STATUS_REJECTED]).count():
-                raise forms.ValidationError("This character already has a open application")
+        if Application.objects.filter(character=self.cleaned_data['character']).exclude(status__in=[APPLICATION_STATUS_NOTSUBMITTED, APPLICATION_STATUS_COMPLETED, APPLICATION_STATUS_REJECTED]).count():
+            raise forms.ValidationError("This character already has a open application")
 
-            return self.cleaned_data['character']
+        return self.cleaned_data['character']
 
+    def clean(self):
+        char = self.cleaned_data.get('character')
+        corp = self.cleaned_data.get('corporation')
 
-        def clean(self):
+        if char and corp:
+            if char.corporation == corp:
+                raise forms.ValidationError("%s is already a member of %s" % (char, corp))
+            if not char.account.api_keytype == corp.application_config.api_required:
+                raise forms.ValidationError("%s requires a %s API key for this application" % (corp, corp.application_config.get_api_required_display()))
 
-            char = self.cleaned_data.get('character')
-            corp = self.cleaned_data.get('corporation')
-
-            if char and corp:
-                if char.corporation == corp:
-                    raise forms.ValidationError("%s is already a member of %s" % (char, corp))
-                if not char.account.api_keytype == corp.application_config.api_required:
-                    raise forms.ValidationError("%s requires a %s API key for this application" % (corp, corp.application_config.get_api_required_display()))
-
-            return self.cleaned_data
-
-    return ApplicationForm
+        return self.cleaned_data
 
 
 class NoteForm(forms.ModelForm):
