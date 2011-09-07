@@ -186,7 +186,7 @@ class OpTimerHandler(BaseHandler):
                             'eventTitle': node.getAttribute('eventTitle'),
                             'duration': duration,
                             'isImportant': int(node.getAttribute('importance')),
-                            'eventText': ''.join(BeautifulSoup(node.getAttribute('eventText')).findAll(text=True)),
+                            'eventText': ' '.join(BeautifulSoup(node.getAttribute('eventText')).findAll(text=True)),
                             'endsIn':endsIn,
                             'forumLink': forumlink}                
                         events.append(event)
