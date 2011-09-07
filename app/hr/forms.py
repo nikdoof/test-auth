@@ -4,6 +4,7 @@ from django import forms
 from django.conf import settings
 from django.forms.extras.widgets import SelectDateWidget
 
+from django.contrib.auth.models import User
 from hr.app_defines import *
 from hr.models import Application, Audit, TemplateMessage
 from eve_api.models import EVEPlayerCharacter, EVEPlayerCorporation
@@ -20,6 +21,16 @@ def CreateRecommendationForm(user):
 
         character = forms.ModelChoiceField(queryset=characters, required=True, empty_label=None)
         application = forms.ModelChoiceField(queryset=applications, required=True, empty_label=None)
+
+        def clean(self):
+
+            char = self.cleaned_data.get('character')
+            app = self.cleaned_data.get('application')
+
+            if app.user in User.objects.filter(eveaccount__characters__id=char.id):
+                raise forms.ValidationError("You cannot recommend your own character")
+
+            return self.cleaned_data
 
     return RecommendationForm
 
