@@ -5,21 +5,21 @@
 {% block content %}
 
 <h1>Search All Applications</h1>
-<form method="GET" action="{% url hr.views.admin_applications %}">
+<form method="GET" action="{% url hr-admin %}">
 <input type="text" name="q" />
 <input type="submit" value="Search" />
 </form>
 
 {% if apps %}
 <table>
-<tr><th><a href="{% url hr.views.admin_applications %}?o=id">Application ID</a></th>
-    <th><a href="{% url hr.views.admin_applications %}?o=character__name">Character</a></th>
-    <th><a href="{% url hr.views.admin_applications %}?o=corporation__name">Corporation</a></th>
+<tr><th><a href="{% url hr-admin %}?o=id">Application ID</a></th>
+    <th><a href="{% url hr-admin %}?o=character__name">Character</a></th>
+    <th><a href="{% url hr-admin %}?o=corporation__name">Corporation</a></th>
     <th>Application Status</th>
     <th>Last Action Date</th>
     <th>Last Action User</th></tr>
 {% for app in apps %}
-<tr {% if app.alt_application %}id="alt-application"{% endif %}><td><a href="{% url hr.views.view_application app.id %}">{{ app.id }}</a></td>
+<tr {% if app.alt_application %}id="alt-application"{% endif %}><td><a href="{% url hr-viewapplication app.id %}">{{ app.id }}</a></td>
     <td>{{ app.character }}</td>
     <td>{{ app.corporation }}</td>
     <td>{{ app.get_status_display }}</td>

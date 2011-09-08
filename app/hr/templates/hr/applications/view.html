@@ -27,29 +27,29 @@
 <div class="skill_controls">
 <p>
 {% if app.status < 1 %}
-<a href="{% url hr.views.update_application app.id 1 %}">Submit Application</a>
+<a href="{% url hr-updateapplication app.id 1 %}">Submit Application</a>
 {% else %}
-<a href="{% url hr.views.update_application app.id 0 %}">Withdraw Application</a>
+<a href="{% url hr-updateapplication app.id 0 %}">Withdraw Application</a>
 {% endif %}
-<a href="{% url hr.views.add_message app.id %}">Add Message</a>
+<a href="{% url hr-addmessage app.id %}">Add Message</a>
 {% if hrstaff %}
-<a href="{% url hr.views.add_note app.id %}">Add Staff Note</a>
+<a href="{% url hr-addnote app.id %}">Add Staff Note</a>
 {% if app.status < 2 or app.status = 4 or app.status = 6 %}
 {% if perms.hr.can_accept %}
-<a href="{% url hr.views.reject_application app.id %}">Reject Application</a>
+<a href="{% url hr-rejectapplication app.id %}">Reject Application</a>
 {% ifequal app.blacklisted 0 %}
-<a href="{% url hr.views.accept_application app.id %}">Accept Application</a>
+<a href="{% url hr-acceptapplication app.id %}">Accept Application</a>
 {% endifequal %}
 {% endif %}
 {% ifnotequal app.status 4 %}
-<a href="{% url hr.views.update_application app.id 4 %}">Mark as In Query</a>
+<a href="{% url hr-updateapplication app.id 4 %}">Mark as In Query</a>
 {% endifnotequal %}
 {% ifnotequal app.status 6 %}
-<a href="{% url hr.views.update_application app.id 6 %}">Flag for Review</a>
+<a href="{% url hr-updateapplication app.id 6 %}">Flag for Review</a>
 {% endifnotequal %}
 {% endif %}
 {% ifequal app.status 3 %}
-<a href="{% url hr.views.update_application app.id 5 %}">Mark as Complete</a>
+<a href="{% url hr-updateapplication app.id 5 %}">Mark as Complete</a>
 {% endifequal %}
 {% endif %}
 </p>
@@ -166,7 +166,7 @@ function createRequestObject() {
 var http = createRequestObject();
 
 function redditposts(action) {
-    http.open('get', '{% url hr.views.view_application app.id %}?redditxhr');
+    http.open('get', '{% url reddit-commentsjson %}?userid={{ app.user.id }}');
     http.onreadystatechange = handleResponse;
     http.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     http.send(null);
@@ -180,11 +180,11 @@ function handleResponse() {
         document.getElementById('loadlink').style.display = 'none';
 
         var out = '';
-        for (var obj in response) {
-            if (response[obj]['kind'] == 2) {
-                var out = out + "<p><b><a href=\"http://reddit.com" + response[obj]['permalink'] + "\">" + response[obj]['title'] + "</a></b> - (/r/" + response[obj]['subreddit']+ ")</p>";
+        for (var obj in response['posts']) {
+            if (response['posts'][obj]['kind'] == 2) {
+                var out = out + "<p><b><a href=\"http://reddit.com" + response['posts'][obj]['permalink'] + "\">" + response['posts'][obj]['title'] + "</a></b> - (/r/" + response['posts'][obj]['subreddit']+ ")</p>";
             } else {
-                var out = out + "<p>" + response[obj]['body'] + "<br/><b>/r/" + response[obj]['subreddit'] + "</b> <a href=\"" + response[obj]['permalink'] + "\">Permalink</a></p>";
+                var out = out + "<p>" + response['posts'][obj]['body'] + "<br/><b>/r/" + response['posts'][obj]['subreddit'] + "</b> <a href=\"" + response['posts'][obj]['permalink'] + "\">Permalink</a></p>";
             }
         }
         document.getElementById('redditposts').innerHTML = out;

@@ -8,7 +8,7 @@
 <table>
 <tr><th>Application ID</th><th>Character</th><th>Corporation</th><th>Application Status</th></tr>
 {% for app in apps %}
-<tr><td><a href="{% url hr.views.view_application app.id %}">{{ app.id }}</a></td>
+<tr><td><a href="{% url hr-viewapplication app.id %}">{{ app.id }}</a></td>
     <td>{{ app.character }}</td>
     <td>{{ app.corporation }}</td>
     <td>{{ app.get_status_display }}</td>

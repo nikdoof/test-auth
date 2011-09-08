@@ -6,20 +6,21 @@
 <H1>HR</H1>
 
 <h3>Applications</h3>
-<p><a href="{% url hr.views.view_applications %}">View your current open applications</a><br/>
-<a href="{% url hr.views.add_application %}">Create a application</a><br/></p>
+<p><a href="{% url hr-userapplications %}">View your current open applications</a><br/>
+<a href="{% url hr-addapplication %}">Create a application</a><br/></p>
+
 {% if can_recommend %}
 <h3>Recommendations</h3>
 <p>
-<a href="{% url hr.views.view_recommendations %}">View your current open recommendations</a><br/>
-<a href="{% url hr.views.add_recommendation %}">Add a recommendation</a><br/>
+<a href="{% url hr-viewrecommendations %}">View your current open recommendations</a><br/>
+<a href="{% url hr-addrecommendation %}">Add a recommendation</a><br/>
 </p>
 {% endif %}
 
 {% if hrstaff %}
 <h3>HR Admin</h3>
 <p>
-<a href="{% url hr.views.admin_applications %}">View applications</a><br/>
+<a href="{% url hr-admin %}">View applications</a><br/>
 </p>
 {% endif %}
 

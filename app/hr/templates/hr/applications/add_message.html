@@ -3,7 +3,7 @@
 {% block title %}Send Message to Applicant{% endblock %}
 
 {% block content %}
-<form action="{% url hr.views.add_message applicationid %}" method="post">
+<form action="{% url hr-addmessage application.id %}" method="post">
 <table>
 {{ form.as_table }}
 </table>

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load installed %}
 {% block title %}Blacklist User{% endblock %}
 
 {% block content %}
@@ -10,12 +10,14 @@
 <li>EVE API Keys</li>
 <li>Characters</li>
 <li>Email Addresses</li>
+{% if "reddit"|installed %}
 <li>Reddit Accounts</li>
+{% endif %}
 </ul>
 
-<form action="{% url hr.views.blacklist_user u.id %}" method="post">
+<form action="{% url hr-blacklistuser blacklistuser.id %}" method="post">
 <table>
-<tr><th><label>User:</label></th><td>{{ u.username }}</td></tr> 
+<tr><th><label>User:</label></th><td>{{ blacklistuser.username }}</td></tr> 
 {{ form.as_table }}
 </table>
 {% csrf_token %}

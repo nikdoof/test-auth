@@ -5,7 +5,7 @@
 {% block content %}
 <p>Select the character you wish to apply with, then the corporation you wish to apply for.</p>
 
-<form action="{% url hr.views.add_application %}" method="post">
+<form action="{% url hr-addapplication %}" method="post">
 <table>
 {{ form.as_table }}
 </table>

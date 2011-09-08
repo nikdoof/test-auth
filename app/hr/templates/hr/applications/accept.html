@@ -4,7 +4,7 @@
 
 {% block content %}
 <p>Fill in a note you want to send to the user.</p>
-<form action="{% url hr.views.accept_application applicationid %}" method="post">
+<form action="{% url hr-acceptapplication application.id %}" method="post">
 <table>
 {{ form.as_table }}
 {% csrf_token %}

@@ -1,359 +1,370 @@
 from datetime import datetime, timedelta
-from django.utils import simplejson
+
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from django.template import RequestContext
-from django.template.loader import render_to_string
+from django.views.generic import TemplateView, DetailView, FormView, CreateView, ListView
+from django.views.generic.detail import BaseDetailView
 from django.conf import settings
 
 from gargoyle import gargoyle
 
-from utils import installed, blacklist_values
+from utils import installed, blacklist_values, check_permissions, send_message
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerCharacter
+from sso.tasks import update_user_access
 from hr.forms import RecommendationForm, ApplicationForm, NoteForm, BlacklistUserForm, AdminNoteForm
 from hr.models import Recommendation, Application, Audit, Blacklist, BlacklistSource
-from app_defines import *
-
-### Shared Functions
-
-def send_message(application, message_type, note=None):
-    from django.core.mail import send_mail
-    subject = render_to_string('hr/emails/%s_subject.txt' % message_type, { 'app': application })
-    subject = ''.join(subject.splitlines())
-    message = render_to_string('hr/emails/%s.txt' % message_type, { 'app': application, 'note': note })
-    try:
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [application.user.email])
-    except:
-        pass
-
-    if installed('reddit') and len(application.user.redditaccount_set.all()) > 0:
-            from reddit.tasks import send_reddit_message
-
-            for account in application.user.redditaccount_set.all():
-                send_reddit_message.delay(to=account.username, subject=subject, message=message)
-
-
-def check_permissions(user, application=None):
-    """ Check if the user has permissions to view or admin the application """
-
-    corplist = EVEPlayerCharacter.objects.select_related('roles').filter(eveaccount__user=user)
-    if not application:
-        if user.has_perm('hr.can_view_all') or user.has_perm('hr.can_view_corp') or corplist.filter(roles__name='roleDirector').count():
-            return HR_ADMIN
-    else:
-        if application.user == user:
-            return HR_VIEWONLY
-        if user.has_perm('hr.can_view_all'):
-            return HR_ADMIN
-        else:
-            # Give admin access to directors of the corp
-            if application.corporation.id in corplist.filter(roles__name='roleDirector').values_list('corporation__id', flat=True):
-                return HR_ADMIN
-
-            # Give access to none director HR people access
-            if application.corporation.id in corplist.values_list('corporation__id', flat=True) and user.has_perm('hr.can_view_corp'):
-                return HR_ADMIN
-
-    return HR_NONE
+from hr.app_defines import *
 
 ### General Views
 
-@login_required
-def index(request):
-    hrstaff = check_permissions(request.user)
-    can_recommend = False
-    if len(blacklist_values(request.user, BLACKLIST_LEVEL_ADVISORY)) == 0:
-        can_recommend = True
-    return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
+class HrIndexView(TemplateView):
+    """
+    Gives the main HR index page, with various options displayed depending on their
+    access level.
+    """
+
+    template_name = 'hr/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(HrIndexView, self).get_context_data(**kwargs)
+        context['hrstaff'] = check_permissions(self.request.user)
+        context['can_recommend'] = len(blacklist_values(self.request.user, BLACKLIST_LEVEL_ADVISORY)) == 0
+        return context
 
 ### Application Management
 
-@login_required
-def view_applications(request):
-    """ Shows a list of the user's applications """
+class HrViewUserApplications(TemplateView):
+    """
+    Shows a list of the user's applications in the system
+    """
 
-    apps = Application.objects.filter(user=request.user).order_by('id')
-    return render_to_response('hr/applications/view_list.html', locals(), context_instance=RequestContext(request))
+    template_name = 'hr/applications/view_list.html'
 
-@login_required
-def view_application(request, applicationid):
-    """ View a individual application """
+    def get_context_data(self, **kwargs):
+        context = super(HrViewUserApplications, self).get_context_data(**kwargs)
+        context['applications'] = Application.objects.filter(user=self.request.user).order_by('id')
+        return context
 
-    app = get_object_or_404(Application, id=applicationid)
 
-    perm = check_permissions(request.user, app)
-    if perm == HR_VIEWONLY:
-        audit = app.audit_set.filter(event__in=[AUDIT_EVENT_STATUSCHANGE, AUDIT_EVENT_REJECTION, AUDIT_EVENT_ACCEPTED, AUDIT_EVENT_MESSAGE])
-    elif perm == HR_ADMIN:
-        hrstaff = True
-        audit = app.audit_set.all()
-    else:
-        return HttpResponseRedirect(reverse('hr.views.index'))
+class HrViewApplication(DetailView):
+    """
+    View a individual application and related details
+    """
 
-    # Respond to Reddit Comment Load
-    # TODO: Move to reddit app?
-    if installed('reddit') and gargoyle.is_active('reddit', request) and request.GET.has_key('redditxhr') and request.is_ajax():
-        posts = []
-        for acc in app.user.redditaccount_set.all():
-            try:
-                accposts = acc.recent_posts()
-            except:
-                accposts = []
-            posts.extend(accposts)
-        return HttpResponse(simplejson.dumps(accposts), mimetype='application/javascript')
+    template_name = 'hr/applications/view.html'
+    context_object_name = "app"
+    model = Application
+    slug_field = 'id'
 
-    return render_to_response('hr/applications/view.html', locals(), context_instance=RequestContext(request))
+    def get_context_data(self, **kwargs):
+        context = super(HrViewApplication, self).get_context_data(**kwargs)
+        perm = check_permissions(self.request.user, self.object)
+        if perm == HR_VIEWONLY:
+            context['audit'] = self.object.audit_set.filter(event__in=[AUDIT_EVENT_STATUSCHANGE, AUDIT_EVENT_REJECTION, AUDIT_EVENT_ACCEPTED, AUDIT_EVENT_MESSAGE])
+        elif perm == HR_ADMIN:
+            context['hrstaff'] = True
+            context['audit'] = self.object.audit_set.all()
+        return context
 
-@login_required
-def add_application(request):
-    """ Create a new application to a corporation """
 
-    if request.method == 'POST': 
-        form = ApplicationForm(request.POST, user=request.user) 
-        if form.is_valid():
-            app = Application(user=request.user, character=form.cleaned_data['character'], corporation=form.cleaned_data['corporation'])
-            app.save()
-            messages.add_message(request, messages.INFO, "Your application to %s has been created." % app.corporation)
-            return HttpResponseRedirect(reverse('hr.views.view_application', args=[app.id]))
-    else:
-        form = ApplicationForm(user=request.user)
+class HrAddApplication(FormView):
 
-    if len(EVEPlayerCorporation.objects.filter(application_config__is_accepting=True)):
-        return render_to_response('hr/applications/add.html', locals(), context_instance=RequestContext(request))
-    else:
-        return render_to_response('hr/applications/noadd.html', locals(), context_instance=RequestContext(request)) 
+    form_class = ApplicationForm
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(HrAddApplication, self).get_form_kwargs(**kwargs)
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        app = Application(user=self.request.user, character=form.cleaned_data['character'], corporation=form.cleaned_data['corporation'])
+        app.save()
+        messages.add_message(self.request, messages.INFO, "Your application to %s has been created." % app.corporation)
+        return HttpResponseRedirect(reverse('hr-viewapplication', args=[app.id]))
+
+    def get_template_names(self):
+        if len(EVEPlayerCorporation.objects.filter(application_config__is_accepting=True)):
+            return 'hr/applications/add.html'
+        else:
+            return 'hr/applications/noadd.html'
 
 ### Recommendation Management
 
-@login_required
-def view_recommendations(request):
-    """ View a list of recommendations the user has made """
+class HrViewRecommendations(TemplateView):
+    """
+    Shows a list of the user's recommendations in the system
+    """
 
-    recs = Recommendation.objects.filter(user=request.user)
-    return render_to_response('hr/recommendations/view_list.html', locals(), context_instance=RequestContext(request))
+    template_name = 'hr/recommendations/view_list.html'
 
-@login_required
-def add_recommendation(request):
-    """ Add a recommendation to a user's application """
-
-    # If the person has a blacklist, stop recommendations
-    if len(blacklist_values(request.user, BLACKLIST_LEVEL_ADVISORY)):
-        raise Http404
-
-    if request.method == 'POST': 
-        form = RecommendationForm(request.POST, user=request.user) 
-        if form.is_valid():
-            rec = Recommendation(user=request.user)
-            rec.user_character = form.cleaned_data['character']
-            rec.application = form.cleaned_data['application']
-            rec.save()
-
-            messages.add_message(request, messages.INFO, "Recommendation added to %s's application" % rec.application )
-            return HttpResponseRedirect(reverse('hr.views.view_recommendations'))
-    else:
-        form = RecommendationForm(user=request.user) # An unbound form
-
-    return render_to_response('hr/recommendations/add.html', locals(), context_instance=RequestContext(request))
-
-@login_required
-def admin_applications(request):
-    # Get the list of viewable applications by the admin
-    corplist = EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).values_list('corporation', flat=True)
-    view_status = [APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY, APPLICATION_STATUS_FLAGGED]
-
-    if request.user.has_perm('hr.can_view_all'):
-        apps = Application.objects.all()
-    elif request.user.has_perm('hr.can_view_corp'):
-        apps = Application.objects.filter(corporation__id__in=list(corplist))
-    else:
-        return HttpResponseRedirect(reverse('hr.views.index'))
-
-    if 'q' in request.GET:
-        query = request.GET['q']
-        apps = apps.filter(character__name__icontains=query)
-    else:
-        apps = apps.filter(status__in=view_status)
-
-    if 'o' in request.GET:
-        order = request.GET['o']
-        if order in ['id', 'corporation__name', 'character__name']:
-            apps = apps.order_by(order)
-
-    if 'l' in request.GET:
-        limit = request.GET['l']
-        apps = apps[:limit]
-
-    return render_to_response('hr/applications/admin/view_list.html', locals(), context_instance=RequestContext(request))
-
-@login_required
-def update_application(request, applicationid, status): 
-    """ Update a application's status """
-
-    app = get_object_or_404(Application, id=applicationid)
-
-    if int(status) in APPLICATION_STATUS_ROUTES[app.status]:
-        perm = check_permissions(request.user, app)
-        if perm == HR_ADMIN or (perm == HR_VIEWONLY and int(status) <= 1):
-            if not app.status == status:
-                app.status = status
-                app.save(user=request.user)
-    else:
-         messages.add_message(request, messages.ERROR, "Invalid status change request")
-    return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
-
-@login_required
-def add_note(request, applicationid):
-    """ Add a note to a application """
-
-    if check_permissions(request.user) == HR_ADMIN:
-        if request.method == 'POST':
-            app = Application.objects.get(id=applicationid)
-            if check_permissions(request.user, app) == HR_ADMIN:
-                obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_NOTE)
-                form = NoteForm(request.POST, instance=obj)
-                if form.is_valid():
-                    obj = form.save()
-                    return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
-
-        form = NoteForm()
-        return render_to_response('hr/applications/add_note.html', locals(), context_instance=RequestContext(request))
-
-    return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
+    def get_context_data(self, **kwargs):
+        context = super(HrViewRecommendations, self).get_context_data(**kwargs)
+        context['recommendations'] = Recommendation.objects.filter(user=self.request.user)
+        return context
 
 
-@login_required
-def add_message(request, applicationid):
-    """ Send a message to the end user and note it on the application """
+class HrAddRecommendation(FormView):
 
-    app = Application.objects.get(id=applicationid)
-    perm = check_permissions(request.user, app)
-    if perm:
-        if request.method == 'POST':
-            obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_MESSAGE)
-            if perm == HR_ADMIN:
-                form = AdminNoteForm(request.POST, instance=obj, application=app)
-            else:
-                form = NoteForm(request.POST, instance=obj)
-            if form.is_valid():
-                obj = form.save()
-                if not app.user == request.user:
-                    send_message(obj.application, 'message', note=obj.text)
-                return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
+    template_name = 'hr/recommendations/add.html'
+    form_class = RecommendationForm
 
-        if perm == HR_ADMIN:
-            form = AdminNoteForm(application=app)
+    def dispatch(self, request, *args, **kwargs):
+        if len(blacklist_values(request.user, BLACKLIST_LEVEL_ADVISORY)):
+            raise Http404
+        return super(HrAddRecommendation, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        rec = Recommendation(user=self.request.user)
+        rec.user_character = form.cleaned_data['character']
+        rec.application = form.cleaned_data['application']
+        rec.save()
+
+        messages.add_message(self.request, messages.INFO, "Recommendation added to %s's application" % rec.application )
+        return HttpResponseRedirect(reverse('hr-viewrecommendations'))
+
+    def get_form_kwargs(self):
+        kwargs = super(HrAddRecommendation, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+
+class HrAdminApplications(ListView):
+
+    model = Application
+    template_name = 'hr/applications/admin/view_list.html'
+    context_object_name = 'apps'
+
+    def get_queryset(self):
+        if self.request.user.has_perm('hr.can_view_all'):
+            apps = Application.objects.all()
+        elif self.request.user.has_perm('hr.can_view_corp'):
+            apps = Application.objects.filter(corporation__id__in=EVEPlayerCharacter.objects.filter(eveaccount__user=self.request.user))
+
+        query = self.request.GET.get('q', None)
+        order = self.request.GET.get('o', 'id')
+
+        # Filter by the query string
+        if query:
+            apps = apps.filter(character__name__icontains=query)
         else:
-            form = NoteForm()
-        return render_to_response('hr/applications/add_message.html', locals(), context_instance=RequestContext(request))
+            apps = apps.filter(status__in=[APPLICATION_STATUS_AWAITINGREVIEW, APPLICATION_STATUS_ACCEPTED, APPLICATION_STATUS_QUERY, APPLICATION_STATUS_FLAGGED])
 
-    return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
+        # If a invalid order as been passed, correct it
+        if not order in ['id', 'corporation__name', 'character__name']:
+            order = 'id'
 
-@login_required
-def reject_application(request, applicationid):
-    """ Reject the application and notify the user """
+        # If we've got a short search string, only get the first 50
+        if query and len(query) < 3:
+            apps = apps[:50]
 
-    if check_permissions(request.user) == HR_ADMIN and request.user.has_perm('hr.can_accept'):
-        app = Application.objects.get(id=applicationid)
-        if request.method == 'POST':
-            if check_permissions(request.user, app) == HR_ADMIN:
-                obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_REJECTION)
-                form = AdminNoteForm(request.POST, instance=obj, application=app)
-                if form.is_valid():
-                    obj = form.save()
-                    obj.application.status = APPLICATION_STATUS_REJECTED
-                    obj.application.save(user=request.user)
-                    send_message(obj.application, 'rejected', note=obj.text)
-                    return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
+        return apps
 
-        form = AdminNoteForm(application=app)
-        return render_to_response('hr/applications/reject.html', locals(), context_instance=RequestContext(request))
 
-    return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
+class HrUpdateApplication(BaseDetailView):
+    """
+    Updates the status of a application if the workflow and permissions allow so.
+    """
+    model = Application
+    slug_field = 'id'
 
-@login_required
-def accept_application(request, applicationid):
-    """ Accept the application and notify the user """
+    def render_to_response(self, context):
+        status = self.kwargs.get('status', None)
+        if status and int(status) in APPLICATION_STATUS_ROUTES[self.object.status]:
+            perm = check_permissions(self.request.user, self.object)
+            if perm == HR_ADMIN or (perm == HR_VIEWONLY and int(status) <= 1):
+                if not self.object.status == status:
+                    self.object.status = status
+                    self.object.save(user=self.request.user)
+                    self.object = self.model.objects.get(pk=self.object.pk)
+                    messages.add_message(self.request, messages.INFO, "Application %s has been changed to %s" % (self.object.id, self.object.get_status_display()))
+        else:
+             messages.add_message(self.request, messages.ERROR, "Invalid status change request")
+        return HttpResponseRedirect(reverse('hr-viewapplication', args=[self.object.id]))
 
-    if check_permissions(request.user) == HR_ADMIN and request.user.has_perm('hr.can_accept'):
-        app = Application.objects.get(id=applicationid)
 
+class HrAddNote(CreateView):
+    """
+    View to add a note to a application
+    """
+
+    template_name = 'hr/applications/add_note.html'
+    form_class = NoteForm
+    model = Audit
+
+    def dispatch(self, request, *args, **kwargs):
+        if not check_permissions(request.user) == HR_ADMIN:
+            return HttpResponseRedirect(reverse('hr.views.HrIndexView'))
+        self.application = Application.objects.get(pk=kwargs.get('applicationid'))
+        return super(HrAddNote, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        if check_permissions(self.request.user, self.application) == HR_ADMIN:
+            self.object = form.save(commit=False)
+            self.object.event = AUDIT_EVENT_NOTE
+            self.object.application = self.application
+            self.object.user = self.request.user
+            self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('hr-viewapplication', args=[self.application.id])
+
+    def get_context_data(self, **kwargs):
+        context = super(HrAddNote, self).get_context_data(**kwargs)
+        context['application'] = self.application
+        return context
+
+
+class HrAddMessage(HrAddNote):
+
+    template_name = 'hr/applications/add_message.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.application = Application.objects.get(pk=kwargs.get('applicationid'))
+        self.perm = check_permissions(request.user, self.application)
+        if not self.perm:
+            return HttpResponseRedirect(reverse('hr.views.HrIndexView'))
+        return super(HrAddMessage, self).dispatch(request, *args, **kwargs)
+
+    def get_form_class(self):
+        if self.perm == HR_ADMIN:
+            return AdminNoteForm
+        else:
+            return NoteForm
+
+    def get_form_kwargs(self):
+        kwargs = super(HrAddMessage, self).get_form_kwargs()
+        if self.perm == HR_ADMIN:
+            kwargs['application'] = self.application
+        return kwargs
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.application = self.application
+        self.object.event = AUDIT_EVENT_MESSAGE
+        self.object.user = self.request.user
+        self.object.save()
+        if not self.application.user == self.request.user:
+            try:
+                send_message(self.application, 'message', note=self.object.text)
+            except:
+                pass
+        return HttpResponseRedirect(self.get_success_url())
+
+class HrRejectApplication(CreateView):
+
+    template_name = 'hr/applications/reject.html'
+    message_template_name = 'rejected'
+    form_class = AdminNoteForm
+    model = Audit
+    application_change_status = APPLICATION_STATUS_REJECTED
+    audit_event_type = AUDIT_EVENT_REJECTION
+
+    def dispatch(self, request, *args, **kwargs):
+        self.application = get_object_or_404(Application, pk=kwargs.get('applicationid'))
+        if not (check_permissions(request.user) == HR_ADMIN and request.user.has_perm('hr.can_accept')):
+            return HttpResponseRedirect(reverse('hr-index'))
+        return super(HrRejectApplication, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(HrRejectApplication, self).get_form_kwargs()
+        kwargs['application'] = self.application
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(HrRejectApplication, self).get_context_data(**kwargs)
+        context['application'] = self.application
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.application = self.application
+        self.object.user = self.request.user
+        self.object.event = self.audit_event_type
+        self.object.save()
+
+        self.object.application.status = self.application_change_status
+        self.object.application.save(user=self.request.user)
+
+        try:
+            send_message(self.object.application, self.message_template_name, note=self.object.text)
+        except:
+            pass
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('hr-viewapplication', args=[self.application.id])
+
+
+class HrAcceptApplication(HrRejectApplication):
+
+    template_name = 'hr/applications/accept.html'
+    message_template_name = 'accepted'
+    application_change_status = APPLICATION_STATUS_ACCEPTED
+    audit_event_type = AUDIT_EVENT_ACCEPTED
+
+    def dispatch(self, request, *args, **kwargs):
+        app = get_object_or_404(Application, pk=kwargs.get('applicationid'))
         if app.blacklisted:
             messages.add_message(request, messages.INFO, "This application has one or more blacklist entries and cannot be accepted.")
-            return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
-
-        if request.method == 'POST':
-            if check_permissions(request.user, app) == HR_ADMIN:
-                obj = Audit(application=app, user=request.user, event=AUDIT_EVENT_ACCEPTED)
-                form = AdminNoteForm(request.POST, instance=obj, application=app)
-                if form.is_valid():
-                    obj = form.save()
-                    obj.application.status = APPLICATION_STATUS_ACCEPTED
-                    obj.application.save(user=request.user)
-                    send_message(obj.application, 'accepted', note=obj.text)
-            return HttpResponseRedirect(reverse('hr.views.view_application', args=[applicationid]))
-
-        form = AdminNoteForm(application=app)
-        return render_to_response('hr/applications/accept.html', locals(), context_instance=RequestContext(request))
-
-    return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
+            return HttpResponseRedirect(reverse('hr-viewapplication', args=[app.id]))
+        return super(HrAcceptApplication, self).dispatch(request, *args, **kwargs)
 
 
-def blacklist_user(request, userid):
+class HrBlacklistUser(FormView):
 
-    if request.user.has_perm('hr.add_blacklist'):
+    template_name = 'hr/blacklist/blacklist.html'
+    form_class = BlacklistUserForm
 
-        u = get_object_or_404(User, id=userid)
+    def dispatch(self, request, *args, **kwargs):
+        self.blacklist_user = get_object_or_404(User, id=kwargs.get('userid'))
+        return super(HrBlacklistUser, self).dispatch(request, *args, **kwargs)
 
-        if request.method == 'POST':
-            form = BlacklistUserForm(request.POST)
-            if form.is_valid():
-                source = BlacklistSource.objects.get(id=1)
+    def get_context_data(self, **kwargs):
+        context = super(HrBlacklistUser, self).get_context_data(**kwargs)
+        context['blacklistuser'] = self.blacklist_user
+        return context
 
-                if not form.cleaned_data.get('expiry_date', None):
-                    expiry = datetime.utcnow() + timedelta(days=50*365)
-                else:
-                    expiry = form.cleaned_data['expiry_date']
+    def blacklist_item(type, value):
+        Blacklist(type=self.type, value=self.value, level=self.level, source=self.source, expiry_date=self.expiry, created_by=self.request.user, reason=self.reason).save()
 
-                level = form.cleaned_data.get('level', 0)
+    def form_valid(self, form):
+        self.source = BlacklistSource.objects.get(id=1)
+        self.expiry = form.cleaned_data.get('expiry_date', None)
+        if not self.expiry:
+            self.expiry = datetime.utcnow() + timedelta(days=50*365) # 50 year default
+        self.level = form.cleaned_data.get('level', 0)
+        self.reason = form.cleaned_data.get('reason', 'No reason provided')
 
-                def blacklist_item(type, value):
-                    o = Blacklist(type=type, value=value, level=level, source=source, expiry_date=expiry, created_by=request.user, reason=form.cleaned_data['reason'])
-                    o.save()
+        # Blacklist email address
+        self.blacklist_item(BLACKLIST_TYPE_EMAIL, self.blacklist_user.email)
 
-                for ea in u.eveaccount_set.all():
-                    blacklist_item(BLACKLIST_TYPE_APIUSERID, ea.api_user_id)
+        # Blacklist API keys
+        for account in self.blacklist_user.eveaccount_set.all():
+            self.blacklist_item(BLACKLIST_TYPE_APIUSERID, account.api_user_id)
 
-                if installed('reddit'):
-                    for ra in u.redditaccount_set.all():
-                        blacklist_item(BLACKLIST_TYPE_REDDIT, ra.username)
+        # Blacklist Characters
+        for character in EVEPlayerCharacter.objects.filter(eveaccount__user=self.blacklist_user).distinct():
+            self.blacklist_item(BLACKLIST_TYPE_CHARACTER, character.name)
 
-                for char in EVEPlayerCharacter.objects.filter(eveaccount__user=u):
-                    blacklist_item(BLACKLIST_TYPE_CHARACTER, char.name)
+        # Blacklist Reddit accounts
+        if installed('reddit'):
+            for account in u.redditaccount_set.all():
+                self.blacklist_item(BLACKLIST_TYPE_REDDIT, account.username)
 
-                blacklist_item(BLACKLIST_TYPE_EMAIL, u.email)
+        messages.add_message(request, messages.INFO, "User %s has been blacklisted" % u.username )
 
-                messages.add_message(request, messages.INFO, "User %s has been blacklisted" % u.username )
+        # Disable the account if requested
+        if form.cleaned_data.get('disable', None):
+            self.blacklist_user.active = False
+            self.blacklist_user.save()
 
-                if form.cleaned_data.get('disable', None):
-                    # Disable the account
-                    u.active = False
-                    u.save()
+        update_user_access.delay(user=self.blacklist_user.id)
 
-                    for acc in u.serviceaccount_set.all():
-                        acc.delete()
+        messages.add_message(request, messages.INFO, "User %s disabled" % u.username )
 
-                    messages.add_message(request, messages.INFO, "User %s disabled" % u.username )
-
-                return redirect('sso.views.user_view', username=u.username)
-            else:
-                messages.add_message(request, messages.ERROR, "Error while processing the form")
-
-        form = BlacklistUserForm()
-        return render_to_response('hr/blacklist/blacklist.html', locals(), context_instance=RequestContext(request))
-
-    return render_to_response('hr/index.html', locals(), context_instance=RequestContext(request))
-
+        return redirect('sso.views.user_view', username=self.blacklist_user.username)

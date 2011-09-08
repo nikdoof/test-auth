@@ -23,7 +23,7 @@
 <a href="{% url sso.views.refresh_access user.id %}">Update Access</a>
 {% if "hr"|installed %}
 {% if perms.hr.add_blacklist %}
-<a href="{% url hr.views.blacklist_user user.id %}">Blacklist User</a>
+<a href="{% url hr-blacklistuser user.id %}">Blacklist User</a>
 {% endif %}
 {% endif %}
 </div>
@@ -49,7 +49,7 @@
 <table>
 <tr><th>ID</th><th>Character</th><th>Applied To</th><th>Status</th></tr>
 {% for app in user.application_set.all %}
-<tr><td><a href="{% url hr.views.view_application app.id %}">{{ app.id }}</a></td>
+<tr><td><a href="{% url hr-viewapplication app.id %}">{{ app.id }}</a></td>
     <td>{{ app.character }}</td>
     <td>{{ app.corporation }}</td>
     <td>{{ app.get_status_display }}</td></tr>
@@ -63,7 +63,7 @@
 <table>
 <tr><th>Recommended Application</th><th>Recommendation Character</th><th>Recommendation Date</th></tr>
 {% for rec in user.recommendation_set.all %}
-<tr><td><a href="{% url hr.views.view_application rec.application.id %}">{{ rec.application.character.name }}</a></td>
+<tr><td><a href="{% url hr-viewapplication rec.application.id %}">{{ rec.application.character.name }}</a></td>
     <td>{{ rec.user_character }}</td>
     <td>{{ rec.recommendation_date }}</td></tr>
 {% endfor %}

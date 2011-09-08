@@ -1,22 +1,23 @@
 from django.conf.urls.defaults import *
+from django.contrib.auth.decorators import login_required
 
 from hr import views
 
 urlpatterns = patterns('',
-    ('^$', views.index),
-    (r'^recommendation/$', views.view_recommendations),
-    (r'^application/$', views.view_applications),
-    (r'^application/(?P<applicationid>\d+)/$', views.view_application),
-    (r'^application/(?P<applicationid>\d+)/update/(?P<status>\d+)/$', views.update_application),
-    (r'^application/(?P<applicationid>\d+)/note/$', views.add_note),
-    (r'^application/(?P<applicationid>\d+)/message/$', views.add_message),
-    (r'^application/(?P<applicationid>\d+)/reject/$', views.reject_application),
-    (r'^application/(?P<applicationid>\d+)/accept/$', views.accept_application),
+    url('^$', login_required(views.HrIndexView.as_view()), name='hr-index'),
 
-    (r'^application/add/$', views.add_application),
-    (r'^recommendation/add/$', views.add_recommendation),
+    url(r'^application/$', login_required(views.HrViewUserApplications.as_view()), name='hr-userapplications'),
+    url(r'^application/(?P<slug>\d+)/$', login_required(views.HrViewApplication.as_view()), name='hr-viewapplication'),
+    url(r'^application/(?P<slug>\d+)/update/(?P<status>\d+)/$', login_required(views.HrUpdateApplication.as_view()), name='hr-updateapplication'),
+    url(r'^application/(?P<applicationid>\d+)/note/$', login_required(views.HrAddNote.as_view()), name='hr-addnote'),
+    url(r'^application/(?P<applicationid>\d+)/message/$', login_required(views.HrAddMessage.as_view()), name='hr-addmessage'),
+    url(r'^application/(?P<applicationid>\d+)/reject/$', login_required(views.HrRejectApplication.as_view()), name='hr-rejectapplication'),
+    url(r'^application/(?P<applicationid>\d+)/accept/$', login_required(views.HrAcceptApplication.as_view()), name='hr-acceptapplication'),
+    url(r'^application/add/$', login_required(views.HrAddApplication.as_view()), name='hr-addapplication'),
+    url(r'^application/admin/$', login_required(views.HrAdminApplications.as_view()), name='hr-admin'),
 
-    (r'^application/admin$', views.admin_applications),
+    url(r'^recommendation/$', login_required(views.HrViewRecommendations.as_view()), name='hr-viewrecommendations'),
+    url(r'^recommendation/add/$', login_required(views.HrAddRecommendation.as_view()), name='hr-addrecommendation'),
 
-    (r'^blacklist/user/(?P<userid>\d+)/$', views.blacklist_user),
+    url(r'^blacklist/user/(?P<userid>\d+)/$', login_required(views.HrBlacklistUser.as_view()), name='hr-blacklistuser'),
 )

@@ -1,10 +1,12 @@
 import re
-
 from datetime import datetime
+
+from django.db import models
+from django.template.loader import render_to_string
+
+from eve_api.models import EVEPlayerCharacter
 from hr.app_defines import *
 from hr.models import Blacklist, Application
-from django.db import models
-from eve_api.models import EVEPlayerCharacter
 
 def installed(value):
     from django.conf import settings
@@ -42,7 +44,7 @@ def blacklist_values(user, level=BLACKLIST_LEVEL_NOTE):
     blacklist.extend(bl_items.filter(type=BLACKLIST_TYPE_AUTH, value=user.username.lower()))
 
     # Check EVE Related blacklists
-    evechars = EVEPlayerCharacter.objects.filter(eveaccount__user=user).select_related('corporation', 'corporation__alliance')
+    evechars = EVEPlayerCharacter.objects.filter(eveaccount__user=user).distinct().select_related('corporation', 'corporation__alliance')
 
     # Check Character blacklists
     characters = [re.escape(x) for x in evechars.values_list('name', flat=True) if x]
@@ -80,3 +82,42 @@ def recommendation_chain(application, first=True):
     if first:
         return {name: output}
     return output
+
+def check_permissions(user, application=None):
+    """ Check if the user has permissions to view or admin the application """
+
+    corplist = EVEPlayerCharacter.objects.select_related('roles').filter(eveaccount__user=user)
+    if not application:
+        if user.has_perm('hr.can_view_all') or user.has_perm('hr.can_view_corp') or corplist.filter(roles__name='roleDirector').count():
+            return HR_ADMIN
+    else:
+        if application.user == user:
+            return HR_VIEWONLY
+        if user.has_perm('hr.can_view_all'):
+            return HR_ADMIN
+        else:
+            # Give admin access to directors of the corp
+            if application.corporation.id in corplist.filter(roles__name='roleDirector').values_list('corporation__id', flat=True):
+                return HR_ADMIN
+
+            # Give access to none director HR people access
+            if application.corporation.id in corplist.values_list('corporation__id', flat=True) and user.has_perm('hr.can_view_corp'):
+                return HR_ADMIN
+
+    return HR_NONE
+
+def send_message(application, message_type, note=None):
+    from django.core.mail import send_mail
+    subject = render_to_string('hr/emails/%s_subject.txt' % message_type, { 'app': application })
+    subject = ''.join(subject.splitlines())
+    message = render_to_string('hr/emails/%s.txt' % message_type, { 'app': application, 'note': note })
+    try:
+        send_mail(subject, message, getattr(settings, 'DEFAULT_FROM_EMAIL', 'auth@nowhere.com'), [application.user.email])
+    except:
+        pass
+
+    if installed('reddit') and len(application.user.redditaccount_set.all()) > 0:
+            from reddit.tasks import send_reddit_message
+
+            for account in application.user.redditaccount_set.all():
+                send_reddit_message.delay(to=account.username, subject=subject, message=message)

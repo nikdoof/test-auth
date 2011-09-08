@@ -3,7 +3,7 @@
 {% block title %}Add Note to Application{% endblock %}
 
 {% block content %}
-<form action="{% url hr.views.add_note applicationid %}" method="post">
+<form action="{% url hr-addnote application.id %}" method="post">
 <table>
 {{ form.as_table }}
 </table>
