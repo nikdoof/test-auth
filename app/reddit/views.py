@@ -1,8 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from django.contrib import messages
+from django.views.generic import TemplateView
+from django.http import HttpResponse
+import django.utils.simplejson as json
 
+from django.contrib import messages
+from django.contrib.auth.models import User
 from gargoyle.decorators import switch_is_active
 
 from reddit.forms import RedditAccountForm
@@ -51,3 +55,39 @@ def reddit_del(request, redditid=0):
 
     return redirect('sso.views.profile')
 
+
+class JSONResponseMixin(object):
+    def render_to_response(self, context):
+        "Returns a JSON response containing 'context' as payload"
+        return self.get_json_response(self.convert_context_to_json(context))
+
+    def get_json_response(self, content, **httpresponse_kwargs):
+        "Construct an `HttpResponse` object."
+        return HttpResponse(content,
+                            content_type='application/json',
+                            **httpresponse_kwargs)
+
+    def convert_context_to_json(self, context):
+        "Convert the context dictionary into a JSON object"
+        # Note: This is *EXTREMELY* naive; in reality, you'll need
+        # to do much more complex handling to ensure that arbitrary
+        # objects -- such as Django model instances or querysets
+        # -- can be serialized as JSON.
+        return json.dumps(context)
+
+
+class RedditCommentsJSON(JSONResponseMixin, TemplateView):
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = User.objects.get(id=request.GET.get('userid'))
+        return super(RedditCommentsJSON, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        posts = []
+        for account in self.user.redditaccount_set.all():
+            try:
+                accposts = account.recent_posts()
+            except:
+                accposts = []
+            posts.extend(accposts)
+        return {'posts': posts}
