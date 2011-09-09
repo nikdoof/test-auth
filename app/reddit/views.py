@@ -6,7 +6,6 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from gargoyle.decorators import switch_is_active
 
 from reddit.forms import RedditAccountForm
 from reddit.models import RedditAccount
