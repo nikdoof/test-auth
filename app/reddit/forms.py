@@ -1,13 +1,10 @@
 from django import forms
 
-from django.contrib.auth.models import User
 from reddit.models import RedditAccount
 
 
-class RedditAccountForm(forms.Form):
+class RedditAccountForm(forms.ModelForm):
     """ Basic Reddit account input form """
-
-    username = forms.CharField(label = u'Reddit Username', max_length=64)
 
     def clean(self):
         try:
@@ -16,3 +13,8 @@ class RedditAccountForm(forms.Form):
             return self.cleaned_data
         else:
             raise forms.ValidationError("This User ID is already registered")
+
+    class Meta:
+        model = RedditAccount
+        fields = ('username', 'user')
+        widgets = {'user': forms.HiddenInput()}

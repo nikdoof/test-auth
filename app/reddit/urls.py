@@ -1,12 +1,9 @@
-
 from django.conf.urls.defaults import *
+from django.contrib.auth.decorators import login_required
 from reddit import views
 
 urlpatterns = patterns('',
-    (r'^profile/add/reddit', views.reddit_add),
-    (r'^profile/del/reddit/$', views.reddit_del),
-    (r'^profile/del/reddit/(?P<redditid>\d+)/$', views.reddit_del),
-
+    url(r'^profile/add/reddit', login_required(views.RedditAddAccount.as_view()), name='reddit-addaccount'),
+    url(r'^profile/del/reddit/(?P<slug>\d+)/$', login_required(views.RedditDeleteAccount.as_view()), name='reddit-delaccount'),
     url(r'^reddit/comments.json$', views.RedditCommentsJSON.as_view(), name='reddit-commentsjson'),
 )
-
