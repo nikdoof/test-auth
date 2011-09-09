@@ -146,7 +146,7 @@ setup.</p>
 </table>
 {% endif %}
 <p>
-<a href="{% url reddit.views.reddit_add %}" class="button">Add a Reddit account</a>
+<a href="{% url reddit-addaccount %}" class="button">Add a Reddit account</a>
 </p>
 <p>
 Reddit account tagging is {% if user.get_profile.tag_reddit_accounts %}Enabled{% else %}Disabled{% endif %}. <a href="{% url sso.views.toggle_reddit_tagging %}">{% if user.get_profile.tag_reddit_accounts %}Disable{% else %}Enable{% endif %}</a>
