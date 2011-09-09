@@ -145,3 +145,43 @@ GARGOYLE_SWITCH_DEFAULTS = {
     }
 
 }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'handlers': {
+        'null': {
+            'level':'DEBUG',
+            'class':'django.utils.log.NullHandler',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        },
+        'sentry': {
+            'level': 'DEBUG',
+            'class': 'sentry.client.handlers.SentryHandler',
+        },
+    },
+    'loggers': {
+        '()': {
+            'level': 'WARNING',
+            'handlers': ['sentry'],
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['null'],
+            'propagate': False,
+        },
+        'django': {
+            'handlers':['null'],
+            'propagate': True,
+            'level':'INFO',
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    }
+}

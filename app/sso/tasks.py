@@ -6,7 +6,6 @@ from django.db.models import signals
 from django.contrib.auth.models import User
 from celery.signals import task_failure
 from celery.decorators import task
-from sentry.client.handlers import SentryHandler
 
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
 from eve_api.app_defines import *
@@ -15,10 +14,9 @@ from reddit.tasks import update_user_flair
 from utils import installed
 
 # Add Sentry error logging for Celery
-logger = logging.getLogger('task')
-logger.addHandler(SentryHandler())
 def process_failure_signal(exception, traceback, sender, task_id, signal, args, kwargs, einfo, **kw):
     exc_info = (type(exception), exception, traceback)
+    logger = logging.getLogger('celery.task')
     logger.error('Celery job exception: %s(%s)' % (exception.__class__.__name__, exception), exc_info=exc_info,
         extra={'data': {'task_id': task_id, 'sender': sender, 'args': args, 'kwargs': kwargs, }})
 task_failure.connect(process_failure_signal)
