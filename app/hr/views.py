@@ -331,6 +331,7 @@ class HrBlacklistUser(FormView):
         context['blacklistuser'] = self.blacklist_user
         return context
 
+    @staticmethod
     def blacklist_item(type, value):
         Blacklist(type=self.type, value=self.value, level=self.level, source=self.source, expiry_date=self.expiry, created_by=self.request.user, reason=self.reason).save()
 
