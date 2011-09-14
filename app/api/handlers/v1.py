@@ -77,7 +77,11 @@ class LoginHandler(BaseHandler):
             if request.GET.get('pass', None) and u.is_active and request.GET['pass'] == u.get_profile().api_service_password:
                 pchar = u.get_profile().primary_character
                 if pchar:
-                    pchardict = {'id': pchar.id, 'name': pchar.name}
+                    pchardict = {'id': pchar.id,
+                                 'name': pchar.name,
+                                 'corporation': {'name': pchar.corporation.name, 'id': pchar.corporation.id, 'ticker': pchar.corporation.ticker },
+                                 'alliance': {'id': pchar.corporation.alliance.id, 'name': pchar.corporation.alliance.name, 'ticker': pchar.corporation.alliance.ticker },
+                                }
                 else:
                     pchardict = None
                 return {'auth': 'ok', 'id': u.id, 'username': u.username,
