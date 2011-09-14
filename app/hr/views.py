@@ -142,7 +142,7 @@ class HrAdminApplications(ListView):
         if self.request.user.has_perm('hr.can_view_all'):
             apps = Application.objects.all()
         elif self.request.user.has_perm('hr.can_view_corp'):
-            apps = Application.objects.filter(corporation__id__in=EVEPlayerCharacter.objects.filter(eveaccount__user=self.request.user).values_list('corporation__id', flat=True))
+            apps = Application.objects.filter(corporation__id__in=set(EVEPlayerCharacter.objects.filter(eveaccount__user=self.request.user).values_list('corporation__id', flat=True)))
         else:
             apps = Application.objects.none()
 
