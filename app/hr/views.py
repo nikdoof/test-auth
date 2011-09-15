@@ -355,7 +355,7 @@ class HrBlacklistUser(FormView):
 
         # Blacklist Reddit accounts
         if installed('reddit'):
-            for account in u.redditaccount_set.all():
+            for account in self.blacklist_user.redditaccount_set.all():
                 self.blacklist_item(BLACKLIST_TYPE_REDDIT, account.username)
 
         messages.add_message(request, messages.INFO, "User %s has been blacklisted" % u.username )
