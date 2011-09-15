@@ -332,7 +332,7 @@ class HrBlacklistUser(FormView):
         return context
 
     def blacklist_item(self, type, value):
-        Blacklist(type=self.type, value=self.value, level=self.level, source=self.source, expiry_date=self.expiry, created_by=self.request.user, reason=self.reason).save()
+        Blacklist(type=type, value=value, level=self.level, source=self.source, expiry_date=self.expiry, created_by=self.request.user, reason=self.reason).save()
 
     def form_valid(self, form):
         self.source = BlacklistSource.objects.get(id=1)
