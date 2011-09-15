@@ -80,8 +80,11 @@ class LoginHandler(BaseHandler):
                     pchardict = {'id': pchar.id,
                                  'name': pchar.name,
                                  'corporation': {'name': pchar.corporation.name, 'id': pchar.corporation.id, 'ticker': pchar.corporation.ticker },
-                                 'alliance': {'id': pchar.corporation.alliance.id, 'name': pchar.corporation.alliance.name, 'ticker': pchar.corporation.alliance.ticker },
                                 }
+                    if pchar.corporation.alliance:
+                        pchardict['alliance'] = {'id': pchar.corporation.alliance.id, 'name': pchar.corporation.alliance.name, 'ticker': pchar.corporation.alliance.ticker }
+                    else:
+                        pchardict['alliance'] = None
                 else:
                     pchardict = None
                 return {'auth': 'ok', 'id': u.id, 'username': u.username,
