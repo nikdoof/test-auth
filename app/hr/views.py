@@ -199,7 +199,7 @@ class HrAddNote(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not check_permissions(request.user) == HR_ADMIN:
-            return HttpResponseRedirect(reverse('hr.views.HrIndexView'))
+            return HttpResponseRedirect(reverse('hr-index'))
         self.application = Application.objects.get(pk=kwargs.get('applicationid'))
         return super(HrAddNote, self).dispatch(request, *args, **kwargs)
 
@@ -229,7 +229,7 @@ class HrAddMessage(HrAddNote):
         self.application = Application.objects.get(pk=kwargs.get('applicationid'))
         self.perm = check_permissions(request.user, self.application)
         if not self.perm:
-            return HttpResponseRedirect(reverse('hr.views.HrIndexView'))
+            return HttpResponseRedirect(reverse('hr-index'))
         return super(HrAddMessage, self).dispatch(request, *args, **kwargs)
 
     def get_form_class(self):
