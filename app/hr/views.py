@@ -163,7 +163,7 @@ class HrAdminApplications(ListView):
         if query and len(query) < 3:
             apps = apps[:50]
 
-        return apps
+        return apps.order_by(order)
 
 
 class HrUpdateApplication(BaseDetailView):
@@ -358,15 +358,14 @@ class HrBlacklistUser(FormView):
             for account in self.blacklist_user.redditaccount_set.all():
                 self.blacklist_item(BLACKLIST_TYPE_REDDIT, account.username)
 
-        messages.add_message(request, messages.INFO, "User %s has been blacklisted" % u.username )
+        messages.add_message(self.request, messages.INFO, "User %s has been blacklisted" % u.username )
 
         # Disable the account if requested
         if form.cleaned_data.get('disable', None):
             self.blacklist_user.active = False
             self.blacklist_user.save()
+            messages.add_message(self.request, messages.INFO, "User %s disabled" % u.username)
 
         update_user_access.delay(user=self.blacklist_user.id)
-
-        messages.add_message(request, messages.INFO, "User %s disabled" % u.username )
 
         return redirect('sso.views.user_view', username=self.blacklist_user.username)
