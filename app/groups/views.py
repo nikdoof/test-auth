@@ -47,7 +47,8 @@ def group_list(request):
                     requestable = True
             else:
                 requestable = True
-        elif not group.groupinformation.public or (group.groupinformation.type == GROUP_TYPE_MANAGED and not status):
+
+        if not status and not group.groupinformation.public and not requestable:
             continue
 
         fixed = not group.groupinformation.type == GROUP_TYPE_PERMISSION
