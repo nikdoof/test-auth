@@ -16,7 +16,8 @@ class TS3Service(BaseService):
                  'authed_sgid': 12,
                  'name_format': '%(alliance)s - %(corporation)s - %(name)s',
                  'bookmark_name': 'TEST Alliance TS3',
-                 'ignore_groups': [6]}
+                 'ignore_groups': [6],
+                 'corporation_groups': True }
 
     def __init__(self):
         pass
@@ -171,14 +172,15 @@ class TS3Service(BaseService):
                         self.conn.send_command('servergroupaddclient', {'sgid': tsgrplist[g.name], 'cldbid': cldbid })
                         usrgrplist[g.name] = tsgrplist[g.name]
 
-            # Add to corporation groups
-            if character and character.corporation:
-                if character.corporation.ticker in usrgrplist:
-                    del usrgrplist[character.corporation.ticker]
-                else:
-                    if not character.corporation.ticker in tsgrplist:
-                        tsgrplist[character.corporation.ticker] = self._create_group(character.corporation.ticker)
-                    self.conn.send_command('servergroupaddclient', {'sgid': tsgrplist[character.corporation.ticker], 'cldbid': cldbid })
+            # Add to corporation groups if enabled
+            if self.settings['corporation_groups']:
+                if character and character.corporation:
+                    if character.corporation.ticker in usrgrplist:
+                        del usrgrplist[character.corporation.ticker]
+                    else:
+                        if not character.corporation.ticker in tsgrplist:
+                            tsgrplist[character.corporation.ticker] = self._create_group(character.corporation.ticker)
+                        self.conn.send_command('servergroupaddclient', {'sgid': tsgrplist[character.corporation.ticker], 'cldbid': cldbid })
 
             # Remove OKed groups from the delete list
             for g in groups:
