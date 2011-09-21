@@ -24,6 +24,7 @@ def group_list(request):
     else:
         groups = Group.objects.select_related('groupinformation').filter(Q(groupinformation__type=GROUP_TYPE_PERMISSION) |
                                                                          Q(groupinformation__public=True) |
+                                                                         Q(groupinformation__requestable=True) |
                                                                          Q(groupinformation__admins__in=[request.user]) |
                                                                          Q(user__in=[request.user]))
 
@@ -43,7 +44,10 @@ def group_list(request):
 
         requestable = False
         if group.groupinformation and group.groupinformation.requestable and not group.groupinformation.type == GROUP_TYPE_MANAGED:
-            if not group.groupinformation.parent or group.groupinformation.parent in request.user.groups.all():
+            if group.groupinformation.parent:
+                if group.groupinformation.parent in request.user.groups.all():
+                    requestable = True
+            else:
                 requestable = True
 
         fixed = not group.groupinformation.type == GROUP_TYPE_PERMISSION
