@@ -41,12 +41,14 @@ def group_list(request):
             status = None
 
         requestable = False
-        if group.groupinformation and group.groupinformation.requestable and not group.groupinformation.type == GROUP_TYPE_MANAGED:
+        if group.groupinformation and group.groupinformation.requestable:
             if group.groupinformation.parent:
                 if group.groupinformation.parent in request.user.groups.all():
                     requestable = True
             else:
                 requestable = True
+        elif not group.groupinformation.public or (group.groupinformation.type == GROUP_TYPE_MANAGED and not status):
+            continue
 
         fixed = not group.groupinformation.type == GROUP_TYPE_PERMISSION
 	pending = group.requests.filter(status=REQUEST_PENDING,user=request.user).count()
