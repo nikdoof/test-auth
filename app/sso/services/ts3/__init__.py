@@ -166,9 +166,9 @@ class TS3Service(BaseService):
             # Add groups
             if groups.count():
                 for g in groups:
-                    if not g.name in tsgrplist:
+                    if not g.name in tsgrplist and g.groupinformation.public:
                         tsgrplist[g.name] = self._create_group(g.name)
-                    if not g.name in usrgrplist:
+                    if not g.name in usrgrplist and g.name in tsgrplist:
                         self.conn.send_command('servergroupaddclient', {'sgid': tsgrplist[g.name], 'cldbid': cldbid })
                         usrgrplist[g.name] = tsgrplist[g.name]
 
