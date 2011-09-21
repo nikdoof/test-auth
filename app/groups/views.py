@@ -48,7 +48,7 @@ def group_list(request):
             else:
                 requestable = True
 
-        if not status and not requestable:
+        if not status and not requestable and not request.user.is_superuser:
             continue
 
         fixed = not group.groupinformation.type == GROUP_TYPE_PERMISSION
