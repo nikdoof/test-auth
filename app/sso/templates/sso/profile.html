@@ -106,10 +106,10 @@ setup.</p>
 <table>
 <tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th><th>Actions</th></tr>
 {% for acc in user.eveaccount_set.all %}
-<tr><td>{{ acc.api_user_id }}</td>
+<tr {% if acc.api_keytype == 4 %}style="background-color: #cccccc; color: gray;"{% endif %}><td>{{ acc.api_user_id }}</td>
     <td>{{ acc.api_key }}</td>
     <td>{{ acc.description }}</td>
-    <td>{{ acc.get_api_keytype_display }}</td>
+    <td>{{ acc.get_api_keytype_display }}{% if acc.api_keytype == 4 %}&nbsp;<b><sup style="color: red;">*</sup></b>{% endif %}</td>
     <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
     <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
     <td>{% ifswitch api-disableprocessing %}{% else %}<a href="{% url eve_api.views.eveapi_refresh acc.api_user_id %}"  onclick="javascript:refresh_apikey({{ acc.api_user_id }}); return false;">Refresh</a>,&nbsp;
@@ -120,6 +120,7 @@ setup.</p>
 {% endfor %}
 </table>
 {% endif %}
+<p><b style="color: red;">*</b> - Character API Keys are not included in any authorization checks, you will not be able to submit applications or access any services with them.</p>
 <p>
 {% ifswitch api-disableprocessing %}
 {% else %}
