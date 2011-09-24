@@ -1,12 +1,18 @@
+import sys
 import logging
+import urllib
+import urllib2
+from hashlib import sha512
 
 from django.conf import settings
 from django.db.models import signals
+from django.utils import simplejson as json
 
 from django.contrib.auth.models import User
 from celery.signals import task_failure
 from celery.decorators import task
 
+from api.models import AuthAPIKey
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance
 from eve_api.app_defines import *
 from sso.models import ServiceAccount, SSOUser
@@ -93,6 +99,27 @@ def update_user_access(user, **kwargs):
                     servacc.active = 1
                     servacc.save()
                     pass
+
+    notifyurls = AuthAPIKey.objects.filter(active=True).exclude(callback='')
+    if notifyurls.count():
+        data = {'username': user.username, 'groups': list(user.groups.all().values('id', 'name'))}
+        # Update remote services with poking the notification URLs
+        for endpoint in notifyurls:
+            url, key = endpoint.callback, endpoint.key
+            jsonstr = json.dumps(data)
+            hash = sha512('%s-%s' % (key, jsonstr)).hexdigest()
+            req = urllib2.Request(url, urllib.urlencode({'data': jsonstr, 'auth': hash}))
+            try:
+                if sys.version_info < (2, 6):
+                    conn = urllib2.urlopen(req)
+                else:
+                    conn = urllib2.urlopen(req, timeout=5)
+            except (urllib2.HTTPError, urllib2.URLError) as e:
+                # logger.error('Error notifying SSO service: %s' % e.code, exc_info=sys.exc_info(), extra={'data': {'url': url}})
+                pass
+            else:
+                if settings.DEBUG:
+                    print conn.read()
 
     update_service_groups.delay(user_id=user.id)
 

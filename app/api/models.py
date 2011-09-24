@@ -6,9 +6,10 @@ class AuthAPIKey(models.Model):
     """ Auth API Key storage model """
 
     name = models.CharField("Service Name", max_length=200)
-    url = models.CharField("Service URL", max_length=200, blank=True)
+    url = models.CharField("Service URL", max_length=200, blank=True, help_text="URL that the service is available at")
     active = models.BooleanField(default=True)
-    key = models.CharField("API Key", max_length=200, blank=True)
+    key = models.CharField("API Key", max_length=200, blank=True, help_text="API key for the service to use")
+    callback = models.CharField("Callback URL", max_length=200, blank=True, help_text="URL for the callback service to connect to")
 
     def save(self, *args, **kwargs):
         if not self.key or self.key == '':
