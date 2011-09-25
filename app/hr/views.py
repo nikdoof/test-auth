@@ -368,4 +368,4 @@ class HrBlacklistUser(FormView):
 
         update_user_access.delay(user=self.blacklist_user.id)
 
-        return redirect('sso.views.user_view', username=self.blacklist_user.username)
+        return HttpResponseRedirect(reverse('sso.views.user_view', args=[self.blacklist_user.username]))
