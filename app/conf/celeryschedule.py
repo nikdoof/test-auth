@@ -19,7 +19,7 @@ CELERYBEAT_SCHEDULE = {
     },
     "blacklist-check": {
         "task": "hr.tasks.blacklist_check",
-        "schedule": timedelta(days=1),
+        "schedule": timedelta(days=7),
     },
     "reddit-update": {
         "task": "reddit.tasks.queue_account_updates",
@@ -30,4 +30,6 @@ CELERYBEAT_SCHEDULE = {
 CELERY_ROUTES = {
     "sso.tasks.update_service_groups": {'queue': 'bulk'},
     "hr.tasks.blacklist_check": {'queue': 'bulk'},
+    "eve_api.tasks.import_apikey_result": {'queue': 'fastresponse'},
+    "sso.tasks.update_user_access":  {'queue': 'fastresponse'},
 }
