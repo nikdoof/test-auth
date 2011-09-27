@@ -31,7 +31,7 @@ class HrIndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(HrIndexView, self).get_context_data(**kwargs)
-        context['hrstaff'] = check_permissions(self.request.user)
+        context['is_hr_staff'] = check_permissions(self.request.user)
         context['can_recommend'] = len(blacklist_values(self.request.user, BLACKLIST_LEVEL_ADVISORY)) == 0
         return context
 
@@ -228,9 +228,9 @@ class HrAddMessage(HrAddNote):
     def dispatch(self, request, *args, **kwargs):
         self.application = Application.objects.get(pk=kwargs.get('applicationid'))
         self.perm = check_permissions(request.user, self.application)
-        if not self.perm:
+        if self.perm == HR_NONE:
             return HttpResponseRedirect(reverse('hr-index'))
-        return super(HrAddMessage, self).dispatch(request, *args, **kwargs)
+        return CreateView.dispatch(self, request, *args, **kwargs)
 
     def get_form_class(self):
         if self.perm == HR_ADMIN:
