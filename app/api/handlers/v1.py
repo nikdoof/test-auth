@@ -19,6 +19,7 @@ from gargoyle import gargoyle
 from api.models import AuthAPIKey, AuthAPILog
 from eve_proxy.models import CachedDocument
 from eve_proxy.exceptions import *
+from eve_api.app_defines import *
 from eve_api.models import EVEAccount, EVEPlayerCharacter
 from sso.models import ServiceAccount, Service
 from hr.app_defines import *
@@ -128,9 +129,16 @@ class EveAPIProxyHandler(BaseHandler):
         for key, value in request.GET.items():
             params[key.lower()] = value
 
-        if 'userid' in params:
+        if 'userid' in params or 'keyid' in params:
             obj = get_object_or_404(EVEAccount, pk=params['userid'])
-            params['apikey'] = obj.api_key
+
+            # "Fix" new style keys
+            if obj.api_keytype >= 3:
+                params['keyid'] = params['userid']
+                del params['userid']
+                params['vcode'] = obj.api_key
+            else:
+                params['apikey'] = obj.api_key
 
         try:
             cached_doc = CachedDocument.objects.api_query(url_path, params, service=request.api_key.name)

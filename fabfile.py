@@ -19,7 +19,7 @@ def production():
     env.uwsgiconfig = os.path.join(env.path, '..', 'etc', 'uwsgi', 'dreddit-auth.ini')
     env.password = sha1('%s-%s' % (env.user, env.vhost)).hexdigest()
 
-    env.celeryconf = '-l INFO --settings=%(config)s --pidfile=logs/%%n.pid --logfile=logs/%%n.log -n auth.pleaseignore.com bulk default fastresponse -Q:bulk bulk -Q:fastresponse fastresponse -c 5 -c:bulk 3 -c:fastresponse 3 -B --scheduler=djcelery.schedulers.DatabaseScheduler' % env
+    env.celeryconf = '-l INFO --settings=%(config)s --pidfile=logs/%%n.pid --logfile=logs/%%n.log -n auth.pleaseignore.com bulk default fastresponse -Q:bulk bulk -Q:fastresponse fastresponse -c 5 -c:bulk 3 -c:fastresponse 3 -B:default --scheduler=djcelery.schedulers.DatabaseScheduler' % env
     
 
 def test():
