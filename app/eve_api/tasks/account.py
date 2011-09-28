@@ -38,9 +38,9 @@ def queue_apikey_updates(update_delay=86400, batch_size=50):
     log.info("Updating APIs older than %s" % (datetime.now() - delta))
 
     if gargoyle.is_active('eve-cak'):
-        accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.now() - delta)).exclude(api_status=API_STATUS_ACC_EXPIRED).exclude(api_status=API_STATUS_AUTH_ERROR).order_by('api_last_updated')[:batch_size]
+        accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.now() - delta)).exclude(api_status__in=[API_STATUS_ACC_EXPIRED, API_STATUS_KEY_EXPIRED, API_STATUS_AUTH_ERROR]).order_by('api_last_updated')[:batch_size]
     else:
-        accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.now() - delta)).exclude(api_status=API_STATUS_ACC_EXPIRED).exclude(api_status=API_STATUS_AUTH_ERROR).exclude(api_keytype__gt=2).order_by('api_last_updated')[:batch_size]
+        accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.now() - delta)).exclude(api_status__in=[API_STATUS_ACC_EXPIRED, API_STATUS_KEY_EXPIRED, API_STATUS_AUTH_ERROR]).exclude(api_keytype__gt=2).order_by('api_last_updated')[:batch_size]
     log.info("%s account(s) to update" % accounts.count())
     for acc in accounts:
         log.debug("Queueing UserID %s for update" % acc.pk)
@@ -145,6 +145,8 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
                 account.api_status = API_STATUS_AUTH_ERROR
             elif error == '211':
                 account.api_status = API_STATUS_ACC_EXPIRED
+            elif error in ['222', '223']:
+                account.api_status = API_STATUS_KEY_EXPIRED
             else:
                 account.api_status = API_STATUS_OTHER_ERROR
 
