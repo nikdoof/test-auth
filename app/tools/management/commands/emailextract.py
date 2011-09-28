@@ -33,7 +33,7 @@ class Command(BaseCommand):
         corporation = options.get('corporation', None)
         domain = options.get('domain', None)
 
-        chars = EVEPlayerCharacter.objects.select_related('eveaccount__user').filter(eveaccount__api_status=API_STATUS_OK, eveaccount__isnull=False)
+        chars = EVEPlayerCharacter.objects.select_related('eveaccount__user').filter(eveaccount__api_status=API_STATUS_OK, eveaccount__isnull=False).distinct()
         if alliance:
              chars = chars.filter(corporation__alliance__id=alliance)
         elif corporation:
