@@ -167,14 +167,15 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
                 account.api_key = api_key
             account.api_status = API_STATUS_OK
 
-            keycheck = CachedDocument.objects.api_query('/account/AccountStatus.xml.aspx', params=auth_params, no_cache=True)
-            keydoc = basic_xml_parse_doc(keycheck)['eveapi']
-            if 'error' in keydoc:
-                account.api_keytype = API_KEYTYPE_LIMITED
-            elif not 'error' in keydoc:
-                account.api_keytype = API_KEYTYPE_FULL
-            else:
-                account.api_keytype = API_KEYTYPE_UNKNOWN
+            if not account.api_keytype or account.api_keytype == API_KEYTYPE_UNKNOWN:
+                keycheck = CachedDocument.objects.api_query('/account/AccountStatus.xml.aspx', params=auth_params, no_cache=True)
+                keydoc = basic_xml_parse_doc(keycheck)['eveapi']
+                if 'error' in keydoc:
+                    account.api_keytype = API_KEYTYPE_LIMITED
+                elif not 'error' in keydoc:
+                    account.api_keytype = API_KEYTYPE_FULL
+                else:
+                    account.api_keytype = API_KEYTYPE_UNKNOWN
 
             # Remove deleted or traded characters
             newcharlist = [int(char['characterID']) for char in doc['result']['characters']]
