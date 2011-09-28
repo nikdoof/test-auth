@@ -117,12 +117,20 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
     else:
         acc = None
 
-    # Actual Key? Get further information
+
+    # If we have a key, check if we should import the charsheet
     if acc:
+        if gargoyle.is_active('eve-cak'):
+            if (acc.is_cak and acc.has_access(3) and not acc.api_keytype == API_KEYTYPE_CORPORATION) or not acc.is_cak:
+                process_charsheet = True
+            else:
+                process_charsheet = False
+        else:
+            process_charsheet = True
+
+    # Actual Key? Get further information
+    if acc and process_charsheet:
         if gargoyle.is_active('eve-cak') and acc.is_cak:
-            if not acc.has_access(3):
-                logger.error('Key %s does not have access to CharacterSheet' % acc.pk)
-                return
             auth_params = {'keyid': acc.api_user_id, 'vcode': acc.api_key, 'characterid': character_id }
         else:
             auth_params = {'userID': acc.api_user_id, 'apiKey': acc.api_key, 'characterID': character_id }
