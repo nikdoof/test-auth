@@ -14,6 +14,9 @@ API_URL = getattr(settings, 'EVE_API_URL', 'https://api.eve-online.com')
 # Errors to rollback if we have a cached version of the document
 ROLLBACK_ERRORS = range(516, 902)
 
+# Errors ignored if encountered, as they're valid responses in some cases
+IGNORED_ERRORS = range(200, 223)
+
 class CachedDocumentManager(models.Manager):
     """
     This manager handles querying or retrieving CachedDocuments.
@@ -104,13 +107,16 @@ class CachedDocumentManager(models.Manager):
 
             if error:
                 # If we have a rollback error, try and retreive a correct version from the DB
-                if error in ROLLBACK_ERRORS:
+                if int(error) in ROLLBACK_ERRORS:
                     try:
                         doc = self.get(pk=doc.pk)
                     except self.DoesNotExist:
                         doc.save()
                 else:
-                    logger.error("API Error %s encountered - %s" % (error, url), extra={'data': {'api-url': url, 'error': error, 'document': doc.body}})
+                    if not int(error) in IGNORED_ERRORS:
+                        logger.error("API Error %s encountered - %s" % (error, url), extra={'data': {'api-url': url, 'error': error, 'document': doc.body}})
+                    else:
+                        doc.save()
             else:
                 doc.save()
 
