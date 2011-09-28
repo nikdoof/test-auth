@@ -32,6 +32,9 @@
                 {% if request.user.is_staff %}
                     <li><a href="/nexus/">Admin</a></li>
                 {% endif %}
+                {% if request.user.is_superuser %}
+                    <li><a href="{% url sentry %}">Sentry</a></li>
+                {% endif %}
                     <li><a href="{% url django.contrib.auth.views.logout %}">Logout</a></li>
             {% else %}
                     <li><a href="{% url django.contrib.auth.views.login %}">Login</a></li>
