@@ -110,7 +110,7 @@ class CachedDocumentManager(models.Manager):
                     except self.DoesNotExist:
                         doc.save()
                 else:
-                    logger.error("API Error %s encountered" % error, extra={'data': {'api-url': url, 'error': error, 'document': doc.body}})
+                    logger.error("API Error %s encountered - %s" % (error, url), extra={'data': {'api-url': url, 'error': error, 'document': doc.body}})
             else:
                 doc.save()
 
