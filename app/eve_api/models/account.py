@@ -70,7 +70,7 @@ class EVEAccount(EVEAPIModel):
 
     @property
     def is_cak(self):
-        return self.api_keytype in [API_KEYTYPE_CHARACTER, API_KEYTYPE_CORPORATION, API_KEYTYPE_ACCOUNT]
+        return self.api_keytype in [API_KEYTYPE_UNKNOWN, API_KEYTYPE_CHARACTER, API_KEYTYPE_CORPORATION, API_KEYTYPE_ACCOUNT]
 
     class Meta:
         app_label = 'eve_api'
