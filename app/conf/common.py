@@ -164,14 +164,14 @@ LOGGING = {
         },
     },
     'loggers': {
-        '': {
+        'root': {
             'level': 'WARNING',
             'handlers': ['sentry'],
         },
         'sentry.errors': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'handlers': ['null'],
-            'propagate': False,
+            'propagate': True,
         },
         'django': {
             'handlers':['null'],
@@ -179,6 +179,11 @@ LOGGING = {
             'level':'INFO',
         },
         'django.request': {
+            'handlers': ['null'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'celery.task.default': {
             'handlers': ['null'],
             'level': 'ERROR',
             'propagate': True,
