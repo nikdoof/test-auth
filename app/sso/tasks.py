@@ -42,6 +42,7 @@ def update_user_access(user, **kwargs):
     access groups.
     """
 
+    logger = update_user_access.get_logger()
     user = User.objects.get(id=user)
 
     # Create a list of all Corp and Alliance groups
@@ -115,25 +116,23 @@ def update_user_access(user, **kwargs):
                 else:
                     conn = urllib2.urlopen(req, timeout=5)
             except (urllib2.HTTPError, urllib2.URLError) as e:
-                # logger.error('Error notifying SSO service: %s' % e.code, exc_info=sys.exc_info(), extra={'data': {'url': url}})
+                logger.error('Error notifying SSO service: %s' % e.code, exc_info=sys.exc_info(), extra={'data': {'url': url}})
                 pass
-            else:
-                if settings.DEBUG:
-                    print conn.read()
 
     update_service_groups.delay(user_id=user.id)
 
 
 @task(ignore_result=True)
 def update_service_groups(user_id):
+    logger = update_service_groups.get_logger()
     for service in ServiceAccount.objects.filter(user=user_id, active=True).select_related('service__api'):
         api = service.service.api_class
         try:
             print "Updating %s" % service
             api.update_groups(service.service_uid, service.user.groups.all(), service.character)
-            print "Done"
-        except:
-            print "Error updating %s %s" % (service.service, service.service_uid)
+            logger.debug("Service %s (%s) Updated" % (service.service, service.service_uid))
+        except Exception as e:
+            logger.error("Error updating Service %s (%s) - %s" % (service.service, service.service_uid, e), exc_info=sys.exc_info(), extra={'service': service.service, 'service_uid': service.service_uid})
             pass
 
 
