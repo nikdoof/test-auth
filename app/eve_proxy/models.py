@@ -8,15 +8,11 @@ from django.db import models, IntegrityError
 from django.conf import settings
 from eve_proxy.exceptions import *
 
-# You generally never want to change this unless you have a very good reason.
-try:
-    API_URL = getattr(settings, 'EVE_API_URL')
-except AttributeError:
-    API_URL = 'https://api.eve-online.com'
+# API URL, can be overriden in the configuration
+API_URL = getattr(settings, 'EVE_API_URL', 'https://api.eve-online.com')
 
 # Errors to rollback if we have a cached version of the document
-# Errors 500-999 at the moment, this can be trimmed down as needed
-ROLLBACK_ERRORS = range(500, 999)
+ROLLBACK_ERRORS = range(516, 902)
 
 class CachedDocumentManager(models.Manager):
     """
@@ -88,7 +84,6 @@ class CachedDocumentManager(models.Manager):
                     pass
                 logger.error('URL Error: %s' % e, exc_info=sys.exc_info(), extra={'data': {'api-url': url}})
                 raise DocumentRetrievalError(e.reason)
-
             else:
                 doc.body = unicode(conn.read(), 'utf-8')
                 doc.time_retrieved = datetime.utcnow()
@@ -100,22 +95,24 @@ class CachedDocumentManager(models.Manager):
             except:
                 doc.cached_until = datetime.utcnow()
             else:
-                doc.cached_until = dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue
+                date = datetime.strptime(dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue, '%Y-%m-%d %H:%M:%S')
+                # Add 30 seconds to the cache timers, avoid hitting too early and account for some minor clock skew.
+                doc.cached_until = date + timedelta(seconds=getattr(settings, 'EVE_PROXY_CACHE_ADJUSTMENT', 30))
                 enode = dom.getElementsByTagName('error')
                 if enode:
                    error = enode[0].getAttribute('code')
 
-            # If we have a error in the ignored error list use the cached doc, otherwise return the new doc
-            if not error or not error in ROLLBACK_ERRORS:
-                try:
-                    doc.save()
-                except IntegrityError:
-                    # Ignore IntegrityError for this instance, just reload the doc from store
-                    pass
-                doc = self.get(pk=doc.pk)
-            elif error in ROLLBACK_ERRORS and not created:
-                logger.info("API Error %s encountered" % error, extra={'data': {'api-url': url, 'error': error, 'document': doc.body}})
-                doc = self.get(pk=doc.pk)
+            if error:
+                # If we have a rollback error, try and retreive a correct version from the DB
+                if error in ROLLBACK_ERRORS:
+                    try:
+                        doc = self.get(pk=doc.pk)
+                    except self.DoesNotExist:
+                        doc.save()
+                else:
+                    logger.error("API Error %s encountered" % error, extra={'data': {'api-url': url, 'error': error, 'document': doc.body}})
+            else:
+                doc.save()
 
             # If this is user related, write a log instance
             if params and (params.get('userid', None) or params.get('keyid', None)):
@@ -152,6 +149,7 @@ class CachedDocument(models.Model):
         verbose_name = 'Cached Document'
         verbose_name_plural = 'Cached Documents'
         ordering = ['-time_retrieved']
+
 
 class ApiAccessLog(models.Model):
     """
