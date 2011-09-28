@@ -164,7 +164,7 @@ LOGGING = {
         },
     },
     'loggers': {
-        '()': {
+        '': {
             'level': 'WARNING',
             'handlers': ['sentry'],
         },
@@ -179,9 +179,9 @@ LOGGING = {
             'level':'INFO',
         },
         'django.request': {
-            'handlers': ['mail_admins'],
+            'handlers': ['null'],
             'level': 'ERROR',
-            'propagate': False,
+            'propagate': True,
         },
     }
 }
