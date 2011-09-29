@@ -1,3 +1,5 @@
+import xmpp
+import urllib, urllib2
 import xmlrpclib
 from sso.services import BaseService
 from django.conf import settings
@@ -11,7 +13,9 @@ class JabberService(BaseService):
                  'use_auth_username': False,
                  'jabber_server': 'dredd.it',
                  'jabber_xmlrpc_url': 'http://127.0.0.1:4560',
-                 'jabber_annouce_from': 'announcebot@pleaseignore.com'}
+                 'jabber_announce_from': 'announcebot@pleaseignore.com',
+                 'jabber_announce_password': 'pepperllama',
+                 'jabber_announce_endpoint': 'http://127.0.0.1:5281/message'}
 
     def exec_xmlrpc(self, func, **kwargs):
         """ Send a XMLRPC request """
@@ -118,36 +122,64 @@ class JabberService(BaseService):
         for group in (set(current_groups) - set(valid_groups)):
             self.exec_xmlrpc('srg_user_del', user=username, host=server, group=group, grouphost=server)
 
-    def send_message(self, jid, msg):
-        # send_stanza_c2s user host resource stanza
-        username, server = jid.lower().split("@")
-        self.exec_xmlrpc('send_stanza_c2s', user=username, host=server, resource='auth', stanza=str(msg))
+    @property
+    def authhandler(self):
+        """ Generates the urllib2 Auth Handler for authenticated requests """
+        if not hasattr(self, '_authhandler'):
+            passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+            passman.add_password(None, self.settings['jabber_announce_endpoint'], self.settings['jabber_announce_from'], self.settings['jabber_announce_password'])
+            self._authhandler = urllib2.HTTPBasicAuthHandler(passman)
+        return self._authhandler
 
-    def announce(self, server, message, subject=None, all=False, users=[], groups=[]):
-        import xmpp
+    def send_message(self, jid, body, subject=None, msgfrom=None):
+
         msg = xmpp.protocol.Message()
-        msg.setFrom(self.settings['jabber_announce_from'])
-        msg.setBody(message)
+        if len(jid) > 1:
+            msg.setTo('multicast')
+            multi = msg.addChild(name='addresses', namespace='http://jabber.org/protocol/address')
+            for j in jid:
+                multi.addChild(name='address', attrs={'jid': j, 'type': 'bcc'})
+        elif len(jid) == 1:
+            msg.setTo(jid[0])
+        else:
+            return False
+
+        if msgfrom:
+            msg.setFrom(msgfrom)
+        else:
+            msg.setFrom(self.settings['jabber_announce_from'])
+        msg.setType('chat')
         if subject:
             msg.setSubject(subject)
+        msg.setBody(body)
 
-        if all:
-            msg.setTo('%s/announce/all-hosts/online' % server)
-            self.send_message(self.settings['jabber_announce_from'], msg)
-            return True
+        print str(msg)
+
+        opener = urllib2.build_opener(self.authhandler)
+        req = urllib2.Request(self.settings['jabber_announce_endpoint'], str(msg))
+        resp = opener.open(req)
+
+        return resp.read().strip()[:2] == 'OK'
+
+    def announce(self, server, message, subject=None, users=[], groups=[]):
+
+        if 'all' in groups:
+            dest = ['%s/announce/all-hosts/online' % server]
         else:
+            dest = []
+
             if len(users):
                 for u in set(users):
-                    msg.setTo(u)
-                    self.send_message(self.settings['jabber_announce_from'], msg)
-                return True
+                    dest.append(u)
 
             elif len(groups):
-                tolist = []
                 for g in groups:
-                    tolist.extend([x for x in self.get_group_members(server, g)])
-                    return self.announce(server, message, subject, users=tolist)
-            else:
-                return False
+                    dest.extend([x for x in self.get_group_members(server, g)])
+
+            dest = set(dest)
+
+        if len(dest):
+            return self.send_message(dest, message, subject)
+        return False
 
 ServiceClass = 'JabberService'
