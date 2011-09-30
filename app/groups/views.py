@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from groups.models import GroupInformation, GroupRequest
 from groups.app_defines import *
 from groups.forms import GroupRequestForm
+from groups.utils import send_group_email
 
 from sso.tasks import update_user_access
 
@@ -62,7 +63,7 @@ def group_list(request):
 
 
 @login_required
-def create_request(request, groupid, email_text_template='email/request.txt', email_html_template='email/request.html'):
+def create_request(request, groupid, email_text_template='groups/email/request.txt', email_html_template='groups/email/request.html'):
 
     group = get_object_or_404(Group, id=groupid)
 
@@ -94,7 +95,7 @@ def create_request(request, groupid, email_text_template='email/request.txt', em
 
             messages.add_message(request, messages.INFO, "You membership request has been created.")
             to_email = obj.group.groupinformation.admins.values_list('email', flat=True)
-            send_group_email(obj, to_email, '[Auth] %s has requested membership to %s' % (user.username, group.name), email_text_template, email_html_template)
+            send_group_email(obj, to_email, '[Auth] %s has requested membership to %s' % (obj.user.username, obj.group.name), email_text_template, email_html_template)
 
             return HttpResponseRedirect(reverse('groups.views.group_list')) # Redirect after POST
     else:
@@ -104,7 +105,7 @@ def create_request(request, groupid, email_text_template='email/request.txt', em
 
 
 @login_required
-def accept_request(request, requestid, email_text_template='email/accepted.txt', email_html_template='email/accepted.html'):
+def accept_request(request, requestid, email_text_template='groups/email/accepted.txt', email_html_template='groups/email/accepted.html'):
 
     obj = get_object_or_404(GroupRequest, id=requestid)
 
@@ -113,16 +114,16 @@ def accept_request(request, requestid, email_text_template='email/accepted.txt',
         obj.user.groups.add(obj.group)
         obj.changed_by = request.user
         obj.save()
-        update_user_access.delay(requestobj.user.id)
+        update_user_access.delay(obj.user.id)
 
-        messages.add_message(request, messages.INFO, "%s has been accepted into %s" % (requestobj.user, requestobj.group))
+        messages.add_message(request, messages.INFO, "%s has been accepted into %s" % (obj.user, obj.group))
         send_group_email(obj, [obj.user.email], '[Auth] Your membership to %s has been accepted.' % group.name, email_text_template, email_html_template)
 
-    return HttpResponseRedirect(reverse('groups.views.admin_group', args=[requestobj.group.id]))
+    return HttpResponseRedirect(reverse('groups.views.admin_group', args=[obj.group.id]))
 
 
 @login_required
-def reject_request(request, requestid, email_text_template='email/rejected.txt', email_html_template='email/rejected.html'):
+def reject_request(request, requestid, email_text_template='groups/email/rejected.txt', email_html_template='groups/email/rejected.html'):
 
     obj = get_object_or_404(GroupRequest, id=requestid)
     if request.user in obj.group.groupinformation.admins.all() or request.user.is_superuser:
@@ -130,10 +131,10 @@ def reject_request(request, requestid, email_text_template='email/rejected.txt',
         obj.changed_by = request.user
         obj.save()
 
-        messages.add_message(request, messages.INFO, "%s has been rejected for %s" % (requestobj.user, requestobj.group))
-        send_group_email(obj, [obj.user.email], '[Auth] Your membership to %s has been rejected.' % group.name, email_text_template, email_html_template)
+        messages.add_message(request, messages.INFO, "%s has been rejected for %s" % (obj.user, obj.group))
+        send_group_email(obj, [obj.user.email], '[Auth] Your membership to %s has been rejected.' % obj.group.name, email_text_template, email_html_template)
 
-    return HttpResponseRedirect(reverse('groups.views.admin_group', args=[requestobj.group.id]))
+    return HttpResponseRedirect(reverse('groups.views.admin_group', args=[obj.group.id]))
 
 
 @login_required
