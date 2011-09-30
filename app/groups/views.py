@@ -62,7 +62,7 @@ def group_list(request):
 
 
 @login_required
-def create_request(request, groupid):
+def create_request(request, groupid, email_text_template='email/request.txt', email_html_template='email/request.html'):
 
     group = get_object_or_404(Group, id=groupid)
 
@@ -91,7 +91,11 @@ def create_request(request, groupid):
             obj.group = group
             obj.changed_by = request.user
             obj.save()
+
             messages.add_message(request, messages.INFO, "You membership request has been created.")
+            to_email = obj.group.groupinformation.admins.values_list('email', flat=True)
+            send_group_email(obj, to_email, '[Auth] %s has requested membership to %s' % (user.username, group.name), email_text_template, email_html_template)
+
             return HttpResponseRedirect(reverse('groups.views.group_list')) # Redirect after POST
     else:
         form = GroupRequestForm() # An unbound form
@@ -100,29 +104,35 @@ def create_request(request, groupid):
 
 
 @login_required
-def accept_request(request, requestid):
+def accept_request(request, requestid, email_text_template='email/accepted.txt', email_html_template='email/accepted.html'):
 
-    requestobj = get_object_or_404(GroupRequest, id=requestid)
+    obj = get_object_or_404(GroupRequest, id=requestid)
 
-    if request.user in requestobj.group.groupinformation.admins.all() or request.user.is_superuser:
-        requestobj.status = REQUEST_ACCEPTED
-        requestobj.user.groups.add(requestobj.group)
-        requestobj.changed_by = request.user
-        requestobj.save()
+    if request.user in obj.group.groupinformation.admins.all() or request.user.is_superuser:
+        obj.status = REQUEST_ACCEPTED
+        obj.user.groups.add(obj.group)
+        obj.changed_by = request.user
+        obj.save()
         update_user_access.delay(requestobj.user.id)
+
         messages.add_message(request, messages.INFO, "%s has been accepted into %s" % (requestobj.user, requestobj.group))
+        send_group_email(obj, [obj.user.email], '[Auth] Your membership to %s has been accepted.' % group.name, email_text_template, email_html_template)
+
     return HttpResponseRedirect(reverse('groups.views.admin_group', args=[requestobj.group.id]))
 
 
 @login_required
-def reject_request(request, requestid):
+def reject_request(request, requestid, email_text_template='email/rejected.txt', email_html_template='email/rejected.html'):
 
-    requestobj = get_object_or_404(GroupRequest, id=requestid)
-    if request.user in requestobj.group.groupinformation.admins.all() or request.user.is_superuser:
-        requestobj.status = REQUEST_REJECTED
-        requestobj.changed_by = request.user
-        requestobj.save()
+    obj = get_object_or_404(GroupRequest, id=requestid)
+    if request.user in obj.group.groupinformation.admins.all() or request.user.is_superuser:
+        obj.status = REQUEST_REJECTED
+        obj.changed_by = request.user
+        obj.save()
+
         messages.add_message(request, messages.INFO, "%s has been rejected for %s" % (requestobj.user, requestobj.group))
+        send_group_email(obj, [obj.user.email], '[Auth] Your membership to %s has been rejected.' % group.name, email_text_template, email_html_template)
+
     return HttpResponseRedirect(reverse('groups.views.admin_group', args=[requestobj.group.id]))
 
 
