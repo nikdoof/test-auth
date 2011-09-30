@@ -117,7 +117,7 @@ def accept_request(request, requestid, email_text_template='groups/email/accepte
         update_user_access.delay(obj.user.id)
 
         messages.add_message(request, messages.INFO, "%s has been accepted into %s" % (obj.user, obj.group))
-        send_group_email(obj, [obj.user.email], '[Auth] Your membership to %s has been accepted.' % group.name, email_text_template, email_html_template)
+        send_group_email(obj, [obj.user.email], '[Auth] Your membership to %s has been accepted.' % obj.group.name, email_text_template, email_html_template)
 
     return HttpResponseRedirect(reverse('groups.views.admin_group', args=[obj.group.id]))
 
