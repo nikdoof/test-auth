@@ -95,6 +95,9 @@ def create_request(request, groupid, email_text_template='groups/email/request.t
 
             messages.add_message(request, messages.INFO, "You membership request has been created.")
             to_email = obj.group.groupinformation.admins.values_list('email', flat=True)
+            # If no group admins are set, send to the superusers
+            if len(to_email) == 0:
+                to_email = User.objects.filter(is_superuser=True).values_list('email', flat=True)
             send_group_email(obj, to_email, '[Auth] %s has requested membership to %s' % (obj.user.username, obj.group.name), email_text_template, email_html_template)
 
             return HttpResponseRedirect(reverse('groups.views.group_list')) # Redirect after POST
