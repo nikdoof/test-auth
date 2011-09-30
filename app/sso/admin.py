@@ -22,6 +22,8 @@ class SSOUserProfileInline(admin.StackedInline):
     model = SSOUser
     fk_name = 'user'
     max_num = 1
+    readonly_fields = ('primary_character',)
+    can_delete = False
 
 
 # Define a new UserAdmin class
@@ -40,8 +42,10 @@ class PermissionRuleInline(generic.GenericTabularInline):
     ct_field = ''
     ct_fk_field = ''
 
+
 class PermissionRuleAdmin(admin.ModelAdmin):
     pass
+
 
 class PermissionRulesetAdmin(admin.ModelAdmin):
     list_display = ('name', 'group', 'active')
