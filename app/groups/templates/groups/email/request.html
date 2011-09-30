@@ -1,0 +1,8 @@
+<h2>Group Request</h2>
+<p>
+<b>{{ request.user.username }}</b> has requested to be a member of the <b>{{ request.group.name }}<b> group.
+</p>
+<p>
+To accept or reject this request, please use the <a href="{{% url groups.admin request.group.id %}}">group administration panel</a>.
+</p>
+

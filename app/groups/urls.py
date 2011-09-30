@@ -8,7 +8,7 @@ urlpatterns = patterns('',
     (r'^kick/(?P<groupid>\d+)/(?P<userid>\d+)/$', views.kick_member),
     (r'^promote/(?P<groupid>\d+)/(?P<userid>\d+)/$', views.promote_member),
 
-    (r'^admin/(?P<groupid>\d+)/$', views.admin_group),
+    url(r'^admin/(?P<groupid>\d+)/$', views.admin_group, name='groups-admin'),
     (r'^accept/(?P<requestid>\d+)/$', views.accept_request),
     (r'^reject/(?P<requestid>\d+)/$', views.reject_request),
 )

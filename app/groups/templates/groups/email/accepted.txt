@@ -1,0 +1,3 @@
+Your request to join {{ request.group.name }} has been accepted.
+
+Please check the forums for further information on what this group entitles you to. Your accesss will be updated within the next few minutes.

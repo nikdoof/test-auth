@@ -1,0 +1,5 @@
+{{ request.user.username }} has requested to be a member of the {{ request.group.name }} group.
+
+To accept or reject this request, please use the group administration panel[1].
+
+[1] {{% url groups.admin request.group.id %}}
