@@ -3,6 +3,8 @@
 <b>{{ request.user.username }}</b> has requested to be a member of the <b>{{ request.group.name }}<b> group.
 </p>
 <p>
-To accept or reject this request, please use the <a href="{{% url groups.admin request.group.id %}}">group administration panel</a>.
+To accept or reject this request, please use the <a href="https://{{ domain }}{% url groups-admin request.group.id %}">group administration panel</a>.
 </p>
+<h3>Reason</h3>
+<p>{{ request.reason }}</p>
 

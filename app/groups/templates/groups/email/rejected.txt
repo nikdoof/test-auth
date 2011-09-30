@@ -1,3 +1,3 @@
 Your request to join {{ request.group.name }} has been rejected.
 
-Your request was rejected by {{ request.changed_by.get_profile.primarycharacter.name }}, if you have any questions regarding this please contact them.
+Your request was rejected by {{ request.changed_by.username }}, if you have any questions regarding this please contact them.
