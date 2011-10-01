@@ -323,8 +323,11 @@ class HrBlacklistUser(FormView):
     form_class = BlacklistUserForm
 
     def dispatch(self, request, *args, **kwargs):
-        self.blacklist_user = get_object_or_404(User, id=kwargs.get('userid'))
-        return super(HrBlacklistUser, self).dispatch(request, *args, **kwargs)
+        if request.user.has_perm('hr.add_blacklist'):
+            self.blacklist_user = get_object_or_404(User, id=kwargs.get('userid'))
+            return super(HrBlacklistUser, self).dispatch(request, *args, **kwargs)
+        else:
+            raise Http404
 
     def get_context_data(self, **kwargs):
         context = super(HrBlacklistUser, self).get_context_data(**kwargs)
