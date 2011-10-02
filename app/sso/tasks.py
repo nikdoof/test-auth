@@ -116,7 +116,7 @@ def update_user_access(user, **kwargs):
                 else:
                     conn = urllib2.urlopen(req, timeout=5)
             except (urllib2.HTTPError, urllib2.URLError) as e:
-                logger.error('Error notifying SSO service: %s' % e.code, exc_info=sys.exc_info(), extra={'data': {'url': url}})
+                logger.error('Error notifying SSO service: %s' % e, exc_info=sys.exc_info(), extra={'data': {'url': url, 'data': jsonstr, 'auth': hash}})
                 pass
 
     update_service_groups.delay(user_id=user.id)
