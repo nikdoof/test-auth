@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.contenttypes import generic
 
 from sso.models import Service, ServiceAccount, SSOUser, SSOUserNote, PermissionRule, PermissionRuleset
-
+from sso.tasks import update_user_access
 
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('name', 'url', 'api', 'active')
@@ -29,6 +29,17 @@ class SSOUserProfileInline(admin.StackedInline):
 # Define a new UserAdmin class
 class SSOUserAdmin(UserAdmin):
     inlines = [SSOUserProfileInline, ]
+    actions = ['user_update_access', ]
+
+    def user_update_access(self, request, queryset):
+        for obj in queryset:
+            update_user_access.delay(obj.id)
+        if queryset.count() == 1:
+            message_bit = '1 user'
+        else:
+            message_bit = '%s users' % queryset.count()
+        self.message_user(request, "%s queued for updating." % message_bit)
+    user_update_access.short_description = "Update User Access"
 
 
 class SSOUserNoteAdmin(admin.ModelAdmin):
@@ -52,8 +63,6 @@ class PermissionRulesetAdmin(admin.ModelAdmin):
     list_filter = ('active',)
     search_fields = ('name', 'group__name')
     inlines = [PermissionRuleInline,]
-
-
 
 
 admin.site.register(Service, ServiceAdmin)
