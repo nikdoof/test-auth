@@ -23,7 +23,10 @@ IGNORED_ERRORS = range(200, 223)
 def stat_update_count(key, incr=1):
     """Increment a key on the Cache, for stats monitoring"""
     if getattr(settings, 'EVE_PROXY_STATS', False) and len(getattr(settings, 'CACHES', {})):
-        cache.incr(key, incr)
+        try:
+            cache.incr(key, incr)
+        except ValueError:
+            cache.set(key, incr)
 
 class CachedDocumentManager(models.Manager):
     """
