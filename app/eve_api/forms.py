@@ -51,7 +51,7 @@ class EveAPIForm(forms.ModelForm):
                 raise forms.ValidationError("You cannot change your API User ID")
         else:
             try:
-                eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['api_user_id'])
+                eaccount = EVEAccount.objects.get(api_user_id=self.cleaned_data['api_user_id'], user__isnull=False)
             except EVEAccount.DoesNotExist:
                 pass
             else:

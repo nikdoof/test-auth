@@ -161,8 +161,8 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
         if not 'error' in doc:
             if not account:
                 account, created = EVEAccount.objects.get_or_create(pk=api_userid)
-                if user:
-                    account.user = User.objects.get(id=user)
+            if user and not account.user:
+                account.user = User.objects.get(id=user)
             if not account.api_key == api_key:
                 account.api_key = api_key
             account.api_status = API_STATUS_OK
