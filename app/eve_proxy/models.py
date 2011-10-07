@@ -26,7 +26,7 @@ def stat_update_count(key, incr=1):
         try:
             cache.incr(key, incr)
         except ValueError:
-            cache.set(key, incr)
+            cache.set(key, incr, 2592000)
 
 class CachedDocumentManager(models.Manager):
     """
