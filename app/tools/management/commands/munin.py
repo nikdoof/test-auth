@@ -19,6 +19,7 @@ setup_environ(settings)
 import getopt
 
 from django.db.models import Count
+from django.core.cache import cache
 from eve_api.app_defines import *
 from eve_api.models import EVEAccount, EVEPlayerCorporation
 
@@ -82,7 +83,12 @@ def main(argv=None):
                 print "requests.label Cached Requests"
                 print "graph_args --base 1000"
                 return 0
-
+            if execname == 'auth_api_proxy_requests':
+                print "graph_title Auth - EVE API Requests"
+                print "graph vlabel Requests"
+                print "graph_category auth"
+                print "eve_proxy_api_requests.label API Requests"
+                print "eve_proxy_api_requests.type COUNTER"
 
     if execname == 'auth_apikeys':
         key_count = EVEAccount.objects.filter(api_status=API_STATUS_OK).count()
@@ -96,6 +102,9 @@ def main(argv=None):
             print "%s.value %s" % (c, n)
     elif execname == 'auth_eveapicache':
         print "requests.value %s" % CachedDocument.objects.count()
+
+    elif execname == 'auth_api_proxy_requests':
+        print "eve_proxy_api_requests.value %s" % cache.get('eve_proxy_api_requests', 0)
 
 
 if __name__ == "__main__":

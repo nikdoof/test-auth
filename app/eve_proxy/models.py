@@ -4,8 +4,11 @@ import urllib, urllib2
 from hashlib import sha1
 from datetime import datetime, timedelta
 from xml.dom import minidom
+
 from django.db import models, IntegrityError
 from django.conf import settings
+from django.core.cache import cache
+
 from eve_proxy.exceptions import *
 
 # API URL, can be overriden in the configuration
@@ -16,6 +19,11 @@ ROLLBACK_ERRORS = range(516, 902)
 
 # Errors ignored if encountered, as they're valid responses in some cases
 IGNORED_ERRORS = range(200, 223)
+
+def stat_update_count(key, incr=1):
+    """Increment a key on the Cache, for stats monitoring"""
+    if getattr(settings, 'EVE_PROXY_STATS', False) and len(getattr(settings, 'CACHES', {})):
+        cache.incr(key, incr)
 
 class CachedDocumentManager(models.Manager):
     """
@@ -67,6 +75,7 @@ class CachedDocumentManager(models.Manager):
 
         if created or not doc.cached_until or datetime.utcnow() > doc.cached_until or no_cache:
 
+            stat_update_count('eve_proxy_api_requests')
             req = urllib2.Request(url)
             # Add a header with the admin information in, so CCP can traceback the requests if needed
             if settings.ADMINS:
@@ -81,11 +90,13 @@ class CachedDocumentManager(models.Manager):
                 if not created:
                     pass
                 logger.error('HTTP Error Code: %s' % e.code, exc_info=sys.exc_info(), extra={'data': {'api-url': url}})
+                stat_update_count('eve_proxy_api_exception')
                 raise DocumentRetrievalError(e.code)
             except urllib2.URLError, e:
                 if not created:
                     pass
                 logger.error('URL Error: %s' % e, exc_info=sys.exc_info(), extra={'data': {'api-url': url}})
+                stat_update_count('eve_proxy_api_exception')
                 raise DocumentRetrievalError(e.reason)
             else:
                 doc.body = unicode(conn.read(), 'utf-8')
@@ -106,6 +117,8 @@ class CachedDocumentManager(models.Manager):
                    error = enode[0].getAttribute('code')
 
             if error:
+                stat_update_count('eve_proxy_api_error')
+                stat_update_count('eve_proxy_api_error_%s' % int(error))
                 # If we have a rollback error, try and retreive a correct version from the DB
                 if int(error) in ROLLBACK_ERRORS:
                     try:
@@ -119,9 +132,11 @@ class CachedDocumentManager(models.Manager):
                         doc.save()
             else:
                 doc.save()
+                stat_update_count('eve_proxy_api_success')
 
             # If this is user related, write a log instance
             if params and (params.get('userid', None) or params.get('keyid', None)):
+                stat_update_count('eve_proxy_api_authenticated_requests')
                 try:
                     v = int(params.get('userid', None) or int(params.get('keyid', None))) 
                 except:
