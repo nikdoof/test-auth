@@ -126,7 +126,7 @@ class CachedDocumentManager(models.Manager):
                 if int(error) in ROLLBACK_ERRORS:
                     try:
                         doc = self.get(pk=doc.pk)
-                    except self.DoesNotExist:
+                    except self.model.DoesNotExist:
                         doc.save()
                 else:
                     if not int(error) in IGNORED_ERRORS:
