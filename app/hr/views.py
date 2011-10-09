@@ -68,6 +68,8 @@ class HrViewApplication(DetailView):
         elif perm == HR_ADMIN:
             context['hrstaff'] = True
             context['audit'] = self.object.audit_set.all()
+        else:
+            raise Http404
         return context
 
 
