@@ -6,13 +6,13 @@ os.nice(20)
 
 # Activate the virtualenv
 path = os.path.dirname(os.path.realpath(__file__))
-activate_this = os.path.join(path, 'env/bin/activate_this.py')
+activate_this = os.path.join(path, '../env/bin/activate_this.py')
 execfile(activate_this, dict(__file__=activate_this))
 
 import sys
 import logging
 from django.core.management import setup_environ
-from django.conf import settings
+import conf.production as settings
 
 setup_environ(settings)
 
@@ -29,8 +29,8 @@ from hr.models import Application
 from eve_proxy.models import CachedDocument
 
 accepted_names = ['munin.py', 'auth_apikeys', 'auth_hrapplications',
-                  'auth_eveapicache']
-
+                  'auth_eveapicache', 'auth_api_proxy_requests']
+default_errors = [901, 902, 903, 904, 520]
 
 class Usage(Exception):
     pass
@@ -59,7 +59,7 @@ def main(argv=None):
     for arg in args:
         if arg == 'config':
             if execname == 'auth_apikeys':
-                print "graph_title Auth Active EVE API Keys"
+                print "graph_title Auth - Active EVE API Keys"
                 print "graph_vlabel Keys"
                 print "graph_category auth"
                 print "keys.label Keys"
@@ -85,10 +85,30 @@ def main(argv=None):
                 return 0
             if execname == 'auth_api_proxy_requests':
                 print "graph_title Auth - EVE API Requests"
-                print "graph vlabel Requests"
+                print "graph_args --base 1000 -l 0"
+                print "graph_vlabel Requests"
                 print "graph_category auth"
                 print "eve_proxy_api_requests.label API Requests"
-                print "eve_proxy_api_requests.type COUNTER"
+                print "eve_proxy_api_requests.min 0"
+                return 0
+            if execname == 'auth_api_proxy_errors':
+                print "graph_title Auth - EVE API Errors"
+                print "graph_args --base 1000 -l 0"
+                print "graph_vlabel Errors"
+                print "graph_category auth"
+
+                errors = os.environ.get('errors', None)
+                if errors:
+                    errors = errors.split()
+                else:
+                    errors = default_errors
+
+                for err in errors:
+                    print "eve_proxy_api_error_%s.label Error %s" % (err, err)
+                    print "eve_proxy_api_error_%s.min 0" % err
+
+                return 0
+
 
     if execname == 'auth_apikeys':
         key_count = EVEAccount.objects.filter(api_status=API_STATUS_OK).count()
@@ -102,9 +122,18 @@ def main(argv=None):
             print "%s.value %s" % (c, n)
     elif execname == 'auth_eveapicache':
         print "requests.value %s" % CachedDocument.objects.count()
-
     elif execname == 'auth_api_proxy_requests':
         print "eve_proxy_api_requests.value %s" % cache.get('eve_proxy_api_requests', 0)
+        cache.set('eve_proxy_api_requests', 0)
+    elif execname == 'auth_api_proxy_errors':
+        errors = os.environ.get('errors', None)
+        if errors:
+            errors = errors.split()
+        else:
+            errors = default_errors
+        for err in errors:
+            print "eve_proxy_api_error_%s.value %s" % (err, cache.get('eve_proxy_api_error_%s' % err, 0))
+            cache.set('eve_proxy_api_error_%s' % err, 0)
 
 
 if __name__ == "__main__":
