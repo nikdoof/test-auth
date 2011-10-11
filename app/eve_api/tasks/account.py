@@ -204,7 +204,7 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
                 return
             elif error in ['202', '203', '204', '205', '212']:
                 account.api_status = API_STATUS_AUTH_ERROR
-            elif error == '211':
+            elif error in ['211', '223']:
                 account.api_status = API_STATUS_ACC_EXPIRED
             else:
                 account.api_status = API_STATUS_OTHER_ERROR
