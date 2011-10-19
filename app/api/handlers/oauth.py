@@ -41,7 +41,7 @@ class OAuthOpTimerHandler(BaseHandler):
 
         events = []
         for obj in objs:
-            params = {'userID': obj.pk, 'apiKey': obj.api_key, 'characterID': settings.FULL_API_CHARACTER_ID}
+            params = {'keyID': obj.pk, 'vCode': obj.api_key, 'characterID': settings.FULL_API_CHARACTER_ID}
             error_doc = {'ops': [{'startsIn': -1, 'eventID': 0, 'ownerName': '', 'eventDate': '', 'eventTitle': '<div style="text-align:center">The EVE API calendar is unavailable</div>', 'duration': 0, 'isImportant': 0, 'eventText': 'Fuck CCP tbqh imho srsly', 'endsIn':-1, 'forumLink': ''}]}
             try:
                 cached_doc = CachedDocument.objects.api_query('/char/UpcomingCalendarEvents.xml.aspx', params, timeout=10, service="Optimer")
