@@ -160,12 +160,13 @@ class HrAdminApplications(ListView):
         # If a invalid order as been passed, correct it
         if not order in ['id', 'corporation__name', 'character__name']:
             order = 'id'
+        apps = apps.order_by(order)
 
         # If we've got a short search string, only get the first 50
         if query and len(query) < 3:
             apps = apps[:50]
 
-        return apps.order_by(order)
+        return apps
 
 
 class HrUpdateApplication(BaseDetailView):
