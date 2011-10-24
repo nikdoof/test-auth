@@ -3,7 +3,7 @@ from hr.models import Application, Recommendation, Audit, Blacklist, BlacklistSo
 
 class ApplicationAdmin(admin.ModelAdmin):
     list_display = ('user', 'character', 'corporation', 'status', 'application_date', 'recommendations')
-    search_fields = ['id' 'user__username', 'character__name', 'status']
+    search_fields = ['id', 'user__username', 'character__name', 'status']
     list_filter = ('status',)
 
     def recommendations(self, obj):
