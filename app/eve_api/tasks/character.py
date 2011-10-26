@@ -117,19 +117,8 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
     else:
         acc = None
 
-
-    # If we have a key, check if we should import the charsheet
-    if acc:
-        if gargoyle.is_active('eve-cak'):
-            if (acc.is_cak and acc.has_access(3) and not acc.api_keytype == API_KEYTYPE_CORPORATION) or not acc.is_cak:
-                process_charsheet = True
-            else:
-                process_charsheet = False
-        else:
-            process_charsheet = True
-
-    # Actual Key? Get further information
-    if acc and process_charsheet:
+    # If we have a key, call CharSheet
+    if acc and acc.has_access(3) and not acc.api_keytype == API_KEYTYPE_CORPORATION:
         if gargoyle.is_active('eve-cak') and acc.is_cak:
             auth_params = {'keyid': acc.api_user_id, 'vcode': acc.api_key, 'characterid': character_id }
         else:
@@ -163,7 +152,7 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
                     charskillobj.save()
                 pchar.total_sp = pchar.total_sp + int(skill['skillpoints'])
 
-            if not acc.is_cak or acc.has_access(18):
+            if acc.has_access(18):
                 try:
                     skillqueue = CachedDocument.objects.api_query('/char/SkillInTraining.xml.aspx', params=auth_params, no_cache=False)
                 except DocumentRetrievalError, exc:

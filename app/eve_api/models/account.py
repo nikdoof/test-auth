@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from gargoyle import gargoyle
 from eve_api.app_defines import *
 from eve_api.models import EVEAPIModel
 
@@ -47,7 +48,10 @@ class EVEAccount(EVEAPIModel):
 
     def has_access(self, bit):
         """ Checks if a specific bit is enabled in the key's access mask """
-        return self._mask_check(self.api_accessmask, bit)
+        if gargoyle.is_active('eve-cak') and self.is_cak:
+            return self._mask_check(self.api_accessmask, bit)
+        else:
+            return True
 
     def check_access(self, accessmask):
         """ Checks if the account has equal or higher access than the bitmask provided """
