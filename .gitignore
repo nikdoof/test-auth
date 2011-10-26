@@ -7,5 +7,4 @@ app/conf/settingslocal.py
 env
 *.pid
 app/conf/brokersettings.py
-app/static/
-static
+./static/
