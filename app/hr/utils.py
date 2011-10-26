@@ -53,13 +53,13 @@ def blacklist_values(user, level=BLACKLIST_LEVEL_NOTE):
         blacklist.extend(objs)
 
     # Check Corporation blacklists
-    corporations = [re.escape(x) for x in evechars.values_list('corporation__name', flat=True) if x]
+    corporations = set([re.escape(x) for x in evechars.values_list('corporation__name', flat=True) if x])
     if len(corporations):
         objs = bl_items.filter(type=BLACKLIST_TYPE_CORPORATION, value__iregex=r'^(' + '|'.join(corporations) + ')$')
         blacklist.extend(objs)
 
     # Check Alliance blacklists
-    alliances = [re.escape(x) for x in evechars.values_list('corporation__alliance__name', flat=True) if x]
+    alliances = set([re.escape(x) for x in evechars.values_list('corporation__alliance__name', flat=True) if x])
     if len(alliances):
         objs = bl_items.filter(type=BLACKLIST_TYPE_ALLIANCE, value__iregex=r'^(' + '|'.join([x for x in alliances if x]) + ')$')
         blacklist.extend(objs)
