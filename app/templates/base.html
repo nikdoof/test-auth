@@ -1,31 +1,64 @@
 {% load installed %}
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html lang="en">
 <head>
     <title>TEST Auth</title>
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/style.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/bootstrap.css" type="text/css" media="screen">
+    <style type="text/css">
+        html {
+            background-color: #9FB190;
+        }
+        body {
+            background-color: #9FB190;
+            padding-top: 40px;
+        }
+        div.topbar div.fill {
+            background-color: #5F6757;
+            background-image: -khtml-gradient(linear, left top, left bottom, from(#333333), to(#5F6757));
+            background-image: -moz-linear-gradient(top, #333333, #5F6757);
+            background-image: -ms-linear-gradient(top, #333333, #5F6757);
+            background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #333333), color-stop(100%, #5F6757));
+            background-image: -webkit-linear-gradient(top, #333333, #5F6757);
+            background-image: -o-linear-gradient(top, #333333, #5F6757);
+            background-image: linear-gradient(top, #333333, #5F6757);
+        }
+        div.content {
+            background-color: white;
+            padding: 20px;
+            margin: 0 -20px;
+            -webkit-border-radius: 0 0 6px 6px;
+            -moz-border-radius: 0 0 6px 6px;
+            border-radius: 0 0 6px 6px;
+            -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+            -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+            box-shadow: 0 1px 2px rgba(0,0,0,.15);
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-dropdown.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-alerts.js"></script>
     {% block HeadTag %}{% endblock %}
 </head>
 <body>
-<div id="container">
-	<div id="header">
-		<!--<h1>TEST Auth - {% block title %}{% endblock %}</h1>-->
-	</div>
-	<div id="navigation">
-		<ul>
+    <div class="topbar">
+        <div class="fill">
+            <div class="container">
+                <a class="brand" href="/">TEST Auth</a>
+                <ul class="nav">
             {% if request.user.is_authenticated %}
-	           <li><a href="{% url sso.views.profile %}">Profile</a></li>
-                {% if "groups"|installed %}
-                    <li><a href="{% url groups.views.group_list %}">Groups</a></li>
-                {% endif %}
-                {% if "api"|installed %}
-                    <li><a href="{% url oauth-list-tokens %}">Application Access</a></li>
-                {% endif %}
+
+                   <li class="dropdown" data-dropdown="dropdown"><a href="#" class="dropdown-toggle">{{ request.user.username}}</a>
+                       <ul class="dropdown-menu">
+                           <li><a href="{% url sso.views.profile %}">Your Profile</a></li>
+                          {% if "groups"|installed %}<li><a href="{% url groups.views.group_list %}"> Your Groups</a></li>{% endif %}
+                          <li><a href="{% url eve_api.views.eveapi_character %}">Your Characters</a></li>
+                          <li class="divider"></li>
+                          {% if "api"|installed %}<li><a href="{% url oauth-list-tokens %}">3rd Party App Access</a></li>{% endif %}
+                       </ul>
+                   </li>
                 {% if "hr"|installed %}
                     <li><a href="{% url hr-index %}">HR</a></li>
                 {% endif %}
-                    <li><a href="{% url eve_api.views.eveapi_character %}">Characters</a></li>
                 {% if perms.sso.can_search_users %}
                     <li><a href="{% url sso.views.user_lookup %}">Lookup User</a></li>
                 {% endif %}
@@ -39,19 +72,26 @@
             {% else %}
                     <li><a href="{% url django.contrib.auth.views.login %}">Login</a></li>
             {% endif %}
-		</ul>
-	</div>
-	<div id="content">
-           {% if messages %}
-           <ul id="messagelist">
-           {% for message in messages %}
-              <li>{{ message }}</li>
-           {% endfor %}
-           </ul>
-           {% endif %}
-           {% block content %}{% endblock %}
-	</div>
-</div>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <div class="content">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert-message fade in {{ message.tags }}" data-alert="alert">
+                <a class="close" href="#">x</a>
+                <p>{{ message }}</p>
+            </div>
+        {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+        </div>
+
+    </div>
 </body>
 </html>
 

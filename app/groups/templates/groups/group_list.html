@@ -2,13 +2,26 @@
 
 {% block content %}
 
-<h1>Groups List</h1>
+<div class="page-header">
+<h1>Your Groups</h1>
+</div>
 
 <p>This is the list of your current groups, and groups you can request to be a member of.</p>
 
-<table>
+
+<script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
+<script >
+    $(function() {
+        $("table#groups").tablesorter({ sortList: [[0,0]] });
+    });
+</script>
+
+<table class="zebra-striped" id="groups">
 {% if group_list %}
+<thead>
 <tr><th>Group Name</th><th>Description</th><th>Status</th><th>Actions</th></tr>
+</thead>
+<tbody>
 {% for id, group, description, status, requestable, fixed, pending, moderated in group_list %}
 <tr><td>{{ group }}</td>
     <td>{{ description }}</td>
@@ -18,6 +31,7 @@
         {% if status == 'Admin' or request.user.is_superuser %}{% if not fixed %}<a href="{% url groups.views.admin_group id %}">Admin</a>{% endif %}{% endif %}</td>
 </tr>
 {% endfor %}
+</tbody>
 </table>
 {% else %}
 <b>No groups are available.</b>

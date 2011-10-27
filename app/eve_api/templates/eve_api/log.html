@@ -3,14 +3,30 @@
 {% block title %}EVE API Access Logs{% endblock %}
 
 {% block content %}
-<h1>Access Logs for API Key {{ userid }}</h1>
-<table>
-<tr><th>Service ID</th><th>Date / Time</th><th>API</th></tr>
-{% for log in logs %}
-<tr><td>{{ log.service }}</td>
-    <td>{{ log.time_access }}</td>
-    <td>{{ log.document }}</td>
-</tr>
-{% endfor %}
+<div class="page-header">
+  <h1>Access Logs for API Key {{ userid }}</h1>
+</div>
+
+<table class="zebra-striped" id="logs">
+  <thead>
+    <tr><th>Service ID</th><th>Date / Time</th><th>API</th></tr>
+  </thead>
+  <tbody>
+  {% for log in logs %}
+    <tr>
+      <td>{{ log.service }}</td>
+      <td>{{ log.time_access }}</td>
+      <td>{{ log.document }}</td>
+   </tr>
+  {% endfor %}
+  </tbody>
 </table>
+
+<script src="/static/js/jquery.tablesorter.min.js"></script> 
+<script >
+    $(function() {
+        $("table#logs").tablesorter({ sortList: [[1,0]] });
+    });
+</script>
+
 {% endblock %}

@@ -3,14 +3,18 @@
 {% block title %}Change your E-mail address{% endblock %}
 
 {% block content %}
+<div class="page-header">
+  <h1>Change Email Address</h1>
+</div>
 
 <form action="" method="post">
-<table>
-{{ form.as_table }}
-</table>
-<br />
-{% csrf_token %}
-<input type="submit" value="Change Email" />
+  <fieldset>
+    <table>
+    {{ form.as_table }}
+    </table>
+    {% csrf_token %}
+    <input type="submit" value="Change Email" class="btn"/>
+  </fieldset>
 </form>
 
 {% endblock %}

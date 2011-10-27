@@ -8,12 +8,125 @@
 
 {% block content %}
 
-<script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.min.js"></script>
-<script type="text/javascript">
+<script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tabs.js"></script>
+<script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
 
-function refresh_apikey(key) {
+<div class="page-header">
+  <h1>Your Profile</h1>
+</div>
+
+<ul class="tabs">
+  <li class="active"><a href="#overview">Overview</a></li>
+  <li><a href="#eveapi">EVE API Keys</a></li>
+  {% if "reddit"|installed %}
+  {% ifswitch reddit %}
+  <li><a href="#reddit">Reddit</a></li>
+  {% endifswitch %}
+  {% endif %}
+  <li><a href="#services">Services</a></li>
+</ul>
+
+<div class="pill-content">
+
+<!-- Overview Tab -->
+<div class="active" id="overview">
+  <p>
+    <b>Username:</b> {{ user.username }}<br/>
+    <b>Email:</b> {{ user.email }}<br/>
+    <b>Primary Character:</b> {{ user.get_profile.primary_character }}<br/>
+    <b>Groups:</b> {{ user.groups.all|join:", " }}<br/>
+  </p>
+  <p>
+    <a href="{% url sso.views.refresh_access %}" class="btn">Update Access</a>
+    <a href="{% url django.contrib.auth.views.password_change %}" class="btn">Change Password</a>
+    <a href="{% url sso.views.email_change %}" class="btn">Change E-mail</a>
+    <a href="{% url sso.views.primarychar_change %}" class="btn">Change Primary Character</a>
+  </p>
+</div>
+
+<!-- Services Tabs -->
+<div id="services">
+  <h2>Auth API Services</h2>
+  <p>Auth API Servies use Auth for your login information with the use of a seperate password. To reset your services password click the link below</p>
+
+  <p><a href="{% url sso.views.set_apipasswd %}" class="btn">Change External Services Password</a></p>
+
+  <br/>
+
+  {% if user.eveaccount_set.all %}
+  <h2>Service Accounts</h2>
+  <p>Services not fully integrated into Auth, and which a seperate username/password is required.</p>
+  {% if user.serviceaccount_set.all %}
+  <table>
+  <tr><th>Service</th><th>Username</th><th>URL</th><th>Active</th><th>Actions</th></tr>
+  {% for acc in user.serviceaccount_set.all %}
+  <tr><td>{{ acc.service }}</td>
+      <td>{{ acc.service_uid }}</td>
+      <td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td>
+    <td>{% if acc.active %}Yes{% else %}No{% endif %}</td>
+    <td>
+    {% if acc.active %}
+    {% if acc.service.settings.require_password %}<a href="{% url sso.views.service_reset acc.id %}">Reset</a>&nbsp;/&nbsp;{% endif %}
+    <a href="{% url sso.views.service_del acc.id %}">Delete</a>
+    {% if acc.service.provide_login %}
+    &nbsp;/&nbsp;<a href="{% url sso.views.service_login acc.id %}">Login</a>
+    {% endif %}
+    {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </table>
+  {% endif %}
+  <p>
+  <a href="{% url sso.views.service_add %}" class="btn">Add Service</a>
+  </p>
+{% endif %}
+</div>
+
+<!-- EVE API Tab -->
+<div id="eveapi">
+  <h2>Eve API Keys</h2>
+  <p>Adding an Eve API key will allow you to access any services allowed for your
+  corporation. Limited keys are accepted for service validation. API keys
+  are stored for on-going authentication. As the assigned owner of a key you may
+  remove them at any time, but this may affect any existing services you have
+  setup.</p>
+  {% if user.eveaccount_set.all %}
+  <table id="eveapikeys">
+    <thead>
+      <tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for acc in user.eveaccount_set.all %}
+      <tr {% if acc.api_keytype == 4 %}style="background-color: #cccccc; color: gray;"{% endif %}>
+        <td>{{ acc.api_user_id }}</td>
+        <td>{{ acc.api_key|slice:":10" }}&#8230;</td>
+        <td>{{ acc.description }}</td>
+        <td>{{ acc.get_api_keytype_display }}{% if acc.api_keytype == 4 %}&nbsp;<b><sup style="color: red;">*</sup></b>{% endif %}</td>
+        <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
+        <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
+        <td>{% ifswitch api-disableprocessing %}{% else %}<a href="{% url eve_api.views.eveapi_refresh acc.api_user_id %}"  onclick="javascript:refresh_apikey({{ acc.api_user_id }}); return false;">Refresh</a>,&nbsp;
+          <a href="{% url eve_api.views.eveapi_update acc.api_user_id %}">Update Key</a>,&nbsp;{% endifswitch %}
+          <a href="{% url eve_api.views.eveapi_log acc.api_user_id %}">Logs</a>{% ifswitch eve-keydelete %},&nbsp;
+          <a href="{% url eve_api.views.eveapi_del acc.api_user_id %}">Delete</a>{% endifswitch %}</td>
+      </tr>
+  {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  <p><span class="label important">Warning</span> Character API Keys are not included in any authorization checks, you will not be able to submit applications or access any services with them.</p>
+  <p>
+  {% ifswitch api-disableprocessing %}
+  {% else %}
+  <a href="{% url eve_api.views.eveapi_add %}" class="btn">Add a Eve API key</a>
+  {% endifswitch %}
+  </p>
+
+  <script type="text/javascript">
+  function refresh_apikey(key) {
     $("#api-status-" + key).html("<center><img src='{{ STATIC_URL }}img/spinner.gif'/></center>");
-    $("#api-time-" + key).html("<center><img src='{{ STATIC_URL }}img/spinner.gif'/></center>");  
+    $("#api-time-" + key).html("<center><img src='{{ STATIC_URL }}img/spinner.gif'/></center>");
     $.getJSON("/eve/eveapi/refresh/" + key + "/", function(json) {
             $("#api-time-" + json[0].pk).html("a moment ago");
 
@@ -35,123 +148,53 @@ function refresh_apikey(key) {
                     break;
             }
     });
-}
-
-</script>
-
-
-<h1>Your Profile</h1>
-
-<p>
-<b>Username:</b> {{ user.username }}<br/>
-<b>Email:</b> {{ user.email }}<br/>
-<b>Primary Character:</b> {{ user.get_profile.primary_character }}<br/>
-<b>Groups:</b> {{ user.groups.all|join:", " }}<br/>
-</p>
-<p>
-<a href="{% url sso.views.refresh_access %}" class="button">Update Access</a>
-<a href="{% url django.contrib.auth.views.password_change %}" class="button">Change Password</a>
-<a href="{% url sso.views.email_change %}" class="button">Change E-mail</a>
-<a href="{% url sso.views.primarychar_change %}" class="button">Change Primary Character</a>
-</p>
-
-<br/>
-
-<h2>Auth API Services</h2>
-<p>Auth API Servies use Auth for your login information with the use of a seperate password. To reset your services password click the link below</p>
-
-<p><a href="{% url sso.views.set_apipasswd %}" class="button">Change External Services Password</a></p>
-
-<br/>
-
-{% if user.eveaccount_set.all %}
-<h2>Service Accounts</h2>
-<p>Services not fully integrated into Auth, and which a seperate username/password is required.</p>
-{% if user.serviceaccount_set.all %}
-<table>
-<tr><th>Service</th><th>Username</th><th>URL</th><th>Active</th><th>Actions</th></tr>
-{% for acc in user.serviceaccount_set.all %}
-<tr><td>{{ acc.service }}</td>
-    <td>{{ acc.service_uid }}</td>
-    <td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td>
-    <td>{% if acc.active %}Yes{% else %}No{% endif %}</td>
-    <td>
-    {% if acc.active %}
-    {% if acc.service.settings.require_password %}<a href="{% url sso.views.service_reset acc.id %}">Reset</a>&nbsp;/&nbsp;{% endif %}
-    <a href="{% url sso.views.service_del acc.id %}">Delete</a>
-    {% if acc.service.provide_login %}
-    &nbsp;/&nbsp;<a href="{% url sso.views.service_login acc.id %}">Login</a>
-    {% endif %}
-    {% endif %}
-    </td>
-</tr>
-{% endfor %}
-</table>
-{% endif %}
-
-<p>
-<a href="{% url sso.views.service_add %}" class="button">Add Service</a>
-</p>
-
-<br/>
-{% endif %}
-
-<h2>Eve API Keys</h2>
-<p>Adding an Eve API key will allow you to access any services allowed for your
-corporation. Limited keys are accepted for service validation. API keys
-are stored for on-going authentication. As the assigned owner of a key you may
-remove them at any time, but this may affect any existing services you have
-setup.</p>
-{% if user.eveaccount_set.all %}
-<table>
-<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th><th>Actions</th></tr>
-{% for acc in user.eveaccount_set.all %}
-<tr {% if acc.api_keytype == 4 %}style="background-color: #cccccc; color: gray;"{% endif %}><td>{{ acc.api_user_id }}</td>
-    <td>{{ acc.api_key }}</td>
-    <td>{{ acc.description }}</td>
-    <td>{{ acc.get_api_keytype_display }}{% if acc.api_keytype == 4 %}&nbsp;<b><sup style="color: red;">*</sup></b>{% endif %}</td>
-    <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
-    <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
-    <td>{% ifswitch api-disableprocessing %}{% else %}<a href="{% url eve_api.views.eveapi_refresh acc.api_user_id %}"  onclick="javascript:refresh_apikey({{ acc.api_user_id }}); return false;">Refresh</a>,&nbsp;
-        <a href="{% url eve_api.views.eveapi_update acc.api_user_id %}">Update Key</a>,&nbsp;{% endifswitch %}
-        <a href="{% url eve_api.views.eveapi_log acc.api_user_id %}">Logs</a>{% ifswitch eve-keydelete %},&nbsp;
-        <a href="{% url eve_api.views.eveapi_del acc.api_user_id %}">Delete</a>{% endifswitch %}
-</tr>
-{% endfor %}
-</table>
-{% endif %}
-<p><b style="color: red;">*</b> - Character API Keys are not included in any authorization checks, you will not be able to submit applications or access any services with them.</p>
-<p>
-{% ifswitch api-disableprocessing %}
-{% else %}
-<a href="{% url eve_api.views.eveapi_add %}" class="button">Add a Eve API key</a>
-{% endifswitch %}
-</p>
-
-<br/>
+  }
+  </script>
+</div>
 
 {% if "reddit"|installed %}
 {% ifswitch reddit %}
-<h2>Reddit Accounts</h2>
-<p>This is a list of all your current linked Reddit accounts</p>
-{% if user.redditaccount_set.all %}
-<p>To validate your Reddit account, login on Reddit then click the link next to the account, fill in some text in the message and click send.</p>
-<table>
-<tr><th>Username</th><th>Created Date</th><th>Validated</th></tr>
-{% for acc in user.redditaccount_set.all %}
-<tr><td>{{ acc.username }}</td>
-    <td>{{ acc.date_created }}</td>
-    <td>{% if acc.validated %}Yes{% else %}No (<a href="http://www.reddit.com/message/compose/?to=DredditVerification&subject=Validation%3a%20{{user.username}}" target="_blank">Validate</a>){% endif %}</td>
-</tr>
-{% endfor %}
-</table>
-{% endif %}
-<p>
-<a href="{% url reddit-addaccount %}" class="button">Add a Reddit account</a>
-</p>
-<p>
-Reddit account tagging is {% if user.get_profile.tag_reddit_accounts %}Enabled{% else %}Disabled{% endif %}. <a href="{% url sso.views.toggle_reddit_tagging %}">{% if user.get_profile.tag_reddit_accounts %}Disable{% else %}Enable{% endif %}</a>
+<!-- Reddit Tab -->
+<div id="reddit">
+  <h2>Reddit Accounts</h2>
+  <p>This is a list of all your current linked Reddit accounts</p>
+  {% if user.redditaccount_set.all %}
+  <p>To validate your Reddit account, login on Reddit then click the link next to the account, fill in some text in the message and click send.</p>
+  <table>
+    <thead>
+      <tr><th>Username</th><th>Created Date</th><th>Validated</th></tr>
+    </thead>
+    <tbody>
+    {% for acc in user.redditaccount_set.all %}
+      <tr>
+        <td>{{ acc.username }}</td>
+        <td>{{ acc.date_created }}</td>
+        <td>{% if acc.validated %}Yes{% else %}No (<a href="http://www.reddit.com/message/compose/?to=DredditVerification&subject=Validation%3a%20{{user.username}}" target="_blank">Validate</a>){% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  <p>
+    <a href="{% url reddit-addaccount %}" class="btn">Add a Reddit account</a>
+  </p>
+
+  <p>Reddit account tagging is {% if user.get_profile.tag_reddit_accounts %}Enabled{% else %}Disabled{% endif %}. <a href="{% url sso.views.toggle_reddit_tagging %}">{% if user.get_profile.tag_reddit_accounts %}Disable{% else %}Enable{% endif %}</a></p>
+</div>
 {% endifswitch %}
 {% endif %}
+
+</div>
+
+<script>
+  $(function () {
+    $('.tabs').tabs()
+  })
+
+  $(function() {
+    $("table#eveapikeys").tablesorter({ sortList: [[0,0]] });
+  });
+</script>
+
 
 {% endblock %}

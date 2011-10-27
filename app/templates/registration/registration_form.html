@@ -1,15 +1,22 @@
 {% extends "registration/registration_base.html" %}
+
 {% block title %}Register for an account{% endblock %}
+
 {% block content %}
-<h3>Registration</h3>
+<div class="page-header">
+  <h1>Registration</h1>
+</div>
+
 <p>Please complete this form to register for a new Auth account, please be aware that you are required to confirm your email account so please use a valid address.</p>
-<h3>Problematic Providers</h3>
+
+<h2>Problematic Providers</h2>
 <p>In addition, some providers maybe blocked form auth due to their draconian spam detection routines, which has flagged this server numerous times for no reason. These include AT&T services, Cox, and a few other mainland US ISPs. If you have a Google Mail account please consider using that instead of your ISP email account.</p>
+
 <form method='post' action=''>
-<table>
-        {{ form }}
-</table>
-{% csrf_token %}
-<input type="submit" value="Send activation email" />
+  <table>
+    {{ form }}
+  </table>
+  {% csrf_token %}
+  <input type="submit" value="Send activation email" class="btn primary"/>
 </form>
 {% endblock %}

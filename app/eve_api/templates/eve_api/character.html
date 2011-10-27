@@ -4,44 +4,58 @@
 {% load naturaltimediff %}
 {% block content %}
 
-<div class="character_info">
-	<h1>{{ character.name }}</h1>
+<div class="page-header">
+    <h1>{{ character.name }}</h1>
+</div>
 
-	<div class="character_portrait">
-		<img src="https://image.eveonline.com/Character/{{ character.id }}_256.jpg" />
-	</div>
-	
-	<div class="character_corporation">
-		<span><a href="{% url eveapi-corporation character.corporation.id %}">{{ character.corporation.ticker }}</a></span>
-		<img src="https://image.eveonline.com/Corporation/{{ character.corporation.id }}_64.png" />
-	</div>
-	
-        {% if character.corporation.alliance %}
-	<div class="character_alliance">
-		<span><a href="{% url eveapi-alliance character.corporation.alliance.id %}">{{ character.corporation.alliance.ticker }}</a></span>
-		<img src="https://image.eveonline.com/Alliance/{{ character.corporation.alliance.id }}_64.png" />
-	</div>
-        {% endif %}
+<div class="row">
+        <div class="span8">
+                <h2>Attributes</h2>
 
-	<div class="character_attributes">
-		<h2>Attributes</h2>
-		
-		<ul>
-			<li><span class="stat">Race:</span> <span class="value">{{ character.get_race_display }}</span></li>
-			<li><span class="stat">Gender:</span> <span class="value">{{ character.get_gender_display }}</span></li>
-			<li><span class="stat">Corporation:</span> <a href="{% url eveapi-corporation character.corporation.id %}">{{ character.corporation.name }}</a></span></li>
-			<li><span class="stat">Joined Corporation:</span> <span class="value">{{ character.corporation_date|date:"Y/m/d H:i:s" }} ({{ character.corporation_date|naturaltimediff }})</span></li>
+                <ul>
+                        <li><span class="stat">Race:</span> <span class="value">{{ character.get_race_display }}</span></li>
+                        <li><span class="stat">Gender:</span> <span class="value">{{ character.get_gender_display }}</span></li>
+                        <li><span class="stat">Corporation:</span> <a href="{% url eveapi-corporation character.corporation.id %}">{{ character.corporation.name }}</a></span></li>
+                        <li><span class="stat">Joined Corporation:</span> <span class="value">{{ character.corporation_date|date:"Y/m/d H:i:s" }}</span></li>
                         {% if character.corporation.alliance %}
-			<li><span class="stat">Alliance:</span> <span class="value"><a href="{% url eveapi-alliance character.corporation.alliance.id %}">{{ character.corporation.alliance.name }}</a></span></li>
+                        <li><span class="stat">Alliance:</span> <span class="value"><a href="{% url eveapi-alliance character.corporation.alliance.id %}">{{ character.corporation.alliance.name }}</a><span></li>
                         {% endif %}
-			<li><span class="stat">Security Status:</span> {{ character.security_status|floatformat:2 }}</span></li>
-			<li><span class="stat">Director:</span> <span class="value">{{ character.director }}</span></li>
+                        <li><span class="stat">Security Status:</span> {{ character.security_status|floatformat:2 }}</span></li>
+                        <li><span class="stat">Director:</span> <span class="value">{{ character.director }}</span></li>
                         {% if character.current_training %}
-                        <li><spam class="stat">Training:</span> <span class="Value">{{ character.current_training.skill.name}} to Level {{ character.current_training.in_training }}</li>
+                        <li><spam class="stat">Training:</span> <span class="Value">{{ character.current_training.skill.name}} to Level {{ ch$
                         {% endif %}
-		</ul>
-	</div>
+                </ul>
+        </div>
 
+        <div class="span5 offset3">
+            <div class="row pull-right">
+                <img src="https://image.eveonline.com/Character/{{ character.id }}_256.jpg" />
+            </div>
+            <div class="row pull-right">
+                <div class="span2">
+                    <div class="row">
+                        <span><a href="{% url eveapi-corporation character.corporation.id %}">{{ character.corporation.ticker }}</a></span>
+                    </div>
+                    <div class="row">
+                        <img src="https://image.eveonline.com/Corporation/{{ character.corporation.id }}_64.png" class="pull-right"/>
+                    </div>
+                </div>
+
+                <div class="span2">
+                    {% if character.corporation.alliance %}
+                    <div class="row">
+                        <span><a href="{% url eveapi-alliance character.corporation.alliance.id %}">{{ character.corporation.alliance.ticker }}</a></span>
+                    </div>
+                    <div class="row">
+                        <img src="https://image.eveonline.com/Alliance/{{ character.corporation.alliance.id }}_64.png" class="pull-left"/>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+</div>
+	
 	<div class="character_stats">
 		<h2>Stats</h2>
 		
