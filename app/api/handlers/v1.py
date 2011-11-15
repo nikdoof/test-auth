@@ -264,7 +264,9 @@ class AnnounceHandler(BaseHandler):
     def read(self, request):
 
         sid = request.GET.get('sid', None)
-        to = request.GET.getlist('to')
+        users = request.GET.getlist('users')
+        groups = request.GET.getlist('groups')
+        servers = request.GET.getlist('servers')
         message = request.GET.get('message', None)
         subject = request.GET.get('subject', None)
 
@@ -275,6 +277,6 @@ class AnnounceHandler(BaseHandler):
                 return {'result': 'invalid'}
 
             api = srv.api_class
-            return {'result': api.announce(api.settings['jabber_server'], message, subject, groups=to)}
+            return {'result': api.announce(api.settings['jabber_server'], message, subject, users=users, groups=groups, servers=servers) }
 
         return {'result': 'invalid'}

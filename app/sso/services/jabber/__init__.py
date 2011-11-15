@@ -162,23 +162,24 @@ class JabberService(BaseService):
 
         return resp.read().strip()[:2] == 'OK'
 
-    def announce(self, server, message, subject=None, users=[], groups=[]):
+    def announce(self, server, message, subject=None, users=[], groups=[], servers=[]):
 
-        if 'all' in groups:
-            dest = ['%s/announce/online' % server for server in self.settings['jabber_announce_servers']]
-        else:
-            dest = []
+        dest = []
+        if len(severs):
+            if 'all' in servers:
+                dest = ['%s/announce/all-hosts/online' % self.settings['jabber_server']]
+            else:
+                dest = ['%s/announce/online' % server for server in servers]
 
-            if len(users):
-                for u in set(users):
-                    dest.append(u)
+        if len(users):
+            for u in set(users):
+                dest.append(u)
 
-            elif len(groups):
-                for g in groups:
-                    dest.extend([x for x in self.get_group_members(server, g)])
+        if len(groups):
+            for g in groups:
+                dest.extend([x for x in self.get_group_members(server, g)])
 
-            dest = set(dest)
-
+        dest = set(dest)
         if len(dest):
             return self.send_message(dest, message, subject)
         return False
