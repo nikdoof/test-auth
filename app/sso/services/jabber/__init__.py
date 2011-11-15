@@ -15,7 +15,8 @@ class JabberService(BaseService):
                  'jabber_xmlrpc_url': 'http://127.0.0.1:4560',
                  'jabber_announce_from': 'announcebot@pleaseignore.com',
                  'jabber_announce_password': 'pepperllama',
-                 'jabber_announce_endpoint': 'http://127.0.0.1:5281/message'}
+                 'jabber_announce_endpoint': 'http://127.0.0.1:5281/message',
+                 'jabber_announce_servers': ['pleaseignore.com'] }
 
     def exec_xmlrpc(self, func, **kwargs):
         """ Send a XMLRPC request """
@@ -164,7 +165,7 @@ class JabberService(BaseService):
     def announce(self, server, message, subject=None, users=[], groups=[]):
 
         if 'all' in groups:
-            dest = ['%s/announce/all-hosts/online' % server]
+            dest = ['%s/announce/online' % server for server in self.settings['jabber_announce_servers']]
         else:
             dest = []
 
