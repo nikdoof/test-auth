@@ -270,7 +270,7 @@ class AnnounceHandler(BaseHandler):
         message = request.GET.get('message', None)
         subject = request.GET.get('subject', None)
 
-        if sid and to and message:
+        if sid and message:
             srv = get_object_or_404(Service, pk=sid)
 
             if not srv.api == 'sso.services.jabber':
