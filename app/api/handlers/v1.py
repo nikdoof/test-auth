@@ -280,3 +280,16 @@ class AnnounceHandler(BaseHandler):
             return {'result': api.announce(api.settings['jabber_server'], message, subject, users=users, groups=groups, servers=servers) }
 
         return {'result': 'invalid'}
+
+
+class EDKApiHandler(BaseHandler):
+    allowed_methods = ('GET',)
+
+    def read(self, request):
+
+        alliance = request.GET.get('alliance', None)
+        if not alliance:
+            return {'auth': 'missing', 'missing': 'alliance'}
+
+        objs = EVEAccount.objects.filter(characters__corporation__alliance=alliance, api_keytype=API_KEYTYPE_CORPORATION, api_status=API_STATUS_OK).extra(where=['(api_accessmask & 256) > 0'])
+        return objs.values('api_user_id', 'api_key', 'characters__id', 'characters__name', 'characters__corporation__name')

@@ -18,6 +18,7 @@ optimer_resource = Resource(handler=OpTimerHandler, **apikeyauth)
 blacklist_resource = Resource(handler=BlacklistHandler, **apikeyauth)
 characters_resource = Resource(handler=CharacterHandler, **apikeyauth)
 announce_resource = Resource(handler=AnnounceHandler, **apikeyauth)
+edkapi_resource = Resource(handler=EDKApiHandler, **apikeyauth)
 
 urlpatterns = patterns('',
     url(r'^1.0/user/$', user_resource),
@@ -28,6 +29,7 @@ urlpatterns = patterns('',
     url(r'^1.0/optimer/$', optimer_resource),
     url(r'^1.0/blacklist/$', blacklist_resource),
     url(r'^1.0/announce/$', announce_resource),
+    url(r'^1.0/edkapi/$', edkapi_resource),
 )
 
 # v2 APIs
