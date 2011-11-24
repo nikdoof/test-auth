@@ -165,7 +165,7 @@ class JabberService(BaseService):
     def announce(self, server, message, subject=None, users=[], groups=[], servers=[]):
 
         dest = []
-        if len(severs):
+        if len(servers):
             if 'all' in servers:
                 dest = ['%s/announce/all-hosts/online' % self.settings['jabber_server']]
             else:
