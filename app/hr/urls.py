@@ -19,5 +19,7 @@ urlpatterns = patterns('',
     url(r'^recommendation/$', login_required(views.HrViewRecommendations.as_view()), name='hr-viewrecommendations'),
     url(r'^recommendation/add/$', login_required(views.HrAddRecommendation.as_view()), name='hr-addrecommendation'),
 
-    url(r'^blacklist/user/(?P<userid>\d+)/$', login_required(views.HrBlacklistUser.as_view()), name='hr-blacklistuser'),
+    url(r'^blacklist/$', login_required(views.HrBlacklistList.as_view()), name='hr-blacklist-list'),
+    url(r'^blacklist/add/$', login_required(views.HrAddBlacklist.as_view()), name='hr-blacklist-add'),
+    url(r'^blacklist/add/user/(?P<userid>\d+)/$', login_required(views.HrBlacklistUser.as_view()), name='hr-blacklistuser'),
 )
