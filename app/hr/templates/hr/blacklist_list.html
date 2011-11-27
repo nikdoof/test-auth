@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load naturaltimediff %}
+{% block title %}Blacklist{% endblock %}
+
+{% block content %}
+<h1>Blacklist</h1>
+
+{% if object_list %}
+<form method="get" action="{% url hr-blacklist-list %}">
+<label for="query">Search:</label>
+<input type="text" name="q" id="query" value="{% if query %}{{ query }}{% endif %}"/>
+</form>
+<table>
+<thead>
+  <th>ID</th><th>Type</th><th>Value</th><th>Level</th><th>Reason</th><th>Expiry</th>
+</thead>
+<tbody>
+  {% for obj in object_list %}
+  <tr><td>{{ obj.id }}</td><td>{{ obj.get_type_display }}</td><td>{{ obj.value }}</td><td>{{ obj.get_level_display }}</td><td>{{ obj.reason }}</td><td>{{ obj.expiry_date }}</td></tr>
+  {% endfor %}
+</tbody>
+</table>
+
+{% if is_paginated %}
+<div class="pagination">
+  <ul>
+    <li class="prev{% if not page_obj.has_previous %} disabled{% endif %}"><a href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% endif %}">Previous</a></li>
+    {% for i in paginator.page_range %}
+    <li{% if i == page.number %} class="active"{% endif %}><a href="?page={{ i }}">{{ i }}</a></li>
+    {% endfor %}
+    <li class="next{% if not page_obj.has_next %} disabled{% endif %}"><a href="{% if page_obj.has_next %}?page={{page_obj.next_page_number }}{% endif %}">Next</a>
+  </ul>
+</div>
+{% endif %}
+{% else %}
+<p>No blacklist entries {% if query %}containing "{{ query }}" {% endif %}were found.</p>
+{% endif %}
+
+{% if perms.hr.add_blacklist %}
+<p><a href="{% url hr-blacklist-add %}">Add a blacklist entry</a></p>
+{% endif %}
+{% endblock %}
+

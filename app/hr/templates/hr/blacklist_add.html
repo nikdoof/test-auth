@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Add Blacklist Entry{% endblock %}
+
+{% block content %}
+<h1>Add Blacklist Entry</h1>
+
+<form action="{% url hr-blacklist-add %}" method="post">
+<table>
+{{ form.as_table }}
+</table>
+{% csrf_token %}
+
+<input type="submit" value="Blacklist" />
+</form>
+{% endblock %}
+
+

@@ -15,7 +15,8 @@ class JabberService(BaseService):
                  'jabber_xmlrpc_url': 'http://127.0.0.1:4560',
                  'jabber_announce_from': 'announcebot@pleaseignore.com',
                  'jabber_announce_password': 'pepperllama',
-                 'jabber_announce_endpoint': 'http://127.0.0.1:5281/message'}
+                 'jabber_announce_endpoint': 'http://127.0.0.1:5281/message',
+                 'jabber_announce_servers': ['pleaseignore.com'] }
 
     def exec_xmlrpc(self, func, **kwargs):
         """ Send a XMLRPC request """
@@ -161,23 +162,24 @@ class JabberService(BaseService):
 
         return resp.read().strip()[:2] == 'OK'
 
-    def announce(self, server, message, subject=None, users=[], groups=[]):
+    def announce(self, server, message, subject=None, users=[], groups=[], servers=[]):
 
-        if 'all' in groups:
-            dest = ['%s/announce/all-hosts/online' % server]
-        else:
-            dest = []
+        dest = []
+        if len(servers):
+            if 'all' in servers:
+                dest = ['%s/announce/all-hosts/online' % self.settings['jabber_server']]
+            else:
+                dest = ['%s/announce/online' % server for server in servers]
 
-            if len(users):
-                for u in set(users):
-                    dest.append(u)
+        if len(users):
+            for u in set(users):
+                dest.append(u)
 
-            elif len(groups):
-                for g in groups:
-                    dest.extend([x for x in self.get_group_members(server, g)])
+        if len(groups):
+            for g in groups:
+                dest.extend([x for x in self.get_group_members(server, g)])
 
-            dest = set(dest)
-
+        dest = set(dest)
         if len(dest):
             return self.send_message(dest, message, subject)
         return False

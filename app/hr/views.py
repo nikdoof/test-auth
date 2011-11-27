@@ -1,11 +1,15 @@
 from datetime import datetime, timedelta
 
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.conf import settings
+from django.db.models import Q
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound, HttpResponseForbidden, Http404
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.forms import ModelForm
+from django.forms.extras.widgets import SelectDateWidget
 from django.views.generic import TemplateView, DetailView, FormView, CreateView, ListView
 from django.views.generic.detail import BaseDetailView
 from django.conf import settings
@@ -375,3 +379,66 @@ class HrBlacklistUser(FormView):
         update_user_access.delay(user=self.blacklist_user.id)
 
         return HttpResponseRedirect(reverse('sso.views.user_view', args=[self.blacklist_user.username]))
+
+
+class HrBlacklistList(ListView):
+
+    model = Blacklist
+    allow_empty = True
+
+    def get_queryset(self):
+
+        obj_list = self.model.objects.all()
+
+        self.query = self.request.GET.get('q', None)
+        self.order = self.request.GET.get('o', 'id')
+
+        # Filter by the query string
+        if self.query:
+            obj_list = obj_list.filter(Q(value__icontains=self.query) | Q(reason__icontains=self.query))
+
+        # If a invalid order as been passed, correct it
+        if not self.order in ['id', 'type', 'value', 'reason', 'expiry_date']:
+            self.order = 'id'
+        return obj_list.order_by(self.order)
+
+    def get_context_data(self, **kwargs):
+        context = super(HrBlacklistList, self).get_context_data(**kwargs)
+        context['query'] = self.query
+        context['order'] = self.order
+
+        return context
+
+
+
+class HrAddBlacklist(CreateView):
+
+    model = Blacklist
+    template_name = 'hr/blacklist_add.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('hr.add_blacklist'):
+            return HttpResponseForbidden()
+        return super(HrAddBlacklist, self).dispatch(request, *args, **kwargs)
+
+    def get_form_class(self):
+
+        class AddBlacklistForm(ModelForm):
+            class Meta:
+                model = Blacklist
+                exclude = ('source', 'created_by')
+                widgets = {'expiry_date': SelectDateWidget()}
+
+        return AddBlacklistForm
+
+    def form_valid(self, form):
+
+        obj = form.save(commit=False)
+        obj.user = self.request.user
+        obj.source, created = BlacklistSource.objects.get_or_create(id=getattr(settings, 'BLACKLIST_DEFAULT_SOURCE', 1))
+        obj.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('hr-blacklist-list')
+

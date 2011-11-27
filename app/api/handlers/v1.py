@@ -264,17 +264,32 @@ class AnnounceHandler(BaseHandler):
     def read(self, request):
 
         sid = request.GET.get('sid', None)
-        to = request.GET.getlist('to')
+        users = request.GET.getlist('users')
+        groups = request.GET.getlist('groups')
+        servers = request.GET.getlist('servers')
         message = request.GET.get('message', None)
         subject = request.GET.get('subject', None)
 
-        if sid and to and message:
+        if sid and message:
             srv = get_object_or_404(Service, pk=sid)
 
             if not srv.api == 'sso.services.jabber':
                 return {'result': 'invalid'}
 
             api = srv.api_class
-            return {'result': api.announce(api.settings['jabber_server'], message, subject, groups=to)}
+            return {'result': api.announce(api.settings['jabber_server'], message, subject, users=users, groups=groups, servers=servers) }
 
         return {'result': 'invalid'}
+
+
+class EDKApiHandler(BaseHandler):
+    allowed_methods = ('GET',)
+
+    def read(self, request):
+
+        alliance = request.GET.get('alliance', None)
+        if not alliance:
+            return {'auth': 'missing', 'missing': 'alliance'}
+
+        objs = EVEAccount.objects.filter(characters__corporation__alliance=alliance, api_keytype=API_KEYTYPE_CORPORATION, api_status=API_STATUS_OK).extra(where=['(api_accessmask & 256) > 0'])
+        return objs.values('api_user_id', 'api_key', 'characters__id', 'characters__name', 'characters__corporation__name')

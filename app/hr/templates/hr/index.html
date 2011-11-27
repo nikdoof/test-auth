@@ -24,4 +24,13 @@
 </p>
 {% endif %}
 
+{% if perms.add_blacklist %}
+<h3>Blacklist Management</h3>
+<p>
+  <ul>
+    <li><a href="{% url hr-blacklist-list %}">View/Search Blacklist</a></li>
+    <li><a href="{% url hr-blacklist-add %}">Add Blacklist Entry</a></li>
+</p>
+{% endif %}
+
 {% endblock %}
