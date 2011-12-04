@@ -3,24 +3,34 @@
 {% block title %}HR{% endblock %}
 
 {% block content %}
-<H1>HR</H1>
+<div class="page-header">
+  <H1>HR</H1>
+</div>
 
 <h3>Applications</h3>
-<p><a href="{% url hr-userapplications %}">View your current open applications</a><br/>
-<a href="{% url hr-addapplication %}">Create a application</a><br/></p>
+<p>
+<ul>
+<li><a href="{% url hr-userapplications %}">View your current open applications</a></li>
+<li><a href="{% url hr-addapplication %}">Create a application</a></li>
+</ul>
+</p>
 
 {% if can_recommend %}
 <h3>Recommendations</h3>
 <p>
-<a href="{% url hr-viewrecommendations %}">View your current open recommendations</a><br/>
-<a href="{% url hr-addrecommendation %}">Add a recommendation</a><br/>
+<ul>
+  <li><a href="{% url hr-viewrecommendations %}">View your current open recommendations</a></li>
+  <li><a href="{% url hr-addrecommendation %}">Add a recommendation</a></li>
+</ul>
 </p>
 {% endif %}
 
 {% if is_hr_staff %}
 <h3>HR Admin</h3>
 <p>
-<a href="{% url hr-admin %}">View applications</a><br/>
+<ul>
+<li><a href="{% url hr-admin %}">View applications</a></li>
+</ul>
 </p>
 {% endif %}
 

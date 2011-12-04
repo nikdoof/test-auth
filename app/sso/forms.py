@@ -99,12 +99,12 @@ class UserLookupForm(forms.Form):
         choices = [(1, "Auth Username"),
                    (2, "Character"),
                    (4, "Email Address"),
-                   (5, "EVE API User ID"), ]
+                   (5, "EVE API Key ID"), ]
         if installed('reddit') and gargoyle.is_active('reddit', request):
             choices.append((3, "Reddit ID"))
 
         self.fields['type'] = forms.ChoiceField(label=u'Search type', choices=choices)
-        self.fields['username'] = forms.CharField(label=u'User ID', max_length=64)
+        self.fields['username'] = forms.CharField(label=u'Value', max_length=64)
 
 
 class APIPasswordForm(forms.Form):

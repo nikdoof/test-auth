@@ -23,7 +23,6 @@
   <li><a href="#reddit">Reddit</a></li>
   {% endifswitch %}
   {% endif %}
-  <li><a href="#services">Services</a></li>
 </ul>
 
 <div class="pill-content">
@@ -32,30 +31,20 @@
 <div class="active" id="overview">
   <p>
     <b>Username:</b> {{ user.username }}<br/>
-    <b>Email:</b> {{ user.email }}<br/>
-    <b>Primary Character:</b> {{ user.get_profile.primary_character }}<br/>
+    <b>Email:</b> {{ user.email }} (<a href="{% url sso.views.email_change %}">change</a>)<br/>
+    <b>Primary Character:</b> {{ user.get_profile.primary_character }} (<a href="{% url sso.views.primarychar_change %}">change</a>)<br/>
     <b>Groups:</b> {{ user.groups.all|join:", " }}<br/>
   </p>
+  <h2>Passwords</h2>
   <p>
-    <a href="{% url sso.views.refresh_access %}" class="btn">Update Access</a>
-    <a href="{% url django.contrib.auth.views.password_change %}" class="btn">Change Password</a>
-    <a href="{% url sso.views.email_change %}" class="btn">Change E-mail</a>
-    <a href="{% url sso.views.primarychar_change %}" class="btn">Change Primary Character</a>
+    <a href="{% url django.contrib.auth.views.password_change %}" class="btn">Change Auth Login Password</a>
+    <a href="{% url sso.views.set_apipasswd %}" class="btn">Change Services Password</a><br/><br/>
+    <span class="label info">Note</span> Changing your services password will change it for all linked sites (forums, wiki, reimbursement tool)
   </p>
-</div>
-
-<!-- Services Tabs -->
-<div id="services">
-  <h2>Auth API Services</h2>
-  <p>Auth API Servies use Auth for your login information with the use of a seperate password. To reset your services password click the link below</p>
-
-  <p><a href="{% url sso.views.set_apipasswd %}" class="btn">Change External Services Password</a></p>
-
-  <br/>
 
   {% if user.eveaccount_set.all %}
   <h2>Service Accounts</h2>
-  <p>Services not fully integrated into Auth, and which a seperate username/password is required.</p>
+  <p>These are services that cannot talk to auth and require a seperate username/password.</p>
   {% if user.serviceaccount_set.all %}
   <table>
   <tr><th>Service</th><th>Username</th><th>URL</th><th>Active</th><th>Actions</th></tr>
@@ -119,7 +108,9 @@
   <p>
   {% ifswitch api-disableprocessing %}
   {% else %}
-  <a href="{% url eve_api.views.eveapi_add %}" class="btn">Add a Eve API key</a>
+  <a href="{% url eve_api.views.eveapi_add %}" class="btn primary" title="Adds a new EVE API key to your account">Add a Eve API key</a>
+  <a href="https://support.eveonline.com/api/Key/CreatePredefined/59638024/0/false" class="btn" title="Create a API key with all the permissions Auth needs">Create API Key</a>
+  <a href="{% url sso.views.refresh_access %}" class="btn {% if not user.eveaccount_set.all %}disabled{% else %}danger{% endif %}" title="Forces auth to recheck your permissions and update your services as needed">Force Access Update</a>
   {% endifswitch %}
   </p>
 

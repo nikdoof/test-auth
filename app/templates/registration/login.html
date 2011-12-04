@@ -9,19 +9,22 @@
 </div>
 {% endif %}
 
+<div class="page-header">
+  <h1>Login</h1>
+</div>
+
 <form method="post" action="{% url django.contrib.auth.views.login %}">
 <fieldset>
-    <legend>Login</legend>
     <div class="clearfix">
         {{ form.username.label_tag }}
         <div class="input">
-            <td>{{ form.username }}</td>
+          {{ form.username }}
         </div>
     </div>
     <div class="clearfix">
         {{ form.password.label_tag }}
         <div class="input">
-            <td>{{ form.password }}</td>
+           {{ form.password }}
         </div>
     </div>
 

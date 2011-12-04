@@ -4,10 +4,12 @@
 
 {% block content %}
 
-<h1>Search All Applications</h1>
+<div class="page-header">
+  <h1>All Applications</h1>
+</div>
+
 <form method="GET" action="{% url hr-admin %}">
-<input type="text" name="q" />
-<input type="submit" value="Search" />
+<input type="text" name="q" placeholder="Search..."/>
 </form>
 
 {% if apps %}

@@ -3,20 +3,29 @@
 {% block title %}Applications{% endblock %}
 
 {% block content %}
-<p>This list shows your current open applications</p>
+
+<div class="page-header">
+  <h1>You Applications</h1>
+</div>  
+
 {% if applications %}
-<table>
-<tr><th>Application ID</th><th>Character</th><th>Corporation</th><th>Application Status</th></tr>
-{% for app in applications %}
-<tr><td><a href="{% url hr-viewapplication app.id %}">{{ app.id }}</a></td>
+<p>This is a list of all your applications. The current status of each application is shown in the Application Status field.</p>
+
+<table class="zebra-striped" id="applications">
+  <tr><th>Application ID</th><th>Character</th><th>Corporation</th><th>Application Status</th></tr>
+  {% for app in applications %}
+  <tr><td><a href="{% url hr-viewapplication app.id %}">{{ app.id }}</a></td>
     <td>{{ app.character }}</td>
     <td>{{ app.corporation }}</td>
     <td>{{ app.get_status_display }}</td>
-</tr>
-{% endfor %}
+  </tr>
+  {% endfor %}
 </table>
+
 {% else %}
 <p>You have no current applications</p>
 {% endif %}
+
+<p><a href="{% url hr-addapplication %}" class="btn">Apply to a corporation</a></p>
 
 {% endblock %}

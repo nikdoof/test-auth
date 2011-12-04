@@ -30,7 +30,7 @@
         </table>
         {% paginate %}
 
-        <p><a href="{% url eveapi-corporation-members-csv corporation.id %}">Export as CSV</a></p>
+        <p><a href="{% url eveapi-corporation-members-csv corporation.id %}" class="btn" title="Exports the membership list of this corporation to a CSV file.">Export as CSV</a></p>
         {% endif %}
 
 </div>

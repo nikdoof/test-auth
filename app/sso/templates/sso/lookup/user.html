@@ -6,7 +6,9 @@
 
 {% block content %}
 
+<div class="page-header">
 <h1>{{user.username}}'s Profile</h1>
+</div>
 
 <p>
 <li><b>Username:</b> {{ user.username }}</li>
@@ -19,81 +21,90 @@
 </p>
 
 <p>
-<div class="skill_controls">
-<a href="{% url sso.views.refresh_access user.id %}">Update Access</a>
+<a href="{% url sso.views.refresh_access user.id %}" class="btn error">Update Access</a>
 {% if "hr"|installed %}
 {% if perms.hr.add_blacklist %}
-<a href="{% url hr-blacklistuser user.id %}">Blacklist User</a>
+<a href="{% url hr-blacklistuser user.id %}" class="btn error">Blacklist User</a>
 {% endif %}
 {% endif %}
-</div>
 </p>
 
-<br/>
 {% if services %}
-<h2>Service Accounts</h2>
-<table>
-<tr><th>Service</th><th>Username</th><th>Active</th></tr>
-{% for acc in services %}
-<tr><td>{{ acc.service }}</td>
-    <td>{{ acc.service_uid }}</td>
-    <td>{% if acc.active %}Yes{% else %}No{% endif %}</td>
-</tr>
-{% endfor %}
-</table>
+<section id="services">
+  <h2>Service Accounts</h2>
+
+  <table>
+    <tr><th>Service</th><th>Username</th><th>Active</th></tr>
+    {% for acc in services %}
+    <tr><td>{{ acc.service }}</td>
+      <td>{{ acc.service_uid }}</td>
+      <td>{% if acc.active %}Yes{% else %}No{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</section>
 {% endif %}
 
-<br/>
 {% if user.application_set.all %}
-<h2>Applications</h2>
-<table>
-<tr><th>ID</th><th>Character</th><th>Applied To</th><th>Status</th></tr>
-{% for app in user.application_set.all %}
-<tr><td><a href="{% url hr-viewapplication app.id %}">{{ app.id }}</a></td>
-    <td>{{ app.character }}</td>
-    <td>{{ app.corporation }}</td>
-    <td>{{ app.get_status_display }}</td></tr>
-{% endfor %}
-</table>
+<section id="applications">
+  <h2>Applications</h2>
+
+  <table class="zebra-striped">
+    <tr><th>ID</th><th>Character</th><th>Applied To</th><th>Status</th></tr>
+    {% for app in user.application_set.all %}
+    <tr><td><a href="{% url hr-viewapplication app.id %}">{{ app.id }}</a></td>
+      <td>{{ app.character }}</td>
+      <td>{{ app.corporation }}</td>
+      <td>{{ app.get_status_display }}</td></tr>
+   {% endfor %}
+  </table>
+</section>
 {% endif %}
 
 {% if user.recommendation_set.all %}
-<br />
-<h2>Recommendations</h2>
-<table>
-<tr><th>Recommended Application</th><th>Recommendation Character</th><th>Recommendation Date</th></tr>
-{% for rec in user.recommendation_set.all %}
-<tr><td><a href="{% url hr-viewapplication rec.application.id %}">{{ rec.application.character.name }}</a></td>
-    <td>{{ rec.user_character }}</td>
-    <td>{{ rec.recommendation_date }}</td></tr>
-{% endfor %}
-</table>
+<section id="recommendations">
+  <h2>Recommendations</h2>
+
+  <table>
+    <thead>
+      <tr><th>Recommended Application</th><th>Recommendation Character</th><th>Recommendation Date</th></tr>
+    </thead>
+    <tbody>
+      {% for rec in user.recommendation_set.all %}
+      <tr><td><a href="{% url hr-viewapplication rec.application.id %}">{{ rec.application.character.name }}</a></td>
+        <td>{{ rec.user_character }}</td>
+        <td>{{ rec.recommendation_date }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
 {% endif %}
 
 {% if perms.sso.can_view_users %}
-<br/>
-<h2>Eve API Keys</h2>
 {% if user.eveaccount_set.all %}
-<table>
-<thead>
-<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th></tr>
-</thead>
-<tbody>
-{% for acc in user.eveaccount_set.all %}
-<tr><td>{{ acc.api_user_id }}</td>
-    <td>{{ acc.api_key }}</td>
-    <td>{{ acc.description }}</td>
-    <td>{{ acc.get_api_keytype_display }}</td>
-    <td>{{ acc.get_api_status_display }}</td>
-    <td>{{ acc.api_last_updated|naturaltimediff }}</td>
-</tr>
-</tbody>
-{% endfor %}
-</table>
+<section id="api">
+  <h2>Eve API Keys</h2>
+
+  <table>
+    <thead>
+      <tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th></tr>
+    </thead>
+    <tbody>
+      {% for acc in user.eveaccount_set.all %}
+      <tr><td>{{ acc.api_user_id }}</td>
+        <td>{{ acc.api_key }}</td>
+        <td>{{ acc.description }}</td>
+        <td>{{ acc.get_api_keytype_display }}</td>
+        <td>{{ acc.get_api_status_display }}</td>
+        <td>{{ acc.api_last_updated|naturaltimediff }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
 {% endif %}
 {% endif %}
 
-<br/>
 {% if user.eveaccount_set.all %}
 <table>
 <tr><th>Character Name</th><th>Corp</th></tr>
@@ -110,22 +121,23 @@
 
 {% if "reddit"|installed %}
 {% ifswitch reddit %}
-<br/>
-<h2>Reddit Accounts</h2>
-{% if user.redditaccount_set.all %}
-<table>
-<thead>
-<tr><th>Username</th><th>Created Date</th><th>Validated</th></tr>
-</thead>
-<tbody>
-{% for acc in user.redditaccount_set.all %}
-<tr><td><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a></td>
-    <td>{{ acc.date_created }}</td>
-    <td>{% if acc.validated %}Yes{% else %}No{% endif %}</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
+<section id="reddit">
+  <h2>Reddit Accounts</h2>
+  {% if user.redditaccount_set.all %}
+  <table class="zebra-striped">
+    <thead>
+      <tr><th>Username</th><th>Created Date</th><th>Validated</th></tr>
+    </thead>
+    <tbody>
+      {% for acc in user.redditaccount_set.all %}
+      <tr><td><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a></td>
+        <td>{{ acc.date_created }}</td>
+        <td>{% if acc.validated %}Yes{% else %}No{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
 {% endif %}
 {% endifswitch %}
 {% endif %}

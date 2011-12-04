@@ -9,146 +9,179 @@
 {% block title %}View Application{% endblock %}
 
 {% block content %}
-<h3>Application Details</h3>
+<div class="page-header">
+<h1>Application - {{ app.character }} to {{ app.corporation }} </h1>
+</div>
 
 <ul>
 <li>Applying Auth User: <a href="{% url sso.views.user_view app.user %}">{{ app.user }}</a></li>
 <li>Applying Character: <a href="{% url eve_api.views.eveapi_character app.character.id %}">{{ app.character }}</a></li>
 <li>Applying To: <a href="{% url eve_api.views.eveapi_corporation app.corporation.id %}">{{ app.corporation }}</a></li>
-<li>Application Status: <b>{{ app.get_status_display }}</b></li>
+<li>Application Status: {{ app.get_status_display }}</li>
 {% if hrstaff %}
-<li>Blacklist Status: <b>{% if app.blacklisted %}<font color='red'>BLACKLISTED</font>{% else %}<font color='geen'>OK</font>{% endif %}</b></li>
+<li>Blacklist Status: <b>{% if app.blacklisted %}<span class="label important">>BLACKLISTED</span>{% else %}<span class="label success">OK</span>{% endif %}</b></li>
 {% endif %}
 </ul>
 
 {% ifnotequal app.status 5 %}
 {% ifnotequal app.status 2 %}
 <h3>Actions</h3>
-<div class="skill_controls">
+
 <p>
 {% if app.status < 1 %}
-<a href="{% url hr-updateapplication app.id 1 %}">Submit Application</a>
+<a class="btn success" href="{% url hr-updateapplication app.id 1 %}">Submit Application</a>
 {% else %}
-<a href="{% url hr-updateapplication app.id 0 %}">Withdraw Application</a>
+<a class="btn" href="{% url hr-updateapplication app.id 0 %}">Withdraw Application</a>
 {% endif %}
-<a href="{% url hr-addmessage app.id %}">Add Message</a>
+<a class="btn" href="{% url hr-addmessage app.id %}">Add Message</a>
 {% if hrstaff %}
-<a href="{% url hr-addnote app.id %}">Add Staff Note</a>
+<a class="btn" href="{% url hr-addnote app.id %}">Add Staff Note</a>
 {% if app.status < 2 or app.status = 4 or app.status = 6 %}
 {% if perms.hr.can_accept %}
-<a href="{% url hr-rejectapplication app.id %}">Reject Application</a>
+<a class="btn error" href="{% url hr-rejectapplication app.id %}">Reject Application</a>
 {% ifequal app.blacklisted 0 %}
-<a href="{% url hr-acceptapplication app.id %}">Accept Application</a>
+<a class="btn success" href="{% url hr-acceptapplication app.id %}">Accept Application</a>
 {% endifequal %}
 {% endif %}
 {% ifnotequal app.status 4 %}
-<a href="{% url hr-updateapplication app.id 4 %}">Mark as In Query</a>
+<a class="btn" href="{% url hr-updateapplication app.id 4 %}">Mark as In Query</a>
 {% endifnotequal %}
 {% ifnotequal app.status 6 %}
-<a href="{% url hr-updateapplication app.id 6 %}">Flag for Review</a>
+<a class="btn" href="{% url hr-updateapplication app.id 6 %}">Flag for Review</a>
 {% endifnotequal %}
 {% endif %}
 {% ifequal app.status 3 %}
-<a href="{% url hr-updateapplication app.id 5 %}">Mark as Complete</a>
+<a class="btn success" href="{% url hr-updateapplication app.id 5 %}">Mark as Complete</a>
 {% endifequal %}
 {% endif %}
 </p>
-</div>
 {% endifnotequal %}
 {% endifnotequal %}
 
 {% if audit %}
 <h3>Event Log</h3>
-<table width="100%">
-<tr><th width="50px">Event Type</th><th width="75px">User</th><th width="50px">Date</th><th>Event Details</th></tr>
-{% for a in audit %}
-<tr><td>{{ a.get_event_display }}</td><td>{{ a.user }}</td><td>{{ a.date|date:"Y/m/d H:i:s" }}</td><td>{{ a.text|linebreaks }}</td></tr>
-{% endfor %}
+
+<table class="zebra-striped">
+  <thead>
+    <tr><th width="50px">Event Type</th><th width="75px">User</th><th width="50px">Date</th><th>Event Details</th></tr>
+  </thead>
+  <tbody>
+    {% for a in audit %}
+    <tr><td>{{ a.get_event_display }}</td><td>{{ a.user }}</td><td>{{ a.date|date:"Y/m/d H:i:s" }}</td><td>{{ a.text|linebreaks }}</td></tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endif %}
 
 {% if hrstaff %}
 {% if app.blacklist_values %}
 <h3>Blacklist Triggers</h3>
-<table>
-<tr><th>Blacklist Type</th><th>Blacklisted Value</th><th>Level</th><th>Reason</th><th>Source</th></tr>
-{% for a in app.blacklist_values %}
-<tr><td>{{ a.get_type_display }}</td><td>{{ a.value }}</td><td>{{ a.get_level_display }}</td><td>{{ a.reason }}</td><td>{{ a.source }}</td></tr>
-{% endfor %}
+
+<table class="zebra-striped">
+  <thead>
+    <tr><th>Blacklist Type</th><th>Blacklisted Value</th><th>Level</th><th>Reason</th><th>Source</th></tr>
+  </thead>
+  <tbody>
+    {% for a in app.blacklist_values %}
+    <tr><td>{{ a.get_type_display }}</td><td>{{ a.value }}</td><td>{{ a.get_level_display }}</td><td>{{ a.reason }}</td><td>{{ a.source }}</td></tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endif %}
 {% endif %}
 
 {% if app.recommendation_set.all %}
 <h3>Recommendations</h3>
-<table>
-<tr><th>User</th><th>Character</th><th>Corporation</th><th>Valid Recommendation</th><th>Total User Recomendations</th></tr>
-{% for rec in app.recommendation_set.all %}
-<tr><td><a href="{% url sso.views.user_view rec.user %}">{{ rec.user }}</a></td>
-<td><a href="{% url eve_api.views.eveapi_character rec.user_character.id %}">{{ rec.user_character }}</a></td>
-<td><a href="http://evemaps.dotlan.net/corp/{{ rec.user_character.corporation.name }}">{{ rec.user_character.corporation }}</a></td>
-<td>{% if rec.is_valid %}<font color="green">Yes</font>{% else %}<font color="red">No</font>{% endif %}</td>
-<td>{{ rec.user.recommendation_set.all.count }}</td>
-</tr>
-{% endfor %}
+
+<table class="zebra-striped">
+  <thead>
+    <tr><th>User</th><th>Character</th><th>Corporation</th><th>Valid Recommendation</th><th>Total User Recomendations</th></tr>
+  </thead>
+  <tbody>
+    {% for rec in app.recommendation_set.all %}
+    <tr><td><a href="{% url sso.views.user_view rec.user %}">{{ rec.user }}</a></td>
+      <td><a href="{% url eve_api.views.eveapi_character rec.user_character.id %}">{{ rec.user_character }}</a></td>
+      <td><a href="http://evemaps.dotlan.net/corp/{{ rec.user_character.corporation.name }}">{{ rec.user_character.corporation }}</a></td>
+      <td>{% if rec.is_valid %}<font color="green">Yes</font>{% else %}<font color="red">No</font>{% endif %}</td>
+      <td>{{ rec.user.recommendation_set.all.count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endif %}
 
 {% if hrstaff %}
 {% if app.corporation.application_config.api_view %}
 <h3>API Keys</h3>
+
 <table>
-<tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th></tr>
-{% for acc in app.user.eveaccount_set.all %}
-<tr><td>{{ acc.api_user_id }}</td>
-    <td>{{ acc.api_key }}</td>
-    <td>{{ acc.description }}</td>
-    <td>{{ acc.get_api_keytype_display }}</td>
-    <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
-    <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
-</tr>
-{% endfor %}
+  <thead>
+    <tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th></tr>
+  </thead>
+  <tbody>
+    {% for acc in app.user.eveaccount_set.all %}
+    <tr><td>{{ acc.api_user_id }}</td>
+      <td>{{ acc.api_key }}</td>
+      <td>{{ acc.description }}</td>
+      <td>{{ acc.get_api_keytype_display }}</td>
+      <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
+      <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endif %}
 
 <h3>EVE Characters</h3>
-<table>
-<tr><th>Character</th><th>Corp / Alliance</th><th>ISK</th><th>SP</th><th>Training</th><th>Links</th></tr>
-{% for acc in app.user.eveaccount_set.all %}
-{% for char in acc.characters.all %}
-<tr><td><a href="{% url eve_api.views.eveapi_character char.id %}">{{ char.name }}</a></td>
-    <td><a href="http://evemaps.dotlan.net/corp/{{ char.corporation }}">{{ char.corporation }}</a>{% if char.corporation.alliance %} / 
+
+<table class="zebra-striped" id="characters">
+  <thead>
+    <tr><th>Character</th><th>Corp / Alliance</th><th>ISK</th><th>SP</th><th>Training</th><th>Links</th></tr>
+  </thead>
+  <tbody>
+    {% for acc in app.user.eveaccount_set.all %}
+    {% for char in acc.characters.all %}
+    <tr><td><a href="{% url eve_api.views.eveapi_character char.id %}">{{ char.name }}</a></td>
+      <td><a href="http://evemaps.dotlan.net/corp/{{ char.corporation }}">{{ char.corporation }}</a>{% if char.corporation.alliance %} / 
         <a href="http://evemaps.dotlan.net/alliance/{{ char.corporation.alliance }}">{{ char.corporation.alliance }}</a>{% endif %}
-    </td>
-    <td style="text-align: right;">{{ char.balance|intcomma }} ISK</td>
-    <td style="text-align: right;">{{ char.total_sp|intcomma }} SP</td>
-    <td>{% if char.current_training %}{{ char.current_training.skill.name }} to Level {{ char.current_training.in_training }}{% endif %}</td>
-    <td>{% if request.is_igb %}<a href="javascript:CCPEVE.showInfo(1377, {{ char.id }})">Show In Eve</a> / {% endif %}<a href="https://gate.eveonline.com/Profile/{{ char.name }}/">EveGate Profile</a> / <a href="http://eve-search.com/search/author/{{ char.name }}">EveSearch</a> / <a href="https://forums.eveonline.com/default.aspx?g=search&postedby={{ char.name}}">EVEGate Forums</a></td>
-</tr>
-{% endfor %}
-{% endfor %}
+      </td>
+      <td style="text-align: right;">{{ char.balance|intcomma }} ISK</td>
+      <td style="text-align: right;">{{ char.total_sp|intcomma }} SP</td>
+      <td>{% if char.current_training %}{{ char.current_training.skill.name }} to Level {{ char.current_training.in_training }}{% endif %}</td>
+      <td>{% if request.is_igb %}<a href="javascript:CCPEVE.showInfo(1377, {{ char.id }})">Show In Eve</a> / {% endif %}<a href="https://gate.eveonline.com/Profile/{{ char.name }}/">EveGate Profile</a> / <a href="http://eve-search.com/search/author/{{ char.name }}">EveSearch</a> / <a href="https://forums.eveonline.com/default.aspx?g=search&postedby={{ char.name}}">EVEGate Forums</a></td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+  </tbody>
 </table>
+
+
 {% if "reddit"|installed %}
 {% ifswitch reddit %}
 {% if app.user.redditaccount_set.all %}
 <h3>Reddit Accounts</h3>
-<table>
-<tr><th>Account</th><th>Karma</th><th>Validated</th><th>Creation Date</th><th>Matches Criteria?</th><th>Links</th></tr>
-{% for acc in app.user.redditaccount_set.all %}
-<tr><td><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a></td>
-    <td>{{ acc.link_karma }} / {{ acc.comment_karma }}</td>
-    <td>{% if acc.validated %}Validated{%else %}<b>NOT VALIDATED</b>{% endif %}</td>
-    <td>{{ acc.date_created }}</td>
-    <td>{% if acc.is_valid %}<font color="green">Yes</font>{% else %}<font color="red">No</font>{% endif %}</td>
-    <td><a href="http://metareddit.com/stalk?user={{ acc.username}}">Metareddit</a></td>
-</tr>
-{% endfor %}
+
+<table class="zebra-striped" id="reddit">
+  <thead>
+    <tr><th>Account</th><th>Karma</th><th>Validated</th><th>Creation Date</th><th>Matches Criteria?</th><th>Links</th></tr>
+  </thead>
+  <tbody>
+    {% for acc in app.user.redditaccount_set.all %}
+    <tr><td><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a></td>
+      <td>{{ acc.link_karma }} / {{ acc.comment_karma }}</td>
+      <td>{% if acc.validated %}<span class="label success">Validated</span>{%else %}<span class="label warning">NOT VALIDATED</span>{% endif %}</td>
+      <td>{{ acc.date_created }}</td>
+      <td>{% if acc.is_valid %}<font color="green">Yes</font>{% else %}<font color="red">No</font>{% endif %}</td>
+      <td><a href="http://metareddit.com/stalk?user={{ acc.username}}">Metareddit</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 
 <h3>Recent Reddit Posts</h3>
 
 <span id="loadlink">
-<a href="javascript:redditposts()">Load recent Reddit posts</a>
+<a href="javascript:redditposts()" class="btn">Load recent Reddit posts</a>
 </span>
 
 <script type="text/javascript">

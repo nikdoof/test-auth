@@ -3,22 +3,24 @@
 {% block title %}Blacklist{% endblock %}
 
 {% block content %}
-<h1>Blacklist</h1>
+<div class="page-header">
+  <h1>Blacklist</h1>
+</div>
 
 {% if object_list %}
 <form method="get" action="{% url hr-blacklist-list %}">
-<label for="query">Search:</label>
-<input type="text" name="q" id="query" value="{% if query %}{{ query }}{% endif %}"/>
+    <input type="text" name="q" id="query" value="{% if query %}{{ query }}{% endif %}" placeholder="Search..."/>
 </form>
+
 <table>
-<thead>
-  <th>ID</th><th>Type</th><th>Value</th><th>Level</th><th>Reason</th><th>Expiry</th>
-</thead>
-<tbody>
-  {% for obj in object_list %}
-  <tr><td>{{ obj.id }}</td><td>{{ obj.get_type_display }}</td><td>{{ obj.value }}</td><td>{{ obj.get_level_display }}</td><td>{{ obj.reason }}</td><td>{{ obj.expiry_date }}</td></tr>
-  {% endfor %}
-</tbody>
+  <thead>
+    <th>ID</th><th>Type</th><th>Value</th><th>Level</th><th>Reason</th><th>Expiry</th>
+  </thead>
+  <tbody>
+    {% for obj in object_list %}
+    <tr><td>{{ obj.id }}</td><td>{{ obj.get_type_display }}</td><td>{{ obj.value }}</td><td>{{ obj.get_level_display }}</td><td>{{ obj.reason }}</td><td>{{ obj.expiry_date }}</td></tr>
+    {% endfor %}
+  </tbody>
 </table>
 
 {% if is_paginated %}
@@ -37,7 +39,7 @@
 {% endif %}
 
 {% if perms.hr.add_blacklist %}
-<p><a href="{% url hr-blacklist-add %}">Add a blacklist entry</a></p>
+<p><a href="{% url hr-blacklist-add %}" class="btn">Add a blacklist entry</a></p>
 {% endif %}
 {% endblock %}
 

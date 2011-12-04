@@ -3,13 +3,29 @@
 {% block title %}User Lookup{% endblock %}
 
 {% block content %}
-<h1>User Lookup</h1>
+<div class="page-header">
+  <h1>Search / User Lookup</h1>
+</div>
+<p>This will search Auth's database for any users matching the values you provide.</p>
+
+<p>
 <form action="{% url sso.views.user_lookup %}" method="post">
-{% csrf_token %}
-<table>
-{{ form.as_table }}
-</table>
-<br />
-<input type="submit" value="Lookup" />
+<formset>
+  {% csrf_token %}
+  <div class="clearfix">
+    {{ form.type.label_tag }}
+    <div class="input">
+      {{ form.type }}
+    </div>
+  </div>
+  <div class="clearfix">
+    {{ form.username.label_tag }}
+    <div class="input">
+      {{ form.username }}
+    </div>
+  </div>
+  <input type="submit" value="Lookup" class="btn primary"/>
+</formset>
 </form>
+</p>
 {% endblock %}

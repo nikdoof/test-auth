@@ -41,7 +41,7 @@ def eveapi_add(request, post_save_redirect='/', template='eve_api/add.html'):
                 if out:
                     msg = "Key %d successfully added." % form.cleaned_data['api_user_id']
                 else:
-                    msg = "An issue was encountered why trying to import key %s, please recheck and try again." % form.cleaned_data['api_user_id']
+                    msg = "An issue was encountered while trying to import key %s, Please check that you are using the correct information and try again." % form.cleaned_data['api_user_id']
             messages.success(request, msg, fail_silently=True)
             return redirect(post_save_redirect)
     else:
@@ -183,7 +183,8 @@ def eveapi_character(request, charid=None, template='eve_api/character.html', li
         return render_to_response(template, context, context_instance=RequestContext(request))
 
     context = {
-        'accounts': EVEAccount.objects.select_related('characters', 'characters__corporation', 'characters__corporation__alliance').filter(user=request.user),
+        'accounts': EVEAccount.objects.select_related('characters__name').filter(user=request.user).exclude(api_keytype=API_KEYTYPE_CORPORATION),
+        'characters': EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).distinct().order_by('name'),
     }
     return render_to_response(list_template, context, context_instance=RequestContext(request))
 

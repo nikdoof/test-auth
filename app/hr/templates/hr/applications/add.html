@@ -3,6 +3,11 @@
 {% block title %}Create Application{% endblock %}
 
 {% block content %}
+
+<div class="page-header">
+  <h1>New Application</h1>
+</div>
+
 <p>Select the character you wish to apply with, then the corporation you wish to apply for.</p>
 
 <form action="{% url hr-addapplication %}" method="post">
@@ -10,6 +15,6 @@
 {{ form.as_table }}
 </table>
 {% csrf_token %}
-<input type="submit" value="Apply" />
+<input type="submit" value="Create Application" class="btn primary"/>
 </form>
 {% endblock %}

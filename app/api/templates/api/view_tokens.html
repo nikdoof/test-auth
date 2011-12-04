@@ -3,21 +3,27 @@
 {% block title %}Application Access{% endblock %}
 
 {% block content %}
-
+<div class="page-header">
 <h1>Application Access</h1>
+</div>
 
 <p>This is the list of external applications that can access your data stored on Auth, this includes any EVE API data and also any linked information (Reddit accounts, service accounts).</p>
 
 {% if tokens %}
-<table>
-<tr><th>Application</th><th>Granted Date/Time</th><th>Action</th></tr>
-{% for token in tokens %}
-<tr>
-<tr><td>{{ token.consumer.name }}</td><td></td><td><a href="{% url oauth-revoke-token token.key %}">Revoke</a></td>
-</tr>
-{% endfor %}
+<table class="zebra-striped" id="oauth-keys">
+  <thead>
+    <tr><th>Application</th><th>Granted Date/Time</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    {% for token in tokens %}
+    <tr>
+      <tr><td>{{ token.consumer.name }}</td><td></td><td><a href="{% url oauth-revoke-token token.key %}">Revoke</a></td>
+    </tr>
+    {% endfor %}
+  </tobdy>
+</table>
 {% else %}
-<p><b>You have not granted any applications access to your data</b></p>
+<p><b>You have not granted any applications access to your data.</b></p>
 {% endif %}
 
 {% endblock %}
