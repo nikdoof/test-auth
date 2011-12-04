@@ -3,17 +3,20 @@
 {% block title %}Add Reddit Account{% endblock %}
 
 {% block content %}
-<h1>Add Reddit Account</h1>
+<div class="page-header">
+  <h1>Add Reddit Account</h1>
+</div>
+
 <p>This will bind a Reddit account to your Auth Gateway login, this is usually required for application to the
 corporation</p>
 <p>Please note, you will be forever tied to this account and posts and comments made on this account will be checked
 on from time to time</p>
+
 <form action="{% url reddit-addaccount %}" method="post">
-<table>
-{{ form.as_table }}
-</table>
-{% csrf_token %}
-<br />
-<input type="submit" value="Add Account" />
+<formset>
+  {% include "formtools/formfield.html" with field=form.username %}
+  {% csrf_token %}
+  <input type="submit" value="Add Account" />
+</formset>
 </form>
 {% endblock %}

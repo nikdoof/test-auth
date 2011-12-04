@@ -6,7 +6,7 @@
 <h1>Delete Reddit Account</h1>
 <p>Do you wish to delete the Reddit account {{ account.username }} from Auth?</p>
 <form action="{% url reddit-delaccount account.id %}" method="post">
-<input type="submit" value="Delete Account" />
+<input type="submit" value="Delete Account" class="btn warning"/>
 {% csrf_token %}
 </form>
 {% endblock %}
