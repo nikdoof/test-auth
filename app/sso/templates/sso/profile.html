@@ -10,6 +10,8 @@
 
 <script src="{{ STATIC_URL }}bootstrap/js/bootstrap-tabs.js"></script>
 <script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
+<script src="{{ STATIC_URL }}bootstrap/js/bootstrap-twipsy.js"></script>
+<script src="{{ STATIC_URL }}bootstrap/js/bootstrap-popover.js"></script>
 
 <div class="page-header">
   <h1>Your Profile</h1>
@@ -91,7 +93,7 @@
         <td>{{ acc.api_user_id }}</td>
         <td>{{ acc.api_key|slice:":10" }}&#8230;</td>
         <td>{{ acc.description }}</td>
-        <td>{{ acc.get_api_keytype_display }}{% if acc.api_keytype == 4 %}&nbsp;<b><sup style="color: red;">*</sup></b>{% endif %}</td>
+        <td><a href="#" class="accesspopup" id="{{ acc.api_user_id}}" data-original-title="Access for Key {{ acc.api_user_id }}" data-content="test" rel="popover">{{ acc.get_api_keytype_display }}</a>{% if acc.api_keytype == 4 %}&nbsp;<b><sup style="color: red;">*</sup></b>{% endif %}</td>
         <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
         <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
         <td>{% ifswitch api-disableprocessing %}{% else %}<a href="{% url eve_api.views.eveapi_refresh acc.api_user_id %}"  onclick="javascript:refresh_apikey({{ acc.api_user_id }}); return false;">Refresh</a>,&nbsp;
@@ -177,14 +179,27 @@
 
 </div>
 
-<script>
-  $(function () {
-    $('.tabs').tabs()
-  })
+<script type="text/javascript">
 
-  $(function() {
-    $("table#eveapikeys").tablesorter({ sortList: [[0,0]] });
-  });
+  access_popover = function(e) {
+    e.preventDefault();
+    var el = $(this);
+    var id = $(this).attr('id');
+    $.ajax({
+         type: 'GET',
+         url: '/eve/eveapi/access/' + id + '/',
+         dataType: 'html',
+         success: function(data) {
+             el.attr('data-content', data);
+             el.popover('show');
+         },
+    });
+  }
+
+  $('.tabs').tabs();
+  $("table#eveapikeys").tablesorter({ sortList: [[0,0]] });
+  $('.accesspopup').popover({html: 'true', trigger: 'manual'});
+  $('.accesspopup').hover(access_popover, function () { $(this).popover('hide') });
 </script>
 
 

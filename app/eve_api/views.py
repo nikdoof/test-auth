@@ -1,24 +1,25 @@
 import csv
 
-import celery
-
-from django.http import HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.core import serializers
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse, Http404
+from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.template import RequestContext
+from django.views.generic import DetailView
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.template import RequestContext
-from django.http import Http404
-from django.core import serializers
 
+import celery
 from gargoyle import gargoyle
 
-from eve_proxy.models import ApiAccessLog
+from eve_proxy.models import ApiAccessLog, CachedDocument
 from eve_proxy.exceptions import DocumentRetrievalError
 from eve_api.app_defines import *
 from eve_api.forms import EveAPIForm
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation, EVEPlayerAlliance
 from eve_api.tasks import import_apikey_result
+from eve_api.utils import basic_xml_parse_doc
 
 
 @login_required
@@ -233,3 +234,34 @@ def eveapi_alliance(request, allianceid, template='eve_api/alliance.html'):
     }
     return render_to_response(template, context, context_instance=RequestContext(request))
 
+
+class EVEAPIAccessView(DetailView):
+
+    model = EVEAccount
+    template_name = 'eve_api/accessview.html'
+    slug_field = 'api_user_id'
+
+    @staticmethod
+    def lowestSet(int_type):
+        low = (int_type & -int_type)
+        lowBit = -1
+        while (low):
+            low >>= 1
+            lowBit += 1
+        return(lowBit)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(EVEAPIAccessView, self).get_context_data(**kwargs)
+
+        calls = basic_xml_parse_doc(CachedDocument.objects.api_query('/api/CallList.xml.aspx'))['eveapi']['result']
+        if self.object.api_keytype == API_KEYTYPE_CORPORATION:
+            typ = 'Corporation'
+        else:
+            typ = 'Character'
+
+        ctx['access'] = []
+        for row in [x for x in calls['calls'] if x['type'] == typ]:
+            bit = self.lowestSet(int(row['accessMask']))
+            ctx['access'].append((row['name'], self.object.has_access(bit)))
+
+        return ctx

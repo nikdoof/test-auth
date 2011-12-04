@@ -1,0 +1,7 @@
+<div class="content">
+{% for x, y in access %}
+    {% if y %}
+    <span class="label {% if y %}success{% else %}important{% endif %}">{{ x }}</span><br/>
+    {% endif %}
+{% endfor %}
+</div>
