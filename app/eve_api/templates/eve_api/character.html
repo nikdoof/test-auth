@@ -21,7 +21,7 @@
       <li><span class="stat">Security Status:</span> {{ character.security_status|floatformat:2 }}</span></li>
       <li><span class="stat">Director:</span> <span class="value">{{ character.director }}</span> {% if character.director %}(<a href="https://support.eveonline.com/api/Key/CreatePredefined/1968409/{{ character.id }}/true">Create a corporation API key</a>){% endif %}</li>
       {% if character.current_training %}
-      <li><spam class="stat">Training:</span> <span class="Value">{{ character.current_training.skill.name}} to Level</span></li>
+      <li><spam class="stat">Training:</span> <span class="Value">{{ character.current_training.skill.name}} to Level {{ character.current_training.in_training }}</span></li>
       {% endif %}
     </ul>
 
