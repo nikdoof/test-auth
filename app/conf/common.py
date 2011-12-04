@@ -72,6 +72,7 @@ INSTALLED_APPS = (
     'djcelery',
     'registration',
     'pagination',
+    'formtools',
     'eve_proxy',
     'eve_api',
     'reddit',

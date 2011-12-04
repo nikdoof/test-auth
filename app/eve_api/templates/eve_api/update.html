@@ -12,9 +12,9 @@
 <form action="{% url eveapi-update acc.api_user_id %}" method="post">
 <formset>
 
-  {% include "eve_api/formfield.html" with field=form.api_user_id %}
-  {% include "eve_api/formfield.html" with field=form.api_key class="xxlarge" %}
-  {% include "eve_api/formfield.html" with field=form.description class="xxlarge" %}
+  {% include "formtools/formfield.html" with field=form.api_user_id %}
+  {% include "formtools/formfield.html" with field=form.api_key class="xxlarge" %}
+  {% include "formtools/formfield.html" with field=form.description class="xxlarge" %}
 
   {% csrf_token %}
   <input type="submit" value="Add API Key" class="btn primary"/>

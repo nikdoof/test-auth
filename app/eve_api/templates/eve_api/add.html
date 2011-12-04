@@ -13,9 +13,9 @@
 
 <formset>
 
-  {% include "eve_api/formfield.html" with field=form.api_user_id %}
-  {% include "eve_api/formfield.html" with field=form.api_key class="xxlarge"%}
-  <!--{% include "eve_api/formfield.html" with field=form.description %}-->
+  {% include "formtools/formfield.html" with field=form.api_user_id %}
+  {% include "formtools/formfield.html" with field=form.api_key class="xxlarge"%}
+  <!--{% include "formtools/formfield.html" with field=form.description %}-->
 
   {% csrf_token %}
   <input type="submit" value="Add API Key" class="btn primary"/>
