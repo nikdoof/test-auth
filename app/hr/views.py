@@ -415,6 +415,7 @@ class HrAddBlacklist(CreateView):
 
     model = Blacklist
     template_name = 'hr/blacklist_add.html'
+    paginate_by = 25
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('hr.add_blacklist'):
