@@ -3,11 +3,17 @@
 {% block title %}Send Message to Applicant{% endblock %}
 
 {% block content %}
+<div class="page-header">
+  <h1>Add Message</h1>
+</div>
+
 <form action="{% url hr-addmessage application.id %}" method="post">
-<table>
-{{ form.as_table }}
-</table>
-{% csrf_token %}
-<input type="submit" value="Apply" />
+
+<formset>
+  {% include "formtools/formfield.html" with field=form.text class="xxlarge" %}
+  {% if form.template %}{% include "formtools/formfield.html" with field=form.template %}{% endif %}
+  {% csrf_token %}
+  <input type="submit" value="Add" class="btn primary"/>
+</formset>
 </form>
 {% endblock %}

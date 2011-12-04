@@ -7,12 +7,15 @@
 </div>
 
 <form action="{% url hr-blacklist-add %}" method="post">
-<table>
-  {{ form.as_table }}
-</table>
-{% csrf_token %}
+<formset>
+  {% include "formtools/formfield.html" with field=form.type %}
+  {% include "formtools/formfield.html" with field=form.value class="xxlarge" %}
+  {% include "formtools/formfield.html" with field=form.reason class="xxlarge" %}
+  {% include "formtools/formfield.html" with field=form.expiry_date %}
 
-<input type="submit" value="Add Blacklist" class="btn primary"/>
+  {% csrf_token %}
+  <input type="submit" value="Add Blacklist" class="btn primary"/>
+</formset>
 </form>
 {% endblock %}
 

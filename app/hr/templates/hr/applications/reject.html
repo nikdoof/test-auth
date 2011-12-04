@@ -3,12 +3,20 @@
 {% block title %}Reject Application{% endblock %}
 
 {% block content %}
+<div class="page-header">
+  <h1>Reject Application</h1>
+</div>
+
 <p>Fill in the rejection reason below, please note, this will be sent out to the user.</p>
 <form action="{% url hr-rejectapplication application.id %}" method="post">
-<table>
-{{ form.as_table }}
-</table>
-{% csrf_token %}
-<input type="submit" value="Apply" />
+
+<formset>
+  {% include "formtools/formfield.html" with field=form.text class="xxlarge" %}
+  {% include "formtools/formfield.html" with field=form.template %}
+  {% csrf_token %}
+  <input type="submit" value="Reject" class="btn error"/>
+</formset>
+
+
 </form>
 {% endblock %}

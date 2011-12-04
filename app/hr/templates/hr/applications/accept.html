@@ -3,12 +3,19 @@
 {% block title %}Accept Application{% endblock %}
 
 {% block content %}
+<div class="page-header">
+  <h1>Accept Application</h1>
+</div>
+
+
 <p>Fill in a note you want to send to the user.</p>
 <form action="{% url hr-acceptapplication application.id %}" method="post">
-<table>
-{{ form.as_table }}
-{% csrf_token %}
-</table>
-<input type="submit" value="Apply" />
+<formset>
+  {% include "formtools/formfield.html" with field=form.text class="xxlarge" %}
+  {% include "formtools/formfield.html" with field=form.template %}
+  {% csrf_token %}
+  <input type="submit" value="Add" class="btn primary"/>
+</formset>
+
 </form>
 {% endblock %}
