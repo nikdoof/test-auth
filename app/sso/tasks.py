@@ -29,8 +29,13 @@ task_failure.connect(process_failure_signal)
 
 # Signals that the tasks need to listen for
 def eveapi_deleted(sender, instance, **kwargs):
-    if instance.user:
-        update_user_access.delay(user=instance.user.id)
+    try:
+        u = instance.user
+    except User.DoesNotExist:
+        pass
+    else:
+        if u:
+            update_user_access.delay(user=u.id)
 
 signals.post_delete.connect(eveapi_deleted, sender=EVEAccount)
 
