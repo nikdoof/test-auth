@@ -389,7 +389,7 @@ class HrBlacklistList(ListView):
 
     def get_queryset(self):
 
-        obj_list = self.model.objects.all()
+        obj_list = super(HrBlacklistList, self).get_queryset()
 
         self.query = self.request.GET.get('q', None)
         self.order = self.request.GET.get('o', 'id')
