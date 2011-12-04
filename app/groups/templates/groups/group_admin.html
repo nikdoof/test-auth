@@ -2,45 +2,61 @@
 
 {% block content %}
 
-<h2>{{ group.name }}</h2>
+<div class="page-header">
+  <h1>{{ group.name }}</h1>
+</div>
 
 <h3>Members</h3>
 
 {% if group.user_set.all %}
-<table>
-<tr><th>Member Username</th><th>Character</th><th>Status</th><th>Actions</th></tr>
-{% for user, chars, status in member_list %}
-<tr><td><a href="{% url sso.views.user_view user.username %}">{{ user.username }}</a></td>
-    <td>{{ chars }}</td>
-    <td>{{ status }}</td>
-    <td><a href="{% url groups.views.kick_member group.id user.id %}">Kick Member</a>
-    {% if request.user.is_superuser %}&nbsp;<a href="{% url groups.views.promote_member group.id user.id %}">Toggle Admin</a>{% endif %}</td>
-</tr>
-{% endfor %}
+<table class="zebra-striped" id="members">
+  <thead>
+    <tr><th>Member Username</th><th>Character</th><th>Status</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for user, chars, status in member_list %}
+    <tr><td><a href="{% url sso.views.user_view user.username %}">{{ user.username }}</a></td>
+      <td>{{ chars }}</td>
+      <td>{{ status }}</td>
+      <td><a href="{% url groups.views.kick_member group.id user.id %}">Kick Member</a>
+      {% if request.user.is_superuser %}&nbsp;<a href="{% url groups.views.promote_member group.id user.id %}">Toggle Admin</a>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% else %}
-<b>This group has no members</b>
+<p><b>This group has no members</b></p>
 {% endif %}
 
 <h3>Membership Requests</h3>
 
 {% if requests %}
-<table>
-<tr><th>Username</th><th>Character</th><th>Reason</th><th>Status</th><th>Created Date</th><th>Actions</th></tr>
-{% for req in requests %}
-<tr><td><a href="{% url sso.views.user_view req.user.username %}">{{ req.user }}</a></td>
-    <td>{{ req.character }}</td>
-    <td>{{ req.reason }}</td>
-    <td>{{ req.get_status_description }}</td>
-    <td>{{ req.created_date }}</td>
-    <td><a href="{% url groups.views.accept_request req.id %}">Accept</a>&nbsp;
-        <a href="{% url groups.views.reject_request req.id %}">Reject</a></td>
-</tr>
+<table class="zebra-striped" id="requests">
+  <thead>
+    <tr><th>Username</th><th>Character</th><th>Reason</th><th>Status</th><th>Created Date</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for req in requests %}
+    <tr><td><a href="{% url sso.views.user_view req.user.username %}">{{ req.user }}</a></td>
+      <td>{{ req.character }}</td>
+      <td>{{ req.reason }}</td>
+      <td>{{ req.get_status_description }}</td>
+      <td>{{ req.created_date }}</td>
+      <td><a href="{% url groups.views.accept_request req.id %}">Accept</a>&nbsp;
+          <a href="{% url groups.views.reject_request req.id %}">Reject</a></td>
+    </tr>
+  </tbody>
 {% endfor %}
 </table>
 {% else %}
 <b>This group has no outstanding requests</b>
 {% endif %}
 
+<script src="/static/js/jquery.tablesorter.min.js"></script>
+<script >
+    $(function() {
+        $("table.zebra-striped").tablesorter({ sortList: [[0,0]] });
+    });
+</script>
 
 {% endblock %}

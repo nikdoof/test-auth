@@ -3,13 +3,17 @@
 {% block title %}Create a Membership Request{% endblock %}
 
 {% block content %}
+<div class="page-header">
+  <h1>Create Membership Request</h1>
+</div>
+
 <p>Please fill in a reason why you like to be a member of this group and any supporting evidence as requested by the group adminship</p>
 
 <form action="{% url groups.views.create_request groupid %}" method="post">
-{% csrf_token %}
-<table>
-{{ form.as_table }}
-</table>
-<input type="submit" value="Create Request" />
+<formset>
+  {% include "formtools/formfield.html" with field=form.reason class="xxlarge" %}
+  {% csrf_token %}
+  <input type="submit" value="Create Request" class="btn primary" />
+</formset>
 </form>
 {% endblock %}
