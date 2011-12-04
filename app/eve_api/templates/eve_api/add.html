@@ -1,24 +1,25 @@
 {% extends "base.html" %}
 
-{% load gargoyle_tags %}
-
 {% block title %}Add EVE API Key{% endblock %}
 
 {% block content %}
+<div class="page-header">
+  <h1>Add EVE API Key</h1>
+</div>
 
-{% ifswitch eve-cak %}
 <p>Please fill in your API key details and a optional description. You can create a API key on the <a href="https://support.eveonline.com/api/Key/CreatePredefined/59638024/0/false">API support site</a></p>
-{% else %}
-<p>Please fill in your API key as provided on the <a href="http://eve-online.com/api">EVE Online API page</a> and a optional description.</p>
-{% endifswitch %}
 
 <form action="{% url eve_api.views.eveapi_add %}" method="post">
-<table>
-{{ form.as_table }}
-</table>
-<br />
-{% csrf_token %}
-<input type="submit" value="Add Key" />
+
+<formset>
+
+  {% include "eve_api/formfield.html" with field=form.api_user_id %}
+  {% include "eve_api/formfield.html" with field=form.api_key class="xxlarge"%}
+  <!--{% include "eve_api/formfield.html" with field=form.description %}-->
+
+  {% csrf_token %}
+  <input type="submit" value="Add API Key" class="btn primary"/>
+</formset>
 </form>
 
 {% endblock %}

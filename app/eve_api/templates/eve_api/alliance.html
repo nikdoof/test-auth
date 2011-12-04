@@ -4,30 +4,36 @@
 {% load naturaltimediff %}
 
 {% block content %}
-<div class="alliance_info">
-	<h1>{{ alliance.name }}</h1>
-
-        <ul>
-            <li><b>Member Count:</b> {{ alliance.member_count }}</li>
-            <li><b>Executor Corporation:</b> <a href="{% url eveapi-corporation alliance.executor.id %}">{{ alliance.executor }}</a></li>
-            <li><b>Alliance Leader:</b> {{ executor }}</li>
-        </ul>
-
-        <h2>Corporations</h2>
-
-        <script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
-        <script >
-           $(function() {
-               $("table#corporations").tablesorter({ sortList: [[0,0]] });
-           });
-        </script>
-        <table class="zebra-striped" id="corporations">
-        <thead>
-        <tr><th class="header">Name</td><th class="header">Members</th><th class="header">Average SP</th><th class="header">API Coverage</th><th class="header">Director Key?</th></tr>
-        </thead>
-        {% for corp in corporations %}
-        <tr><td><a href="{% url eveapi-corporation corp.id %}">{{ corp }}</a></td><td>{{ corp.member_count }}</td><td>{{ corp.average_sp|intcomma }}</td><td>{{ corp.api_key_coverage|floatformat:2 }}%</td><td>{{ corp.director_api_keys.count }}</td></tr>
-        {% endfor %}
-        </table>
+<div class="page-header">
+  <h1>{{ alliance.name }}</h1>
 </div>
+
+<p>
+<ul>
+  <li><b>Member Count:</b> {{ alliance.member_count }}</li>
+  <li><b>Executor Corporation:</b> <a href="{% url eveapi-corporation alliance.executor.id %}">{{ alliance.executor }}</a></li>
+  <li><b>Alliance Leader:</b> {{ executor }}</li>
+</ul>
+</p>
+
+<h2>Corporations</h2>
+
+<table class="zebra-striped" id="corporations">
+  <thead>
+    <tr><th class="header">Name</td><th class="header">Members</th><th class="header">Average SP</th><th class="header">API Coverage</th><th class="header">Director Key?</th></tr>
+  </thead>
+  <tbody>
+    {% for corp in corporations %}
+    <tr><td><a href="{% url eveapi-corporation corp.id %}">{{ corp }}</a></td><td>{{ corp.member_count }}</td><td>{{ corp.average_sp|intcomma }}</td><td>{{ corp.api_key_coverage|floatformat:2 }}%</td><td>{{ corp.director_api_keys.count }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+<script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
+<script >
+  $(function() { $("table#corporations").tablesorter({ sortList: [[0,0]] }); });
+</script>
+
+
 {% endblock %}

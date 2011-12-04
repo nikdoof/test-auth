@@ -2,13 +2,6 @@
 {% load humanize %}
 {% block content %}
 
-<script src="/static/js/jquery.tablesorter.min.js"></script>
-<script >
-    $(function() {
-        $("table#characters").tablesorter({ sortList: [[0,0]] });
-    });
-</script>
-
 <div class="page-header">
   <h1>Your Characters</h1>
 </div>
@@ -41,6 +34,11 @@
 <p>You have no API keys linked to your auth account.</p>
 {% endif %}
 
-
+<script src="/static/js/jquery.tablesorter.min.js"></script>
+<script >
+    $(function() {
+        $("table#characters").tablesorter({ sortList: [[0,0]] });
+    });
+</script>
 
 {% endblock %}

@@ -9,64 +9,57 @@
 </div>
 
 <div class="row">
-    <div class="span8">
-        <h2>Attributes</h2>
+  <div class="span8">
+    <h2>Attributes</h2>
 
-        <ul>
-            <li><span class="stat">Race:</span> <span class="value">{{ character.get_race_display }}</span></li>
-            {% if character.gender %}<li><span class="stat">Gender:</span> <span class="value">{{ character.get_gender_display }}</span></li>{% endif %}
-            <li><span class="stat">Corporation:</span> <a href="{% url eveapi-corporation character.corporation.id %}">{{ character.corporation.name }}</a></span></li>
-            {% if character.corporation.alliance %}<li><span class="stat">Alliance:</span> <span class="value"><a href="{% url eveapi-alliance character.corporation.alliance.id %}">{{ character.corporation.alliance.name }}</a><span></li>{% endif %}
-            <li><span class="stat">Joined Corporation:</span> <span class="value">{{ character.corporation_date|date:"Y/m/d H:i:s" }}</span></li>
-            <li><span class="stat">Security Status:</span> {{ character.security_status|floatformat:2 }}</span></li>
-            <li><span class="stat">Director:</span> <span class="value">{{ character.director }}</span></li>
-            {% if character.current_training %}
-            <li><spam class="stat">Training:</span> <span class="Value">{{ character.current_training.skill.name}} to Level</span></li>
-            {% endif %}
-        </ul>
+    <ul>
+      <li><span class="stat">Race:</span> <span class="value">{{ character.get_race_display }}</span></li>
+      {% if character.gender %}<li><span class="stat">Gender:</span> <span class="value">{{ character.get_gender_display }}</span></li>{% endif %}
+      <li><span class="stat">Corporation:</span> <a href="{% url eveapi-corporation character.corporation.id %}">{{ character.corporation.name }}</a></span></li>
+      {% if character.corporation.alliance %}<li><span class="stat">Alliance:</span> <span class="value"><a href="{% url eveapi-alliance character.corporation.alliance.id %}">{{ character.corporation.alliance.name }}</a><span></li>{% endif %}
+      <li><span class="stat">Joined Corporation:</span> <span class="value">{{ character.corporation_date|date:"Y/m/d H:i:s" }}</span></li>
+      <li><span class="stat">Security Status:</span> {{ character.security_status|floatformat:2 }}</span></li>
+      <li><span class="stat">Director:</span> <span class="value">{{ character.director }}</span> {% if character.director %}(<a href="https://support.eveonline.com/api/Key/CreatePredefined/1968409/{{ character.id }}/true">Create a corporation API key</a>){% endif %}</li>
+      {% if character.current_training %}
+      <li><spam class="stat">Training:</span> <span class="Value">{{ character.current_training.skill.name}} to Level</span></li>
+      {% endif %}
+    </ul>
 
+    {% if character.attrib_intelligence %}
+    <h2>Stats</h2>
+    <table class="zebra-striped" id="stats">
+      <tbody>
+        <tr><td>Intelligence</td><td> {{ character.attrib_intelligence }}</td></tr>
+        <tr><td>Memory</td><td>{{ character.attrib_memory }}</td></tr>
+        <tr><td>Charisma</td><td>{{ character.attrib_charisma }}</td></tr>
+        <tr><td>Perception</td><td>{{ character.attrib_perception }}</td></tr>
+        <tr><td>Willpower</td><td>{{ character.attrib_willpower }}</td></tr>
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
 
-        {% if character.attrib_intelligence %}
-        <h2>Stats</h2>
-
-        <table>
-            <thead>
-                <tr><th>Stat</th><th>Value</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>Intelligence</td><td> {{ character.attrib_intelligence }}</td></tr>
-                <tr><td>Memory</td><td>{{ character.attrib_memory }}</td></tr>
-                <tr><td>Charisma</td><td>{{ character.attrib_charisma }}</td></tr>
-                <tr><td>Perception</td><td>{{ character.attrib_perception }}</td></tr>
-                <tr><td>Willpower</td><td>{{ character.attrib_willpower }}</td></tr>
-            </tbody>
-        </table>
+  <div class="span5 offset3">
+    <div class="row pull-right">
+      <img src="https://image.eveonline.com/Character/{{ character.id }}_256.jpg" />
+    </div>
+    <div class="row pull-right">
+      <div class="span5">
+        {% if character.corporation.alliance %}
+        <img src="https://image.eveonline.com/Alliance/{{ character.corporation.alliance.id }}_64.png" class="pull-right" title="{{ character.corporation.alliance }} ({{ character.corporation.alliance.ticker }})"/>
         {% endif %}
-
+        <img src="https://image.eveonline.com/Corporation/{{ character.corporation.id }}_64.png" class="pull-right" title="{{ character.corporation }} ({{ character.corporation.ticker }})"/>
+      </div>
     </div>
-
-    <div class="span5 offset3">
-        <div class="row pull-right">
-            <img src="https://image.eveonline.com/Character/{{ character.id }}_256.jpg" />
-        </div>
-        <div class="row pull-right">
-            <div class="span5">
-                {% if character.corporation.alliance %}
-                <img src="https://image.eveonline.com/Alliance/{{ character.corporation.alliance.id }}_64.png" class="pull-right" title="{{ character.corporation.alliance }} ({{ character.corporation.alliance.ticker }})"/>
-                {% endif %}
-                <img src="https://image.eveonline.com/Corporation/{{ character.corporation.id }}_64.png" class="pull-right" title="{{ character.corporation }} ({{ character.corporation.ticker }})"/>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
-
 
 {% if skillTree %}
 <h2>Skills</h2>
 
 <p>
-    <a href=#" id="openAll" class="btn">Open All</a>
-    <a href=#" id="collapseAll" class="btn">Collapse All</a>
+  <a href=#" id="openAll" class="btn">Open All</a>
+  <a href=#" id="collapseAll" class="btn">Collapse All</a>
 </p>
 
 <table>
@@ -88,38 +81,34 @@
 {% if employmenthistory.count %}
 <h2>Employment History</h2>
 
-<table>
-    <thead>
-        <tr><th>Corporation</th><th>Join Date</th><th>Leave Date</th></tr>
-    </thead>
-    <tbody>
-        {% for hist in employmenthistory %}
-         <tr><td><a href="{% url eveapi-corporation hist.corporation.id %}">{{ hist.corporation.name }}</a></td><td>{{ hist.start_date }}</td><td>{% if hist.end_date %}{{ hist.end_date }}{% endif %}</td></tr>
-        {% endfor %}
-    </tbody>
+<table class="zebra-striped">
+  <thead>
+    <tr><th>Corporation</th><th>Join Date</th><th>Leave Date</th></tr>
+  </thead>
+  <tbody>
+    {% for hist in employmenthistory %}
+    <tr><td><a href="{% url eveapi-corporation hist.corporation.id %}">{{ hist.corporation.name }}</a></td><td>{{ hist.start_date }}</td><td>{% if hist.end_date %}{{ hist.end_date }}{% endif %}</td></tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endif %}
 
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript">
-	$(function(){
-		$(".skill_heading")
-                    .css("cursor", "pointer")
-                    .attr("title", "Click to expand/collapse section")
-                    .click(function(){
-                        $('tr[parent$=' + $(this).attr('id') + ']').toggle();
-    		    });
-		$("#openAll").bind("click", function(e){
-			e.preventDefault();
-                        $(".child").show();
-		});
-		$("#collapseAll").bind("click", function(e){
-			e.preventDefault();
-			$(".child").hide();
-		});
-                $('tr[parent]').hide();
-	});
+  $(function(){
+    $(".skill_heading")
+      .css("cursor", "pointer")
+      .attr("title", "Click to expand/collapse section")
+      .click(function(){ $('tr[parent$=' + $(this).attr('id') + ']').toggle(); });
+    $("#openAll").bind("click", function(e){
+      e.preventDefault();
+      $(".child").show();
+    });
+    $("#collapseAll").bind("click", function(e){
+      e.preventDefault();
+      $(".child").hide();
+    });
+    $('tr[parent]').hide();
+  });
 </script>
 
 {% endblock %}

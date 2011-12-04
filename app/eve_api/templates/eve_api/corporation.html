@@ -6,32 +6,40 @@
 
 {% block content %}
 
-<div class="corporation_info">
-	<h1>{{ corporation.name }}</h1>
+<div class="page-header">
+  <h1>{{ corporation.name }}</h1>
+</div>
 
-        <ul>
-        <li><b>Member Count:</b> {{ corporation.member_count }}</li>
-        <li><b>Known Members:</b> {{ corporation.eveplayercharacter_set.count }}</li>
-        {% if view_members %}
-        <li><b>Full Director API Available: {% if corporation.director_api_keys %}<span style="color: green;">Yes</span>{% else %}<span style="color: red;">No</span>{% endif %}</b></li>
-        <li><b>Members with API Keys:</b> {{ corporation.api_keys }}</li>
-        <li><b>Members with Active API Keys:</b> {{ corporation.active_api_keys }}</li>
-        <li><b>API Coverage:</b> {{ corporation.api_key_coverage|floatformat:2 }}%</li>
-        {% endif %}
-        </ul>
+<p>
+<ul>
+  <li><b>Member Count:</b> {{ corporation.member_count }}</li>
+  <li><b>Known Members:</b> {{ corporation.eveplayercharacter_set.count }}</li>
+  {% if view_members %}
+  <li><b>Full Director API Available: {% if corporation.director_api_keys %}<span class="label success">Yes</span>{% else %}<span class="label important">No</span>{% endif %}</b></li>
+  <li><b>Members with API Keys:</b> {{ corporation.api_keys }}</li>
+  <li><b>Members with Active API Keys:</b> {{ corporation.active_api_keys }}</li>
+  <li><b>API Coverage:</b> {{ corporation.api_key_coverage|floatformat:2 }}%</li>
+  {% endif %}
+</ul>
+</p>
 
-        {% if view_members %}
-        <table>
-        <tr><th>Name</th><th>Skillpoints</th><th>Join Date</th><th>Director?</th><th>Roles?</th><th>API Key?</th><th>Key Active?</th></tr>
-        {% autopaginate members 20 %}
-        {% for char in members %}
-        <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td><td>{% if char.total_sp %}{{ char.total_sp|intcomma }} SP{% endif %}</td><td>{{ char.corporation_date }}</td><td>{% if char.director %}Yes{% endif %}</td><td>{% if char.eveaccount_set.count %}{% if char.roles.count %}Yes{% else %}No{% endif %}{% endif %}<td>{% if char.eveaccount_set.count %}Yes{% else %}<span style="color: red;">No</span>{% endif %}</td><td>{% if char.active_key %}Yes{% else %}<span style="color: red;">No</span>{% endif %}</td></tr>
-        {% endfor %}
-        </table>
-        {% paginate %}
+{% if view_members %}
+{% autopaginate members 25 %}
+<table class="zebra-striped" id="members">
+  <thead>
+    <tr><th>Name</th><th>Skillpoints</th><th>Join Date</th><th>Director?</th><th>Roles?</th><th>API Key?</th><th>Key Active?</th></tr>
+  </thead>
+  <tbody>
+    {% for char in members %}
+    <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td><td>{% if char.total_sp %}{{ char.total_sp|intcomma }} SP{% endif %}</td><td>{{ char.corporation_date }}</td><td>{% if char.director %}Yes{% endif %}</td><td>{% if char.eveaccount_set.count %}{% if char.roles.count %}Yes{% else %}No{% endif %}{% endif %}<td>{% if char.eveaccount_set.count %}Yes{% else %}<span style="color: red;">No</span>{% endif %}</td><td>{% if char.active_key %}Yes{% else %}<span style="color: red;">No</span>{% endif %}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
 
-        <p><a href="{% url eveapi-corporation-members-csv corporation.id %}" class="btn" title="Exports the membership list of this corporation to a CSV file.">Export as CSV</a></p>
-        {% endif %}
+<p>{% paginate %}</p>
+
+<p><a href="{% url eveapi-corporation-members-csv corporation.id %}" class="btn" title="Exports the membership list of this corporation to a CSV file.">Export as CSV</a></p>
+{% endif %}
 
 </div>
 
