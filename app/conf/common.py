@@ -95,6 +95,13 @@ LOGIN_URL = "/login"
 OAUTH_AUTH_VIEW = 'api.views.oauth_auth_view'
 OAUTH_CALLBACK_VIEW = 'api.views.oauth_callback_view'
 
+## EVE Proxy
+
+# Manual adjustments to cache timers (lowercase path)
+EVE_PROXY_CACHE_ADJUSTMENTS = {
+    '/api/calllist.xml.aspx': 3600,
+}
+
 ### Celery Schedule
 
 from celeryschedule import *

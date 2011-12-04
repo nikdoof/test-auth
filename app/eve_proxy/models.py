@@ -114,7 +114,13 @@ class CachedDocumentManager(models.Manager):
             else:
                 date = datetime.strptime(dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue, '%Y-%m-%d %H:%M:%S')
                 # Add 30 seconds to the cache timers, avoid hitting too early and account for some minor clock skew.
-                doc.cached_until = date + timedelta(seconds=getattr(settings, 'EVE_PROXY_CACHE_ADJUSTMENT', 30))
+                doc.cached_until = date + timedelta(seconds=getattr(settings, 'EVE_PROXY_GLOBAL_CACHE_ADJUSTMENT', 30))
+
+                # Allow for tuning of individual pages with bad cache returns
+                adjustconfig = getattr(settings, 'EVE_PROXY_CACHE_ADJUSTMENTS', {})
+                if url_path.lower() in adjustconfig:
+                    doc.cached_until = date + timedelta(seconds=adjustconfig[url_path.lower()])
+
                 enode = dom.getElementsByTagName('error')
                 if enode:
                    error = enode[0].getAttribute('code')
