@@ -8,6 +8,26 @@
 
 <p>This is the list of your current groups, and groups you can request to be a member of.</p>
 
+{% if group_list %}
+<table class="zebra-striped" id="groups">
+  <thead>
+    <tr><th>Group Name</th><th>Description</th><th>Status</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for id, group, description, status, requestable, fixed, pending, moderated in group_list %}
+    <tr><td>{{ group }}</td>
+      <td>{{ description }}</td>
+      <td>{% if pending %}Request Pending{% else %}{% if status %}{{ status }}{% endif %}{% endif %}</td>
+      <td>{% ifequal status None %}{% if requestable %}<a href="{% url groups.views.create_request id %}">{% if moderated %}Request Membership{% else %}Join{% endif %}</a>{% endif %}{% endifequal %}
+          {% if not fixed and status %}<a href="{% url groups.views.kick_member id request.user.id %}">Leave</a>&nbsp;{% endif %}
+          {% if status == 'Admin' or request.user.is_superuser %}{% if not fixed %}<a href="{% url groups.views.admin_group id %}">Admin</a>{% endif %}{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<b>No groups are available.</b>
+{% endif %}
 
 <script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
 <script >
@@ -15,26 +35,5 @@
         $("table#groups").tablesorter({ sortList: [[0,0]] });
     });
 </script>
-
-<table class="zebra-striped" id="groups">
-{% if group_list %}
-<thead>
-<tr><th>Group Name</th><th>Description</th><th>Status</th><th>Actions</th></tr>
-</thead>
-<tbody>
-{% for id, group, description, status, requestable, fixed, pending, moderated in group_list %}
-<tr><td>{{ group }}</td>
-    <td>{{ description }}</td>
-    <td>{% if pending %}Request Pending{% else %}{% if status %}{{ status }}{% endif %}{% endif %}</td>
-    <td>{% ifequal status None %}{% if requestable %}<a href="{% url groups.views.create_request id %}">{% if moderated %}Request Membership{% else %}Join{% endif %}</a>{% endif %}{% endifequal %}
-        {% if not fixed and status %}<a href="{% url groups.views.kick_member id request.user.id %}">Leave</a>&nbsp;{% endif %}
-        {% if status == 'Admin' or request.user.is_superuser %}{% if not fixed %}<a href="{% url groups.views.admin_group id %}">Admin</a>{% endif %}{% endif %}</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-{% else %}
-<b>No groups are available.</b>
-{% endif %}
 
 {% endblock %}

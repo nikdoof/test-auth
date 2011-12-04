@@ -10,7 +10,7 @@
 <p>Please update your API key as provided on the <a href="http://eve-online.com/api">EVE Online API page</a> and a optional description.</p>
 
 <form action="{% url eveapi-update acc.api_user_id %}" method="post">
-<formset>
+<fieldset>
 
   {% include "formtools/formfield.html" with field=form.api_user_id %}
   {% include "formtools/formfield.html" with field=form.api_key class="xxlarge" %}
@@ -18,7 +18,7 @@
 
   {% csrf_token %}
   <input type="submit" value="Add API Key" class="btn primary"/>
-</formset>
+</fieldset>
 </form>
 
 {% endblock %}

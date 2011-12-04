@@ -13,10 +13,10 @@ corporation</p>
 on from time to time</p>
 
 <form action="{% url reddit-addaccount %}" method="post">
-<formset>
+<fieldset>
   {% include "formtools/formfield.html" with field=form.username %}
   {% csrf_token %}
   <input type="submit" value="Add Account" />
-</formset>
+</fieldset>
 </form>
 {% endblock %}

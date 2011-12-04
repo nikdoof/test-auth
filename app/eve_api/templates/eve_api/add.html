@@ -11,7 +11,7 @@
 
 <form action="{% url eve_api.views.eveapi_add %}" method="post">
 
-<formset>
+<fieldset>
 
   {% include "formtools/formfield.html" with field=form.api_user_id %}
   {% include "formtools/formfield.html" with field=form.api_key class="xxlarge"%}
@@ -19,7 +19,7 @@
 
   {% csrf_token %}
   <input type="submit" value="Add API Key" class="btn primary"/>
-</formset>
+</fieldset>
 </form>
 
 {% endblock %}

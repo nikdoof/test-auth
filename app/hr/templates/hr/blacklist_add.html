@@ -7,7 +7,7 @@
 </div>
 
 <form action="{% url hr-blacklist-add %}" method="post">
-<formset>
+<fieldset>
   {% include "formtools/formfield.html" with field=form.type %}
   {% include "formtools/formfield.html" with field=form.value class="xxlarge" %}
   {% include "formtools/formfield.html" with field=form.reason class="xxlarge" %}
@@ -15,7 +15,7 @@
 
   {% csrf_token %}
   <input type="submit" value="Add Blacklist" class="btn primary"/>
-</formset>
+</fieldset>
 </form>
 {% endblock %}
 

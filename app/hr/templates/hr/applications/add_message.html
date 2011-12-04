@@ -8,12 +8,11 @@
 </div>
 
 <form action="{% url hr-addmessage application.id %}" method="post">
-
-<formset>
+<fieldset>
   {% include "formtools/formfield.html" with field=form.text class="xxlarge" %}
   {% if form.template %}{% include "formtools/formfield.html" with field=form.template %}{% endif %}
   {% csrf_token %}
   <input type="submit" value="Add" class="btn primary"/>
-</formset>
+</fieldset>
 </form>
 {% endblock %}

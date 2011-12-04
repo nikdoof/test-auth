@@ -11,12 +11,12 @@
 <p>Select the character you wish to apply with, then the corporation you wish to apply for.</p>
 
 <form action="{% url hr-addapplication %}" method="post">
-<formset>
+<fieldset>
   {% include "formtools/formfield.html" with field=form.character %}
   {% include "formtools/formfield.html" with field=form.corporation %}
   {% csrf_token %}
   <input type="submit" value="Create Application" class="btn primary"/>
-</formset>
+</fieldset>
 </form>
 
 {% endblock %}

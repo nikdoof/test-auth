@@ -10,7 +10,7 @@
 
 <p>
 <form action="{% url sso.views.user_lookup %}" method="post">
-<formset>
+<fieldset>
   {% csrf_token %}
   <div class="clearfix">
     {{ form.type.label_tag }}
@@ -25,7 +25,7 @@
     </div>
   </div>
   <input type="submit" value="Lookup" class="btn primary"/>
-</formset>
+</fieldset>
 </form>
 </p>
 {% endblock %}

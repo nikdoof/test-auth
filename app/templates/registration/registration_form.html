@@ -13,10 +13,13 @@
 <p>In addition, some providers maybe blocked form auth due to their draconian spam detection routines, which has flagged this server numerous times for no reason. These include AT&T services, Cox, and a few other mainland US ISPs. If you have a Google Mail account please consider using that instead of your ISP email account.</p>
 
 <form method='post' action=''>
-  <table>
-    {{ form }}
-  </table>
-  {% csrf_token %}
-  <input type="submit" value="Send activation email" class="btn primary"/>
+  <fieldset>
+    {% include "formtools/formfield.html" with field=form.username %}
+    {% include "formtools/formfield.html" with field=form.email %}
+    {% include "formtools/formfield.html" with field=form.password1 %}
+    {% include "formtools/formfield.html" with field=form.password2 %}
+    {% csrf_token %}
+    <input type="submit" value="Send activation email" class="btn primary"/>
+  </fieldset>
 </form>
 {% endblock %}

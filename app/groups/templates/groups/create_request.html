@@ -10,10 +10,10 @@
 <p>Please fill in a reason why you like to be a member of this group and any supporting evidence as requested by the group adminship</p>
 
 <form action="{% url groups.views.create_request groupid %}" method="post">
-<formset>
+<fieldset>
   {% include "formtools/formfield.html" with field=form.reason class="xxlarge" %}
   {% csrf_token %}
   <input type="submit" value="Create Request" class="btn primary" />
-</formset>
+</fieldset>
 </form>
 {% endblock %}

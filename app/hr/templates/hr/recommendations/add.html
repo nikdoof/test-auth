@@ -13,11 +13,11 @@
 The person you are recommending needs to have created their application before you can add a recommendation.</p>
 
 <form action="{% url hr-addrecommendation %}" method="post">
-<formset>
+<fieldset>
   {% include "formtools/formfield.html" with field=form.character %}
   {% include "formtools/formfield.html" with field=form.application %}
   {% csrf_token %}
   <input type="submit" value="Add Recommendation" class="btn primary"/>
-</formset>
+</fieldset>
 </form>
 {% endblock %}

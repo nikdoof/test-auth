@@ -10,12 +10,12 @@
 <p>Fill in the rejection reason below, please note, this will be sent out to the user.</p>
 <form action="{% url hr-rejectapplication application.id %}" method="post">
 
-<formset>
+<fieldset>
   {% include "formtools/formfield.html" with field=form.text class="xxlarge" %}
   {% include "formtools/formfield.html" with field=form.template %}
   {% csrf_token %}
   <input type="submit" value="Reject" class="btn error"/>
-</formset>
+</fieldset>
 
 
 </form>
