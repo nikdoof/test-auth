@@ -8,13 +8,12 @@
 </div>
 
 <form action="" method="post">
-  <fieldset>
-    <table>
-    {{ form.as_table }}
-    </table>
-    {% csrf_token %}
-    <input type="submit" value="Change Email" class="btn"/>
-  </fieldset>
+<fieldset>
+  {% include "formtools/formfield.html" with field=form.email1 %}
+  {% include "formtools/formfield.html" with field=form.email2 %}
+  {% csrf_token %}
+  <input type="submit" value="Change Email" class="btn primary"/>
+</fieldset>
 </form>
 
 {% endblock %}

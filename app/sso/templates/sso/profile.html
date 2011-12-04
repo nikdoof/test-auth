@@ -48,24 +48,26 @@
   <h2>Service Accounts</h2>
   <p>These are services that cannot talk to auth and require a seperate username/password.</p>
   {% if user.serviceaccount_set.all %}
-  <table>
-  <tr><th>Service</th><th>Username</th><th>URL</th><th>Active</th><th>Actions</th></tr>
-  {% for acc in user.serviceaccount_set.all %}
-  <tr><td>{{ acc.service }}</td>
-      <td>{{ acc.service_uid }}</td>
-      <td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td>
-    <td>{% if acc.active %}Yes{% else %}No{% endif %}</td>
-    <td>
-    {% if acc.active %}
-    {% if acc.service.settings.require_password %}<a href="{% url sso.views.service_reset acc.id %}">Reset</a>&nbsp;/&nbsp;{% endif %}
-    <a href="{% url sso.views.service_del acc.id %}">Delete</a>
-    {% if acc.service.provide_login %}
-    &nbsp;/&nbsp;<a href="{% url sso.views.service_login acc.id %}">Login</a>
-    {% endif %}
-    {% endif %}
-    </td>
-  </tr>
-  {% endfor %}
+  <table class="zebra-striped" id="services">
+    <thead>
+      <tr><th>Service</th><th>Username</th><th>URL</th><th>Active</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for acc in user.serviceaccount_set.all %}
+      <tr><td>{{ acc.service }}</td>
+        <td>{{ acc.service_uid }}</td>
+        <td><a href="{{ acc.service.url }}">{{ acc.service.url }}</a></td>
+        <td>{% if acc.active %}Yes{% else %}No{% endif %}</td>
+        <td>
+          {% if acc.active %}
+          {% if acc.service.settings.require_password %}<a href="{% url sso.views.service_reset acc.id %}">Reset</a>&nbsp;/&nbsp;{% endif %}
+          <a href="{% url sso.views.service_del acc.id %}">Delete</a>
+          {% if acc.service.provide_login %}&nbsp;/&nbsp;<a href="{% url sso.views.service_login acc.id %}">Login</a>{% endif %}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
   {% endif %}
   <p>
@@ -93,7 +95,7 @@
         <td>{{ acc.api_user_id }}</td>
         <td>{{ acc.api_key|slice:":10" }}&#8230;</td>
         <td>{{ acc.description }}</td>
-        <td><a href="#" class="accesspopup" id="{{ acc.api_user_id}}" data-original-title="Access for Key {{ acc.api_user_id }}" data-content="test" rel="popover">{{ acc.get_api_keytype_display }}</a>{% if acc.api_keytype == 4 %}&nbsp;<b><sup style="color: red;">*</sup></b>{% endif %}</td>
+        <td><a href="#" class="accesspopup" id="{{ acc.api_user_id}}" data-original-title="Access for Key {{ acc.api_user_id }}" rel="popover">{{ acc.get_api_keytype_display }}</a>{% if acc.api_keytype == 4 %}&nbsp;<b><sup style="color: red;">*</sup></b>{% endif %}</td>
         <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
         <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
         <td>{% ifswitch api-disableprocessing %}{% else %}<a href="{% url eve_api.views.eveapi_refresh acc.api_user_id %}"  onclick="javascript:refresh_apikey({{ acc.api_user_id }}); return false;">Refresh</a>,&nbsp;
@@ -115,34 +117,6 @@
   <a href="{% url sso.views.refresh_access %}" class="btn {% if not user.eveaccount_set.all %}disabled{% else %}danger{% endif %}" title="Forces auth to recheck your permissions and update your services as needed">Force Access Update</a>
   {% endifswitch %}
   </p>
-
-  <script type="text/javascript">
-  function refresh_apikey(key) {
-    $("#api-status-" + key).html("<center><img src='{{ STATIC_URL }}img/spinner.gif'/></center>");
-    $("#api-time-" + key).html("<center><img src='{{ STATIC_URL }}img/spinner.gif'/></center>");
-    $.getJSON("/eve/eveapi/refresh/" + key + "/", function(json) {
-            $("#api-time-" + json[0].pk).html("a moment ago");
-
-            switch(json[0].fields.api_status) {
-                case 0:
-                    $("#api-status-" + json[0].pk).html("Unknown");
-                    break;
-                case 1:
-                    $("#api-status-" + json[0].pk).html("OK");
-                    break;
-                case 2:
-                    $("#api-status-" + json[0].pk).html("Other Error");
-                    break;
-                case 3:
-                    $("#api-status-" + json[0].pk).html("Account Expired");
-                    break;
-                default:
-                    $("#api-status-" + json[0].pk).html("Error");
-                    break;
-            }
-    });
-  }
-  </script>
 </div>
 
 {% if "reddit"|installed %}
@@ -185,22 +159,50 @@
     e.preventDefault();
     var el = $(this);
     var id = $(this).attr('id');
-    $.ajax({
-         type: 'GET',
-         url: '/eve/eveapi/access/' + id + '/',
-         dataType: 'html',
-         success: function(data) {
-             el.attr('data-content', data);
-             el.popover('show');
-         },
-    });
+    if (!el.attr('data-content')) {
+        $.ajax({
+            type: 'GET',
+            url: '/eve/eveapi/access/' + id + '/',
+            dataType: 'html',
+            success: function(data) {
+                el.attr('data-content', data);
+                el.popover('show');
+            },
+        });
+   } else {
+      el.popover('show');
+   }
   }
 
   $('.tabs').tabs();
   $("table#eveapikeys").tablesorter({ sortList: [[0,0]] });
   $('.accesspopup').popover({html: 'true', trigger: 'manual'});
   $('.accesspopup').hover(access_popover, function () { $(this).popover('hide') });
+
+
+  function refresh_apikey(key) {
+    $("#api-status-" + key).html("<center><img src='{{ STATIC_URL }}img/spinner.gif'/></center>");
+    $("#api-time-" + key).html("<center><img src='{{ STATIC_URL }}img/spinner.gif'/></center>");
+    $.getJSON("/eve/eveapi/refresh/" + key + "/", function(json) {
+      $("#api-time-" + json[0].pk).html("a moment ago");
+      switch(json[0].fields.api_status) {
+        case 0:
+          $("#api-status-" + json[0].pk).html("Unknown");
+          break;
+        case 1:
+          $("#api-status-" + json[0].pk).html("OK");
+          break;
+        case 2:
+          $("#api-status-" + json[0].pk).html("Other Error");
+          break;
+        case 3:
+          $("#api-status-" + json[0].pk).html("Account Expired");
+          break;
+        default:
+          $("#api-status-" + json[0].pk).html("Error");
+          break;
+      }
+    });
+  }
 </script>
-
-
 {% endblock %}

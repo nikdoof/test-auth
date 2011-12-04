@@ -3,9 +3,12 @@
 {% block title %}Add External Service Account{% endblock %}
 
 {% block content %}
+<div class="page-header">
+  <h1>Add Service</h1>
+</div>
+
 <p>To add a service to your account, select the service from the list
-below
-then provide select a username you wish to use create the account for<br/>
+below then provide select a username you wish to use create the account for.
 <br/>
 For details on how to connect to each service, please consult the <a
 href="http://wiki.dredd.it">wiki</a></p>
@@ -13,13 +16,13 @@ href="http://wiki.dredd.it">wiki</a></p>
 <p>If you are missing some services, please check that your API key is
 up to date, if so use the "Refresh" function.</p>
 
-<form action="{% url sso.views.service_add serviceid %}" method="post">
-<table>
-{{ form.as_table }}
-</table>
-<br />
-<input type="submit" value="Create Account" />
-{% csrf_token %}
-</form>
+<form action="{% url sso.views.service_add %}" method="post">
+<fieldset>
+  {% include "formtools/formfield.html" with field=form.character %}
+  {% include "formtools/formfield.html" with field=form.service %}
+  {% include "formtools/formfield.html" with field=form.password %}
+  {% csrf_token %}
+  <input type="submit" value="Create Account" />
+</fieldset>
 <br/>
 {% endblock %}

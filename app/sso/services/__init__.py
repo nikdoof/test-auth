@@ -29,7 +29,8 @@ class BaseService():
 
     settings = { 'require_user': True,
                  'require_password': True,
-                 'provide_login': False }
+                 'provide_login': False,
+                 'use_auth_username': True, }
 
     def add_user(self, username, password, **kwargs):
         """ Add a user, returns a dict for that user """
