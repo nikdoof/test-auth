@@ -344,6 +344,12 @@ class HrBlacklistUser(FormView):
     def blacklist_item(self, type, value):
         Blacklist(type=type, value=value, level=self.level, source=self.source, expiry_date=self.expiry, created_by=self.request.user, reason=self.reason).save()
 
+    def get_form(self, form_class):
+        obj = form_class()
+        if not (self.request.user.has_perm('auth.change_user') and self.request.user.has_perm('sso.delete_serviceaccount')):
+            obj.fields['disable'].widget.attrs['readonly'] = True
+        return obj
+
     def form_valid(self, form):
         self.source = BlacklistSource.objects.get(id=1)
         self.expiry = form.cleaned_data.get('expiry_date', None)
@@ -371,7 +377,7 @@ class HrBlacklistUser(FormView):
         messages.add_message(self.request, messages.INFO, "User %s has been blacklisted" % self.blacklist_user.username )
 
         # Disable the account if requested
-        if form.cleaned_data.get('disable', None):
+        if form.cleaned_data.get('disable', None) and self.request.user.has_perm('auth.change_user') and self.request.user.has_perm('sso.delete_serviceaccount'):
             self.blacklist_user.active = False
             self.blacklist_user.save()
             messages.add_message(self.request, messages.INFO, "User %s disabled" % self.blacklist_user.username)

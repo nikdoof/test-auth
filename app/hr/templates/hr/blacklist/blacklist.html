@@ -3,24 +3,30 @@
 {% block title %}Blacklist User{% endblock %}
 
 {% block content %}
-<h1>Add Blacklist</h1>
+<div class="page-header">
+  <h1>Add Blacklist</h1>
+</div>
 
 <p>This form will blacklist the listed user below. It'll process all entries for the user and blacklist the following:</p>
 <ul>
-<li>EVE API Keys</li>
-<li>Characters</li>
-<li>Email Addresses</li>
-{% if "reddit"|installed %}
-<li>Reddit Accounts</li>
-{% endif %}
+  <li>EVE API Keys</li>
+  <li>Characters</li>
+  <li>Email Addresses</li>
+  {% if "reddit"|installed %}<li>Reddit Accounts</li>{% endif %}
 </ul>
 
 <form action="{% url hr-blacklistuser blacklistuser.id %}" method="post">
-<table>
-<tr><th><label>User:</label></th><td>{{ blacklistuser.username }}</td></tr> 
-{{ form.as_table }}
-</table>
-{% csrf_token %}
-<input type="submit" value="Blacklist" />
+<fieldset>
+  <div class="clearfix">
+    <label for="u">User</label>
+    <div class="input"><input id="u" value="{{ blacklistuser.username }}" disabled="true"/></div>
+  </div>
+  {% include "formtools/formfield.html" with field=form.level %}
+  {% include "formtools/formfield.html" with field=form.reason class="xxlarge" %}
+  {% include "formtools/formfield.html" with field=form.expiry_date %}
+  {% include "formtools/formfield.html" with field=form.disable %}
+  {% csrf_token %}
+  <input type="submit" value="Blacklist" class="btn error"/>
+</fieldset>
 </form>
 {% endblock %}
