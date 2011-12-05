@@ -11,6 +11,7 @@
 <p>Fill in a note you want to send to the user.</p>
 <form action="{% url hr-acceptapplication application.id %}" method="post">
 <fieldset>
+  {% include "formtools/formerror.html" %}
   {% include "formtools/formfield.html" with field=form.text class="xxlarge" %}
   {% include "formtools/formfield.html" with field=form.template %}
   {% csrf_token %}

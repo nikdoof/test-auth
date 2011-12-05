@@ -11,6 +11,7 @@
 <p>
 <form action="{% url sso.views.user_lookup %}" method="post">
 <fieldset>
+  {% include "formtools/formerror.html" %}
   {% csrf_token %}
   <div class="clearfix">
     {{ form.type.label_tag }}

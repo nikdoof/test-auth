@@ -14,6 +14,7 @@ on from time to time</p>
 
 <form action="{% url reddit-addaccount %}" method="post">
 <fieldset>
+  {% include "formtools/formerror.html" %}
   {% include "formtools/formfield.html" with field=form.username %}
   {% csrf_token %}
   <input type="submit" value="Add Account" />

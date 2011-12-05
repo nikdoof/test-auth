@@ -1,0 +1,6 @@
+{% if form.non_field_errors %}
+<div class="alert-message block-message error">
+  <p>Oops! Something went wrong, check the following and try again.</p>
+  {{ form.non_field_errors }}
+</div>
+{% endif %}

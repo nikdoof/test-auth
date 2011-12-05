@@ -11,6 +11,7 @@
 
 <form action="{% url groups.views.create_request groupid %}" method="post">
 <fieldset>
+  {% include "formtools/formerror.html" %}
   {% include "formtools/formfield.html" with field=form.reason class="xxlarge" %}
   {% csrf_token %}
   <input type="submit" value="Create Request" class="btn primary" />

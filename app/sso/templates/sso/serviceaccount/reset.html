@@ -12,6 +12,7 @@ below.</p>
 
 <form action="{% url sso.views.service_reset serviceid %}" method="post">
 <fieldset>
+  {% include "formtools/formerror.html" %}
   {% include "formtools/formfield.html" with field=form.password %}
   {% csrf_token %}
   <input type="submit" value="Reset Account" class="btn primary"/>

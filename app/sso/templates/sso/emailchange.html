@@ -9,6 +9,7 @@
 
 <form action="" method="post">
 <fieldset>
+  {% include "formtools/formerror.html" %}
   {% include "formtools/formfield.html" with field=form.email1 %}
   {% include "formtools/formfield.html" with field=form.email2 %}
   {% csrf_token %}

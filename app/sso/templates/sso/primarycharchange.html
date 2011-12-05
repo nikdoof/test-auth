@@ -9,6 +9,7 @@
 
 <form action="" method="post">
 <fieldset>
+  {% include "formtools/formerror.html" %}
   {% include "formtools/formfield.html" with field=form.character %}
   {% csrf_token %}
   <input type="submit" value="Change" class="btn primary" />

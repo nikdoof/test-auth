@@ -8,6 +8,7 @@
 
 <form action="{% url hr-blacklist-add %}" method="post">
 <fieldset>
+  {% include "formtools/formerror.html" %}
   {% include "formtools/formfield.html" with field=form.type %}
   {% include "formtools/formfield.html" with field=form.value class="xxlarge" %}
   {% include "formtools/formfield.html" with field=form.reason class="xxlarge" %}

@@ -15,6 +15,7 @@
 
 <form method="post" action="{% url django.contrib.auth.views.login %}">
 <fieldset>
+  {% include "formtools/formerror.html" %}
   {% include "formtools/formfield.html" with field=form.username %}
   {% include "formtools/formfield.html" with field=form.password %}
 

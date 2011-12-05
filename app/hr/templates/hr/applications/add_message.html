@@ -9,6 +9,7 @@
 
 <form action="{% url hr-addmessage application.id %}" method="post">
 <fieldset>
+  {% include "formtools/formerror.html" %}
   {% include "formtools/formfield.html" with field=form.text class="xxlarge" %}
   {% if form.template %}{% include "formtools/formfield.html" with field=form.template %}{% endif %}
   {% csrf_token %}
