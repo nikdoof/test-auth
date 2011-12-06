@@ -345,7 +345,7 @@ class HrBlacklistUser(FormView):
         Blacklist(type=type, value=value, level=self.level, source=self.source, expiry_date=self.expiry, created_by=self.request.user, reason=self.reason).save()
 
     def get_form(self, form_class):
-        obj = form_class()
+        obj = form_class(**self.get_form_kwargs())
         if not (self.request.user.has_perm('auth.change_user') and self.request.user.has_perm('sso.delete_serviceaccount')):
             obj.fields['disable'].widget.attrs['readonly'] = True
         return obj
@@ -439,7 +439,6 @@ class HrAddBlacklist(CreateView):
         return AddBlacklistForm
 
     def form_valid(self, form):
-
         obj = form.save(commit=False)
         obj.user = self.request.user
         obj.source, created = BlacklistSource.objects.get_or_create(id=getattr(settings, 'BLACKLIST_DEFAULT_SOURCE', 1))
