@@ -1,11 +1,14 @@
 {% load add_class %}
 
+{% if field.is_hidden %}
+{{ field }}
+{% else %}
 <div class="clearfix{% if field.errors %} error{% endif %}">
   {{ field.label_tag }}
   <div class="input">
-    {% if class %}{{ field|add_class:class }}{% else %}{{ field}}{% endif %}
+    {% if class %}{{ field|add_class:class }}{% else %}{{ field }}{% endif %}
     {% if field.help_text %}<span class="help-block">{{ field.help_text }}</span>{% endif %}
     {% if field.errors %}<span class="help-inline">{% for error in field.errors %}{{ error }} {% endfor %}</span>{% endif %}
   </div>
 </div>
-
+{% endif %}
