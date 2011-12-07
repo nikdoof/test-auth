@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from django.contrib.auth.views import password_change, password_change_done
+from django.contrib.auth.decorators import login_required
 
 from sso import views
 
@@ -19,8 +20,9 @@ urlpatterns = patterns('',
     (r'^profile/change/email/$', views.email_change),
     (r'^profile/change/primary/$', views.primarychar_change),
     (r'^profile/change/reddittag/$', views.toggle_reddit_tagging),
-    (r'^users/(?P<username>.*)/$', views.user_view),
     (r'^users/$', views.user_lookup),
+    url(r'^users/(?P<username>.*)/addnote/$', login_required(views.AddUserNote.as_view()), name='sso-addusernote'),
+    url(r'^users/(?P<username>.*)/$', views.user_view, name='sso-viewuser'),
 )
 
 urlpatterns += patterns('django.views.generic.simple',

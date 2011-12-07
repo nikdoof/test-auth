@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Add User Note{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>Add User Note</h1>
+</div>
+
+<p>This will add a note to {{ user.username }}'s account that'll be visible to everyone able to view user profiles</p>
+
+<form action="{% url sso-addusernote user.username %}" method="post">
+<fieldset>
+  {% include "formtools/formerror.html" %}
+  {% include "formtools/formfield.html" with field=form.user %}
+  {% include "formtools/formfield.html" with field=form.note class="xxlarge" %}
+  {% csrf_token %}
+  <input type="submit" value="Add Note" class="btn primary" />
+</fieldset>
+</form>
+
+{% endblock %}
+

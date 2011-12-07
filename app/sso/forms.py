@@ -9,7 +9,7 @@ from gargoyle import gargoyle
 from utils import installed
 
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
-from sso.models import ServiceAccount, Service
+from sso.models import ServiceAccount, Service, SSOUserNote
 from registration.forms import RegistrationForm
 
 
@@ -139,3 +139,18 @@ class PrimaryCharacterForm(forms.Form):
         if self.user:
             self.fields['character'].queryset = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user).distinct()
 
+
+class UserNoteForm(forms.ModelForm):
+
+    class Meta:
+        model = SSOUserNote
+        exclude = ('created_by', 'created_date')
+        widgets = {
+            'user': forms.HiddenInput(),
+            'note': forms.Textarea(),
+        }
+
+    def clean_note(self):
+        data = self.cleaned_data['note']
+        # Clean dodgy text?
+        return data

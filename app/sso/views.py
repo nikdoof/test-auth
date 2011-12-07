@@ -4,7 +4,7 @@ import re
 import unicodedata
 import celery
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.core import serializers
 from django.conf import settings
+from django.views.generic import FormView
 
 from gargoyle import gargoyle
 from gargoyle.decorators import switch_is_active
@@ -23,7 +24,7 @@ from eve_api.tasks import import_apikey, import_apikey_result, update_user_acces
 from eve_proxy.models import ApiAccessLog
 from reddit.tasks import update_user_flair
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
-from sso.forms import UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm, EmailChangeForm, PrimaryCharacterForm
+from sso.forms import UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm, EmailChangeForm, PrimaryCharacterForm, UserNoteForm
 
 @login_required
 def profile(request):
@@ -315,3 +316,41 @@ def toggle_reddit_tagging(request):
         messages.add_message(request, messages.ERROR, "You need to set a primary character before using this feature!")
 
     return redirect('sso.views.profile')
+
+
+class AddUserNote(FormView):
+
+    template_name = 'sso/add_usernote.html'
+    form_class = UserNoteForm
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('add_ssousernote'):
+            return HttpResponseForbidden()
+        return super(AddUserNote, self).dispatch(request, *args, **kwargs)
+
+    def get_user(self):
+        if not hasattr(self, 'user'):
+            userid = self.kwargs.get('username', None)
+            self.user = User.objects.get(username=userid)
+        return self.user
+
+    def get_context_data(self, **kwargs):
+        ctx = super(AddUserNote, self).get_context_data(**kwargs)
+        ctx['user'] = self.get_user()
+        return ctx
+
+    def get_initial(self):
+        initial = super(AddUserNote, self).get_initial()
+        initial['user'] = self.get_user()
+        return initial
+
+    def get_success_url(self):
+        return reverse('sso-viewuser', args=[self.get_user()])
+
+    def form_valid(self, form):
+
+        obj = form.save(commit=False)
+        obj.created_by = self.request.user
+        obj.save()
+
+        return super(AddUserNote, self).form_valid(form)

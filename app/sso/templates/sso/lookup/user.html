@@ -28,7 +28,26 @@
 <a href="{% url hr-blacklistuser user.id %}" class="btn error">Blacklist User</a>
 {% endif %}
 {% endif %}
+{% if perms.sso.add_ssousernote %}
+<a href="{% url sso-addusernote user %}" class="btn">Add Note</a>
+{% endif %}
 </p>
+
+{% if user.notes.count %}
+<h2>User Notes</h2>
+
+<table class="zebra-striped">
+  <thead>
+    <tr><th width="600px">Note</th><th>Date</th><th>Added By</th></tr>
+  </thead>
+  <tbody>
+    {% for note in user.notes.all %}
+    <tr><td>{{ note.note|linebreaks }}</td><td>{{ note.date_created|date:"Y/m/d H:i:s" }}</td><td><a href="{% url sso-viewuser note.created_by %}">{{ note.created_by }}</a></td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
 
 {% if services %}
 <section id="services">
