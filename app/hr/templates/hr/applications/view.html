@@ -134,14 +134,14 @@
 
 <h3>EVE Characters</h3>
 
-<table class="zebra-striped" id="characters">
+<table id="characters">
   <thead>
     <tr><th>Character</th><th>Corp / Alliance</th><th>ISK</th><th>SP</th><th>Training</th><th>Links</th></tr>
   </thead>
   <tbody>
     {% for acc in app.user.eveaccount_set.all %}
     {% for char in acc.characters.all %}
-    <tr><td><a href="{% url eve_api.views.eveapi_character char.id %}">{{ char.name }}</a></td>
+    <tr{% if char.id == app.character.id %} style="background-color: #FFE8D0"{% endif%}><td><a href="{% url eve_api.views.eveapi_character char.id %}">{{ char.name }}</a></td>
       <td><a href="http://evemaps.dotlan.net/corp/{{ char.corporation }}">{{ char.corporation }}</a>{% if char.corporation.alliance %} / 
         <a href="http://evemaps.dotlan.net/alliance/{{ char.corporation.alliance }}">{{ char.corporation.alliance }}</a>{% endif %}
       </td>
