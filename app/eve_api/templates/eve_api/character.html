@@ -46,9 +46,9 @@
     <div class="row pull-right">
       <div class="span5">
         {% if character.corporation.alliance %}
-        <img src="https://image.eveonline.com/Alliance/{{ character.corporation.alliance.id }}_64.png" class="pull-right" title="{{ character.corporation.alliance }} ({{ character.corporation.alliance.ticker }})"/>
+        <a href="{% url eveapi-alliance character.corporation.alliance.id %}"><img src="https://image.eveonline.com/Alliance/{{ character.corporation.alliance.id }}_64.png" class="pull-right" title="{{ character.corporation.alliance }} ({{ character.corporation.alliance.ticker }})" border="0"/></a>
         {% endif %}
-        <img src="https://image.eveonline.com/Corporation/{{ character.corporation.id }}_64.png" class="pull-right" title="{{ character.corporation }} ({{ character.corporation.ticker }})"/>
+        <a href="{% url eveapi-corporation character.corporation.id %}"><img src="https://image.eveonline.com/Corporation/{{ character.corporation.id }}_64.png" class="pull-right" title="{{ character.corporation }} ({{ character.corporation.ticker }})" border="0"/></a>
       </div>
     </div>
   </div>
