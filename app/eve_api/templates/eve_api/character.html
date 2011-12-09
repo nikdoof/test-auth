@@ -62,15 +62,15 @@
   <a href=#" id="collapseAll" class="btn">Collapse All</a>
 </p>
 
-<table>
+<table id="skills">
     {% for group in skillTree %}
         {{group.items}}
-        <tr class="fill skill_heading" id="{{ group.1 }}"><th colspan=2>{{ group.1 }}</th><th>{{ group.0|intcomma }} SP</th></tr>
+        <tr class="skill_heading" id="{{ group.3 }}"><th colspan=2>{{ group.1 }}</th><th>{{ group.0|intcomma }} SP</th></tr>
         {% for skill in group.2 %}
             {% if skill.in_training %}
-            <tr class="child intraining" parent="{{ group.1 }}"><td>{{ skill.skill.name }} - Training to Level {{ skill.in_training }}</td><td><img src="{{ STATIC_URL }}img/skills/level{{ skill.level }}t.gif" alt="Level {{ skill.level }}" /></td><td>{{ skill.skillpoints|intcomma }} SP</td></tr>
+            <tr class="child intraining" group="{{ group.3 }}"><td>{{ skill.skill.name }} - Training to Level {{ skill.in_training }}</td><td><img src="{{ STATIC_URL }}img/skills/level{{ skill.level }}t.gif" alt="Level {{ skill.level }}" /></td><td>{{ skill.skillpoints|intcomma }} SP</td></tr>
             {% else %}
-	    <tr class="child" parent="{{ group.1 }}"><td>{{ skill.skill.name }} </td><td><img src="{{ STATIC_URL }}img/skills/level{{ skill.level }}.gif" alt="Level {{ skill.level }}" /></td><td>{{ skill.skillpoints|intcomma }} SP</td></tr>
+	    <tr class="child" group="{{ group.3 }}"><td>{{ skill.skill.name }} </td><td><img src="{{ STATIC_URL }}img/skills/level{{ skill.level }}.gif" alt="Level {{ skill.level }}" /></td><td>{{ skill.skillpoints|intcomma }} SP</td></tr>
             {% endif %}
         {% endfor %}
     {% endfor %}
@@ -98,16 +98,16 @@
     $(".skill_heading")
       .css("cursor", "pointer")
       .attr("title", "Click to expand/collapse section")
-      .click(function(){ $('tr[parent$=' + $(this).attr('id') + ']').toggle(); });
+      .click(function(){ $('tr.child[group=' + $(this).attr('id') + ']').toggle(); });
     $("#openAll").bind("click", function(e){
       e.preventDefault();
-      $(".child").show();
+      $("tr.child").show();
     });
     $("#collapseAll").bind("click", function(e){
       e.preventDefault();
-      $(".child").hide();
+      $("tr.child").hide();
     });
-    $('tr[parent]').hide();
+    $('tr.child').hide();
   });
 </script>
 

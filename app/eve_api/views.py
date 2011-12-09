@@ -169,7 +169,7 @@ def eveapi_character(request, charid=None, template='eve_api/character.html', li
         for skill in skills:
             if not skill.skill.group.id == currentSkillGroup:
                 currentSkillGroup = skill.skill.group.id
-                skillTree.append([0, skill.skill.group.name, []])
+                skillTree.append([0, skill.skill.group.name, [], skill.skill.group.id])
             
             skillTree[-1][0] += skill.skillpoints
             skillTree[-1][2].append(skill)
