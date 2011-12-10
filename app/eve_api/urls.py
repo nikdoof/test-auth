@@ -17,5 +17,17 @@ urlpatterns = patterns('',
 
     url(r'^corporation/(?P<corporationid>\d+)/$', views.eveapi_corporation, name="eveapi-corporation"),
     url(r'^corporation/(?P<corporationid>\d+)/export/$', views.eveapi_corporation_members_csv, name="eveapi-corporation-members-csv"),
+
     url(r'^alliance/(?P<allianceid>\d+)/$', views.eveapi_alliance, name="eveapi-alliance"),
 )
+
+try:
+    import sso.views as ssoviews
+except ImportError:
+    pass
+else:
+    urlpatterns += patterns('',
+        url(r'^corporation/(?P<corpid>\d+)/refresh/$', ssoviews.refresh_access, name='eveapi-corporation-refresh'),
+        url(r'^alliance/(?P<allianceid>\d+)/refresh/$', ssoviews.refresh_access, name='eveapi-alliance-refresh'),
+    )
+

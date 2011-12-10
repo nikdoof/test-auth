@@ -16,6 +16,12 @@
 </ul>
 </p>
 
+{% if request.user.is_superuser %}
+<p>
+  <a href="{% url eveapi-alliance-refresh alliance.id %}" title="Forces a access update for all users in this alliance" class="btn error">Mass Update Access</a>
+<p>
+{% endif %}
+
 <h2>Corporations</h2>
 
 <table class="zebra-striped" id="corporations">

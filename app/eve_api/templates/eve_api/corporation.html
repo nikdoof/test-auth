@@ -23,6 +23,12 @@
 </ul>
 </p>
 
+{% if request.user.is_superuser %}
+<p>
+  <a href="{% url eveapi-corporation-refresh corporation.id %}" title="Forces a access update for all users in this corporation" class="btn error">Mass Update Access</a>
+<p>
+{% endif %}
+
 {% if view_members %}
 {% autopaginate members 25 %}
 <table class="zebra-striped" id="members">
