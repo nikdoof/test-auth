@@ -43,6 +43,11 @@ admin.site.register(BlacklistSource, BlacklistSourceAdmin)
 class ApplicationConfigAdmin(admin.ModelAdmin):
     list_display = ('corporation', 'is_accepting', 'api_required', 'api_accessmask', 'api_view')
 
+    def get_readonly_fields(self, request, obj = None):
+        if obj: #In edit mode
+            return ['corporation']
+        return []
+
 admin.site.register(ApplicationConfig, ApplicationConfigAdmin)
 
 class TemplateMessageAdmin(admin.ModelAdmin):
