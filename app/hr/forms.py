@@ -38,9 +38,9 @@ class ApplicationForm(forms.Form):
     corporation = forms.ModelChoiceField(queryset=EVEPlayerCorporation.objects.filter(application_config__is_accepting=True), required=True, empty_label=None)
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
+        self.user = kwargs.pop('user', None)
         super(ApplicationForm, self).__init__(*args, **kwargs)
-        self.fields['character'].queryset = EVEPlayerCharacter.objects.filter(eveaccount__user=user, eveaccount__api_status=API_STATUS_OK).distinct()
+        self.fields['character'].queryset = EVEPlayerCharacter.objects.filter(eveaccount__user=self.user, eveaccount__api_status=API_STATUS_OK).distinct()
 
     def clean_character(self):
         if not 'character' in self.cleaned_data or not self.cleaned_data['character']:
@@ -57,9 +57,17 @@ class ApplicationForm(forms.Form):
 
         if char and corp:
             if char.corporation == corp:
-                raise forms.ValidationError("%s is already a member of %s" % (char, corp))
-            if not char.account.api_keytype == corp.application_config.api_required:
-                raise forms.ValidationError("%s requires a %s API key for this application" % (corp, corp.application_config.get_api_required_display()))
+                raise forms.ValidationError("%s is already a member of %s." % (char, corp))
+            if not char.eveaccount_set.filter(user=self.user, api_keytype=corp.application_config.api_required).count():
+                raise forms.ValidationError("%s requires a %s API key for this application." % (corp, corp.application_config.get_api_required_display()))
+            if corp.application_config.api_accessmask:
+                access = False
+                for acc in char.eveaccount_set.filter(user=self.user, api_keytype=corp.application_config.api_required):
+                    if acc.check_access(corp.application_config.api_accessmask):
+                        access = True
+                        break
+                if not access:
+                    raise forms.ValidationError("%s requires a API key with greater access than the one you have added, please add a key with the correct access." % (corp, corp.application_config.api_accessmask))
 
         return self.cleaned_data
 

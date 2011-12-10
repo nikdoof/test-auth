@@ -41,7 +41,7 @@ class BlacklistSourceAdmin(admin.ModelAdmin):
 admin.site.register(BlacklistSource, BlacklistSourceAdmin)
 
 class ApplicationConfigAdmin(admin.ModelAdmin):
-    list_display = ('corporation', 'is_accepting', 'api_required', 'api_view')
+    list_display = ('corporation', 'is_accepting', 'api_required', 'api_accessmask', 'api_view')
 
 admin.site.register(ApplicationConfig, ApplicationConfigAdmin)
 

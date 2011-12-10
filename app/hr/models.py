@@ -167,8 +167,10 @@ class ApplicationConfig(models.Model):
     corporation = models.OneToOneField(EVEPlayerCorporation, blank=False, verbose_name="Corporation", related_name="application_config")
     is_accepting = models.BooleanField(verbose_name="Accepting Applications",
                                        help_text="Defines if the corporation is accepting applications")
-    api_required = models.IntegerField(choices=API_KEYTYPE_CHOICES, default=1, verbose_name="Minimum API Key Level",
-                                       help_text="This defines the minimum level of API needed to create a application")
+    api_required = models.IntegerField(choices=API_KEYTYPE_CHOICES, default=1, verbose_name="API Key Type",
+                                       help_text="This defines the type of API key needed to create a application")
+    api_accessmask = models.IntegerField(verbose_name="Minimum Access Level",
+                                       help_text="Defines the minimum level API accepted as valid, provided as a CAK accessMask")
     api_view = models.BooleanField(verbose_name="View Applicant APIs",
                                        help_text="This allows HR staff to see the applicant's API keys")
 
