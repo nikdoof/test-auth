@@ -22,7 +22,7 @@
 </p>
 
 <p>
-<a href="{% url sso.views.refresh_access user.id %}" class="btn error">Update Access</a>
+<a href="{% url sso-refreshaccess user.id %}" class="btn error">Update Access</a>
 {% if "hr"|installed %}
 {% if perms.hr.add_blacklist %}
 <a href="{% url hr-blacklistuser user.id %}" class="btn error">Blacklist User</a>

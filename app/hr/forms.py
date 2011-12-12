@@ -67,7 +67,7 @@ class ApplicationForm(forms.Form):
                         access = True
                         break
                 if not access:
-                    raise forms.ValidationError("%s requires a API key with greater access than the one you have added, please add a key with the correct access." % (corp, corp.application_config.api_accessmask))
+                    raise forms.ValidationError("%s requires a API key with greater access than the one you have added, please add a key with the correct access." % corp)
 
         return self.cleaned_data
 
