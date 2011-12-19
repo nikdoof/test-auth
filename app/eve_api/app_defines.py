@@ -8,6 +8,7 @@ API_STATUS_AUTH_ERROR = 2
 API_STATUS_OTHER_ERROR = 3
 API_STATUS_ACC_EXPIRED = 4
 API_STATUS_KEY_EXPIRED = 5
+API_STATUS_INVALID_PERMISSIONS = 6
 
 # This tuple is used to assemble the choices list for the field.
 API_STATUS_CHOICES = (
@@ -17,6 +18,7 @@ API_STATUS_CHOICES = (
     (API_STATUS_OTHER_ERROR, 'Other Error'),
     (API_STATUS_ACC_EXPIRED, 'Account Expired'),
     (API_STATUS_KEY_EXPIRED, 'Key Expired'),
+    (API_STATUS_INVALID_PERMISSIONS, 'Invalid Permissions'),
 )
 
 API_KEYTYPE_UNKNOWN = 0

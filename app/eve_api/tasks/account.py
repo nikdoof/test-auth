@@ -7,6 +7,8 @@ from celery.decorators import task
 from celery.task.sets import TaskSet
 from gargoyle import gargoyle
 
+from django.conf import settings
+
 from eve_proxy.exceptions import *
 from eve_proxy.models import CachedDocument
 
@@ -111,10 +113,27 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
                 account.api_keytype = API_KEYTYPE_CORPORATION
             elif keydoc['type'] == 'Account':
                 account.api_keytype = API_KEYTYPE_ACCOUNT
-            account.api_accessmask = keydoc['accessMask']
+            account.api_accessmask = int(keydoc['accessMask'])
             if not keydoc['expires'] == '':
                 account.api_expiry = datetime.strptime(keydoc['expires'], '%Y-%m-%d %H:%M:%S')
-            account.api_status = API_STATUS_OK
+
+            # Checks account status to see if the account is still active
+            if not account.api_keytype == API_KEYTYPE_CORPORATION:
+
+                if account.has_access(25):
+                    status = CachedDocument.objects.api_query('/account/AccountStatus.xml.aspx', params=auth_params, no_cache=True)
+                    status = basic_xml_parse_doc(status)['eveapi']
+                    if not status.get('error', None):
+                        paiddate = datetime.strptime(status['result']['paidUntil'], '%Y-%m-%d %H:%M:%S')
+                        if paiddate <= datetime.utcnow():
+                            account.api_status = API_STATUS_ACC_EXPIRED
+                        else:
+                            account.api_status = API_STATUS_OK
+                else:
+                    account.api_status = API_STATUS_INVALID_PERMISSIONS
+
+                if not account.check_access(getattr(settings, 'EVE_API_MINIMUM_KEYMASK', 59638024)):
+                    account.api_status = API_STATUS_INVALID_PERMISSIONS
 
             # Remove deleted or traded characters
             newcharlist = [int(char['characterID']) for char in doc['result']['key']['characters']]
@@ -147,6 +166,8 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
                 account.api_status = API_STATUS_ACC_EXPIRED
             elif error in ['222', '223']:
                 account.api_status = API_STATUS_KEY_EXPIRED
+            elif error in ['221']:
+                account.api_status = API_STATUS_INVALID_PERMISSIONS
             else:
                 account.api_status = API_STATUS_OTHER_ERROR
 
