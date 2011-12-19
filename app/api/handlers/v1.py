@@ -67,32 +67,42 @@ class LoginHandler(BaseHandler):
 
     def read(self, request):
 
-        u = None
-        if request.GET.get('user', None):
-            try:
-                u = User.objects.get(username=request.GET['user'])
-            except User.DoesNotExist:
-                return {'auth': 'missing', 'missing': 'Username'}
+        username = request.GET.get('user', None)
+        character = request.GET.get('character', None)
+        password = request.GET.get('pass', None)
 
-        if u:
-            if request.GET.get('pass', None) and u.is_active and request.GET['pass'] == u.get_profile().api_service_password:
-                pchar = u.get_profile().primary_character
-                if pchar:
-                    pchardict = {'id': pchar.id,
-                                 'name': pchar.name,
-                                 'corporation': {'name': pchar.corporation.name, 'id': pchar.corporation.id, 'ticker': pchar.corporation.ticker },
-                                }
-                    if pchar.corporation.alliance:
-                        pchardict['alliance'] = {'id': pchar.corporation.alliance.id, 'name': pchar.corporation.alliance.name, 'ticker': pchar.corporation.alliance.ticker }
-                    else:
-                        pchardict['alliance'] = None
+        if username:
+            u = User.objects.filter(username=username)
+        elif character:
+            u = User.objects.filter(profile__primary_character__name__iexact=character)
+        else:
+            u = User.objects.none()
+
+        if not u.count():
+            return {'auth': 'failed', 'error': 'none'}
+        elif u.count() > 1:
+            return {'auth': 'failed', 'error': 'multiple'}
+        else:
+            u = u[0]
+
+        if u.is_active and password and password == u.get_profile().api_service_password:
+            pchar = u.get_profile().primary_character
+            if pchar:
+                pchardict = {'id': pchar.id,
+                             'name': pchar.name,
+                             'corporation': {'name': pchar.corporation.name, 'id': pchar.corporation.id, 'ticker': pchar.corporation.ticker },
+                            }
+                if pchar.corporation.alliance:
+                    pchardict['alliance'] = {'id': pchar.corporation.alliance.id, 'name': pchar.corporation.alliance.name, 'ticker': pchar.corporation.alliance.ticker }
                 else:
-                    pchardict = None
-                return {'auth': 'ok', 'id': u.id, 'username': u.username,
-                        'email': u.email, 'groups': u.groups.all().values('id', 'name'),
-                        'staff': u.is_staff, 'superuser': u.is_superuser, 'primarycharacter': pchardict}
+                    pchardict['alliance'] = None
             else:
-                return {'auth': 'failed'}
+                pchardict = None
+            return {'auth': 'ok', 'id': u.id, 'username': u.username,
+                    'email': u.email, 'groups': u.groups.all().values('id', 'name'),
+                    'staff': u.is_staff, 'superuser': u.is_superuser, 'primarycharacter': pchardict}
+        else:
+            return {'auth': 'failed', 'error': 'password'}
 
         return {'auth': 'missing', 'missing': 'all'}
 
