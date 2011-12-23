@@ -4,8 +4,9 @@ import unicodedata
 import re
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
-from eve_api.models import EVEPlayerCharacter
+from django.contrib.auth.models import User, Group
 from eve_api.app_defines import API_STATUS_OK
+from sso.tasks import update_user_access
 
 class Command(BaseCommand):
     help = ("Assigns a group to corporation or alliance.")
@@ -40,10 +41,12 @@ class Command(BaseCommand):
         elif corporation:
             args['eveaccount__characters__corporation__id'] = corporation
 
-        users = User.objects.filter(**args).distinct()
+        users = User.objects.select_related('groups').filter(**args).exclude(groups__id=group.id).distinct()
         print "%s user(s) to update." % users.count()
         for user in users:
-            user.groups.add(group)
+            if not group in user.groups.all():
+                user.groups.add(group)
+                update_user_access.delay(user.id)
         print "Done."
 
 
