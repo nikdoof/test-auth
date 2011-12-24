@@ -190,19 +190,19 @@ def eveapi_character(request, charid=None, template='eve_api/character.html', li
     return render_to_response(list_template, context, context_instance=RequestContext(request))
 
 
-@login_required
-def eveapi_corporation(request, corporationid, template='eve_api/corporation.html'):
-    """
-    Provide details of a corporation, and for admins, a list of members
-    """
+class EVEAPICorporationView(DetailView):
 
-    corporation = get_object_or_404(EVEPlayerCorporation, id=corporationid)
-    context = {
-        'corporation': corporation,
-        'members': corporation.eveplayercharacter_set.select_related('eveaccount', 'roles').order_by('corporation_date').only('id', 'name', 'corporation_date'),
-        'view_members': corporation.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="roleDirector").count() or request.user.is_superuser,
-    }
-    return render_to_response(template, context, context_instance=RequestContext(request))
+    model = EVEPlayerCorporation
+    template_name = 'eve_api/corporation.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(EVEAPICorporationView, self).get_context_data(**kwargs)
+        ctx.update({
+            'corporation': self.object,
+            'members': self.object.eveplayercharacter_set.select_related('eveaccount', 'roles').order_by('corporation_date').only('id', 'name', 'corporation_date'),
+            'view_members': self.object.eveplayercharacter_set.filter(eveaccount__user=self.request.user, roles__name="roleDirector").count() or self.request.user.is_superuser,
+        })
+        return ctx
 
 
 @login_required
@@ -223,16 +223,19 @@ def eveapi_corporation_members_csv(request, corporationid):
     return response
 
 
-@login_required
-def eveapi_alliance(request, allianceid, template='eve_api/alliance.html'):
+class EVEAPIAllianceView(DetailView):
 
-    alliance = get_object_or_404(EVEPlayerAlliance, pk=allianceid)
-    context = {
-        'alliance': alliance,
-        'executor': alliance.executor.ceo_character,
-        'corporations': alliance.eveplayercorporation_set.exclude(member_count=0).order_by('name'),
-    }
-    return render_to_response(template, context, context_instance=RequestContext(request))
+    model = EVEPlayerAlliance
+    template_name= 'eve_api/alliance.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super(EVEAPIAllianceView, self).get_context_data(**kwargs)
+        ctx.update({
+            'alliance': self.object,
+            'executor': self.object.executor.ceo_character,
+            'corporations': self.object.eveplayercorporation_set.exclude(member_count=0).order_by('name'),
+        })
+        return ctx
 
 
 class EVEAPIAccessView(DetailView):

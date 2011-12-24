@@ -15,10 +15,10 @@ urlpatterns = patterns('',
     url(r'^character/list/$', views.eveapi_character, name="eveapi-characters-list"),
     url(r'^character/(?P<charid>\d+)/$', views.eveapi_character, name="eveapi-character"),
 
-    url(r'^corporation/(?P<corporationid>\d+)/$', views.eveapi_corporation, name="eveapi-corporation"),
+    url(r'^corporation/(?P<pk>\d+)/$', login_required(views.EVEAPICorporationView.as_view()), name="eveapi-corporation"),
     url(r'^corporation/(?P<corporationid>\d+)/export/$', views.eveapi_corporation_members_csv, name="eveapi-corporation-members-csv"),
 
-    url(r'^alliance/(?P<allianceid>\d+)/$', views.eveapi_alliance, name="eveapi-alliance"),
+    url(r'^alliance/(?P<pk>\d+)/$', login_required(views.EVEAPIAllianceView.as_view()), name="eveapi-alliance"),
 )
 
 try:
