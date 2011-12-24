@@ -9,7 +9,7 @@ urlpatterns = patterns('',
     url(r'^eveapi/update/(?P<userid>\d+)/$', views.eveapi_update, name="eveapi-update"),
     url(r'^eveapi/delete/(?P<userid>\d+)/$', views.eveapi_del, name="eveapi-delete"),
     url(r'^eveapi/refresh/(?P<userid>\d+)/$', views.eveapi_refresh, name="eveapi-refresh"),
-    url(r'^eveapi/log/(?P<userid>\d+)/$', views.eveapi_log, name="eveapi-log"),
+    url(r'^eveapi/log/(?P<userid>\d+)/$', login_required(views.EVEAPILogView.as_view()), name="eveapi-log"),
     url(r'^eveapi/access/(?P<slug>\d+)/$', login_required(views.EVEAPIAccessView.as_view()), name="eveapi-accessview"),
 
     url(r'^character/list/$', views.eveapi_character, name="eveapi-characters-list"),

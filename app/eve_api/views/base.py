@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -132,19 +132,27 @@ def eveapi_refresh(request, userid, post_save_redirect='/'):
     return redirect(post_save_redirect)
 
 
-@login_required
-def eveapi_log(request, userid, template='eve_api/log.html'):
-    """ Provides a list of access logs for a specific EVE API key """
+class EVEAPILogView(ListView):
 
-    acc = get_object_or_404(EVEAccount, pk=userid)
-    if acc and (acc.user == request.user or request.user.is_staff):
-        context = {
-            'userid': userid,
-            'logs': ApiAccessLog.objects.filter(userid=userid).order_by('-time_access')[:50],
-        }
-        return render_to_response(template, context, context_instance=RequestContext(request))
-    else:
-        raise Http404
+    model = ApiAccessLog
+    template_name = 'eve_api/log.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.userid = kwargs.pop('userid')
+        if not (get_object_or_404(EVEAccount, pk=self.userid).user == request.user or request.user.is_superuser):
+            raise Http404
+        return super(EVEAPILogView, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(EVEAPILogView, self).get_context_data(**kwargs)
+        ctx.update({
+            'userid': self.userid,
+        })
+        return ctx
+
+    def get_queryset(self):
+        limit = getattr(self, 'limit', 50)
+        return self.model.objects.filter(userid=self.userid).order_by('-time_access')[:limit]
 
 
 @login_required

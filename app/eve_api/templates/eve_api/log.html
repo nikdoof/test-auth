@@ -12,7 +12,7 @@
     <tr><th>Service ID</th><th>Date / Time</th><th>API</th></tr>
   </thead>
   <tbody>
-  {% for log in logs %}
+  {% for log in object_list %}
     <tr>
       <td>{{ log.service }}</td>
       <td>{{ log.time_access }}</td>
