@@ -2,7 +2,6 @@
 
 {% load humanize %}
 {% load naturaltimediff %}
-{% load pagination_tags %}
 
 {% block content %}
 
@@ -30,7 +29,6 @@
 {% endif %}
 
 {% if view_members %}
-{% autopaginate members 25 %}
 <table class="zebra-striped" id="members">
   <thead>
     <tr><th>Name</th><th>Skillpoints</th><th>Join Date</th><th>Director?</th><th>Roles?</th><th>API Key?</th><th>Key Active?</th></tr>
@@ -41,8 +39,6 @@
     {% endfor %}
   </tbody>
 </table>
-
-<p>{% paginate %}</p>
 
 <p><a href="{% url eveapi-corporation-members-csv corporation.id %}" class="btn" title="Exports the membership list of this corporation to a CSV file.">Export as CSV</a></p>
 {% endif %}

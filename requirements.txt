@@ -10,7 +10,6 @@ fabric
 flup
 celery==2.2.6
 django-celery==2.2.4
--e git+https://github.com/ericflo/django-pagination.git@47e7ec874cd7dddda5ed#egg=django-pagination
 xmpppy
 django-sentry
 nexus

@@ -32,7 +32,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'sso.middleware.InactiveLogoutMiddleware',
-    'pagination.middleware.PaginationMiddleware',
     'sso.middleware.IGBMiddleware',
     'sso.middleware.IPTrackingMiddleware',
 )
@@ -71,7 +70,6 @@ INSTALLED_APPS = (
     'piston',
     'djcelery',
     'registration',
-    'pagination',
     'formtools',
     'eve_proxy',
     'eve_api',
