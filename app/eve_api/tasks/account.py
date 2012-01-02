@@ -134,6 +134,9 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
 
                 if not account.check_access(getattr(settings, 'EVE_API_MINIMUM_KEYMASK', 59638024)):
                     account.api_status = API_STATUS_INVALID_PERMISSIONS
+            else:
+                # If its a corp key, and we've not errored so far, assume is OK.
+                account.api_status = API_STATUS_OK
 
             # Remove deleted or traded characters
             newcharlist = [int(char['characterID']) for char in doc['result']['key']['characters']]
