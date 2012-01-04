@@ -65,7 +65,7 @@ INSTALLED_APPS = (
     'nexus',
     'gargoyle',
     'sentry',
-    'sentry.client',
+    'raven.contrib.django',
     'south',
     'piston',
     'djcelery',
@@ -167,7 +167,7 @@ LOGGING = {
         },
         'sentry': {
             'level': 'DEBUG',
-            'class': 'sentry.client.handlers.SentryHandler',
+            'class': 'raven.contrib.django.handlers.SentryHandler',
         },
     },
     'loggers': {

@@ -159,7 +159,8 @@ def restart_uwsgi():
 @task
 def runserver(port=3333):
     with prefix('. .env/bin/activate'):
-        local('app/manage.py runserver %s' % port, capture=False)
+        ip = local("""ip addr list eth0 |grep "inet " |cut -d' ' -f6|cut -d/ -f1""", capture=True)
+        local('app/manage.py runserver %s:%s' % (ip, port), capture=False)
 
 @task
 def test():
