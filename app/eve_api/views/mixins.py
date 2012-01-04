@@ -5,6 +5,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponse
 from django.views.generic.list import MultipleObjectMixin
 
+from eve_api.views.utils import DiggPaginator
 
 class CSVResponseMixin(object):
 
@@ -59,4 +60,47 @@ class MultipleObjectCSVResponseMixin(CSVResponseMixin, MultipleObjectMixin):
 
     def get_csv_data(self):
         return self.queryset.all().values()
+
+
+class DetailPaginationMixin(object):
+
+    detail_queryset_name = 'qs'
+
+    def paginate_queryset(self, queryset, page_size):
+        """
+        Paginate the queryset, if needed.
+        """
+        paginator = DiggPaginator(queryset, page_size, body=10, tail=1)
+        page = self.kwargs.get('page') or self.request.GET.get('page') or 1
+        try:
+            page_number = int(page)
+        except ValueError:
+            if page == 'last':
+                page_number = paginator.num_pages
+            else:
+                raise Http404(_(u"Page is not 'last', nor can it be converted to an int."))
+        try:
+            page = paginator.page(page_number)
+            return (paginator, page, page.object_list, page.has_other_pages())
+        except InvalidPage:
+            raise Http404(_(u'Invalid page (%(page_number)s)') % {
+                                'page_number': page_number
+            })
+
+    def get_pagination_queryset(self):
+        return None
+
+    def get_context_data(self, **kwargs):
+        ctx = super(DetailPaginationMixin, self).get_context_data(**kwargs)
+
+        qs = self.get_pagination_queryset()
+        paginator, page, queryset, is_paginated = self.paginate_queryset(qs, 25)
+
+        ctx.update({
+            'paginator': paginator,
+            'page_obj': page,
+            'is_paginated': is_paginated,
+            self.detail_queryset_name: queryset,
+        })
+        return ctx
 

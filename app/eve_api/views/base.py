@@ -20,7 +20,7 @@ from eve_api.forms import EveAPIForm
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation, EVEPlayerAlliance
 from eve_api.tasks import import_apikey_result
 from eve_api.utils import basic_xml_parse_doc
-
+from eve_api.views.mixins import DetailPaginationMixin
 
 @login_required
 def eveapi_add(request, post_save_redirect='/', template='eve_api/add.html'):
@@ -198,16 +198,19 @@ def eveapi_character(request, charid=None, template='eve_api/character.html', li
     return render_to_response(list_template, context, context_instance=RequestContext(request))
 
 
-class EVEAPICorporationView(DetailView):
+class EVEAPICorporationView(DetailPaginationMixin, DetailView):
 
     model = EVEPlayerCorporation
     template_name = 'eve_api/corporation.html'
+    detail_queryset_name = 'members'
+
+    def get_pagination_queryset(self):
+        return self.object.eveplayercharacter_set.select_related('eveaccount', 'roles').order_by('corporation_date').only('id', 'name', 'corporation_date')
 
     def get_context_data(self, **kwargs):
         ctx = super(EVEAPICorporationView, self).get_context_data(**kwargs)
         ctx.update({
             'corporation': self.object,
-            'members': self.object.eveplayercharacter_set.select_related('eveaccount', 'roles').order_by('corporation_date').only('id', 'name', 'corporation_date'),
             'view_members': self.object.eveplayercharacter_set.filter(eveaccount__user=self.request.user, roles__name="roleDirector").count() or self.request.user.is_superuser,
         })
         return ctx
@@ -231,17 +234,21 @@ def eveapi_corporation_members_csv(request, corporationid):
     return response
 
 
-class EVEAPIAllianceView(DetailView):
+class EVEAPIAllianceView(DetailPaginationMixin, DetailView):
 
     model = EVEPlayerAlliance
     template_name= 'eve_api/alliance.html'
+    detail_queryset_name = 'corporations'
+
+    def get_pagination_queryset(self):
+        return self.object.eveplayercorporation_set.exclude(member_count=0).order_by('name')
+
 
     def get_context_data(self, **kwargs):
         ctx = super(EVEAPIAllianceView, self).get_context_data(**kwargs)
         ctx.update({
             'alliance': self.object,
             'executor': self.object.executor.ceo_character,
-            'corporations': self.object.eveplayercorporation_set.exclude(member_count=0).order_by('name'),
         })
         return ctx
 

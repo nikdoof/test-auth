@@ -40,6 +40,23 @@
   </tbody>
 </table>
 
+{% if is_paginated %}
+<div class="pagination">
+  <ul>
+    <li class="prev{% if not page_obj.has_previous %} disabled{% endif %}"><a href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% endif %}">Previous</a></li>
+    {% for i in page_obj.page_range %}
+      {% if not i %}
+        <li><a href="#">...</a></li>
+      {% else %}
+        <li{% if i == page_obj.number %} class="active"{% endif %}><a href="?page={{ i }}">{{ i }}</a></li>
+      {% endif %}
+    {% endfor %}
+    <li class="next{% if not page_obj.has_next %} disabled{% endif %}"><a href="{% if page_obj.has_next %}?page={{page_obj.next_page_number }}{% endif %}">Next</a>
+  </ul>
+</div>
+{% endif %}
+
+
 <p><a href="{% url eveapi-corporation-members-csv corporation.id %}" class="btn" title="Exports the membership list of this corporation to a CSV file.">Export as CSV</a></p>
 {% endif %}
 
