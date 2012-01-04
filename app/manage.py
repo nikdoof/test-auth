@@ -3,7 +3,7 @@ import sys
 import os.path
 
 pwd = os.path.dirname(os.path.abspath(__file__))
-activate_this = os.path.join(pwd,'..', 'env','bin','activate_this.py')
+activate_this = os.path.join(pwd,'..', '.env','bin','activate_this.py')
 try:
     execfile(activate_this, dict(__file__=activate_this))
 except IOError:
