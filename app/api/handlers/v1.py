@@ -98,8 +98,17 @@ class LoginHandler(BaseHandler):
                     pchardict['alliance'] = None
             else:
                 pchardict = None
+
+            glist = []
+            for g in u.groups.all():
+                if u in g.groupinformation.admins.all():
+                    admin = True
+                else:
+                    admin = False
+                glist.append({'id': g.id, 'name': g.name, 'admin': admin})
+
             return {'auth': 'ok', 'id': u.id, 'username': u.username,
-                    'email': u.email, 'groups': u.groups.all().values('id', 'name'),
+                    'email': u.email, 'groups': glist,
                     'staff': u.is_staff, 'superuser': u.is_superuser, 'primarycharacter': pchardict}
         else:
             return {'auth': 'failed', 'error': 'password'}
