@@ -3,7 +3,6 @@ from datetime import datetime
 from xml.dom import minidom
 from operator import itemgetter
 
-from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 
 from django.http import HttpResponse
@@ -149,7 +148,10 @@ class EveAPIProxyHandler(BaseHandler):
             params[key.lower()] = value
 
         if 'userid' in params or 'keyid' in params:
-            obj = get_object_or_404(EVEAccount, pk=params['userid'])
+            try:
+                obj = get_object_or_404(EVEAccount, pk=params['userid'])
+            except ValueError:
+                return rc.BAD_REQUEST
 
             # "Fix" new style keys
             if obj.api_keytype >= 3:
@@ -162,7 +164,7 @@ class EveAPIProxyHandler(BaseHandler):
         try:
             cached_doc = CachedDocument.objects.api_query(url_path, params, service=request.api_key.name)
         except DocumentRetrievalError, exc:
-            return HttpResponse(exc, status=500)
+            return rc.INTERNAL_ERROR
         else:
             return HttpResponse(cached_doc.body)
 
