@@ -39,6 +39,9 @@ class RedditAccount(models.Model):
             jsondoc = json.load(urllib.urlopen("http://reddit.com/user/%s/about.json" % self.username))
         except:
             raise self.DoesNotExist
+
+        if 'error' in jsondoc:
+            raise self.DoesNotExist
         
         data = jsondoc['data']
         
