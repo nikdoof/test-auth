@@ -16,7 +16,7 @@
 <ul>
 <li>Applying Auth User: <a href="{% url sso.views.user_view app.user %}">{{ app.user }}</a></li>
 <li>Applying Character: <a href="{% url eve_api.views.eveapi_character app.character.id %}">{{ app.character }}</a></li>
-<li>Applying To: <a href="{% url eve_api.views.eveapi_corporation app.corporation.id %}">{{ app.corporation }}</a></li>
+<li>Applying To: <a href="{% url eveapi-corporation app.corporation.id %}">{{ app.corporation }}</a></li>
 <li>Application Status: {{ app.get_status_display }}</li>
 {% if hrstaff %}
 <li>Blacklist Status: <b>{% if app.blacklisted %}<span class="label important">>BLACKLISTED</span>{% else %}<span class="label success">OK</span>{% endif %}</b></li>
