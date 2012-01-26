@@ -131,10 +131,12 @@ def import_corp_members(key_id, character_id):
 
     # grab and decode /corp/MemberTracking.xml.aspx
     if gargoyle.is_active('eve-cak') and acc.api_keytype == API_KEYTYPE_CORPORATION:
-        if not acc.has_access(11):
-            log.error('Key does not have access to MemberTracking', extra={'data': {'key_id': key_id, 'character_id': character_id}})
+        if not acc.has_access(11) and not acc.has_access(25):
+            log.error('Key does not have access to MemberTrackingLimited or MemberTrackingExtended', extra={'data': {'key_id': key_id, 'character_id': character_id}})
             return
         auth_params = {'keyid': acc.api_user_id, 'vcode': acc.api_key, 'characterID': character_id }
+        if acc.has_access(25):
+            auth.params['extended'] = 1
     else:
         auth_params = {'userID': acc.api_user_id, 'apiKey': acc.api_key, 'characterID': character_id }
     char_doc = CachedDocument.objects.api_query('/corp/MemberTracking.xml.aspx',
@@ -156,10 +158,15 @@ def import_corp_members(key_id, character_id):
         if created:
             charobj.name = character['name']
         charobj.corporation = corp
-        charobj.last_login = character['logonDateTime']
-        charobj.last_logoff = character['logoffDateTime']
-        charobj.current_location_id = int(character['locationID'])
         charobj.corporation_date = character['startDateTime']
+        if 'logonDateTime' in character:
+            charobj.last_login = character['logonDateTime']
+            charobj.last_logoff = character['logoffDateTime']
+            charobj.current_location_id = int(character['locationID'])
+        else:
+            charobj.last_login = None
+            charobj.last_logoff = None
+            charobj.current_location_id = None
         charobj.save()
         if created:
             import_eve_character.delay(character['characterID'])
