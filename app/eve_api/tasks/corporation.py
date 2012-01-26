@@ -136,7 +136,7 @@ def import_corp_members(key_id, character_id):
             return
         auth_params = {'keyid': acc.api_user_id, 'vcode': acc.api_key, 'characterID': character_id }
         if acc.has_access(25):
-            auth.params['extended'] = 1
+            auth_params['extended'] = 1
     else:
         auth_params = {'userID': acc.api_user_id, 'apiKey': acc.api_key, 'characterID': character_id }
     char_doc = CachedDocument.objects.api_query('/corp/MemberTracking.xml.aspx',
