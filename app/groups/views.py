@@ -43,8 +43,8 @@ def group_list(request):
 
         requestable = False
         if group.groupinformation and group.groupinformation.requestable:
-            if group.groupinformation.parent:
-                if group.groupinformation.parent in request.user.groups.all():
+            if group.groupinformation.parent_groups.count():
+                if bool(set(group.groupinformation.parent_groups.all()) & set(request.user.groups.all())):
                     requestable = True
             else:
                 requestable = True
@@ -70,7 +70,7 @@ def create_request(request, groupid, email_text_template='groups/email/request.t
     if request.user in group.user_set.all() or not group.groupinformation.requestable:
         return HttpResponseRedirect(reverse('groups.views.group_list'))
 
-    if group.groupinformation.parent and not group.groupinformation.parent in request.user.groups.all():
+    if group.groupinformation.parent_groups.count() and not set(group.groupinformation.parent_groups.all()) & set(request.user.groups.all()):
        return HttpResponseRedirect(reverse('groups.views.group_list'))
 
     if group.requests.filter(status=REQUEST_PENDING,user=request.user).count():

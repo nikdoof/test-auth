@@ -74,17 +74,17 @@ def update_user_access(user, **kwargs):
 
     # Check that user's groups fufil requirements
     if installed('groups'):
-        for g in user.groups.filter(groupinformation__parent__isnull=False):
-            if not g in delgroups and not g.groupinformation.parent in user.groups.all():
+        ugroups = set(user.groups.all())
+        for g in user.groups.all():
+            if g in delgroups or not g.groupinformation.parent_groups.count(): continue
+            if not bool(set(g.groupinformation.parent_groups.all()) & ugroups):
                 delgroups.add(g)
 
     for g in delgroups:
-        if g in user.groups.all():
-            user.groups.remove(g)
+        user.groups.remove(g)
 
     for g in addgroups:
-        if not g in user.groups.all():
-            user.groups.add(g)
+        user.groups.add(g)
 
     # For users set to not active, delete all accounts
     if not user.is_active:
