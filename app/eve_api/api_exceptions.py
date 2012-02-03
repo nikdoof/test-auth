@@ -20,5 +20,8 @@ class APIAccessException(Exception):
     Raised on Access errors of any kind, network and EVE API failures
     """
 
+    def __init__(self, msg):
+        self.msg = msg
+
     def __str__(self):
-        return "An error was encountered while accessing the EVE API."
+        return "An error was encountered while accessing the EVE API: %s" % self.msg

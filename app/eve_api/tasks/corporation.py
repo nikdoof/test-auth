@@ -98,7 +98,8 @@ def import_corp_details_func(corp_id, log=logging.getLogger(__name__)):
         if int(d['allianceID']):
             corpobj.alliance, created = EVEPlayerAlliance.objects.get_or_create(id=d['allianceID'])
 
-        if int(d['ceoID']) > 1:
+        # Skip looking up the CEOs for NPC corps and ones with no CEO defined (dead corps)
+        if corp_id > 1000182 int(d['ceoID']) > 1:
             import_eve_character.delay(d['ceoID'], callback=link_ceo.subtask(corporation=corpobj.id))
         else:
             corpobj.ceo_character = None

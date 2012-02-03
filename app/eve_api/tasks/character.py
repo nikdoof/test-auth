@@ -65,7 +65,7 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
         char_doc = CachedDocument.objects.api_query('/eve/CharacterInfo.xml.aspx', params={'characterID': character_id}, no_cache=False)
     except DocumentRetrievalError, exc:
         logger.error('Error retrieving CharacterInfo.xml.aspx for Character ID %s - %s' % (character_id, exc))
-        raise APIAccessException
+        raise APIAccessException(exc.value)
 
     d = basic_xml_parse_doc(char_doc)['eveapi']
     if 'error' in d:
