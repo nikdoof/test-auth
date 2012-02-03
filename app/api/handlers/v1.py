@@ -132,7 +132,7 @@ class EveAPIHandler(BaseHandler):
             s = EVEAccount.objects.filter(characters__corporation__alliance__id=request.GET['allianceid'])
 
         if s:
-            return {'keys': s.values('api_user_id', 'user_id', 'api_status', 'api_ketype', 'api_last_updated')}
+            return {'keys': s.values('api_user_id', 'user_id', 'api_status', 'api_keytype', 'api_last_updated')}
 
         return {'keys': []}
 
