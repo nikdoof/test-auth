@@ -258,13 +258,13 @@ def refresh_access(request, userid=0, corpid=0, allianceid=0):
         for u in users:
             update_user_access.delay(u.id)
         messages.add_message(request, messages.INFO, "%s accounts queued for update." % users.count())
-        return redirect('eveapi-corporation', corporationid=corpid)
+        return redirect('eveapi-corporation', pk=corpid)
     if allianceid > 0 and request.user.has_perm('sso.can_refresh_users'):
         users = User.objects.filter(eveaccount__characters__corporation__alliance__id=allianceid).distinct()
         for u in users:
             update_user_access.delay(u.id)
         messages.add_message(request, messages.INFO, "%s accounts queued for update." % users.count())
-        return redirect('eveapi-alliance', allianceid=allianceid)
+        return redirect('eveapi-alliance', pk=allianceid)
     else:
         update_user_access(request.user.id)
         messages.add_message(request, messages.INFO, "User access updated.")
