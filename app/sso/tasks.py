@@ -91,7 +91,6 @@ def update_user_access(user, **kwargs):
         for servacc in ServiceAccount.objects.filter(user=user):
             servacc.active = 0
             servacc.save()
-            pass
     else:
         # For each of the user's services, check they're in a valid group for it and enable/disable as needed.
         for servacc in ServiceAccount.objects.filter(user=user):
@@ -99,12 +98,10 @@ def update_user_access(user, **kwargs):
                 if servacc.active:
                     servacc.active = 0
                     servacc.save()
-                    pass
             else:
                 if not servacc.active:
                     servacc.active = 1
                     servacc.save()
-                    pass
 
     notifyurls = AuthAPIKey.objects.filter(active=True).exclude(callback='')
     if notifyurls.count():
