@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.core import serializers
 from django.conf import settings
-from django.views.generic import FormView
+from django.views.generic import FormView, ListView
 
 from gargoyle import gargoyle
 from gargoyle.decorators import switch_is_active
@@ -23,7 +23,7 @@ from eve_api.models import EVEAccount, EVEPlayerCharacter
 from eve_api.tasks import import_apikey, import_apikey_result, update_user_access
 from eve_proxy.models import ApiAccessLog
 from reddit.tasks import update_user_flair
-from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError
+from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError, SSOUserIPAddress
 from sso.forms import UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm, EmailChangeForm, PrimaryCharacterForm, UserNoteForm
 
 @login_required
@@ -258,13 +258,13 @@ def refresh_access(request, userid=0, corpid=0, allianceid=0):
         for u in users:
             update_user_access.delay(u.id)
         messages.add_message(request, messages.INFO, "%s accounts queued for update." % users.count())
-        return redirect('eveapi-corporation', corporationid=corpid)
+        return redirect('eveapi-corporation', pk=corpid)
     if allianceid > 0 and request.user.has_perm('sso.can_refresh_users'):
         users = User.objects.filter(eveaccount__characters__corporation__alliance__id=allianceid).distinct()
         for u in users:
             update_user_access.delay(u.id)
         messages.add_message(request, messages.INFO, "%s accounts queued for update." % users.count())
-        return redirect('eveapi-alliance', allianceid=allianceid)
+        return redirect('eveapi-alliance', pk=allianceid)
     else:
         update_user_access(request.user.id)
         messages.add_message(request, messages.INFO, "User access updated.")
@@ -366,3 +366,28 @@ class AddUserNote(FormView):
         obj.save()
 
         return super(AddUserNote, self).form_valid(form)
+
+
+class UserIPAddressView(ListView):
+
+    model = SSOUserIPAddress
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm('sso.can_view_users_restricted'):
+            return HttpResponseForbidden()
+        return super(AddUserNote, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        if self.request.GET.has_key('user'):
+            qs = self.model.objects.filter(user__username__exact=self.request.GET.get('user'))
+        else:
+            qs = self.model.objects.filter(ip_address__contains=self.request.GET.get('ip', ''))
+        return qs.order_by('-last_seen')
+
+    def get_context_data(self, **kwargs):
+        ctx = super(UserIPAddressView, self).get_context_data(**kwargs)
+        ctx.update({
+            'ip': self.request.GET.get('ip', None),
+            'kuser': self.request.GET.get('user', None),
+        })
+        return ctx

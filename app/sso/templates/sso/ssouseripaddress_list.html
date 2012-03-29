@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}IP Search: {% if kuser %}{{ kuser }}{% else %}{{ ip }}{% endif %}{% endblock %}
+
+{% block content %}
+<h1>IP Search: {% if kuser %}{{ kuser }}{% else %}{{ ip }}{% endif %}</h1>
+
+{% if object_list %}
+<table>
+<thead>
+  <tr><th>IP Address</th><th>User</th><th>First Use</th><th>Last Use</th></tr>
+</thead>
+<tbody>
+{% for object in object_list %}
+  <tr><td><a href="{% url sso-ipaddress  %}?ip={{ object.ip_address }}">{{ object.ip_address }}</a></td>
+    <td><a href="{% url sso-ipaddress  %}?user={{ object.user.username }}">{{ object.user }}</a> (<a href="{% url sso-viewuser object.user.username %}">Profile</a>)</td>
+    <td>{{ object.first_seen }}</td>
+    <td>{{ object.last_seen }}</td>
+  </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+
+{% endblock %}

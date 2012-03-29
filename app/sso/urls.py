@@ -7,7 +7,7 @@ from sso import views
 
 urlpatterns = patterns('',
     ('^$', views.profile),
-    (r'^profile/$', views.profile),
+    url(r'^profile/$', views.profile, name='sso-profile'),
     (r'^profile/add/service', views.service_add),
     (r'^profile/del/service/$', views.service_del),
     (r'^profile/del/service/(?P<serviceid>\d+)/$', views.service_del),
@@ -23,6 +23,8 @@ urlpatterns = patterns('',
     (r'^users/$', views.user_lookup),
     url(r'^users/(?P<username>.*)/addnote/$', login_required(views.AddUserNote.as_view()), name='sso-addusernote'),
     url(r'^users/(?P<username>.*)/$', views.user_view, name='sso-viewuser'),
+
+    url(r'^address/$', login_required(views.UserIPAddressView.as_view()), name='sso-ipaddress'),
 )
 
 urlpatterns += patterns('django.views.generic.simple',
