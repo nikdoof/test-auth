@@ -375,7 +375,7 @@ class UserIPAddressView(ListView):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.has_perm('sso.can_view_users_restricted'):
             return HttpResponseForbidden()
-        return super(AddUserNote, self).dispatch(request, *args, **kwargs)
+        return super(UserIPAddressView, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         if self.request.GET.has_key('user'):
