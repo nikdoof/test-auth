@@ -19,6 +19,9 @@
 {% if "hr"|installed %}
 <li><b>Blacklist Status: {% if blacklisted %}<font color='red'>BLACKLISTED</font> ({{ blacklisted }} items){% else %}<font color='geen'>OK</font>{% endif %}</b></li>
 {% endif %}
+{% if user.ip_addresses.count %}
+<li><a href="{% url sso-ipaddress %}?user={{ user.username }}">IP Address Lookup</a> ({{ user.ip_addresses.count }} associated addresses)</li>
+{% endif %}
 </p>
 
 <p>
