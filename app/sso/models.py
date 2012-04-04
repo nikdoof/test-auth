@@ -11,6 +11,9 @@ from django.contrib.contenttypes import generic
 from django.utils import simplejson as json
 
 from jsonfield.fields import JSONField
+from IPy import IP
+import dns.resolver
+
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance, EVEPlayerCharacter
 
 from sso.app_defines import *
@@ -88,6 +91,19 @@ class SSOUserIPAddress(models.Model):
                                            help_text="Shows the most recent time the user has been seen at this IP.")
     ip_address = models.CharField("IP Address", max_length=200, blank=False)
     user = models.ForeignKey(User, blank=False, null=False, related_name='ip_addresses')
+
+    @property
+    def hostname(self):
+        arpa = IP(self.ip_address).reverseName()
+        try:
+            res = dns.resolver.query(arpa, 'PTR').response
+            return res.answer[0][0].to_text()
+        except:
+            return arpa
+
+    @property
+    def related_users(self):
+        return SSOUserIPAddress.objects.filter(ip_address=self.ip_address).count()
 
     def __unicode__(self):
         return self.ip_address

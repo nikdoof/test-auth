@@ -8,11 +8,12 @@
 {% if object_list %}
 <table>
 <thead>
-  <tr><th>IP Address</th><th>User</th><th>First Use</th><th>Last Use</th></tr>
+  <tr><th>IP Address</th><th>Hostname</th><th>User</th><th>First Use</th><th>Last Use</th></tr>
 </thead>
 <tbody>
 {% for object in object_list %}
-  <tr><td><a href="{% url sso-ipaddress  %}?ip={{ object.ip_address }}">{{ object.ip_address }}</a></td>
+  <tr><td><a href="{% url sso-ipaddress  %}?ip={{ object.ip_address }}">{{ object.ip_address }}</a> {% if object.related_users > 1 %}({{ object.related_users }} users){% endif %}</td>
+    <td>{{ object.hostname }}</td>
     <td><a href="{% url sso-ipaddress  %}?user={{ object.user.username }}">{{ object.user }}</a> (<a href="{% url sso-viewuser object.user.username %}">Profile</a>)</td>
     <td>{{ object.first_seen }}</td>
     <td>{{ object.last_seen }}</td>
