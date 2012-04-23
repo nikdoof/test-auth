@@ -1,7 +1,9 @@
 from django.conf import settings
 import logging
 from datetime import datetime, timedelta
-from celery.decorators import task
+
+from celery.task import task
+
 from eve_proxy.models import CachedDocument, ApiAccessLog
 
 @task(ignore_result=True)

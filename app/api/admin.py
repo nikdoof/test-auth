@@ -1,6 +1,5 @@
 from django.contrib import admin
 from api.models import AuthAPIKey, AuthAPILog
-from piston.models import Consumer, Token
 
 class AuthAPIKeyAdmin(admin.ModelAdmin):
     list_display = ('key', 'name', 'url', 'active')
@@ -18,5 +17,3 @@ class AuthAPILogAdmin(admin.ModelAdmin):
 
 admin.site.register(AuthAPIKey, AuthAPIKeyAdmin)
 admin.site.register(AuthAPILog, AuthAPILogAdmin)
-admin.site.register(Consumer, admin.ModelAdmin)
-admin.site.register(Token, admin.ModelAdmin)

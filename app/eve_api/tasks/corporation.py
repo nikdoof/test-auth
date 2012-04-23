@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta
 from xml.dom import minidom
 
-from celery.decorators import task
+from celery.task import task
 from gargoyle import gargoyle
 
 from eve_proxy.models import CachedDocument
@@ -98,14 +98,12 @@ def import_corp_details_func(corp_id, log=logging.getLogger(__name__)):
         if int(d['allianceID']):
             corpobj.alliance, created = EVEPlayerAlliance.objects.get_or_create(id=d['allianceID'])
 
+        corpobj.api_last_updated = datetime.utcnow()
+        corpobj.save()
+
         # Skip looking up the CEOs for NPC corps and ones with no CEO defined (dead corps)
         if corp_id > 1000182 and int(d['ceoID']) > 1:
             import_eve_character.delay(d['ceoID'], callback=link_ceo.subtask(corporation=corpobj.id))
-        else:
-            corpobj.ceo_character = None
-
-        corpobj.api_last_updated = datetime.utcnow()
-        corpobj.save()
 
     return EVEPlayerCorporation.objects.get(pk=corpobj.pk)
 
@@ -113,7 +111,9 @@ def import_corp_details_func(corp_id, log=logging.getLogger(__name__)):
 @task(ignore_result=True)
 def link_ceo(corporation, character):
     """ Links a character to the CEO position of a corporation """
-    corpobj = EVEPlayerCorporation.objects.filter(id=corporation).update(ceo_character=EVEPlayerCharacter.objects.get(id=character))
+    corp = EVEPlayerCorporation.objects.filter(id=corporation)
+    char = EVEPlayerCharacter.objects.get(id=character)
+    corp.update(ceo_character=char)
 
 
 @task(ignore_result=True)

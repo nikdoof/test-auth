@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from urllib2 import HTTPError, URLError
-from celery.task import Task
-from celery.decorators import task
+from celery.task import Task, task
 from reddit.models import RedditAccount
 from reddit.api import Inbox, LoginError, Flair
 from django.conf import settings

@@ -1,7 +1,7 @@
 from datetime import datetime
 from xml.dom import minidom
 
-from celery.decorators import task
+from celery.task import task
 
 from eve_proxy.models import CachedDocument
 from eve_proxy.exceptions import DocumentRetrievalError

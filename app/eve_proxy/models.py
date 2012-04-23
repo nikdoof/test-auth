@@ -70,6 +70,7 @@ class CachedDocumentManager(models.Manager):
         logger.debug('Requesting URL: %s' % url)
 
         try:
+            print doc_key
             doc = super(CachedDocumentManager, self).get_query_set().get(pk=doc_key)
             created = False
         except self.model.DoesNotExist:

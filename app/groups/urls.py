@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse_lazy
 from groups import views
 
 urlpatterns = patterns('',
@@ -14,5 +14,5 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('django.views.generic.simple',
-    ('^$', 'redirect_to', {'url': reverse('groups.views.group_list')}),
+    ('^$', 'redirect_to', {'url': reverse_lazy('groups.views.group_list')}),
 )

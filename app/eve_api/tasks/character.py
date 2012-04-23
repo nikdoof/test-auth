@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from xml.dom import minidom
 import logging
 
-from celery.decorators import task
+from celery.task import task
 from celery.task.sets import subtask
 from gargoyle import gargoyle
 
