@@ -8,3 +8,4 @@ env
 *.pid
 app/conf/brokersettings.py
 ./static/
+.env
