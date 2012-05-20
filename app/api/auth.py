@@ -1,7 +1,10 @@
 from urllib import urlencode
 from datetime import datetime
+
 from django.http import HttpResponseForbidden
 from django.contrib.auth.models import AnonymousUser
+from django.utils.timezone import now
+
 from api.models import AuthAPIKey, AuthAPILog
 
 
@@ -21,7 +24,7 @@ class APIKeyAuthentication(object):
                     url = "%s?%s" % (request.path, urlencode(params))
                 else:
                     url = request.path
-                AuthAPILog(key=keyobj, access_datetime=datetime.utcnow(), url=url).save()
+                AuthAPILog(key=keyobj, access_datetime=now(), url=url).save()
                 request.user = AnonymousUser()
                 request.api_key = keyobj
                 return True

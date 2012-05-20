@@ -4,11 +4,11 @@ from xml.dom import minidom
 from operator import itemgetter
 
 from django.contrib.auth.models import User
-
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.conf import settings
+from django.utils.timezone import now
 
 from BeautifulSoup import BeautifulSoup
 from piston.handler import BaseHandler
@@ -194,12 +194,10 @@ class OpTimerHandler(BaseHandler):
         events = []
         for node in dom.getElementsByTagName('rowset')[0].childNodes:
             if node.nodeType == 1:
-                ownerID = node.getAttribute('ownerID')                
+                ownerID = node.getAttribute('ownerID')
                 if ownerID != '1':
-                    date = node.getAttribute('eventDate')                
-                    dt = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')                
-                    now = datetime.utcnow()                
-                    startsIn = int(dt.strftime('%s')) - int(now.strftime('%s'))
+                    dt = datetime.strptime(node.getAttribute('eventDate'), '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc)
+                    startsIn = int(dt.strftime('%s')) - int(now().strftime('%s'))
                     duration = int(node.getAttribute('duration'))
 
                     fid = re.search('topic=[\d]+', node.getAttribute('eventText'))
@@ -224,7 +222,7 @@ class OpTimerHandler(BaseHandler):
                             'isImportant': int(node.getAttribute('importance')),
                             'eventText': ' '.join(BeautifulSoup(node.getAttribute('eventText')).findAll(text=True)),
                             'endsIn':endsIn,
-                            'forumLink': forumlink}                
+                            'forumLink': forumlink}
                         events.append(event)
         if len(events) == 0:
             return {'ops':[{
@@ -240,7 +238,7 @@ class OpTimerHandler(BaseHandler):
                 'forumLink': ''}]}
         else:
             events.sort(key=itemgetter('startsIn'))
-            return {'ops': events, 'doc_time': cached_doc.time_retrieved, 'cache_until': cached_doc.cached_until, 'current_time': datetime.utcnow() }
+            return {'ops': events, 'doc_time': cached_doc.time_retrieved, 'cache_until': cached_doc.cached_until, 'current_time': now() }
 
 
 class BlacklistHandler(BaseHandler):
