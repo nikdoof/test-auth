@@ -17,6 +17,13 @@ pip install -r requirements.txt
 
 As we're using system wide packages, its advisable to install python-mysql packages system wide, otherwise you'll need a basic build env on your machine (build-essentials, python-dev on Debian).
 
+Bootstrap
+---------
+
+Auth uses Twitter Bootstrap v1 for its design layout, its yet to be updated to v2.0. You can grab the older version from the URL below, extract it into app/sso/static/bootstrap/
+
+https://github.com/twitter/bootstrap/tarball/v1.4.0
+
 Running
 -------
 
