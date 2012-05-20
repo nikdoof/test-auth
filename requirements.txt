@@ -8,7 +8,7 @@ MySQL-python
 Celery==2.5.3
 django-celery==2.5.5
 
--e hg+http://bitbucket.org/schinckel/django-jsonfield#egg=django-jsonfield
+django-jsonfield==0.8.7
 South==0.7.4
 django-redis-cache
 IPy==0.75
@@ -17,7 +17,7 @@ sentry==4.0.15
 raven==1.7.3
 
 nexus
-gargoyle==0.8.0
+gargoyle==0.9.0
 -e hg+https://bitbucket.org/jespern/django-piston@7c90898072ce#egg=django_piston
 -e hg+https://bitbucket.org/ubernostrum/django-registration@27bccd108cde#egg=django-registration
 
