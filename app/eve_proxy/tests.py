@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 
 from django.utils import unittest
+from django.utils.timezone import now
 from eve_proxy.models import CachedDocument
 from eve_proxy.exceptions import *
 
@@ -40,8 +41,8 @@ class CachedDocumentTestCase(unittest.TestCase):
         """ Tests if objects are being cached correctly """
 
         url = '/server/ServerStatus.xml.aspx'
-	obj = CachedDocument.objects.api_query(url, no_cache=True)
-	obj2 = CachedDocument.objects.api_query(url)
+        obj = CachedDocument.objects.api_query(url, no_cache=True)
+        obj2 = CachedDocument.objects.api_query(url)
 
         self.assertEqual(obj.pk, obj2.pk, "Objects are not caching correctly")
 
@@ -51,7 +52,7 @@ class CachedDocumentTestCase(unittest.TestCase):
         url = '/server/ServerStatus.xml.aspx'
         obj = CachedDocument.objects.api_query(url, no_cache=True)
         ret_time = obj.time_retrieved
-        obj.cached_until = datetime.utcnow()
+        obj.cached_until = now()
         obj.save()
 
         time.sleep(1)

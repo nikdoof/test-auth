@@ -1,4 +1,5 @@
-from celery.decorators import task
+from celery.task import task
+
 from eve_proxy.models import CachedDocument
 from eve_api.utils import basic_xml_parse_doc
 from eve_api.models import EVESkill, EVESkillGroup

@@ -62,7 +62,7 @@
                     <li><a href="{% url sso.views.user_lookup %}">Lookup User</a></li>
                 {% endif %}
                 {% if request.user.is_staff %}
-                    <li><a href="/nexus/">Admin</a></li>
+                    <li><a href="/admin/">Admin</a></li>
                 {% endif %}
                 {% if "sentry"|installed %}
                 {% if request.user.is_superuser %}

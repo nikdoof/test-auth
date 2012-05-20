@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.views import password_change, password_change_done
 from django.contrib.auth.decorators import login_required
 
@@ -28,5 +28,5 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('django.views.generic.simple',
-    ('^$', 'redirect_to', {'url': reverse('sso.views.profile')}),
+    ('^$', 'redirect_to', {'url': reverse_lazy('sso.views.profile')}),
 )

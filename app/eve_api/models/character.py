@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
+
 from eve_api.app_defines import *
 from eve_api.models import EVEAPIModel
 
