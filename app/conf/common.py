@@ -63,7 +63,6 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.staticfiles',
     'raven.contrib.django',
-    'nexus',
     'gargoyle',
     'south',
     'piston',
@@ -78,10 +77,6 @@ INSTALLED_APPS = (
     'groups',
     'api',
     'tools',
-)
-
-AUTHENTICATION_BACKENDS = (
-    'sso.backends.SimpleHashModelBackend',
 )
 
 AUTH_PROFILE_MODULE = 'sso.SSOUser'
