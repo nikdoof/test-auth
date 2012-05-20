@@ -2,38 +2,32 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError
 from eve_proxy.models import CachedDocument
 
-def retrieve_xml(request):
-    """
-    A view that forwards EVE API requests through the cache system, either
-    retrieving a cached document or querying and caching as needed.
-    """
-    # This is the URL path (minus the parameters).
-    url_path = request.META['PATH_INFO'].replace(reverse('eve_proxy.views.retrieve_xml'),"/")
-    # The parameters attached to the end of the URL path.
 
-    if request.method == 'POST':
-        p = request.POST
-    else:
-        p = request.GET
+class EVEAPIProxyView(View):
+    """Allows for standard EVE API calls to be proxied through your application"""
 
-    # Convert the QuerySet object into a dict
-    params = {}
-    for key,value in p.items():
-        params[key] = value
-
-    if url_path == '/' or url_path == '':
-        # If they don't provide any kind of query, shoot a quick error message.
-        return HttpResponseNotFound('No API query specified.')
+    def get(self, request, *args, **kwargs):
+        return self.get_document(request, request.GET)
     
-    if 'userID' in params and not 'service' in params:
-        return HttpResponse('No Service ID provided.')
+    def post(self, request, *args, **kwargs):
+        return self.get_document(request, request.POST)
+    
+    def get_document(self, request, params):
+        url_path = request.META['PATH_INFO'].replace(reverse('eveproxy-apiproxy'),"/")
 
-    try:
-        cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
-    except:
-        return HttpResponseServerError('Error occured')
+        if url_path == '/' or url_path == '':
+            # If they don't provide any kind of query, shoot a quick error message.
+            return HttpResponseNotFound('No API query specified.')
+        
+        if 'userID' in params and not 'service' in params:
+            return HttpResponse('No Service ID provided.')
 
-    if cached_doc:
-        return HttpResponse(cached_doc.body, mimetype='text/xml')
+        try:
+            cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
+        except:
+            return HttpResponseServerError('Error occured')
 
-    return HttpResponseNotFound('Error retrieving the document')
+        if cached_doc:
+            return HttpResponse(cached_doc.body, mimetype='text/xml')
+
+        return HttpResponseNotFound('Error retrieving the document')
