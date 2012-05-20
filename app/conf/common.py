@@ -63,8 +63,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'nexus',
     'gargoyle',
-    'sentry',
-    'raven.contrib.django',
     'south',
     'piston',
     'djcelery',
