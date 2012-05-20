@@ -36,7 +36,7 @@ def queue_apikey_updates(update_delay=86400, batch_size=50):
 
     # Update all the eve accounts and related corps
     delta = timedelta(seconds=update_delay)
-    log.info("Updating APIs older than %s" % (datetime.now() - delta))
+    log.info("Updating APIs older than %s" % (now() - delta))
 
     if gargoyle.is_active('eve-cak'):
         accounts = EVEAccount.objects.filter(api_last_updated__lt=(now() - delta)).exclude(api_status__in=[API_STATUS_ACC_EXPIRED, API_STATUS_KEY_EXPIRED, API_STATUS_AUTH_ERROR]).order_by('api_last_updated')[:batch_size]
