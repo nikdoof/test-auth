@@ -1,5 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError
+from django.views.generic import View
+
 from eve_proxy.models import CachedDocument
 
 
@@ -22,10 +24,10 @@ class EVEAPIProxyView(View):
         if 'userID' in params and not 'service' in params:
             return HttpResponse('No Service ID provided.')
 
-        try:
-            cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
-        except:
-            return HttpResponseServerError('Error occured')
+        #try:
+        cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
+        #except:
+        #    return HttpResponseServerError('Error occured')
 
         if cached_doc:
             return HttpResponse(cached_doc.body, mimetype='text/xml')

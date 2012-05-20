@@ -119,7 +119,7 @@ class CachedDocumentManager(models.Manager):
                 # This allows for clock skew not to fuck with the timers.
                 currenttime = datetime.strptime(dom.getElementsByTagName('currentTime')[0].childNodes[0].nodeValue, '%Y-%m-%d %H:%M:%S')
                 cacheuntil = datetime.strptime(dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue, '%Y-%m-%d %H:%M:%S')
-                date = now() + (cacheuntil - currenttime)
+                doc.cached_until = now() + (cacheuntil - currenttime)
                 
                 # Add the global adjustment, to avoid CCP's hardline cache timers
                 doc.cached_until += timedelta(seconds=getattr(settings, 'EVE_PROXY_GLOBAL_CACHE_ADJUSTMENT', 30))
