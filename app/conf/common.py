@@ -10,6 +10,7 @@ TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 USE_I18N = True
+USE_TZ = False
 
 # Defines the Static Media storage as per staticfiles contrib
 STATIC_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'static')
@@ -61,6 +62,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.humanize',
     'django.contrib.staticfiles',
+    'raven.contrib.django',
     'nexus',
     'gargoyle',
     'south',
@@ -128,7 +130,7 @@ GARGOYLE_SWITCH_DEFAULTS = {
       'description': 'Enables/Disables the HR functionality.',
     },
     'eve-cak': {
-      'is_active': False,
+      'is_active': True,
       'label': 'EVE Customizable API Keys',
       'description': 'Enables/Disables EVE API CAK support.',
     },
@@ -152,45 +154,64 @@ GARGOYLE_SWITCH_DEFAULTS = {
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
+    'root': {
+        'level': 'WARNING',
+        'handlers': ['sentry', 'console'],
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+    },
     'handlers': {
-        'null': {
-            'level':'DEBUG',
-            'class':'django.utils.log.NullHandler',
+        'sentry': {
+            'level': 'DEBUG',
+            'class': 'raven.contrib.django.handlers.SentryHandler',
+            'filters': ['require_debug_false'],
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
         },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
-        },
-        'sentry': {
-            'level': 'DEBUG',
-            'class': 'raven.contrib.django.handlers.SentryHandler',
-        },
+            'include_html': True,
+            'filters': ['require_debug_false'],
+        }
     },
     'loggers': {
-        'root': {
-            'level': 'WARNING',
-            'handlers': ['sentry'],
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
         },
         'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'celery': {
             'level': 'WARNING',
-            'handlers': ['null'],
-            'propagate': True,
-        },
-        'django': {
-            'handlers':['null'],
-            'propagate': True,
-            'level':'INFO',
-        },
-        'django.request': {
-            'handlers': ['null'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'celery.task.default': {
-            'handlers': ['null'],
-            'level': 'ERROR',
-            'propagate': True,
+            'handlers': ['console'],
+            'propagate': False,
         },
     }
 }
