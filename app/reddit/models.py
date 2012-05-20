@@ -4,6 +4,7 @@ import urllib
 from django.utils import simplejson as json
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.timezone import now, utc
 
 from reddit.api import Comment
 
@@ -49,8 +50,8 @@ class RedditAccount(models.Model):
         self.comment_karma = int(data['comment_karma'])
         self.reddit_id = unicode(data['id'], 'utf-8')
 
-        self.date_created = datetime.fromtimestamp(data['created_utc'])
-        self.last_update = datetime.now()
+        self.date_created = datetime.fromtimestamp(data['created_utc']).replace(tzinfo=utc)
+        self.last_update = now()
 
     def recent_posts(self):
         """ Returns the first page of posts visible on the user's profile page """

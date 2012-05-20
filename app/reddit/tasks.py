@@ -1,9 +1,14 @@
 from datetime import datetime, timedelta
 from urllib2 import HTTPError, URLError
+
+from django.conf import settings
+from django.utils.timezone import now
+
 from celery.task import Task, task
+
 from reddit.models import RedditAccount
 from reddit.api import Inbox, LoginError, Flair
-from django.conf import settings
+
 
 class send_reddit_message(Task):
 
@@ -71,8 +76,8 @@ def queue_account_updates(update_delay=604800, batch_size=50):
     log = queue_account_updates.get_logger()
     # Update all the eve accounts and related corps
     delta = timedelta(seconds=update_delay)
-    log.info("Updating Accounts older than %s" % (datetime.now() - delta))
-    accounts = RedditAccount.objects.order_by('last_update').filter(last_update__lt=(datetime.now() - delta))[:batch_size]
+    log.info("Updating Accounts older than %s" % (now() - delta))
+    accounts = RedditAccount.objects.order_by('last_update').filter(last_update__lt=(now() - delta))[:batch_size]
     log.info("%s account(s) to update" % accounts.count())
     for acc in accounts:
         log.debug("Queueing Account %s for update" % acc.username)
