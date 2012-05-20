@@ -1,4 +1,5 @@
 from django import template
+from django.utils.timezone import now
  
 register = template.Library()
  
@@ -15,7 +16,7 @@ def naturaltimediff(value):
     from datetime import datetime
  
     if isinstance(value, datetime):
-        delta = datetime.now() - value
+        delta = now() - value
         if delta.days > 6:
             return value.strftime("%b %d")                    # May 15
         if delta.days > 1:
