@@ -6,7 +6,6 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.views.generic import DetailView, ListView
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
@@ -21,6 +20,7 @@ from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation,
 from eve_api.tasks import import_apikey_result
 from eve_api.utils import basic_xml_parse_doc
 from eve_api.views.mixins import DetailPaginationMixin
+
 
 @login_required
 def eveapi_add(request, post_save_redirect='/', template='eve_api/add.html'):

@@ -22,6 +22,7 @@ from eve_api.tasks.corporation import import_corp_members, import_corp_details
 from sso.tasks import update_user_access
 
 from django.contrib.auth.models import User
+from django.utils.timezone import now, utc
 
 @task(ignore_result=True, expires=120)
 def queue_apikey_updates(update_delay=86400, batch_size=50):
@@ -40,9 +41,9 @@ def queue_apikey_updates(update_delay=86400, batch_size=50):
     log.info("Updating APIs older than %s" % (datetime.now() - delta))
 
     if gargoyle.is_active('eve-cak'):
-        accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.now() - delta)).exclude(api_status__in=[API_STATUS_ACC_EXPIRED, API_STATUS_KEY_EXPIRED, API_STATUS_AUTH_ERROR]).order_by('api_last_updated')[:batch_size]
+        accounts = EVEAccount.objects.filter(api_last_updated__lt=(now() - delta)).exclude(api_status__in=[API_STATUS_ACC_EXPIRED, API_STATUS_KEY_EXPIRED, API_STATUS_AUTH_ERROR]).order_by('api_last_updated')[:batch_size]
     else:
-        accounts = EVEAccount.objects.filter(api_last_updated__lt=(datetime.now() - delta)).exclude(api_status__in=[API_STATUS_ACC_EXPIRED, API_STATUS_KEY_EXPIRED, API_STATUS_AUTH_ERROR]).exclude(api_keytype__gt=2).order_by('api_last_updated')[:batch_size]
+        accounts = EVEAccount.objects.filter(api_last_updated__lt=(now() - delta)).exclude(api_status__in=[API_STATUS_ACC_EXPIRED, API_STATUS_KEY_EXPIRED, API_STATUS_AUTH_ERROR]).exclude(api_keytype__gt=2).order_by('api_last_updated')[:batch_size]
     log.info("%s account(s) to update" % accounts.count())
     for acc in accounts:
         log.debug("Queueing UserID %s for update" % acc.pk)
@@ -115,7 +116,7 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
                 account.api_keytype = API_KEYTYPE_ACCOUNT
             account.api_accessmask = int(keydoc['accessMask'])
             if not keydoc['expires'] == '':
-                account.api_expiry = datetime.strptime(keydoc['expires'], '%Y-%m-%d %H:%M:%S')
+                account.api_expiry = datetime.strptime(keydoc['expires'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc)
 
             # Checks account status to see if the account is still active
             if not account.api_keytype == API_KEYTYPE_CORPORATION:
@@ -124,8 +125,8 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
                     status = CachedDocument.objects.api_query('/account/AccountStatus.xml.aspx', params=auth_params, no_cache=True)
                     status = basic_xml_parse_doc(status)['eveapi']
                     if not status.get('error', None):
-                        paiddate = datetime.strptime(status['result']['paidUntil'], '%Y-%m-%d %H:%M:%S')
-                        if paiddate <= datetime.utcnow():
+                        paiddate = datetime.strptime(status['result']['paidUntil'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc)
+                        if paiddate <= now():
                             account.api_status = API_STATUS_ACC_EXPIRED
                         else:
                             account.api_status = API_STATUS_OK
@@ -236,7 +237,7 @@ def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=lo
             if account.user:
                 update_user_access.delay(account.user.id)
 
-    account.api_last_updated = datetime.utcnow()
+    account.api_last_updated = now()
     account.save()
     return account
 

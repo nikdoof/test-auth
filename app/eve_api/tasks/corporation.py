@@ -55,7 +55,7 @@ def import_corp_details_result(corp_id, callback=None):
 def import_corp_details_func(corp_id, log=logging.getLogger(__name__)):
 
     corpobj, created = EVEPlayerCorporation.objects.get_or_create(id=corp_id)   
-    if created or not corpobj.api_last_updated or corpobj.api_last_updated < (datetime.utcnow() - timedelta(hours=12)):
+    if created or not corpobj.api_last_updated or corpobj.api_last_updated < (now() - timedelta(hours=12)):
 
         try:
             doc = CachedDocument.objects.api_query('/corp/CorporationSheet.xml.aspx', {'corporationID': corp_id})
@@ -98,7 +98,7 @@ def import_corp_details_func(corp_id, log=logging.getLogger(__name__)):
         if int(d['allianceID']):
             corpobj.alliance, created = EVEPlayerAlliance.objects.get_or_create(id=d['allianceID'])
 
-        corpobj.api_last_updated = datetime.utcnow()
+        corpobj.api_last_updated = now()
         corpobj.save()
 
         # Skip looking up the CEOs for NPC corps and ones with no CEO defined (dead corps)
@@ -159,10 +159,10 @@ def import_corp_members(key_id, character_id):
         if created:
             charobj.name = character['name']
         charobj.corporation = corp
-        charobj.corporation_date = character['startDateTime']
+        charobj.corporation_date = datetime.strptime(character['startDateTime'], "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc)
         if 'logonDateTime' in character:
-            charobj.last_login = character['logonDateTime']
-            charobj.last_logoff = character['logoffDateTime']
+            charobj.last_login = datetime.strptime(character['logonDateTime'], "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc)
+            charobj.last_logoff = datetime.strptime(character['logoffDateTime'], "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc)
             charobj.current_location_id = int(character['locationID'])
         else:
             charobj.last_login = None
