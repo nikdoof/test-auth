@@ -3,6 +3,8 @@ import logging
 from datetime import datetime, timedelta
 from xml.dom import minidom
 
+from django.utils.timezone import now, utc
+
 from celery.task import task
 from gargoyle import gargoyle
 

@@ -3,26 +3,24 @@ from datetime import datetime, timedelta
 from xml.dom import minidom
 import logging
 
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.utils.timezone import now, utc
+
 from celery.task import task
 from celery.task.sets import TaskSet
 from gargoyle import gargoyle
 
-from django.conf import settings
-
 from eve_proxy.exceptions import *
 from eve_proxy.models import CachedDocument
-
 from eve_api.models import EVEAccount, EVEPlayerCharacter
 from eve_api.app_defines import *
 from eve_api.api_exceptions import *
 from eve_api.utils import basic_xml_parse_doc
 from eve_api.tasks.character import import_eve_characters
 from eve_api.tasks.corporation import import_corp_members, import_corp_details
-
 from sso.tasks import update_user_access
 
-from django.contrib.auth.models import User
-from django.utils.timezone import now, utc
 
 @task(ignore_result=True, expires=120)
 def queue_apikey_updates(update_delay=86400, batch_size=50):
