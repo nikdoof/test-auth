@@ -49,7 +49,7 @@ if installed('nexus'):
     )
 else:
     urlpatterns += patterns('', 
-        url(r'^admin/', include('admin.site.urls')),
+        url(r'^admin/', include(admin.site.urls)),
     )
 
 if settings.DEBUG:
