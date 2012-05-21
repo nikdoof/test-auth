@@ -4,10 +4,10 @@ from django.contrib.auth.views import login
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf import settings
 
-
 from utils import installed
 from registration.views import register
 from sso.forms import RegistrationFormUniqueEmailBlocked
+
 
 admin.autodiscover()
 
@@ -45,7 +45,11 @@ if installed('nexus'):
     nexus.autodiscover()
 
     urlpatterns += patterns('',
-        (r'^nexus/', include(nexus.site.urls)),
+        (r'^admin/', include('nexus.site.urls')),
+    )
+else:
+    urlpatterns += patterns('', 
+        url(r'^admin/', include(admin.site.urls)),
     )
 
 if settings.DEBUG:

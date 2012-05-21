@@ -10,7 +10,7 @@ from django.utils import simplejson as json
 
 from django.contrib.auth.models import User
 from celery.signals import task_failure
-from celery.decorators import task
+from celery.task import task
 
 from api.models import AuthAPIKey
 from eve_api.models import EVEAccount, EVEPlayerCorporation, EVEPlayerAlliance

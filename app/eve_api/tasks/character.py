@@ -2,7 +2,9 @@ from datetime import datetime, timedelta
 from xml.dom import minidom
 import logging
 
-from celery.decorators import task
+from django.utils.timezone import now, utc
+
+from celery.task import task
 from celery.task.sets import subtask
 from gargoyle import gargoyle
 
@@ -85,11 +87,11 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
     # Set corporation and join date
     corp, created = EVEPlayerCorporation.objects.get_or_create(pk=values['corporationID'])
     from eve_api.tasks.corporation import import_corp_details
-    if created or not corp.name or corp.api_last_updated < (datetime.utcnow() - timedelta(hours=12)):
+    if created or not corp.name or corp.api_last_updated < (now() - timedelta(hours=12)):
         import_corp_details.delay(values['corporationID'])
 
     pchar.corporation = corp
-    pchar.corporation_date = values['corporationDate']
+    pchar.corporation_date = datetime.strptime(values['corporationDate'], "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc)
 
     # Derrive Race value from the choices
     for v in API_RACES_CHOICES:
@@ -106,7 +108,8 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
                 corp, created = EVEPlayerCorporation.objects.get_or_create(pk=emp['corporationID'])
                 if created:
                     import_corp_details.delay(emp['corporationID'])
-                eobj, created = EVEPlayerCharacterEmploymentHistory.objects.get_or_create(pk=emp['recordID'], corporation=corp, character=pchar, start_date=emp['startDate'])
+                startdate = datetime.strptime(emp['startDate'], "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc)
+                eobj, created = EVEPlayerCharacterEmploymentHistory.objects.get_or_create(pk=emp['recordID'], corporation=corp, character=pchar, start_date=startdate)
 
     # We've been passed a Key ID, try and work with it
     if key_id:
@@ -183,7 +186,7 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
             else:
                 pchar.gender = API_GENDER_FEMALE
 
-    pchar.api_last_updated = datetime.utcnow()
+    pchar.api_last_updated = now()
     pchar.save()
 
     if acc:

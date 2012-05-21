@@ -13,6 +13,7 @@ from django.forms.extras.widgets import SelectDateWidget
 from django.views.generic import TemplateView, DetailView, FormView, CreateView, ListView
 from django.views.generic.detail import BaseDetailView
 from django.conf import settings
+from django.utils.timezone import now
 
 from gargoyle import gargoyle
 
@@ -354,7 +355,7 @@ class HrBlacklistUser(FormView):
         self.source = BlacklistSource.objects.get(id=1)
         self.expiry = form.cleaned_data.get('expiry_date', None)
         if not self.expiry:
-            self.expiry = datetime.utcnow() + timedelta(days=50*365) # 50 year default
+            self.expiry = now() + timedelta(days=50*365) # 50 year default
         self.level = form.cleaned_data.get('level', 0)
         self.reason = form.cleaned_data.get('reason', 'No reason provided')
 

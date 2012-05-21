@@ -1,8 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import Group
+
 from gargoyle import gargoyle
+
 from eve_api.models import EVEAPIModel
 from eve_api.app_defines import *
+
 
 class EVEPlayerCorporation(EVEAPIModel):
     """

@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.db import models
 from django.template.loader import render_to_string
+from django.utils.timezone import now
 
 from eve_api.models import EVEPlayerCharacter
 from hr.app_defines import *
@@ -29,7 +30,7 @@ def blacklist_values(user, level=BLACKLIST_LEVEL_NOTE):
     """
 
     blacklist = []
-    bl_items = Blacklist.objects.filter(models.Q(expiry_date__gt=datetime.now()) | models.Q(expiry_date=None), level__lte=level)
+    bl_items = Blacklist.objects.filter(models.Q(expiry_date__gt=now()) | models.Q(expiry_date=None), level__lte=level)
 
     # Check Reddit blacklists
     if installed('reddit'):

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import Group
+
 from eve_api.models import EVEAPIModel
+
 
 class EVEPlayerAlliance(EVEAPIModel):
     """

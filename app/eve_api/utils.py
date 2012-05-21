@@ -1,4 +1,8 @@
+from datetime import datetime
 from xml.dom import minidom
+
+from django.utils.timezone import utc
+
 from eve_proxy.models import CachedDocument
 
 def basic_xml_parse(nodes):
@@ -51,3 +55,7 @@ def basic_xml_parse_doc(doc):
         return basic_xml_parse(dom.childNodes)
 
     return {}
+
+    
+def parse_eveapi_date(datestring):
+    return datetime.strptime(datestring, "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc)

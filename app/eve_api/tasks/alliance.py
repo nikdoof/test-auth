@@ -1,7 +1,7 @@
 from datetime import datetime
 from xml.dom import minidom
 
-from celery.decorators import task
+from celery.task import task
 
 from eve_proxy.models import CachedDocument
 from eve_proxy.exceptions import DocumentRetrievalError
@@ -11,6 +11,7 @@ from eve_api.utils import basic_xml_parse_doc
 from eve_api.tasks.corporation import import_corp_details, import_corp_details_result
 
 from django.core.exceptions import ValidationError
+from django.utils.timezone import now, utc
 
 @task(ignore_result=True, default_retry_delay=10 * 60)
 def import_alliance_details():
@@ -32,10 +33,10 @@ def import_alliance_details():
             allobj, created = EVEPlayerAlliance.objects.get_or_create(pk=alliance['allianceID'])
             allobj.name = alliance['name']
             allobj.ticker = alliance['shortName']
-            allobj.date_founded = datetime.strptime(alliance['startDate'], "%Y-%m-%d %H:%M:%S")
+            allobj.date_founded = datetime.strptime(alliance['startDate'], "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc)
             allobj.executor, created = EVEPlayerCorporation.objects.get_or_create(id=alliance['executorCorpID'])
             allobj.member_count = alliance['memberCount']
-            allobj.api_last_updated = datetime.utcnow()
+            allobj.api_last_updated = now()
             allobj.save()
 
             members = [int(corp['corporationID']) for corp in alliance['memberCorporations']]

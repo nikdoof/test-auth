@@ -8,6 +8,7 @@ from xml.dom import minidom
 from django.db import models, IntegrityError
 from django.conf import settings
 from django.core.cache import cache
+from django.utils.timezone import utc, now
 
 from eve_proxy.exceptions import *
 
@@ -70,13 +71,14 @@ class CachedDocumentManager(models.Manager):
         logger.debug('Requesting URL: %s' % url)
 
         try:
+            print doc_key
             doc = super(CachedDocumentManager, self).get_query_set().get(pk=doc_key)
             created = False
         except self.model.DoesNotExist:
             doc = CachedDocument(pk=doc_key, url_path=url)
             created = True
 
-        if created or not doc.cached_until or datetime.utcnow() > doc.cached_until or no_cache:
+        if created or not doc.cached_until or now() > doc.cached_until or no_cache:
 
             stat_update_count('eve_proxy_api_requests')
             req = urllib2.Request(url)
@@ -103,23 +105,29 @@ class CachedDocumentManager(models.Manager):
                 raise DocumentRetrievalError(e.reason)
             else:
                 doc.body = unicode(conn.read(), 'utf-8')
-                doc.time_retrieved = datetime.utcnow()
+                doc.time_retrieved = now()
 
             error = 0
             try:
                 # Parse the response via minidom
                 dom = minidom.parseString(doc.body.encode('utf-8'))
             except:
-                doc.cached_until = datetime.utcnow()
+                doc.cached_until = now()
             else:
-                date = datetime.strptime(dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue, '%Y-%m-%d %H:%M:%S')
-                # Add 30 seconds to the cache timers, avoid hitting too early and account for some minor clock skew.
-                doc.cached_until = date + timedelta(seconds=getattr(settings, 'EVE_PROXY_GLOBAL_CACHE_ADJUSTMENT', 30))
+            
+                # Calculate the cache timer on the basis of the currentTime and cachedUntil fields provided by the API
+                # This allows for clock skew not to fuck with the timers.
+                currenttime = datetime.strptime(dom.getElementsByTagName('currentTime')[0].childNodes[0].nodeValue, '%Y-%m-%d %H:%M:%S')
+                cacheuntil = datetime.strptime(dom.getElementsByTagName('cachedUntil')[0].childNodes[0].nodeValue, '%Y-%m-%d %H:%M:%S')
+                doc.cached_until = now() + (cacheuntil - currenttime)
+                
+                # Add the global adjustment, to avoid CCP's hardline cache timers
+                doc.cached_until += timedelta(seconds=getattr(settings, 'EVE_PROXY_GLOBAL_CACHE_ADJUSTMENT', 30))
 
                 # Allow for tuning of individual pages with bad cache returns
                 adjustconfig = getattr(settings, 'EVE_PROXY_CACHE_ADJUSTMENTS', {})
                 if url_path.lower() in adjustconfig:
-                    doc.cached_until = date + timedelta(seconds=adjustconfig[url_path.lower()])
+                    doc.cached_until += timedelta(seconds=adjustconfig[url_path.lower()])
 
                 enode = dom.getElementsByTagName('error')
                 if enode:

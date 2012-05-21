@@ -1,7 +1,9 @@
 from django.conf import settings
 import logging
 from datetime import datetime, timedelta
-from celery.decorators import task
+
+from celery.task import task
+
 from hr.utils import blacklist_values
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
