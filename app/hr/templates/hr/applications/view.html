@@ -172,7 +172,7 @@
       <td>{% if acc.validated %}<span class="label success">Validated</span>{%else %}<span class="label warning">NOT VALIDATED</span>{% endif %}</td>
       <td>{{ acc.date_created }}</td>
       <td>{% if acc.is_valid %}<font color="green">Yes</font>{% else %}<font color="red">No</font>{% endif %}</td>
-      <td><a href="http://metareddit.com/stalk?user={{ acc.username}}">Metareddit</a></td>
+      <td><a href="http://metareddit.com/stalk?user={{ acc.username}}">Metareddit</a> / <a href="http://www.nossquad.com/EVETools/RedditUserInfo.aspx?username={{ acc.username }}">User Info</a></td>
     </tr>
     {% endfor %}
   </tbody>
