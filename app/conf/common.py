@@ -10,7 +10,7 @@ TIME_ZONE = 'UTC'
 LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 USE_I18N = True
-USE_TZ = False
+USE_TZ = True
 
 # Defines the Static Media storage as per staticfiles contrib
 STATIC_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'static')
@@ -89,6 +89,10 @@ OAUTH_AUTH_VIEW = 'api.views.oauth_auth_view'
 OAUTH_CALLBACK_VIEW = 'api.views.oauth_callback_view'
 
 ## EVE Proxy
+
+EVE_API_URL = "https://api.eveonline.com"
+EVE_CDN_URL = "https://image.eveonline.com"
+EVE_PROXY_KEEP_LOGS = 30
 
 # Manual adjustments to cache timers (lowercase path)
 EVE_PROXY_CACHE_ADJUSTMENTS = {
