@@ -52,7 +52,7 @@ def queue_apikey_updates(update_delay=86400, batch_size=50):
 
 
 @task(ignore_result=True)
-def import_apikey(api_userid, api_key, user=None, force_cache=False, **kwargs):
+def import_apikey(api_userid, api_key, user=None, force_cache=False, retry=True, **kwargs):
     """
     Imports a EVE Account from the API, doesn't return a result
     """
@@ -61,11 +61,14 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False, **kwargs):
         import_apikey_func(api_userid, api_key, user, force_cache, log)
     except (APIAccessException, DocumentRetrievalError), exc:
         log.error('Error importing API Key - flagging for retry', exc_info=sys.exc_info(), extra={'data': {'api_userid': api_userid, 'api_key': api_key}})
-        import_apikey.retry(args=[api_userid, api_key, user, force_cache], exc=exc, kwargs=kwargs)
+        if retry:
+            import_apikey.retry(args=[api_userid, api_key, user, force_cache], exc=exc, kwargs=kwargs)
+        else:
+            raise
 
 
 @task()
-def import_apikey_result(api_userid, api_key, user=None, force_cache=False, callback=None, **kwargs):
+def import_apikey_result(api_userid, api_key, user=None, force_cache=False, callback=None, retry=True, **kwargs):
     """
     Imports a EVE Account from the API and returns the account object when completed
     """
@@ -75,7 +78,10 @@ def import_apikey_result(api_userid, api_key, user=None, force_cache=False, call
         results = import_apikey_func(api_userid, api_key, user, force_cache, log)
     except (APIAccessException, DocumentRetrievalError), exc:
         log.error('Error importing API Key - flagging for retry', exc_info=sys.exc_info(), extra={'data': {'api_userid': api_userid, 'api_key': api_key}})
-        import_apikey_result.retry(args=[api_userid, api_key, user, force_cache, callback], exc=exc, kwargs=kwargs)
+        if retry:
+            import_apikey_result.retry(args=[api_userid, api_key, user, force_cache, callback], exc=exc, kwargs=kwargs)
+        else:
+            raise
     else:
         if callback:
             subtask(callback).delay(account=results)

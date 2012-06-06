@@ -24,13 +24,14 @@ from eve_api.views.mixins import DetailPaginationMixin
 
 
 class EVEAPICreateView(CreateView):
+    """Adds a EVE API key to the system"""
 
     model = EVEAccount
     form_class = EVEAPIForm
     success_url = reverse_lazy('sso-profile')
 
     def form_valid(self, form):
-        task = import_apikey_result.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['api_user_id'], user=request.user.id)
+        task = import_apikey_result.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['api_user_id'], user=request.user.id, retry=False)
         try:
             out = task.wait(10)
         except celery.exceptions.TimeoutError:
@@ -52,6 +53,7 @@ class EVEAPICreateView(CreateView):
 
 
 class EVEAPIUpdateView(UpdateView):
+    """Updates a existing API key stored in the system"""
 
     model = EVEAccount
     form_class = EVEAPIForm
@@ -61,10 +63,12 @@ class EVEAPIUpdateView(UpdateView):
         return {'user': self.request.user.pk}
 
     def form_valid(self, form):
+        msg = None
         if form.has_changed() and 'api_key' in form.changed_data:
-            task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, user=request.user.id)
+            print "import"
+            task = import_apikey_result.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['api_user_id'], user=form.cleaned_data['user'], retry=False)
             try:
-                task.wait(30)
+                acc = task.wait(30)
             except celery.exceptions.TimeoutError:
                 msg = "The addition of your API key is still processing, please check back in a minute or so."
             except DocumentRetrievalError:
@@ -72,13 +76,18 @@ class EVEAPIUpdateView(UpdateView):
             except:
                 msg = "An unknown error was encountered while trying to add your API key, please try again later."
             else:
-                msg = "EVE API key %d successfully updated." % acc.api_user_id
+                #form.save()
+                if acc:
+                    msg = "EVE API key %d successfully updated." % acc.api_user_id
+                else:
+                    messages.error(self.request, "An error was encountered while trying to update your API key, Please check your key and try again.", fail_silently=True)
         else:
             if form.has_changed():
-                form.save()
-            msg = "EVE API key %d successfully updated." % acc.api_user_id
+                acc = form.save()
+                msg = "EVE API key %d successfully updated." % acc.api_user_id
 
-        messages.success(request, msg, fail_silently=True)
+        if msg:
+            messages.success(self.request, msg, fail_silently=True)
         return HttpResponseRedirect(self.get_success_url())
 
 
