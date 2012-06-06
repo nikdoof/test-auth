@@ -2,10 +2,11 @@ import csv
 
 from django.core import serializers
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, View
+from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
@@ -110,14 +111,17 @@ def eveapi_del(request, userid, post_save_redirect='/'):
     return redirect(post_save_redirect)
 
 
-@login_required
-def eveapi_refresh(request, userid, post_save_redirect='/'):
-    """ Force refresh a EVE API key """
-
-    acc = get_object_or_404(EVEAccount, pk=userid)
-    if acc.user == request.user or request.user.is_superuser:
-        task = import_apikey_result.delay(api_key=acc.api_key, api_userid=acc.api_user_id, force_cache=True, user=request.user.id)
-        if request.is_ajax():
+class EVEAPIRefresh(SingleObjectMixin, View):
+    """Force a refresh of a EVE API key, accepts requests via AJAX or normal requests"""
+    
+    model = EVEAccount
+    
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.user != self.request.user and not request.user.is_superuser:
+            return HttpResponseForbidden()
+        task = import_apikey_result.delay(api_key=self.object.api_key, api_userid=self.object.api_user_id, force_cache=True, user=self.object.user.id)
+        if self.request.is_ajax():
             try:
                 acc = task.wait(30)
             except (celery.exceptions.TimeoutError, DocumentRetrievalError):
@@ -125,14 +129,14 @@ def eveapi_refresh(request, userid, post_save_redirect='/'):
             ret = []
             if acc:
                 ret = [acc]
-            return HttpResponse(serializers.serialize('json', ret), mimetype='application/javascript')
+            return HttpResponse(serializers.serialize('json', ret), mimetype='application/javascript') 
         else:
             messages.add_message(request, messages.INFO, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
-
-    return redirect(post_save_redirect)
-
+        return HttpResponseRedirect('/')            
+    
 
 class EVEAPILogView(ListView):
+    """Shows EVE API access log for a particular API key"""
 
     model = ApiAccessLog
     template_name = 'eve_api/log.html'
@@ -140,7 +144,7 @@ class EVEAPILogView(ListView):
     def dispatch(self, request, *args, **kwargs):
         self.userid = kwargs.pop('userid')
         if not (get_object_or_404(EVEAccount, pk=self.userid).user == request.user or request.user.is_superuser):
-            raise Http404
+            return HttpResponseForbidden()
         return super(EVEAPILogView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

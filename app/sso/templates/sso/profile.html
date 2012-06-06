@@ -98,7 +98,7 @@
         <td><a href="#" class="accesspopup" id="{{ acc.api_user_id}}" data-original-title="Access for Key {{ acc.api_user_id }}" rel="popover">{{ acc.get_api_keytype_display }}</a>{% if acc.api_keytype == 4 %}&nbsp;<b><sup style="color: red;">*</sup></b>{% endif %}</td>
         <td id="api-status-{{ acc.api_user_id }}">{{ acc.get_api_status_display }}</td>
         <td id="api-time-{{ acc.api_user_id }}">{{ acc.api_last_updated|naturaltimediff }}</td>
-        <td>{% ifswitch api-disableprocessing %}{% else %}<a href="{% url eve_api.views.eveapi_refresh acc.api_user_id %}"  onclick="javascript:refresh_apikey({{ acc.api_user_id }}); return false;">Refresh</a>,&nbsp;
+        <td>{% ifswitch api-disableprocessing %}{% else %}<a href="{% url eveapi-refresh acc.api_user_id %}"  onclick="javascript:refresh_apikey({{ acc.api_user_id }}); return false;">Refresh</a>,&nbsp;
           <a href="{% url eve_api.views.eveapi_update acc.api_user_id %}">Update Key</a>,&nbsp;{% endifswitch %}
           <a href="{% url eveapi-log acc.api_user_id %}">Logs</a>{% ifswitch eve-keydelete %},&nbsp;
           <a href="{% url eve_api.views.eveapi_del acc.api_user_id %}">Delete</a>{% endifswitch %}</td>
