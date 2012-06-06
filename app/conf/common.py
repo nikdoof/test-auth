@@ -147,7 +147,7 @@ GARGOYLE_SWITCH_DEFAULTS = {
       'is_active': False,
       'label': 'Disable API Backend Processing',
       'description': 'Disables backend processing for the EVE API, stops Auth hammering the API during outages',
-    }
+    },
     'eve-softkeydelete': {
       'is_active': False,
       'label': 'Soft API Key Deletions',

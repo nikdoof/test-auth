@@ -45,7 +45,7 @@ def eveapi_add(request, post_save_redirect='/', template='eve_api/add.html'):
                 else:
                     msg = "An issue was encountered while trying to import key %s, Please check that you are using the correct information and try again." % form.cleaned_data['api_user_id']
             messages.success(request, msg, fail_silently=True)
-            return redirect(post_save_redirect)
+            return HttpResponseRedirect(post_save_redirect)
     else:
         form = EveAPIForm(initial={'user': request.user.id }) # An unbound form
 
@@ -109,7 +109,7 @@ class EVEAPIDeleteView(DeleteView):
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         keyid = self.object.pk
-        if not gargoyle.is_active('eve-softkeydelete', request)
+        if not gargoyle.is_active('eve-softkeydelete', request):
             self.object.delete()
         else:
             self.object.user = None
