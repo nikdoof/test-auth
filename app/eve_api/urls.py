@@ -12,8 +12,8 @@ urlpatterns = patterns('',
     url(r'^eveapi/log/(?P<userid>\d+)/$', login_required(views.EVEAPILogView.as_view()), name="eveapi-log"),
     url(r'^eveapi/access/(?P<slug>\d+)/$', login_required(views.EVEAPIAccessView.as_view()), name="eveapi-accessview"),
 
-    url(r'^character/list/$', views.eveapi_character, name="eveapi-characters-list"),
-    url(r'^character/(?P<charid>\d+)/$', views.eveapi_character, name="eveapi-character"),
+    url(r'^character/list/$', login_required(views.EVEAPICharacterListView.as_view()), name="eveapi-characters-list"),
+    url(r'^character/(?P<pk>\d+)/$', login_required(views.EVEAPICharacterDetailView.as_view()), name="eveapi-character"),
 
     url(r'^corporation/(?P<pk>\d+)/$', login_required(views.EVEAPICorporationView.as_view()), name="eveapi-corporation"),
     url(r'^corporation/(?P<corporationid>\d+)/export/$', views.eveapi_corporation_members_csv, name="eveapi-corporation-members-csv"),

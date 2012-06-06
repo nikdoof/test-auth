@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
-from django.views.generic import DetailView, ListView, View
+from django.views.generic import TemplateView, DetailView, ListView, View
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -159,22 +159,25 @@ class EVEAPILogView(ListView):
         return self.model.objects.filter(userid=self.userid).order_by('-time_access')[:limit]
 
 
-@login_required
-def eveapi_character(request, charid=None, template='eve_api/character.html', list_template='eve_api/character_list.html'):
-    """ Provide a list of characters, or a indivdual character sheet """
+class EVEAPICharacterDetailView(DetailView):
 
-    if charid:
-        character = get_object_or_404(EVEPlayerCharacter.objects.select_related('corporation', 'corporation__aliance'), id=charid)
+    model = EVEPlayerCharacter
+    template_name = 'eve_api/character.html'
 
-        #Check if the user has permission to see the character profile
-        if not request.user.has_perm('eve_api.can_view_all_characters') and (not character.account or not request.user == character.account.user):
-            raise Http404
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.has_perm('eve_api.can_view_all_characters') and (not self.object.account or not request.user == self.object.account.user):
+            return HttpResponseForbidden()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
+    def get_context_data(self, **kwargs):
+        ctx = super(EVEAPICharacterDetailView, self).get_context_data(**kwargs)
         try:
-            current_training = character.eveplayercharacterskill_set.get(in_training__gt=0)
+            current_training = self.object.eveplayercharacterskill_set.get(in_training__gt=0)
         except:
             current_training = None
-        skills = character.eveplayercharacterskill_set.all().order_by('skill__group__name', 'skill__name')
+        skills = self.object.eveplayercharacterskill_set.all().order_by('skill__group__name', 'skill__name')
 
         skillTree = []
         currentSkillGroup = 0
@@ -182,24 +185,29 @@ def eveapi_character(request, charid=None, template='eve_api/character.html', li
             if not skill.skill.group.id == currentSkillGroup:
                 currentSkillGroup = skill.skill.group.id
                 skillTree.append([0, skill.skill.group.name, [], skill.skill.group.id])
-            
+
             skillTree[-1][0] += skill.skillpoints
             skillTree[-1][2].append(skill)
 
-        context = {
-            'character': character,
+        ctx.update({
+            'character': self.object,
             'current_training': current_training,
             'skills': skills,
             'skillTree': skillTree,
-            'employmenthistory': character.employmenthistory.all().order_by('-record_id'),
-        }
-        return render_to_response(template, context, context_instance=RequestContext(request))
+            'employmenthistory': self.object.employmenthistory.all().order_by('-record_id'),
+        })
+        return ctx
 
-    context = {
-        'accounts': EVEAccount.objects.select_related('characters__name').filter(user=request.user).exclude(api_keytype=API_KEYTYPE_CORPORATION),
-        'characters': EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).distinct().order_by('name'),
-    }
-    return render_to_response(list_template, context, context_instance=RequestContext(request))
+class EVEAPICharacterListView(TemplateView):
+
+    template_name = 'eve_api/character_list.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = {
+            'accounts': EVEAccount.objects.select_related('characters__name').filter(user=self.request.user).exclude(api_keytype=API_KEYTYPE_CORPORATION),
+            'characters': EVEPlayerCharacter.objects.filter(eveaccount__user=self.request.user).distinct().order_by('name'),
+        }
+        return ctx
 
 
 class EVEAPICorporationView(DetailPaginationMixin, DetailView):

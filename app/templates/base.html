@@ -53,7 +53,7 @@
 
                     <li><a href="{% url sso.views.profile %}">Your Profile</a></li>
                     {% if "groups"|installed %}<li><a href="{% url groups.views.group_list %}"> Your Groups</a></li>{% endif %}
-                    <li><a href="{% url eve_api.views.eveapi_character %}">Your Characters</a></li>
+                    <li><a href="{% url eveapi-characters-list %}">Your Characters</a></li>
                     {% if "api"|installed %}<li><a href="{% url oauth-list-tokens %}">3rd Party App Access</a></li>{% endif %}
                 {% if "hr"|installed %}
                     <li><a href="{% url hr-index %}">HR</a></li>
