@@ -23,6 +23,9 @@
       {% if character.current_training %}
       <li><spam class="stat">Training:</span> <span class="Value">{{ character.current_training.skill.name}} to Level {{ character.current_training.in_training }}</span></li>
       {% endif %}
+      {% if character.eveaccount_set.count %}
+      <li><span class="stat">Related API Keys:</span> <span class="Value">{{ character.eveaccount_set.count }}</li>
+      {% endif %}
     </ul>
 
     {% if character.attrib_intelligence %}
