@@ -5,8 +5,8 @@ from django.contrib.auth.decorators import login_required
 from eve_api import views
 
 urlpatterns = patterns('',
-    url(r'^eveapi/add/$', views.eveapi_add, name="eveapi-add"),
-    url(r'^eveapi/update/(?P<userid>\d+)/$', views.eveapi_update, name="eveapi-update"),
+    url(r'^eveapi/add/$', login_required(views.EVEAPICreateView.as_view()), name="eveapi-add"),
+    url(r'^eveapi/update/(?P<pk>\d+)/$', login_required(views.EVEAPIUpdateView.as_view()), name="eveapi-update"),
     url(r'^eveapi/delete/(?P<pk>\d+)/$', login_required(views.EVEAPIDeleteView.as_view()), name="eveapi-delete"),
     url(r'^eveapi/refresh/(?P<pk>\d+)/$', login_required(views.EVEAPIRefreshView.as_view()), name="eveapi-refresh"),
     url(r'^eveapi/log/(?P<userid>\d+)/$', login_required(views.EVEAPILogView.as_view()), name="eveapi-log"),

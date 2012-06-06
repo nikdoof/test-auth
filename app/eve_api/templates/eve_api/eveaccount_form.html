@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Update EVE API Key{% else %}Add EVE API Key{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{% if object %}Update EVE API Key{% else %}Add EVE API Key{% endif %}</h1>
+</div>
+
+<p>Please fill in your API key details and a optional description. You can create a API key on the <a href="https://support.eveonline.com/api/Key/CreatePredefined/59638024/0/false">API support site</a></p>
+
+<form action="{% if object %}{% url eveapi-update object.api_user_id %}{% else %}{% url eveapi-add %}{% endif %}" method="post">
+<fieldset>
+  {% include "formtools/formerror.html" %}
+  {% include "formtools/formfield.html" with field=form.api_user_id %}
+  {% include "formtools/formfield.html" with field=form.api_key class="xxlarge" %}
+  {% include "formtools/formfield.html" with field=form.description class="xxlarge" %}
+  {% include "formtools/formfield.html" with field=form.user %}
+  {% csrf_token %}
+  <input type="submit" value="{% if object %}Update API Key{% else %}Add API Key{% endif %}" class="btn primary"/>
+</fieldset>
+</form>
+
+{% endblock %}

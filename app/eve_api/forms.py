@@ -6,7 +6,7 @@ from gargoyle import gargoyle
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation
 
 
-class EveAPIForm(forms.ModelForm):
+class EVEAPIForm(forms.ModelForm):
     """ EVE API input form """
 
     class Meta:
@@ -15,12 +15,15 @@ class EveAPIForm(forms.ModelForm):
         widgets = {'user': forms.HiddenInput()}
 
     def __init__(self, *args, **kwargs):
-        super(EveAPIForm, self).__init__(*args, **kwargs)
+        super(EVEAPIForm, self).__init__(*args, **kwargs)
         instance = getattr(self, 'instance', None)
 
         if instance and instance.pk:
             # We're editing a existing instance, readonly the userid
             self.fields['api_user_id'].widget.attrs['readonly'] = True
+        else:
+            # New instance, hide description
+            del self.fields['description']
 
         if gargoyle.is_active('eve-cak'):
             self.fields['api_user_id'].label = 'Key ID'
