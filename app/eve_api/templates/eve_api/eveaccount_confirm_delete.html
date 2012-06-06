@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Delete EVE API Key {{ object.pk }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Confirm EVE API Key deletion</h1>
+</div>
+<p>You are about to remove EVE API Key {{ object.pk }} from Auth, once deleted Auth with recheck your permissions and make modifications to your account as required. <b>You may lose access to TEST services if this API key is the only one providing permissions for your account</b>.</p>
+
+<form action="{% url eveapi-delete object.pk %}" method="post">
+<input type="submit" value="Confirm Deletion" class="btn error"/>
+{% csrf_token %} 
+</fieldset>
+</form>
+{% endblock %}

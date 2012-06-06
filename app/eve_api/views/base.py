@@ -1,11 +1,11 @@
 import csv
 
 from django.core import serializers
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponse, Http404, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
-from django.views.generic import TemplateView, DetailView, ListView, View
+from django.views.generic import TemplateView, DetailView, ListView, DeleteView, View
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -95,23 +95,30 @@ def eveapi_update(request, userid, post_save_redirect='/', template='eve_api/upd
     return render_to_response(template, context, context_instance=RequestContext(request))
 
 
-@login_required
-def eveapi_del(request, userid, post_save_redirect='/'):
-    """ Delete a EVE API key from a account """
+class EVEAPIDeleteView(DeleteView):
+    """Deletes a EVE API key that exists within the system after confirmation"""
 
-    if gargoyle.is_active('eve-keydelete', request):
-        try:
-            acc = EVEAccount.objects.get(pk=userid)
-        except EVEAccount.DoesNotExist:
-            return redirect(post_save_redirect)
-        if acc.user == request.user:
-            acc.delete()
-            messages.success(request, "EVE API key successfully deleted.", fail_silently=True)
+    model = EVEAccount
+    success_url = reverse_lazy('sso-profile')
 
-    return redirect(post_save_redirect)
+    def dispatch(self, request, *args, **kwargs):
+        if not gargoyle.is_active('eve-keydelete', request):
+            return HttpResponseForbidden()
+        return super(EVEAPIDeleteView, self).dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        keyid = self.object.pk
+        if not gargoyle.is_active('eve-softkeydelete', request)
+            self.object.delete()
+        else:
+            self.object.user = None
+            self.object.save()
+        messages.success(self.request, 'EVE API key %s successfully deleted.' % keyid, fail_silently=True)
+        return HttpResponseRedirect(self.get_success_url())
 
 
-class EVEAPIRefresh(SingleObjectMixin, View):
+class EVEAPIRefreshView(SingleObjectMixin, View):
     """Force a refresh of a EVE API key, accepts requests via AJAX or normal requests"""
     
     model = EVEAccount
@@ -131,7 +138,7 @@ class EVEAPIRefresh(SingleObjectMixin, View):
                 ret = [acc]
             return HttpResponse(serializers.serialize('json', ret), mimetype='application/javascript') 
         else:
-            messages.add_message(request, messages.INFO, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
+            messages.add_message(self.request, messages.INFO, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
         return HttpResponseRedirect('/')            
     
 
