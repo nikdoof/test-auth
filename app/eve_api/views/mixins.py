@@ -45,8 +45,8 @@ class CSVResponseMixin(object):
         w.writerow(headings)
 
         # Rows
-        for row in self.data:
-            row = [unicode(c).encode(charset, 'replace') for c in row.values()]
+        for row in self.get_csv_data():
+            row = [unicode(c).encode(charset, 'replace') for c in row]
             w.writerow(row)
 
         # Done

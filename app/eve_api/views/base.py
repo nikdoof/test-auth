@@ -20,7 +20,7 @@ from eve_api.forms import EVEAPIForm
 from eve_api.models import EVEAccount, EVEPlayerCharacter, EVEPlayerCorporation, EVEPlayerAlliance
 from eve_api.tasks import import_apikey_result
 from eve_api.utils import basic_xml_parse_doc
-from eve_api.views.mixins import DetailPaginationMixin
+from eve_api.views.mixins import DetailPaginationMixin, CSVResponseMixin
 
 
 class EVEAPICreateView(CreateView):
@@ -116,9 +116,9 @@ class EVEAPIDeleteView(DeleteView):
 
 class EVEAPIRefreshView(SingleObjectMixin, View):
     """Force a refresh of a EVE API key, accepts requests via AJAX or normal requests"""
-    
+
     model = EVEAccount
-    
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object.user != self.request.user and not request.user.is_superuser:
@@ -132,11 +132,11 @@ class EVEAPIRefreshView(SingleObjectMixin, View):
             ret = []
             if acc:
                 ret = [acc]
-            return HttpResponse(serializers.serialize('json', ret), mimetype='application/javascript') 
+            return HttpResponse(serializers.serialize('json', ret), mimetype='application/javascript')
         else:
             messages.add_message(self.request, messages.INFO, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
-        return HttpResponseRedirect('/')            
-    
+        return HttpResponseRedirect('/')
+
 
 class EVEAPILogView(ListView):
     """Shows EVE API access log for a particular API key"""
@@ -232,22 +232,27 @@ class EVEAPICorporationView(DetailPaginationMixin, DetailView):
         return ctx
 
 
-@login_required
-def eveapi_corporation_members_csv(request, corporationid):
+class EVEAPICorporationMembersCSV(SingleObjectMixin, CSVResponseMixin, View):
 
-    corporation = get_object_or_404(EVEPlayerCorporation, id=corporationid)
-    if not corporation.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="roleDirector").count() and not request.user.is_superuser:
-        return HttpResponseForbidden()
+    model = EVEPlayerCorporation
 
-    response = HttpResponse(mimetype='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=%s-members_export.csv' % corporation.id
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not self.object.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="roleDirector").count() and not request.user.is_superuser:
+            return HttpResponseForbidden()
+        return super(EVEAPICorporationMembersCSV, self).get(request, *args, **kwargs)
 
-    writer = csv.writer(response)
-    writer.writerow(['Name', 'Skillpoints', 'Join Date', 'Last Login', 'Director?', 'Roles?', 'API Key?'])
-    for char in corporation.eveplayercharacter_set.all():
-        writer.writerow([char.name, char.total_sp, char.corporation_date, char.last_login, char.director, char.roles.count(), char.eveaccount_set.all().count()])
+    def get_csv_headers(self):
+        return ['Name', 'Skillpoints', 'Join Date', 'Last Login', 'Director?', 'Roles?', 'API Key?']
 
-    return response
+    def get_csv_data(self):
+        data = []
+        for char in self.object.eveplayercharacter_set.all():
+            data.append([char.name, char.total_sp, char.corporation_date, char.last_login, char.director, char.roles.count(), char.eveaccount_set.all().count()])
+        return data
+
+    def get_filename(self):
+        return "%s-members_export.csv" % self.object.pk
 
 
 class EVEAPIAllianceView(DetailPaginationMixin, DetailView):
@@ -273,7 +278,6 @@ class EVEAPIAccessView(DetailView):
 
     model = EVEAccount
     template_name = 'eve_api/accessview.html'
-    slug_field = 'api_user_id'
 
     @staticmethod
     def lowestSet(int_type):
