@@ -143,7 +143,7 @@ class EVEAPILogView(LoginRequiredMixin, ListView):
     """Shows EVE API access log for a particular API key"""
 
     model = ApiAccessLog
-    template_name = 'eve_api/log.html'
+    template_name = 'eve_api/apiaccesslog_list.html'
 
     def dispatch(self, request, *args, **kwargs):
         self.userid = kwargs.pop('userid')
@@ -166,7 +166,6 @@ class EVEAPILogView(LoginRequiredMixin, ListView):
 class EVEAPICharacterDetailView(LoginRequiredMixin, DetailView):
 
     model = EVEPlayerCharacter
-    template_name = 'eve_api/character.html'
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -205,7 +204,7 @@ class EVEAPICharacterDetailView(LoginRequiredMixin, DetailView):
 
 class EVEAPICharacterListView(LoginRequiredMixin, TemplateView):
 
-    template_name = 'eve_api/character_list.html'
+    template_name = 'eve_api/eveplayercharacter_list.html'
 
     def get_context_data(self, **kwargs):
         ctx = {
@@ -218,7 +217,6 @@ class EVEAPICharacterListView(LoginRequiredMixin, TemplateView):
 class EVEAPICorporationView(LoginRequiredMixin, DetailPaginationMixin, DetailView):
 
     model = EVEPlayerCorporation
-    template_name = 'eve_api/corporation.html'
     detail_queryset_name = 'members'
 
     def get_pagination_queryset(self):
@@ -259,7 +257,6 @@ class EVEAPICorporationMembersCSV(LoginRequiredMixin, SingleObjectMixin, CSVResp
 class EVEAPIAllianceView(LoginRequiredMixin, DetailPaginationMixin, DetailView):
 
     model = EVEPlayerAlliance
-    template_name= 'eve_api/alliance.html'
     detail_queryset_name = 'corporations'
 
     def get_pagination_queryset(self):
@@ -278,7 +275,7 @@ class EVEAPIAllianceView(LoginRequiredMixin, DetailPaginationMixin, DetailView):
 class EVEAPIAccessView(LoginRequiredMixin, DetailView):
 
     model = EVEAccount
-    template_name = 'eve_api/accessview.html'
+    template_name = 'eve_api/eveaccount_permissions_detail.html'
 
     @staticmethod
     def lowestSet(int_type):
