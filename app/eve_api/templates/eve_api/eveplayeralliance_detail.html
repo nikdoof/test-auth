@@ -11,8 +11,8 @@
 <p>
 <ul>
   <li><b>Member Count:</b> {{ alliance.member_count }}</li>
-  <li><b>Executor Corporation:</b> <a href="{% url eveapi-corporation alliance.executor.id %}">{{ alliance.executor }}</a></li>
-  <li><b>Alliance Leader:</b> {{ executor }}</li>
+  <li><b>Executor Corporation:</b> <a href="{% url eveapi-corporation alliance.executor.pk %}">{{ alliance.executor }}</a></li>
+  <li><b>Alliance Leader:</b> <a href="{% url eveapi-character executor.pk %}">{{ executor }}</a></li>
 </ul>
 </p>
 

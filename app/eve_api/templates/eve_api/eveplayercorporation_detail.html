@@ -11,6 +11,9 @@
 
 <p>
 <ul>
+  {% if corporation.alliance %}
+  <li><b>Alliance:</b> <a href="{% url eveapi-alliance corporation.alliance.pk %}">{{ corporation.alliance.name }}</a>
+  {% endif %}
   <li><b>Member Count:</b> {{ corporation.member_count }}</li>
   <li><b>Known Members:</b> {{ corporation.eveplayercharacter_set.count }}</li>
   {% if view_members %}
