@@ -5,6 +5,7 @@ class AuthAPIKeyAdmin(admin.ModelAdmin):
     list_display = ('key', 'name', 'url', 'active')
     search_fields = ['name']
     list_filter = ('active',)
+    filter_horizontal = ('permissions',)
 
 
 class AuthAPILogAdmin(admin.ModelAdmin):

@@ -21,15 +21,15 @@ announce_resource = Resource(handler=AnnounceHandler, **apikeyauth)
 edkapi_resource = Resource(handler=EDKApiHandler, **apikeyauth)
 
 urlpatterns = patterns('',
-    url(r'^1.0/user/$', user_resource),
-    url(r'^1.0/login/$', login_resource),
-    url(r'^1.0/eveapi/$', eveapi_resource),
-    url(r'^1.0/eveapi/', eveapiproxy_resource, name='api-eveapiproxy'),
-    url(r'^1.0/character/$', characters_resource),
-    url(r'^1.0/optimer/$', optimer_resource),
-    url(r'^1.0/blacklist/$', blacklist_resource),
-    url(r'^1.0/announce/$', announce_resource),
-    url(r'^1.0/edkapi/$', edkapi_resource),
+    url(r'^1.0/user/$', user_resource, name='v1-api-user'),
+    url(r'^1.0/login/$', login_resource, name='v1-api-login'),
+    url(r'^1.0/eveapi/$', eveapi_resource, name='v1-api-eveapi'),
+    url(r'^1.0/eveapi/', eveapiproxy_resource, name='v1-api-eveapiproxy'),
+    url(r'^1.0/character/$', characters_resource, name='v1-api-character'),
+    url(r'^1.0/optimer/$', optimer_resource, name='v1-api-optimer'),
+    url(r'^1.0/blacklist/$', blacklist_resource, name='v1-api-blacklist'),
+    url(r'^1.0/announce/$', announce_resource, name='v1-api-announce'),
+    url(r'^1.0/edkapi/$', edkapi_resource, name='v1-api-edkapi'),
 )
 
 # v2 APIs

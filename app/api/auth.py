@@ -4,6 +4,7 @@ from datetime import datetime
 from django.http import HttpResponseForbidden
 from django.contrib.auth.models import AnonymousUser
 from django.utils.timezone import now
+from django.core.urlresolvers import resolve
 
 from api.models import AuthAPIKey, AuthAPILog
 
@@ -15,7 +16,7 @@ class APIKeyAuthentication(object):
         try:
             keyobj = AuthAPIKey.objects.get(key=request.GET.get('apikey', None))
         except AuthAPIKey.DoesNotExist:
-            pass
+            return False
         else:
             if keyobj and keyobj.active:
                 params = request.GET.copy()
@@ -24,6 +25,8 @@ class APIKeyAuthentication(object):
                     url = "%s?%s" % (request.path, urlencode(params))
                 else:
                     url = request.path
+                if not keyobj.permissions.filter(key=resolve(request.path).url_name).count():
+                    return False
                 AuthAPILog.objects.create(key=keyobj, access_datetime=now(), url=url)
                 request.user = AnonymousUser()
                 request.api_key = keyobj
@@ -31,4 +34,4 @@ class APIKeyAuthentication(object):
         return False
 
     def challenge(self):
-        return HttpResponseForbidden('Access Denied, use a API Key')
+        return HttpResponseForbidden('Access Denied, use a valid API Key for this request.')
