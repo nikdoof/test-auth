@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 
 import celery
 from gargoyle import gargoyle
+from braces.views import LoginRequiredMixin
 
 from eve_proxy.models import ApiAccessLog, CachedDocument
 from eve_proxy.exceptions import DocumentRetrievalError
@@ -23,7 +24,7 @@ from eve_api.utils import basic_xml_parse_doc
 from eve_api.views.mixins import DetailPaginationMixin, CSVResponseMixin
 
 
-class EVEAPICreateView(CreateView):
+class EVEAPICreateView(LoginRequiredMixin, CreateView):
     """Adds a EVE API key to the system"""
 
     model = EVEAccount
@@ -52,7 +53,7 @@ class EVEAPICreateView(CreateView):
         return {'user': self.request.user.pk}
 
 
-class EVEAPIUpdateView(UpdateView):
+class EVEAPIUpdateView(LoginRequiredMixin, UpdateView):
     """Updates a existing API key stored in the system"""
 
     model = EVEAccount
@@ -91,7 +92,7 @@ class EVEAPIUpdateView(UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class EVEAPIDeleteView(DeleteView):
+class EVEAPIDeleteView(LoginRequiredMixin, DeleteView):
     """Deletes a EVE API key that exists within the system after confirmation"""
 
     model = EVEAccount
@@ -114,7 +115,7 @@ class EVEAPIDeleteView(DeleteView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class EVEAPIRefreshView(SingleObjectMixin, View):
+class EVEAPIRefreshView(LoginRequiredMixin, SingleObjectMixin, View):
     """Force a refresh of a EVE API key, accepts requests via AJAX or normal requests"""
 
     model = EVEAccount
@@ -138,7 +139,7 @@ class EVEAPIRefreshView(SingleObjectMixin, View):
         return HttpResponseRedirect('/')
 
 
-class EVEAPILogView(ListView):
+class EVEAPILogView(LoginRequiredMixin, ListView):
     """Shows EVE API access log for a particular API key"""
 
     model = ApiAccessLog
@@ -162,7 +163,7 @@ class EVEAPILogView(ListView):
         return self.model.objects.filter(userid=self.userid).order_by('-time_access')[:limit]
 
 
-class EVEAPICharacterDetailView(DetailView):
+class EVEAPICharacterDetailView(LoginRequiredMixin, DetailView):
 
     model = EVEPlayerCharacter
     template_name = 'eve_api/character.html'
@@ -202,7 +203,7 @@ class EVEAPICharacterDetailView(DetailView):
         return ctx
 
 
-class EVEAPICharacterListView(TemplateView):
+class EVEAPICharacterListView(LoginRequiredMixin, TemplateView):
 
     template_name = 'eve_api/character_list.html'
 
@@ -214,7 +215,7 @@ class EVEAPICharacterListView(TemplateView):
         return ctx
 
 
-class EVEAPICorporationView(DetailPaginationMixin, DetailView):
+class EVEAPICorporationView(LoginRequiredMixin, DetailPaginationMixin, DetailView):
 
     model = EVEPlayerCorporation
     template_name = 'eve_api/corporation.html'
@@ -232,7 +233,7 @@ class EVEAPICorporationView(DetailPaginationMixin, DetailView):
         return ctx
 
 
-class EVEAPICorporationMembersCSV(SingleObjectMixin, CSVResponseMixin, View):
+class EVEAPICorporationMembersCSV(LoginRequiredMixin, SingleObjectMixin, CSVResponseMixin, View):
 
     model = EVEPlayerCorporation
 
@@ -255,7 +256,7 @@ class EVEAPICorporationMembersCSV(SingleObjectMixin, CSVResponseMixin, View):
         return "%s-members_export.csv" % self.object.pk
 
 
-class EVEAPIAllianceView(DetailPaginationMixin, DetailView):
+class EVEAPIAllianceView(LoginRequiredMixin, DetailPaginationMixin, DetailView):
 
     model = EVEPlayerAlliance
     template_name= 'eve_api/alliance.html'
@@ -274,7 +275,7 @@ class EVEAPIAllianceView(DetailPaginationMixin, DetailView):
         return ctx
 
 
-class EVEAPIAccessView(DetailView):
+class EVEAPIAccessView(LoginRequiredMixin, DetailView):
 
     model = EVEAccount
     template_name = 'eve_api/accessview.html'

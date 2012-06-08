@@ -12,6 +12,7 @@ django-jsonfield==0.8.7
 South==0.7.4
 django-redis-cache
 IPy==0.75
+-e git+https://github.com/nikdoof/django-braces.git@b573a69c06907cff74d3623f61a551ceb264cf08#egg=django-braces
 
 nexus
 gargoyle==0.9.0
