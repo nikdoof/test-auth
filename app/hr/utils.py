@@ -117,7 +117,7 @@ def send_message(application, message_type, note=None):
     except:
         pass
 
-    if installed('reddit') and len(application.user.redditaccount_set.all()) > 0:
+    if installed('reddit') and application.user.redditaccount_set.count():
             from reddit.tasks import send_reddit_message
 
             for account in application.user.redditaccount_set.all():
