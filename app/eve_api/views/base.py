@@ -36,17 +36,16 @@ class EVEAPICreateView(LoginRequiredMixin, CreateView):
         try:
             out = task.wait(10)
         except celery.exceptions.TimeoutError:
-            msg = "The addition of your API key is still processing, please check back in a minute or so."
+            messages.info(self.request, "The addition of your API key is still processing, please check back in a minute or so.")
         except DocumentRetrievalError:
-            msg = "An issue with the EVE API was encountered while adding your API, please try again later."
+            messages.error(self.request, "An issue with the EVE API was encountered while adding your API, please try again later.")
         except:
-            msg = "An unknown error was encountered while trying to add your API key, please try again later."
+            messages.error(self.request, "An unknown error was encountered while trying to add your API key, please try again later.")
         else:
             if out:
-                msg = "Key %d successfully added." % form.cleaned_data['api_user_id']
+                messages.success(self.request, "Key %d successfully added." % form.cleaned_data['api_user_id'])
             else:
-                msg = "An issue was encountered while trying to import key %s, Please check that you are using the correct information and try again." % form.cleaned_data['api_user_id']
-        messages.success(request, msg, fail_silently=True)
+                messages.error(self.request, "An issue was encountered while trying to import key %s, Please check that you are using the correct information and try again." % form.cleaned_data['api_user_id'])
         return HttpResponseRedirect(self.get_success_url())
 
     def get_initial(self):
@@ -71,24 +70,20 @@ class EVEAPIUpdateView(LoginRequiredMixin, UpdateView):
             try:
                 acc = task.wait(30)
             except celery.exceptions.TimeoutError:
-                msg = "The addition of your API key is still processing, please check back in a minute or so."
+                messages.info(self.request, "The addition of your API key is still processing, please check back in a minute or so.")
             except DocumentRetrievalError:
-                msg = "An issue with the EVE API was encountered while adding your API, please try again later."
+                messages.error(self.request, "An issue with the EVE API was encountered while adding your API, please try again later.")
             except:
-                msg = "An unknown error was encountered while trying to add your API key, please try again later."
+                messages.error(self.request, "An unknown error was encountered while trying to add your API key, please try again later.")
             else:
-                #form.save()
                 if acc:
-                    msg = "EVE API key %d successfully updated." % acc.api_user_id
+                    messages.success(self.request, "EVE API key %d successfully updated." % acc.api_user_id)
                 else:
                     messages.error(self.request, "An error was encountered while trying to update your API key, Please check your key and try again.", fail_silently=True)
         else:
             if form.has_changed():
                 acc = form.save()
-                msg = "EVE API key %d successfully updated." % acc.api_user_id
-
-        if msg:
-            messages.success(self.request, msg, fail_silently=True)
+                messages.success(self.request, "EVE API key %d successfully updated." % acc.api_user_id)
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -135,7 +130,7 @@ class EVEAPIRefreshView(LoginRequiredMixin, SingleObjectMixin, View):
                 ret = [acc]
             return HttpResponse(serializers.serialize('json', ret), mimetype='application/javascript')
         else:
-            messages.add_message(self.request, messages.INFO, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
+            messages.info(self.request, "Key %s has been queued to be refreshed from the API" % acc.api_user_id)
         return HttpResponseRedirect('/')
 
 
