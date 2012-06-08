@@ -14,9 +14,9 @@
 </div>
 
 <ul>
-<li>Applying Auth User: <a href="{% url sso.views.user_view app.user %}">{{ app.user }}</a></li>
-<li>Applying Character: <a href="{% url eve_api.views.eveapi_character app.character.id %}">{{ app.character }}</a></li>
-<li>Applying To: <a href="{% url eveapi-corporation app.corporation.id %}">{{ app.corporation }}</a></li>
+<li>Applying Auth User: <a href="{% url sso.views.user_view app.user %}">{{ app.user.username }}</a></li>
+<li>Applying Character: <a href="{% url eveapi-character app.character.pk %}">{{ app.character.name }}</a></li>
+<li>Applying To: <a href="{% url eveapi-corporation app.corporation.pk %}">{{ app.corporation.name }}</a></li>
 <li>Application Status: {{ app.get_status_display }}</li>
 {% if hrstaff %}
 <li>Blacklist Status: <b>{% if app.blacklisted %}<span class="label important">>BLACKLISTED</span>{% else %}<span class="label success">OK</span>{% endif %}</b></li>
@@ -67,7 +67,7 @@
   </thead>
   <tbody>
     {% for a in audit %}
-    <tr><td>{{ a.get_event_display }}</td><td>{{ a.user }}</td><td>{{ a.date|date:"Y/m/d H:i:s" }}</td><td>{{ a.text|linebreaks }}</td></tr>
+    <tr><td>{{ a.get_event_display }}</td><td><a href="{% url sso-viewuser a.user.username %}">{{ a.user.profile.all.0.primary_character }}</a></td><td>{{ a.date|date:"Y/m/d H:i:s" }}</td><td>{{ a.text|linebreaks }}</td></tr>
     {% endfor %}
   </tbody>
 </table>
@@ -100,7 +100,7 @@
   <tbody>
     {% for rec in app.recommendation_set.all %}
     <tr><td><a href="{% url sso.views.user_view rec.user %}">{{ rec.user }}</a></td>
-      <td><a href="{% url eve_api.views.eveapi_character rec.user_character.id %}">{{ rec.user_character }}</a></td>
+      <td><a href="{% url eveapi-character rec.user_character.pk %}">{{ rec.user_character }}</a></td>
       <td><a href="http://evemaps.dotlan.net/corp/{{ rec.user_character.corporation.name }}">{{ rec.user_character.corporation }}</a></td>
       <td>{% if rec.is_valid %}<font color="green">Yes</font>{% else %}<font color="red">No</font>{% endif %}</td>
       <td>{{ rec.user.recommendation_set.all.count }}</td>
@@ -141,7 +141,7 @@
   <tbody>
     {% for acc in app.user.eveaccount_set.all %}
     {% for char in acc.characters.all %}
-    <tr{% if char.id == app.character.id %} style="background-color: #FFE8D0"{% endif%}><td><a href="{% url eve_api.views.eveapi_character char.id %}">{{ char.name }}</a></td>
+    <tr{% if char.id == app.character.id %} style="background-color: #FFE8D0"{% endif%}><td><a href="{% url eveapi-character char.pk %}">{{ char.name }}</a></td>
       <td><a href="http://evemaps.dotlan.net/corp/{{ char.corporation }}">{{ char.corporation }}</a>{% if char.corporation.alliance %} / 
         <a href="http://evemaps.dotlan.net/alliance/{{ char.corporation.alliance }}">{{ char.corporation.alliance }}</a>{% endif %}
       </td>

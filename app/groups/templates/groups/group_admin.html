@@ -40,7 +40,7 @@
     <tr><td><a href="{% url sso.views.user_view req.user.username %}">{{ req.user }}</a></td>
       <td>{{ req.character }}</td>
       <td>{{ req.reason }}</td>
-      <td>{{ req.get_status_description }}</td>
+      <td>{{ req.get_status_display }}</td>
       <td>{{ req.created_date }}</td>
       <td><a href="{% url groups.views.accept_request req.id %}">Accept</a>&nbsp;
           <a href="{% url groups.views.reject_request req.id %}">Reject</a></td>

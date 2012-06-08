@@ -13,6 +13,7 @@
 
 <p>
 <li><b>Username:</b> {{ user.username }}</li>
+<li><b>Primary Character:</b> <a href="{% url eveapi-character user.profile.all.0.primary_character.pk %}">{{ user.profile.all.0.primary_character }}</a></li>
 <li><b>Active:</b> {{ user.is_active }}</li>
 <li><b>Email:</b> {{ user.email }}</li>
 <li><b>Groups:</b> {{ user.groups.all|join:", " }}</li>
@@ -45,7 +46,7 @@
   </thead>
   <tbody>
     {% for note in user.notes.all %}
-    <tr><td>{{ note.note|linebreaks }}</td><td>{{ note.date_created|date:"Y/m/d H:i:s" }}</td><td><a href="{% url sso-viewuser note.created_by %}">{{ note.created_by }}</a></td></tr>
+    <tr><td>{{ note.note|linebreaks }}</td><td>{{ note.date_created|date:"Y/m/d H:i:s" }}</td><td><a href="{% url sso-viewuser note.created_by %}">{{ note.created_by.profile.all.0.primary_character }}</a></td></tr>
     {% endfor %}
   </tbody>
 </table>
@@ -95,7 +96,7 @@
     <tbody>
       {% for rec in user.recommendation_set.all %}
       <tr><td><a href="{% url hr-viewapplication rec.application.id %}">{{ rec.application.character.name }}</a></td>
-        <td>{{ rec.user_character }}</td>
+        <td><a href="{% url eveapi-character rec.user_character.pk %}">{{ rec.user_character }}</a></td>
         <td>{{ rec.recommendation_date }}</td></tr>
       {% endfor %}
     </tbody>
@@ -138,9 +139,9 @@
     {% if acc.characters.count %}
     <tr><th colspan="6">Account {{ acc.api_user_id }}</th></tr>
     {% for char in acc.characters.all %}
-    <tr><td><a href="{% url eve_api.views.eveapi_character char.id %}">{{ char.name }}</a></td>
-      <td><a href="{% url eveapi-corporation char.corporation.id %}">{{ char.corporation }}</a></td>
-      <td>{% if char.corporation.alliance %}<a href="{% url eveapi-alliance char.corporation.alliance.id %}">{{ char.corporation.alliance }}</a>{% endif %}</td>
+    <tr><td><a href="{% url eveapi-character char.pk %}">{{ char.name }}</a></td>
+      <td><a href="{% url eveapi-corporation char.corporation.pk %}">{{ char.corporation }}</a></td>
+      <td>{% if char.corporation.alliance %}<a href="{% url eveapi-alliance char.corporation.alliance.pk %}">{{ char.corporation.alliance }}</a>{% endif %}</td>
       <td style="text-align: right;">{{ char.balance|intcomma }} ISK</td>
       <td style="text-align: right;">{{ char.total_sp|intcomma }} SP</td>
       <td>{% if char.current_training %}{{ char.current_training.skill.name }} to Level {{ char.current_training.in_training }}{% endif %}</td>
