@@ -307,8 +307,11 @@ class EDKApiHandler(BaseHandler):
     def read(self, request):
 
         alliance = request.GET.get('alliance', None)
-        if not alliance:
-            return {'auth': 'missing', 'missing': 'alliance'}
-
-        objs = EVEAccount.objects.filter(characters__corporation__alliance=alliance, api_keytype=API_KEYTYPE_CORPORATION, api_status=API_STATUS_OK).extra(where=['(api_accessmask & 256) > 0'])
+        corporation = request.GET.get('corporation', None)
+        if not alliance and not corporation:
+            return {'auth': 'missing', 'missing': ['alliance', 'corp']}
+        if alliance:
+            objs = EVEAccount.objects.filter(characters__corporation__alliance=alliance, api_keytype=API_KEYTYPE_CORPORATION, api_status=API_STATUS_OK).extra(where=['(api_accessmask & 256) > 0'])
+        elif corporation:
+            objs = EVEAccount.objects.filter(characters__corporation=corporation, api_keytype=API_KEYTYPE_CORPORATION, api_status=API_STATUS_OK).extra(where=['(api_accessmask & 256) > 0'])
         return objs.values('api_user_id', 'api_key', 'characters__id', 'characters__name', 'characters__corporation__name')
