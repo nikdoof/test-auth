@@ -32,7 +32,7 @@
     <td>{{ app.corporation }}</td>
     <td>{{ app.get_status_display }}</td>
     <td>{{ app.last_action.date }}</td>
-    <td>{{ app.last_action.user }}</td>
+    <td>{{ app.last_action.user.profile.all.0.primary_character }}</td>
 </tr>
 {% endfor %}
 </table>
