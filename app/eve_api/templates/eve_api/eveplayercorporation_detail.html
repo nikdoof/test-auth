@@ -38,7 +38,7 @@
   </thead>
   <tbody>
     {% for char in members %}
-    <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td><td>{% if char.total_sp %}{{ char.total_sp|intcomma }} SP{% endif %}</td><td>{{ char.corporation_date }}</td><td>{% if char.director %}Yes{% endif %}</td><td>{% if char.eveaccount_set.count %}{% if char.roles.count %}Yes{% else %}No{% endif %}{% endif %}<td>{% if char.eveaccount_set.count %}Yes{% else %}<span style="color: red;">No</span>{% endif %}</td><td>{% if char.active_key %}Yes{% else %}<span style="color: red;">No</span>{% endif %}</td></tr>
+    <tr><td><a href="{% url eveapi-character char.id %}">{{ char.name }}</a></td><td>{% if char.total_sp %}{{ char.total_sp|intcomma }} SP{% endif %}</td><td>{{ char.corporation_date }}</td><td>{% if char.director %}Yes{% endif %}</td><td>{% if char.eveaccount_set.count %}{% if char.roles.count %}Yes{% else %}No{% endif %}{% endif %}</td><td>{% if char.eveaccount_set.count %}Yes{% else %}<span style="color: red;">No</span>{% endif %}</td><td>{% if char.active_key %}Yes{% else %}<span style="color: red;">No</span>{% endif %}</td></tr>
     {% endfor %}
   </tbody>
 </table>
