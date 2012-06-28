@@ -242,7 +242,7 @@ class EVEAPICorporationMembersCSV(LoginRequiredMixin, SingleObjectMixin, CSVResp
     def get_csv_data(self):
         data = []
         for char in self.object.eveplayercharacter_set.all():
-            data.append([char.name, char.total_sp, char.corporation_date, char.last_login, char.director, char.roles.count(), char.eveaccount_set.all().count()])
+            data.append([char.name, char.total_sp, char.corporation_date, char.last_login, char.director, char.roles.count(), char.active_key])
         return data
 
     def get_filename(self):
