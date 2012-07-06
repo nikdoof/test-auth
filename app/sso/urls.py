@@ -28,6 +28,3 @@ urlpatterns = patterns('',
     url(r'^address/$', views.UserIPAddressView.as_view(), name='sso-ipaddress'),
 )
 
-urlpatterns += patterns('django.views.generic.simple',
-    ('^$', 'redirect_to', {'url': reverse_lazy('sso.views.profile')}),
-)
