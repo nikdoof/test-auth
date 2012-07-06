@@ -51,7 +51,7 @@
                 <ul class="nav">
             {% if request.user.is_authenticated %}
 
-                    <li><a href="{% url sso.views.profile %}">Your Profile</a></li>
+                    <li><a href="{% url sso-profile %}">Your Profile</a></li>
                     {% if "groups"|installed %}<li><a href="{% url groups.views.group_list %}"> Your Groups</a></li>{% endif %}
                     <li><a href="{% url eveapi-characters-list %}">Your Characters</a></li>
                     {% if "api"|installed %}<li><a href="{% url oauth-list-tokens %}">3rd Party App Access</a></li>{% endif %}
