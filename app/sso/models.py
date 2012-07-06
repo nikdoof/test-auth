@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.utils import simplejson as json
 
-from jsonfield.fields import JSONField
+from jsonfield import JSONField
 from IPy import IP
 import dns.resolver
 
