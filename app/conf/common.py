@@ -62,7 +62,6 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.humanize',
     'django.contrib.staticfiles',
-    'raven.contrib.django',
     'gargoyle',
     'south',
     'piston',
@@ -160,7 +159,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'root': {
         'level': 'WARNING',
-        'handlers': ['sentry', 'console'],
+        'handlers': ['console'],
     },
     'filters': {
         'require_debug_false': {
@@ -173,11 +172,6 @@ LOGGING = {
         },
     },
     'handlers': {
-        'sentry': {
-            'level': 'DEBUG',
-            'class': 'raven.contrib.django.handlers.SentryHandler',
-            'filters': ['require_debug_false'],
-        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
