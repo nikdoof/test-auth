@@ -33,14 +33,14 @@
 <div class="active" id="overview">
   <p>
     <b>Username:</b> {{ user.username }}<br/>
-    <b>Email:</b> {{ user.email }} (<a href="{% url sso.views.email_change %}">change</a>)<br/>
-    <b>Primary Character:</b> {{ user.get_profile.primary_character }} (<a href="{% url sso.views.primarychar_change %}">change</a>)<br/>
+    <b>Email:</b> {{ user.email }} (<a href="{% url sso-emailupdate %}">change</a>)<br/>
+    <b>Primary Character:</b> {{ user.get_profile.primary_character }} (<a href="{% url sso-primarycharacterupdate %}">change</a>)<br/>
     <b>Groups:</b> {{ user.groups.all|join:", " }}<br/>
   </p>
   <h2>Passwords</h2>
   <p>
     <a href="{% url django.contrib.auth.views.password_change %}" class="btn">Change Auth Login Password</a>
-    <a href="{% url sso.views.set_apipasswd %}" class="btn">Change Services Password</a><br/><br/>
+    <a href="{% url sso-apipassword %}" class="btn">Change Services Password</a><br/><br/>
     <span class="label info">Note</span> Changing your services password will change it for all linked sites (forums, wiki, reimbursement tool)
   </p>
 
@@ -71,7 +71,7 @@
   </table>
   {% endif %}
   <p>
-  <a href="{% url sso.views.service_add %}" class="btn">Add Service</a>
+  <a href="{% if available_services > 0 %}{% url sso.views.service_add %}{% else %}#{% endif %}" class="btn{% if available_services == 0 %} disabled{% endif %}">Add Service</a>
   </p>
 {% endif %}
 </div>
@@ -144,9 +144,8 @@
   {% endif %}
   <p>
     <a href="{% url reddit-addaccount %}" class="btn">Add a Reddit account</a>
+	<a href="{% url sso-reddittagging %}" class="btn">{% if user.get_profile.tag_reddit_accounts %}Disable{% else %}Enable{% endif %} Reddit Flare</a>
   </p>
-
-  <p>Reddit account tagging is {% if user.get_profile.tag_reddit_accounts %}Enabled{% else %}Disabled{% endif %}. <a href="{% url sso.views.toggle_reddit_tagging %}">{% if user.get_profile.tag_reddit_accounts %}Disable{% else %}Enable{% endif %}</a></p>
 </div>
 {% endifswitch %}
 {% endif %}

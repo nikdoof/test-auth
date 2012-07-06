@@ -7,7 +7,7 @@
   <h1>Change Email Address</h1>
 </div>
 
-<form action="" method="post">
+<form action="{% url sso-emailupdate %}" method="post">
 <fieldset>
   {% include "formtools/formerror.html" %}
   {% include "formtools/formfield.html" with field=form.email1 %}

@@ -2,47 +2,53 @@ import hashlib
 import random
 import re
 import unicodedata
-import celery
 
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
-from django.core import serializers
 from django.conf import settings
-from django.views.generic import FormView, ListView
+from django.views.generic import View, FormView, ListView, DetailView, TemplateView
 
+import celery
 from gargoyle import gargoyle
-from gargoyle.decorators import switch_is_active
+from braces.views import LoginRequiredMixin
 
 from utils import installed
 from eve_api.models import EVEAccount, EVEPlayerCharacter
 from eve_api.tasks import import_apikey, import_apikey_result, update_user_access
 from eve_proxy.models import ApiAccessLog
-from reddit.tasks import update_user_flair
 from sso.models import ServiceAccount, Service, SSOUser, ExistingUser, ServiceError, SSOUserIPAddress
 from sso.forms import UserServiceAccountForm, ServiceAccountResetForm, UserLookupForm, APIPasswordForm, EmailChangeForm, PrimaryCharacterForm, UserNoteForm
 
-@login_required
-def profile(request):
-    """ Displays the user's profile page """
 
-    try:
-        profile = request.user.get_profile()
-    except SSOUser.DoesNotExist:
-        profile = SSOUser(user=request.user)
-        profile.save()
+class ProfileView(LoginRequiredMixin, TemplateView):
 
-    if not profile.primary_character and EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).count():
-        return redirect('sso.views.primarychar_change')
+    template_name = 'sso/profile.html'
 
-    context = {
-        'profile': request.user.get_profile()
-    }
-    return render_to_response('sso/profile.html', context, context_instance=RequestContext(request))
+    def get_profile(self, user):
+        try:
+            profile = user.get_profile()
+        except SSOUser.DoesNotExist:
+            profile = SSOUser.objects.create(user=user)
+        return profile
+
+    def get(self, request, *args, **kwargs):
+        self.profile = self.get_profile(request.user)
+        if self.profile.primary_character is None and EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).count():
+            return HttpResponseRedirect(reverse('sso.views.primarychar_change'))
+        return super(ProfileView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ProfileView, self).get_context_data(**kwargs)
+        ctx.update({
+            'profile': self.profile,
+            'available_services': Service.objects.filter(groups__in=self.request.user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=self.request.user).values('service')).count()
+        })
+        return ctx
 
 
 @login_required
@@ -86,8 +92,8 @@ def service_add(request):
             return render_to_response('sso/serviceaccount/created.html', locals(), context_instance=RequestContext(request))
 
     else:
-        availserv = Service.objects.filter(groups__in=request.user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=request.user).values('service'))
-        if len(availserv) == 0:
+        availserv = Service.objects.filter(groups__in=request.user.groups.all()).exclude(id__in=ServiceAccount.objects.filter(user=request.user).values('service')).count()
+        if not availserv:
             return render_to_response('sso/serviceaccount/noneavailable.html', locals(), context_instance=RequestContext(request))
         else:
             form = clsform() # An unbound form
@@ -153,29 +159,37 @@ def service_reset(request, serviceid, template='sso/serviceaccount/reset.html', 
     return render_to_response(template, locals(), context_instance=RequestContext(request))
 
 
-@login_required
-def user_view(request, username, template='sso/lookup/user.html'):
-    """ View a user's profile as a admin """
+class UserDetailView(LoginRequiredMixin, DetailView):
 
-    if not request.user.has_perm('sso.can_view_users') and not request.user.has_perm('sso.can_view_users_restricted'):
-        return redirect('sso.views.profile')
+    model = User
+    slug_url_kwarg = 'username'
+    slug_field = 'username'
+    template_name = 'sso/lookup/user.html'
 
-    user = get_object_or_404(User, username=username)
+    def get(self, request, *args, **kwargs):
+        if not request.user.has_perm('sso.can_view_users') and not request.user.has_perm('sso.can_view_users_restricted'):
+            return HttpResponseForbidden()
+        return super(UserDetailView, self).get(request, *args, **kwargs)
 
-    context = {
-        'user': user,
-        'profile': user.get_profile(),
-        'services':  ServiceAccount.objects.select_related('service').filter(user=user).only('service__name', 'service_uid', 'active'),
-        'characters': EVEPlayerCharacter.objects.select_related('corporation').filter(eveaccount__user=user).only('id', 'name', 'corporation__name'),
-    }
+    def get_context_data(self, **kwargs):
+        ctx = super(UserDetailView, self).get_context_data(**kwargs)
+        ctx.update({
+            'profile': self.object.get_profile(),
+            'services':  ServiceAccount.objects.select_related('service').filter(user=self.object).only('service__name', 'service_uid', 'active'),
+            'characters': EVEPlayerCharacter.objects.select_related('corporation', 'corporation__alliance').filter(eveaccount__user=self.object).only('id', 'name', 'corporation__name'),
+        })
 
-    # If the HR app is installed, check the blacklist
-    if installed('hr'):
-        if request.user.has_perm('hr.add_blacklist'):
-            from hr.utils import blacklist_values
-            context['blacklisted'] = len(blacklist_values(user))
+        # If the HR app is installed, check the blacklist
+        if installed('hr'):
+            if self.request.user.has_perm('hr.add_blacklist'):
+                from hr.utils import blacklist_values
+                output = blacklist_values(self.object)
+                ctx.update({
+                    'blacklisted': bool(len(output)),
+                    'blacklist_items': output,
+                })
 
-    return render_to_response(template, context, context_instance=RequestContext(request))
+        return ctx
 
 
 @login_required
@@ -216,7 +230,7 @@ def user_lookup(request):
                 return redirect('sso.views.user_lookup')
 
             if users and len(users) == 1:
-                return redirect(user_view, username=users[0].username)
+                return redirect('sso-viewuser', username=users[0].username)
             elif users and len(users) > 1:
                 return render_to_response('sso/lookup/lookuplist.html', locals(), context_instance=RequestContext(request))
             else:
@@ -226,22 +240,18 @@ def user_lookup(request):
     return render_to_response('sso/lookup/userlookup.html', locals(), context_instance=RequestContext(request))
 
 
-@login_required
-def set_apipasswd(request):
-    """ Sets the user's auth API password """
+class APIPasswordUpdateView(LoginRequiredMixin, FormView):
 
-    if request.method == 'POST':
-        form = APIPasswordForm(request.POST)
-        if form.is_valid():
-            profile = request.user.get_profile()
-            profile.api_service_password = hashlib.sha1(form.cleaned_data['password']).hexdigest()
-            profile.save()
-            messages.add_message(request, messages.INFO, "Your API Services password has been set.")
-            return redirect('sso.views.profile') # Redirect after POST
-    else:
-        form = APIPasswordForm() # An unbound form
+    form_class = APIPasswordForm
+    template_name = 'sso/apipassword.html'
+    success_url = reverse_lazy('sso-profile')
 
-    return render_to_response('sso/apipassword.html', locals(), context_instance=RequestContext(request))
+    def form_valid(self, form):
+        profile = request.user.get_profile()
+        profile.api_service_password = hashlib.sha1(form.cleaned_data['password']).hexdigest()
+        profile.save()
+        message.success(self.request, "Your API services password has been updated.")
+        return super(APIPasswordUpdateView, self).form_valid(form)
 
 
 @login_required
@@ -271,66 +281,82 @@ def refresh_access(request, userid=0, corpid=0, allianceid=0):
         return redirect('sso.views.profile')
 
 
-@login_required
-def email_change(request):
-    """ Change the user's email address """
+class EmailUpdateView(LoginRequiredMixin, FormView):
+    """Updates a user's email address"""
 
-    if request.method == 'POST':
-        form = EmailChangeForm(request.POST)
-        if form.is_valid():
-            request.user.email = form.cleaned_data['email2']
-            request.user.save()
-            messages.add_message(request, messages.INFO, "E-mail address changed to %s." % form.cleaned_data['email2'])
-            return redirect('sso.views.profile') # Redirect after POST
-    else:
-        form = EmailChangeForm() # An unbound form
+    form_class = EmailChangeForm
+    template_name = 'sso/emailchange.html'
+    success_url = reverse_lazy('sso-profile')
 
-    return render_to_response('sso/emailchange.html', locals(), context_instance=RequestContext(request))
-
-@login_required
-def primarychar_change(request):
-    """ Change the user's primary character """
-
-    if request.method == 'POST':
-        form = PrimaryCharacterForm(request.POST, user=request.user)
-        if form.is_valid():
-            profile = request.user.get_profile()
-            profile.primary_character = form.cleaned_data['character']
-            profile.save()
-            messages.add_message(request, messages.INFO, "Your primary character has changed to %s." % form.cleaned_data['character'])
-            return redirect('sso.views.profile') # Redirect after POST
-    else:
-        form = PrimaryCharacterForm(initial={'character': request.user.get_profile().primary_character}, user=request.user) # An unbound form
-
-    return render_to_response('sso/primarycharchange.html', locals(), context_instance=RequestContext(request))
+    def form_valid(self, form):
+        request.user.email = form.cleaned_data['email2']
+        request.user.save()
+        messages.success(self.request, "E-mail address changed to %s." % form.cleaned_data['email2'])
+        return super(EmailUpdateView).form_valid(form)
 
 
-@login_required
-@switch_is_active('reddit')
-def toggle_reddit_tagging(request):
-    profile = request.user.get_profile()
-    if profile.primary_character:
+class PrimaryCharacterUpdateView(LoginRequiredMixin, FormView):
+    """Updates a user's primary character selection"""
+
+    form_class = PrimaryCharacterForm
+    template_name = 'sso/primarycharchange.html'
+    success_url = reverse_lazy('sso-profile')
+
+    def get_form_kwargs(self):
+        kwargs = super(PrimaryCharacterUpdateView, self).get_form_kwargs()
+        kwargs.update({
+            'user': self.request.user
+        })
+        return kwargs
+
+    def get_initial(self):
+        initial = super(PrimaryCharacterUpdateView, self).get_initial()
+        initial.update({
+            'character': self.request.user.get_profile().primary_character
+        })
+        return initial
+
+    def form_valid(self, form):
+        profile = self.request.user.get_profile()
+        profile.primary_character = form.cleaned_data['character']
+        profile.save()
+        messages.success(self.request, "Your primary character has changed to %s." % form.cleaned_data['character'])
+        return super(PrimaryCharacterUpdateView, self).form_valid(form)
+
+
+class RedditTaggingUpdateView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        if not gargoyle.is_active('reddit', request):
+            return HttpResponseNotFound()
+
+        profile = request.user.get_profile()
+
+        if profile.primary_character is None:
+            messages.error("Reddit account tagging requires a primary character before using. Please set one.")
+            if EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).count():
+                return HttpResponseRedirect(reverse('sso-primarycharacterupdate'))
+            else:
+                return HttpResponseRedirect(reverse('sso-profile'))
         profile.tag_reddit_accounts = not profile.tag_reddit_accounts
         profile.save()
         if profile.tag_reddit_accounts:
             tag = 'Enabled'
         else:
             tag = 'Disabled'
-        messages.add_message(request, messages.INFO, "Reddit account tagging is now %s" % tag)
+        messages.info(request, "Reddit account tagging is now %s" % tag)
 
         if profile.tag_reddit_accounts:
             name = profile.primary_character.name
         else:
             name = ''
         for acc in request.user.redditaccount_set.all():
+            from reddit.tasks import update_user_flair
             update_user_flair.delay(acc.username, name)
-    else:
-        messages.add_message(request, messages.ERROR, "You need to set a primary character before using this feature!")
-
-    return redirect('sso.views.profile')
+        return HttpResponseRedirect(reverse('sso-profile'))
 
 
-class AddUserNote(FormView):
+class AddUserNote(LoginRequiredMixin, FormView):
 
     template_name = 'sso/add_usernote.html'
     form_class = UserNoteForm
@@ -348,27 +374,29 @@ class AddUserNote(FormView):
 
     def get_context_data(self, **kwargs):
         ctx = super(AddUserNote, self).get_context_data(**kwargs)
-        ctx['user'] = self.get_user()
+        ctx.update({
+            'user': self.get_user()
+        })
         return ctx
 
     def get_initial(self):
         initial = super(AddUserNote, self).get_initial()
-        initial['user'] = self.get_user()
+        initial.update({
+            'user': self.get_user()
+        })
         return initial
 
     def get_success_url(self):
         return reverse('sso-viewuser', args=[self.get_user()])
 
     def form_valid(self, form):
-
         obj = form.save(commit=False)
         obj.created_by = self.request.user
         obj.save()
-
         return super(AddUserNote, self).form_valid(form)
 
 
-class UserIPAddressView(ListView):
+class UserIPAddressView(LoginRequiredMixin, ListView):
 
     model = SSOUserIPAddress
 
