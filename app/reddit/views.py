@@ -20,7 +20,7 @@ class RedditAddAccount(CreateView):
     form_class = RedditAccountForm
 
     def get_success_url(self):
-        return reverse('sso.views.profile')
+        return reverse('sso-profile')
 
     def get_initial(self):
         initial = super(RedditAddAccount, self).get_initial()
@@ -52,7 +52,7 @@ class RedditDeleteAccount(DeleteView):
     context_object_name = 'account'
 
     def get_success_url(self):
-        return reverse('sso.views.profile')
+        return reverse('sso-profile')
 
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
