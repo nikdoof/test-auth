@@ -141,7 +141,7 @@ class EveAPIProxyHandler(BaseHandler):
     allowed_methods = ('GET')
 
     def read(self, request):
-        url_path = request.META['PATH_INFO'].replace(reverse('api-eveapiproxy'), "/")
+        url_path = request.META['PATH_INFO'].replace(reverse('v1-api-eveapiproxy'), "/")
 
         params = {}
         for key, value in request.GET.items():
