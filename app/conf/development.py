@@ -51,3 +51,8 @@ MANAGERS = ADMINS
 
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+
+# Debug Toolbar
+INSTALLED_APPS.append('debug_toolbar')
+MIDDLEWARE_CLASSES.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+INTERNAL_IPS = ['2.101.240.212']
