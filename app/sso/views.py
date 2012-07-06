@@ -251,7 +251,7 @@ class APIPasswordUpdateView(LoginRequiredMixin, FormView):
         profile = self.request.user.get_profile()
         profile.api_service_password = hashlib.sha1(form.cleaned_data['password']).hexdigest()
         profile.save()
-        message.success(self.request, "Your API services password has been updated.")
+        messages.success(self.request, "Your API services password has been updated.")
         return super(APIPasswordUpdateView, self).form_valid(form)
 
 
