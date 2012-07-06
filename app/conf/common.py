@@ -25,7 +25,7 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -34,7 +34,7 @@ MIDDLEWARE_CLASSES = (
     'sso.middleware.InactiveLogoutMiddleware',
     'sso.middleware.IGBMiddleware',
     'sso.middleware.IPTrackingMiddleware',
-)
+]
 
 ROOT_URLCONF = 'urls'
 
@@ -53,7 +53,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.messages',
@@ -77,7 +77,7 @@ INSTALLED_APPS = (
     'groups',
     'api',
     'tools',
-)
+]
 
 AUTH_PROFILE_MODULE = 'sso.SSOUser'
 LOGIN_REDIRECT_URL = "/profile"
