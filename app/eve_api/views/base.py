@@ -32,7 +32,7 @@ class EVEAPICreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('sso-profile')
 
     def form_valid(self, form):
-        task = import_apikey_result.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['api_user_id'], user=request.user.id, retry=False)
+        task = import_apikey_result.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['api_user_id'], user=self.request.user.id, retry=False)
         try:
             out = task.wait(10)
         except celery.exceptions.TimeoutError:
@@ -232,7 +232,7 @@ class EVEAPICorporationMembersCSV(LoginRequiredMixin, SingleObjectMixin, CSVResp
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not self.object.eveplayercharacter_set.filter(eveaccount__user=request.user, roles__name="roleDirector").count() and not request.user.is_superuser:
+        if not self.object.eveplayercharacter_set.filter(eveaccount__user=self.request.user, roles__name="roleDirector").count() and not request.user.is_superuser:
             return HttpResponseForbidden()
         return super(EVEAPICorporationMembersCSV, self).get(request, *args, **kwargs)
 
