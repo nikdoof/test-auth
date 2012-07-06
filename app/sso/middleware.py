@@ -57,6 +57,7 @@ class IPTrackingMiddleware(object):
     """
 
     def process_request(self, request):
+        from sso.models import SSOUserIPAddress
 
         if request.user and not request.user.is_anonymous():
             ip, created = SSOUserIPAddress.objects.get_or_create(user=request.user, ip_address=request.META['REMOTE_ADDR'])
