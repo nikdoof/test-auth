@@ -8,28 +8,28 @@
 {% block content %}
 
 <div class="page-header">
-<h1>{{user.username}}'s Profile</h1>
+<h1>{{object.username}}'s Profile</h1>
 </div>
 
 <p>
-<li><b>Username:</b> {{ user.username }}</li>
-<li><b>Primary Character:</b> <a href="{% url eveapi-character user.profile.all.0.primary_character.pk %}">{{ user.profile.all.0.primary_character }}</a></li>
-<li><b>Active:</b> {{ user.is_active }}</li>
-<li><b>Email:</b> {{ user.email }}</li>
-<li><b>Groups:</b> {{ user.groups.all|join:", " }}</li>
+<li><b>Username:</b> {{ object.username }}</li>
+<li><b>Primary Character:</b> <a href="{% url eveapi-character object.profile.all.0.primary_character.pk %}">{{ object.profile.all.0.primary_character }}</a></li>
+<li><b>Active:</b> {{ object.is_active }}</li>
+<li><b>Email:</b> {{ object.email }}</li>
+<li><b>Groups:</b> {{ object.groups.all|join:", " }}</li>
 {% if "hr"|installed %}
 <li><b>Blacklist Status: {% if blacklisted %}<font color='red'>BLACKLISTED</font> ({{ blacklisted }} items){% else %}<font color='geen'>OK</font>{% endif %}</b></li>
 {% endif %}
-{% if user.ip_addresses.count %}
-<li><a href="{% url sso-ipaddress %}?user={{ user.username }}">IP Address Lookup</a> ({{ user.ip_addresses.count }} associated addresses)</li>
+{% if object.ip_addresses.count %}
+<li><a href="{% url sso-ipaddress %}?user={{ object.username }}">IP Address Lookup</a> ({{ object.ip_addresses.count }} associated addresses)</li>
 {% endif %}
 </p>
 
 <p>
-<a href="{% url sso-refreshaccess user.id %}" class="btn error">Update Access</a>
+<a href="{% url sso-refreshaccess object.id %}" class="btn error">Update Access</a>
 {% if "hr"|installed %}
 {% if perms.hr.add_blacklist %}
-<a href="{% url hr-blacklistuser user.id %}" class="btn error">Blacklist User</a>
+<a href="{% url hr-blacklistuser object.id %}" class="btn error">Blacklist User</a>
 {% endif %}
 {% endif %}
 {% if perms.sso.add_ssousernote %}
@@ -37,7 +37,7 @@
 {% endif %}
 </p>
 
-{% if user.notes.count %}
+{% if object.notes.count %}
 <h2>User Notes</h2>
 
 <table class="zebra-striped">
@@ -45,7 +45,7 @@
     <tr><th width="600px">Note</th><th>Date</th><th>Added By</th></tr>
   </thead>
   <tbody>
-    {% for note in user.notes.all %}
+    {% for note in object.notes.all %}
     <tr><td>{{ note.note|linebreaks }}</td><td>{{ note.date_created|date:"Y/m/d H:i:s" }}</td><td><a href="{% url sso-viewuser note.created_by %}">{{ note.created_by.profile.all.0.primary_character }}</a></td></tr>
     {% endfor %}
   </tbody>
@@ -69,13 +69,13 @@
 </section>
 {% endif %}
 
-{% if user.application_set.all %}
+{% if object.application_set.all %}
 <section id="applications">
   <h2>Applications</h2>
 
   <table class="zebra-striped">
     <tr><th>ID</th><th>Character</th><th>Applied To</th><th>Status</th></tr>
-    {% for app in user.application_set.all %}
+    {% for app in object.application_set.all %}
     <tr><td><a href="{% url hr-viewapplication app.id %}">{{ app.id }}</a></td>
       <td>{{ app.character }}</td>
       <td>{{ app.corporation }}</td>
@@ -85,7 +85,7 @@
 </section>
 {% endif %}
 
-{% if user.recommendation_set.all %}
+{% if object.recommendation_set.all %}
 <section id="recommendations">
   <h2>Recommendations</h2>
 
@@ -94,7 +94,7 @@
       <tr><th>Recommended Application</th><th>Recommendation Character</th><th>Recommendation Date</th></tr>
     </thead>
     <tbody>
-      {% for rec in user.recommendation_set.all %}
+      {% for rec in object.recommendation_set.all %}
       <tr><td><a href="{% url hr-viewapplication rec.application.id %}">{{ rec.application.character.name }}</a></td>
         <td><a href="{% url eveapi-character rec.user_character.pk %}">{{ rec.user_character }}</a></td>
         <td>{{ rec.recommendation_date }}</td></tr>
@@ -105,7 +105,7 @@
 {% endif %}
 
 {% if perms.sso.can_view_users %}
-{% if user.eveaccount_set.all %}
+{% if object.eveaccount_set.all %}
 <section id="api">
   <h2>Eve API Keys</h2>
 
@@ -114,7 +114,7 @@
       <tr><th>User ID</th><th>API Key</th><th>Description</th><th>Type</th><th>Active</th><th>Last Updated</th></tr>
     </thead>
     <tbody>
-      {% for acc in user.eveaccount_set.all %}
+      {% for acc in object.eveaccount_set.all %}
       <tr><td>{{ acc.api_user_id }}</td>
         <td>{{ acc.api_key }}</td>
         <td>{{ acc.description }}</td>
@@ -129,13 +129,13 @@
 {% endif %}
 {% endif %}
 
-{% if user.eveaccount_set.all %}
+{% if object.eveaccount_set.all %}
 <table>
   <thead>
     <tr><th>Name</th><th>Corporation</th><th>Alliance</th><th>ISK</th><th>SP</th><th>Training</th></tr>
   </thead>
   <tbody>
-    {% for acc in user.eveaccount_set.all %}
+    {% for acc in object.eveaccount_set.all %}
     {% if acc.characters.count %}
     <tr><th colspan="6">Account {{ acc.api_user_id }}</th></tr>
     {% for char in acc.characters.all %}
@@ -157,13 +157,13 @@
 {% ifswitch reddit %}
 <section id="reddit">
   <h2>Reddit Accounts</h2>
-  {% if user.redditaccount_set.all %}
+  {% if object.redditaccount_set.all %}
   <table class="zebra-striped">
     <thead>
       <tr><th>Username</th><th>Created Date</th><th>Validated</th></tr>
     </thead>
     <tbody>
-      {% for acc in user.redditaccount_set.all %}
+      {% for acc in object.redditaccount_set.all %}
       <tr><td><a href="http://reddit.com/user/{{ acc.username }}/">{{ acc.username }}</a></td>
         <td>{{ acc.date_created }}</td>
         <td>{% if acc.validated %}Yes{% else %}No{% endif %}</td>
