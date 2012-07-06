@@ -78,7 +78,7 @@ class EVEAccount(EVEAPIModel):
 
     class Meta:
         app_label = 'eve_api'
-        verbose_name = 'EVE Account'
-        verbose_name_plural = 'EVE Accounts'
+        verbose_name = 'EVE API Key'
+        verbose_name_plural = 'EVE API Keys'
         ordering = ['api_user_id']
 
