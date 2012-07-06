@@ -278,7 +278,7 @@ def refresh_access(request, userid=0, corpid=0, allianceid=0):
     else:
         update_user_access(request.user.id)
         messages.add_message(request, messages.INFO, "User access updated.")
-        return redirect('sso.views.profile')
+        return redirect('sso-profile')
 
 
 class EmailUpdateView(LoginRequiredMixin, FormView):
