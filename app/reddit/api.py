@@ -82,7 +82,8 @@ class RedditAPI:
                 url = '%s?%s' % (url, data)
             data = None
 
-        resp = self._opener.open(urllib2.Request(url, data))
+        headers = {'User-Agent': 'evedreddit-auth/1.0'}
+        resp = self._opener.open(urllib2.Request(url, data, headers))
         resptxt = resp.read()
         if resp.info()['Content-Type'] == 'text/plain':
             logging.info('returning plaintext')
@@ -157,17 +158,17 @@ class Inbox(RedditAPI):
         if not self.loggedin:
             raise NotLoggedIn
 
-        if not hasattr(self, '__inbox_cache') or not len(self.__inbox_cache):
+        if not hasattr(self, '_inbox_cache') or not len(self._inbox_cache):
             inbox = self._request(self._url(self.REDDIT_API_INBOX), {'mark': 'false'}, method='GET')
 
             if inbox and 'data' in inbox:
-                self.__inbox_cache = []
+                self._inbox_cache = []
                 for msg in inbox['data']['children']:
-                    self.__inbox_cache.append(Message(msg['data']))
+                    self._inbox_cache.append(Message(msg['data']))
             else:
-                self.__inbox_cache = []
+                self._inbox_cache = []
              
-        return self.__inbox_cache
+        return self._inbox_cache
 
     def __len__(self):
         return len(self._inbox_data)
