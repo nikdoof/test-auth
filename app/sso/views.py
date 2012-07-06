@@ -110,10 +110,10 @@ def service_del(request, serviceid=0, confirm_template='sso/serviceaccount/delet
         try:
             acc = ServiceAccount.objects.get(id=serviceid)
         except ServiceAccount.DoesNotExist:
-            return redirect('sso.views.profile')
+            return redirect('sso-profile')
 
         if not acc.user == request.user:
-            return redirect('sso.views.profile')
+            return redirect('sso-profile')
 
         if request.method == 'POST':
             if 'confirm-delete' in request.POST:
@@ -126,7 +126,7 @@ def service_del(request, serviceid=0, confirm_template='sso/serviceaccount/delet
         else:
             return render_to_response(confirm_template, locals(), context_instance=RequestContext(request))
 
-    return redirect('sso.views.profile')
+    return redirect('sso-profile')
 
 
 @login_required
@@ -137,11 +137,11 @@ def service_reset(request, serviceid, template='sso/serviceaccount/reset.html', 
 
     # If the account is inactive, or the service doesn't require a password, redirect
     if not acc.active or ('require_password' in acc.service.settings and not acc.service.settings['require_password']):
-        return redirect('sso.views.profile')
+        return redirect('sso-profile')
 
     # Check if the ServiceAccount belongs to the requesting user
     if not acc.user == request.user:
-        return redirect('sso.views.profile')
+        return redirect('sso-profile')
 
     if request.method == 'POST':
         form = ServiceAccountResetForm(request.POST)
@@ -200,7 +200,7 @@ def user_lookup(request):
     form = UserLookupForm(request=request)
 
     if not request.user.has_perm('sso.can_search_users'):
-        return redirect('sso.views.profile')
+        return redirect('sso-profile')
 
     if request.method == 'POST':
         form = UserLookupForm(request.POST, request=request)
@@ -248,7 +248,7 @@ class APIPasswordUpdateView(LoginRequiredMixin, FormView):
     success_url = reverse_lazy('sso-profile')
 
     def form_valid(self, form):
-        profile = request.user.get_profile()
+        profile = self.request.user.get_profile()
         profile.api_service_password = hashlib.sha1(form.cleaned_data['password']).hexdigest()
         profile.save()
         message.success(self.request, "Your API services password has been updated.")
@@ -290,8 +290,8 @@ class EmailUpdateView(LoginRequiredMixin, FormView):
     success_url = reverse_lazy('sso-profile')
 
     def form_valid(self, form):
-        request.user.email = form.cleaned_data['email2']
-        request.user.save()
+        self.request.user.email = form.cleaned_data['email2']
+        self.request.user.save()
         messages.success(self.request, "E-mail address changed to %s." % form.cleaned_data['email2'])
         return super(EmailUpdateView).form_valid(form)
 
@@ -335,7 +335,7 @@ class RedditTaggingUpdateView(LoginRequiredMixin, View):
 
         if profile.primary_character is None:
             messages.error("Reddit account tagging requires a primary character before using. Please set one.")
-            if EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).count():
+            if EVEPlayerCharacter.objects.filter(eveaccount__user=self.request.user).count():
                 return HttpResponseRedirect(reverse('sso-primarycharacterupdate'))
             else:
                 return HttpResponseRedirect(reverse('sso-profile'))
@@ -351,7 +351,7 @@ class RedditTaggingUpdateView(LoginRequiredMixin, View):
             name = profile.primary_character.name
         else:
             name = ''
-        for acc in request.user.redditaccount_set.all():
+        for acc in self.request.user.redditaccount_set.all():
             from reddit.tasks import update_user_flair
             update_user_flair.delay(acc.username, name)
         return HttpResponseRedirect(reverse('sso-profile'))
@@ -363,7 +363,7 @@ class AddUserNote(LoginRequiredMixin, FormView):
     form_class = UserNoteForm
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm('sso.add_ssousernote'):
+        if not self.request.user.has_perm('sso.add_ssousernote'):
             return HttpResponseForbidden()
         return super(AddUserNote, self).dispatch(request, *args, **kwargs)
 
