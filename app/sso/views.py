@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.conf import settings
 from django.views.generic import View, FormView, ListView, DetailView, TemplateView
+from django.http import HttpResponseRedirect
 
 import celery
 from gargoyle import gargoyle
@@ -39,7 +40,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         self.profile = self.get_profile(request.user)
         if self.profile.primary_character is None and EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).count():
-            return HttpResponseRedirect(reverse('sso.views.primarychar_change'))
+            return HttpResponseRedirect(reverse('sso-primarycharacterupdate'))
         return super(ProfileView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
