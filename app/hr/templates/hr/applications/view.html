@@ -14,7 +14,7 @@
 </div>
 
 <ul>
-<li>Applying Auth User: <a href="{% url sso.views.user_view app.user %}">{{ app.user.username }}</a></li>
+<li>Applying Auth User: <a href="{% url sso-viewuser app.user %}">{{ app.user.username }}</a></li>
 <li>Applying Character: <a href="{% url eveapi-character app.character.pk %}">{{ app.character.name }}</a></li>
 <li>Applying To: <a href="{% url eveapi-corporation app.corporation.pk %}">{{ app.corporation.name }}</a></li>
 <li>Application Status: {{ app.get_status_display }}</li>
@@ -99,7 +99,7 @@
   </thead>
   <tbody>
     {% for rec in app.recommendation_set.all %}
-    <tr><td><a href="{% url sso.views.user_view rec.user %}">{{ rec.user }}</a></td>
+    <tr><td><a href="{% url sso-viewuser rec.user %}">{{ rec.user }}</a></td>
       <td><a href="{% url eveapi-character rec.user_character.pk %}">{{ rec.user_character }}</a></td>
       <td><a href="http://evemaps.dotlan.net/corp/{{ rec.user_character.corporation.name }}">{{ rec.user_character.corporation }}</a></td>
       <td>{% if rec.is_valid %}<font color="green">Yes</font>{% else %}<font color="red">No</font>{% endif %}</td>
