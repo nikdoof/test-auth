@@ -15,7 +15,7 @@
   </thead>
   <tbody>
     {% for user, chars, status in member_list %}
-    <tr><td><a href="{% url sso.views.user_view user.username %}">{{ user.username }}</a></td>
+    <tr><td><a href="{% url sso-viewuser user.username %}">{{ user.username }}</a></td>
       <td>{{ chars }}</td>
       <td>{{ status }}</td>
       <td><a href="{% url groups.views.kick_member group.id user.id %}">Kick Member</a>
@@ -37,7 +37,7 @@
   </thead>
   <tbody>
     {% for req in requests %}
-    <tr><td><a href="{% url sso.views.user_view req.user.username %}">{{ req.user }}</a></td>
+    <tr><td><a href="{% url sso-viewuser req.user.username %}">{{ req.user }}</a></td>
       <td>{{ req.character }}</td>
       <td>{{ req.reason }}</td>
       <td>{{ req.get_status_display }}</td>
