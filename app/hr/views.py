@@ -441,7 +441,7 @@ class HrAddBlacklist(CreateView):
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        obj.user = self.request.user
+        obj.created_by = self.request.user
         obj.source, created = BlacklistSource.objects.get_or_create(id=getattr(settings, 'BLACKLIST_DEFAULT_SOURCE', 1))
         obj.save()
         return HttpResponseRedirect(self.get_success_url())
