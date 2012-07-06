@@ -16,7 +16,7 @@ class POSTrackerService(BaseDBService):
                  'use_auth_username': False,
                  'database_name': 'dreddit_pos' }
 
-    SQL_ADD_USER = r"INSERT INTO pos3_user (eve_id, name, pass, email, access, corp, alliance_id) VALUES (%s, %s, %s, %s, 3, %s, %s)"
+    SQL_ADD_USER = r"INSERT INTO pos3_user (eve_id, name, pass, email, access, corp, alliance_id) VALUES (%s, %s, %s, %s, '1.21.41.43', %s, %s)"
     SQL_DIS_USER = r"UPDATE pos3_user SET access = 0, pass = '', away = 1 WHERE name = %s"
     SQL_DEL_USER = r"DELETE FROM pos3_user WHERE name = %s"
     SQL_ENABLE_USER = r"UPDATE pos3_user SET access = 3, pass = %s, away = 0 WHERE name = %s"
