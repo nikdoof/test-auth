@@ -29,7 +29,6 @@ class EVEAPICreateView(LoginRequiredMixin, CreateView):
 
     model = EVEAccount
     form_class = EVEAPIForm
-    success_url = reverse_lazy('sso-profile')
 
     def form_valid(self, form):
         task = import_apikey_result.delay(api_key=form.cleaned_data['api_key'], api_userid=form.cleaned_data['api_user_id'], user=self.request.user.id, retry=False)
@@ -46,7 +45,7 @@ class EVEAPICreateView(LoginRequiredMixin, CreateView):
                 messages.success(self.request, "Key %d successfully added." % form.cleaned_data['api_user_id'])
             else:
                 messages.error(self.request, "An issue was encountered while trying to import key %s, Please check that you are using the correct information and try again." % form.cleaned_data['api_user_id'])
-        return HttpResponseRedirect(self.get_success_url())
+        return HttpResponseRedirect(reverse_lazy('sso-profile'))
 
     def get_initial(self):
         return {'user': self.request.user.pk}
