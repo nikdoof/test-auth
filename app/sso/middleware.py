@@ -48,7 +48,6 @@ class IGBMiddleware(object):
                         setattr(request, map, request.META.get(header, None))
                             
 
-from sso.models import SSOUserIPAddress
 from datetime import datetime
 
 class IPTrackingMiddleware(object):
