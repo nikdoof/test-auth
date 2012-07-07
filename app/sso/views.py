@@ -363,7 +363,7 @@ class AddUserNote(LoginRequiredMixin, FormView):
     form_class = UserNoteForm
 
     def dispatch(self, request, *args, **kwargs):
-        if not self.request.user.has_perm('sso.add_ssousernote'):
+        if not request.user.has_perm('sso.add_ssousernote'):
             return HttpResponseForbidden()
         return super(AddUserNote, self).dispatch(request, *args, **kwargs)
 
