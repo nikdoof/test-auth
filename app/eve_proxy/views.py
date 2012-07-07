@@ -25,7 +25,7 @@ class EVEAPIProxyView(View):
             return HttpResponse('No Service ID provided.')
 
         #try:
-        cached_doc = CachedDocument.objects.api_query(url_path, params, exceptions=False)
+        cached_doc = CachedDocument.objects.api_query(url_path, dict(params), exceptions=False)
         #except:
         #    return HttpResponseServerError('Error occured')
 
