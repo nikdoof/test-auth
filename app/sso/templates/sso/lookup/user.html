@@ -8,12 +8,14 @@
 {% block content %}
 
 <div class="page-header">
-<h1>{{object.username}}'s Profile</h1>
+<h1>{{ object.username }}'s Profile</h1>
 </div>
 
 <p>
 <li><b>Username:</b> {{ object.username }}</li>
-<li><b>Primary Character:</b> <a href="{% url eveapi-character object.profile.all.0.primary_character.pk %}">{{ object.profile.all.0.primary_character }}</a></li>
+{% if object.get_profile.primary_character %}
+<li><b>Primary Character:</b> <a href="{% url eveapi-character object.get_profile.primary_character.pk %}">{{ object.get_profile.primary_character }}</a></li>
+{% endif %}
 <li><b>Active:</b> {{ object.is_active }}</li>
 <li><b>Email:</b> {{ object.email }}</li>
 <li><b>Groups:</b> {{ object.groups.all|join:", " }}</li>
@@ -33,7 +35,7 @@
 {% endif %}
 {% endif %}
 {% if perms.sso.add_ssousernote %}
-<a href="{% url sso-addusernote user %}" class="btn">Add Note</a>
+<a href="{% url sso-addusernote object %}" class="btn">Add Note</a>
 {% endif %}
 </p>
 
