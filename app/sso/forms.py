@@ -99,7 +99,8 @@ class UserLookupForm(forms.Form):
         choices = [(1, "Auth Username"),
                    (2, "Character"),
                    (4, "Email Address"),
-                   (5, "EVE API Key ID"), ]
+                   (5, "EVE API Key ID"),
+                   (6, "Service UID"),]
         if installed('reddit') and gargoyle.is_active('reddit', request):
             choices.append((3, "Reddit ID"))
 

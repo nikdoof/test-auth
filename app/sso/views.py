@@ -226,6 +226,9 @@ def user_lookup(request):
             elif form.cleaned_data['type'] == '5':
                 uids = EVEAccount.objects.filter(api_user_id__icontains=username).values_list('user', flat=True)
                 users = User.objects.filter(id__in=uids).only('username')
+            elif form.cleaned_data['type'] == '6':
+                uids = ServiceAccount.objects.filter(service_uid__icontains=username).values_list('user', flat=True)
+                users = User.objects.filter(id__in=uids).only('username')
             else:
                 messages.add_message(request, messages.ERROR, "Error parsing form, Type: %s, Value: %s" % (form.cleaned_data['type'], username))
                 return redirect('sso.views.user_lookup')
