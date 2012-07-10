@@ -4,12 +4,21 @@
 
 {% block content %}
 
+<div class="page-header">
+  <h1>Search Results</h1>
+</div>
+
 <p>More than one user was found matching your criteria:</p>
 
-<ul>
-{% for user in users %}
-<li><a href="{% url sso-viewuser user.username %}">{{ user.username }}</a></li>
-{% endfor %}
-</ul>
+<table>
+  <thead>
+    <tr><th>User</th><th>Primary Character</th><th>Corp</th><th>Alliance</th></tr>
+  <thead>
+  <tbody>
+    {% for user in users %}
+    <tr><td><a href="{% url sso-viewuser user.username %}">{{ user.username }}</td>{% if user.get_profile.primary_character %}<td>{{ user.get_profile.primary_character }}</td><td>{{ user.get_profile.primary_character.corporation }}</td><td>{{ user.get_profile.primary_character.corporation.alliance }}</td>{% else %}<td></td><td></td><td></td>{% endif %}</tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 {% endblock %}
