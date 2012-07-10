@@ -10,7 +10,7 @@
 
 <p>More than one user was found matching your criteria:</p>
 
-<table>
+<table id="userlist">
   <thead>
     <tr><th>User</th><th>Primary Character</th><th>Corp</th><th>Alliance</th></tr>
   <thead>
@@ -20,5 +20,10 @@
     {% endfor %}
   </tbody>
 </table>
+
+<script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript">
+  $("table#userlist").tablesorter({ sortList: [[0,0]] });
+</script>
 
 {% endblock %}
