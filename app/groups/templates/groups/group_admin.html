@@ -6,28 +6,6 @@
   <h1>{{ group.name }}</h1>
 </div>
 
-<h3>Members</h3>
-
-{% if group.user_set.all %}
-<table class="zebra-striped" id="members">
-  <thead>
-    <tr><th>Member Username</th><th>Character</th><th>Status</th><th>Actions</th></tr>
-  </thead>
-  <tbody>
-    {% for user, chars, status in member_list %}
-    <tr><td><a href="{% url sso-viewuser user.username %}">{{ user.username }}</a></td>
-      <td>{{ chars }}</td>
-      <td>{{ status }}</td>
-      <td><a href="{% url groups.views.kick_member group.id user.id %}">Kick Member</a>
-      {% if request.user.is_superuser %}&nbsp;<a href="{% url groups.views.promote_member group.id user.id %}">Toggle Admin</a>{% endif %}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% else %}
-<p><b>This group has no members</b></p>
-{% endif %}
-
 <h3>Membership Requests</h3>
 
 {% if requests %}
@@ -50,6 +28,29 @@
 </table>
 {% else %}
 <b>This group has no outstanding requests</b>
+{% endif %}
+
+
+<h3>Members</h3>
+
+{% if group.user_set.all %}
+<table class="zebra-striped" id="members">
+  <thead>
+    <tr><th>Member Username</th><th>Character</th><th>Status</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+    {% for user, chars, status in member_list %}
+    <tr><td><a href="{% url sso-viewuser user.username %}">{{ user.username }}</a></td>
+      <td>{{ chars }}</td>
+      <td>{{ status }}</td>
+      <td><a href="{% url groups.views.kick_member group.id user.id %}">Kick Member</a>
+      {% if request.user.is_superuser %}&nbsp;<a href="{% url groups.views.promote_member group.id user.id %}">Toggle Admin</a>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p><b>This group has no members</b></p>
 {% endif %}
 
 <script src="/static/js/jquery.tablesorter.min.js"></script>
