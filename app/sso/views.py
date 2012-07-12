@@ -266,7 +266,7 @@ def refresh_access(request, userid=0, corpid=0, allianceid=0):
         u = get_object_or_404(User, id=userid)
         update_user_access(u.id)
         messages.add_message(request, messages.INFO, "%s's access has been updated." % u.username)
-        return redirect(user_view, username=u.username)
+        return redirect('sso-viewuser', username=u.username)
     if corpid > 0 and request.user.has_perm('sso.can_refresh_users'):
         users = User.objects.filter(eveaccount__characters__corporation__id=corpid).distinct()
         for u in users:
