@@ -20,7 +20,7 @@
 <li><b>Email:</b> {{ object.email }}</li>
 <li><b>Groups:</b> {{ object.groups.all|join:", " }}</li>
 {% if "hr"|installed %}
-<li><b>Blacklist Status: {% if blacklisted %}<font color='red'>BLACKLISTED</font> ({{ blacklisted }} items){% else %}<font color='geen'>OK</font>{% endif %}</b></li>
+<li><b>Blacklist Status: {% if blacklisted %}<font color='red'>BLACKLISTED</font> ({{ blacklist_items|length }} items){% else %}<font color='geen'>OK</font>{% endif %}</b></li>
 {% endif %}
 {% if object.ip_addresses.count %}
 <li><a href="{% url sso-ipaddress %}?user={{ object.username }}">IP Address Lookup</a> ({{ object.ip_addresses.count }} associated addresses)</li>
