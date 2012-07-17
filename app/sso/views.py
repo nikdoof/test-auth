@@ -39,6 +39,9 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         self.profile = self.get_profile(request.user)
+        if self.profile.api_service_password is None or self.profile.api_service_password == '':
+            messages.info(request, "Please set a External Services Password before continuing.")
+            return HttpResponseRedirect(reverse('sso-apipassword'))
         if self.profile.primary_character is None and EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).count():
             return HttpResponseRedirect(reverse('sso-primarycharacterupdate'))
         return super(ProfileView, self).get(request, *args, **kwargs)
