@@ -26,7 +26,7 @@
   </thead>
   <tbody>
     {% for obj in object_list %}
-    <tr><td>{{ obj.id }}</td><td>{{ obj.get_type_display }}</td><td>{{ obj.value }}</td><td>{{ obj.get_level_display }}</td><td class="reason">{{ obj.reason }}</td><td>{{ obj.expiry_date }}</td></tr>
+    <tr><td>{{ obj.id }}</td><td>{{ obj.get_type_display }}</td><td>{{ obj.value }}</td><td>{{ obj.get_level_display }}</td><td class="reason">{{ obj.reason }}</td><td>{% if obj.expiry_date %}{{ obj.expiry_date }}{% else %}<span class="muted">N/A</span>{% endif %}</td></tr>
     {% endfor %}
   </tbody>
 </table>
