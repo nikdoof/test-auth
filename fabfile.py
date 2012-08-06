@@ -118,7 +118,7 @@ def start_celeryd():
     clear_logs()
     with cd('%(path)s' % env):
         with prefix('source %(path)s/.env/bin/activate' % env):
-            run('app/manage.py celeryd_multi start %(celeryconf)s' % env)
+            run('app/manage.py celery multi start %(celeryconf)s' % env)
 
 @task
 def stop_celeryd():
@@ -129,7 +129,7 @@ def stop_celeryd():
 
     with cd('%(path)s' % env):
         with prefix('source %(path)s/.env/bin/activate' % env):
-            run('app/manage.py celeryd_multi stop %(celeryconf)s' % env)
+            run('app/manage.py celery multi stop %(celeryconf)s' % env)
 
 
 @task
@@ -137,14 +137,14 @@ def restart_celeryd():
     """Restart the celery daemon"""
     with cd('%(path)s' % env):
         with prefix('source %(path)s/.env/bin/activate' % env):
-            run('app/manage.py celeryd_multi restart %(celeryconf)s' % env)
+            run('app/manage.py celery multi restart %(celeryconf)s' % env)
 
 
 @task
 def show_celeryd():
     with cd('%(path)s' % env):
         with prefix('source %(path)s/.env/bin/activate' % env):
-            run('app/manage.py celeryd_multi show %(celeryconf)s' % env)
+            run('app/manage.py celery multi show %(celeryconf)s' % env)
 
 
 @task
