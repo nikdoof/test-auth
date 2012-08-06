@@ -34,6 +34,8 @@ MIDDLEWARE_CLASSES = [
     'sso.middleware.InactiveLogoutMiddleware',
     'sso.middleware.IGBMiddleware',
     'sso.middleware.IPTrackingMiddleware',
+    'raven.contrib.django.middleware.Sentry404CatchMiddleware',
+    'raven.contrib.django.middleware.SentryResponseErrorIdMiddleware',
 ]
 
 ROOT_URLCONF = 'urls'
@@ -62,6 +64,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.humanize',
     'django.contrib.staticfiles',
+    'raven.contrib.django',
     'gargoyle',
     'south',
     'piston',
@@ -159,7 +162,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'root': {
         'level': 'WARNING',
-        'handlers': ['console'],
+        'handlers': ['sentry'],
     },
     'filters': {
         'require_debug_false': {
@@ -172,24 +175,17 @@ LOGGING = {
         },
     },
     'handlers': {
+        'sentry':
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.handlers.SentryHandler',
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
         },
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler',
-            'include_html': True,
-            'filters': ['require_debug_false'],
-        }
     },
     'loggers': {
-        'django.request': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
         'django.db.backends': {
             'level': 'ERROR',
             'handlers': ['console'],
@@ -202,11 +198,6 @@ LOGGING = {
         },
         'sentry.errors': {
             'level': 'DEBUG',
-            'handlers': ['console'],
-            'propagate': False,
-        },
-        'celery': {
-            'level': 'WARNING',
             'handlers': ['console'],
             'propagate': False,
         },

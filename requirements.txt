@@ -18,4 +18,4 @@ nexus
 gargoyle==0.9.0
 -e hg+https://bitbucket.org/jespern/django-piston@7c90898072ce#egg=django_piston
 -e hg+https://bitbucket.org/ubernostrum/django-registration@27bccd108cde#egg=django-registration
-
+raven>=2.0.3

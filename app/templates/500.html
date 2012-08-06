@@ -1,3 +1,6 @@
 <img src="/static/img/ganked.jpg">
 <p>Oops, it seems the server got ganked, CONCORD have been informed.</p>
 
+{% if request.sentry.id %}
+<p>Be helpful, drop a message to the TEST sysadmin guys with this ID: <strong>{{ request.sentry.id }}</strong></p>
+{% endif %}
