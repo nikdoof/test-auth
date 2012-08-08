@@ -63,6 +63,10 @@ def import_eve_characters(character_list, key_id=None, callback=None, **kwargs):
 
 def import_eve_character_func(character_id, key_id=None, logger=logging.getLogger(__name__)):
 
+    if int(character_id) >= 3000000 and int(character_id) < 4000000:
+        # NPC character
+        return EVEPlayerCharacter.objects.get_or_create(pk=character_id)
+
     try:
         char_doc = CachedDocument.objects.api_query('/eve/CharacterInfo.xml.aspx', params={'characterID': character_id}, no_cache=False)
     except DocumentRetrievalError, exc:

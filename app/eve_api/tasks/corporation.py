@@ -117,6 +117,11 @@ def link_ceo(corporation, character):
     char = EVEPlayerCharacter.objects.get(id=character)
     corp.update(ceo_character=char)
 
+    # Fix the reverse link if needed
+    if char.corporation is None:
+        char.corporation = corp
+        char.save()
+
 
 @task(ignore_result=True)
 def import_corp_members(key_id, character_id):
