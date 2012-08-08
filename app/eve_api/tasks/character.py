@@ -65,7 +65,8 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
 
     if int(character_id) >= 3000000 and int(character_id) < 4000000:
         # NPC character
-        return EVEPlayerCharacter.objects.get_or_create(pk=character_id)
+        pchar, created = EVEPlayerCharacter.objects.get_or_create(pk=character_id)
+        return pchar
 
     try:
         char_doc = CachedDocument.objects.api_query('/eve/CharacterInfo.xml.aspx', params={'characterID': character_id}, no_cache=False)
