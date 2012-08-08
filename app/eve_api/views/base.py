@@ -123,7 +123,7 @@ class EVEAPIRefreshView(LoginRequiredMixin, SingleObjectMixin, View):
             try:
                 acc = task.wait(30)
             except (celery.exceptions.TimeoutError, DocumentRetrievalError):
-                acc = EVEAccount.objects.get(pk=userid)
+                acc = EVEAccount.objects.get(pk=self.object.pk)
             ret = []
             if acc:
                 ret = [acc]
