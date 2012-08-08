@@ -299,7 +299,7 @@ class EmailUpdateView(LoginRequiredMixin, FormView):
         self.request.user.email = form.cleaned_data['email2']
         self.request.user.save()
         messages.success(self.request, "E-mail address changed to %s." % form.cleaned_data['email2'])
-        return super(EmailUpdateView).form_valid(form)
+        return super(EmailUpdateView, self).form_valid(form)
 
 
 class PrimaryCharacterUpdateView(LoginRequiredMixin, FormView):
