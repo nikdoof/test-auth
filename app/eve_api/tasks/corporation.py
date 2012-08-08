@@ -142,10 +142,12 @@ def import_corp_members(key_id, character_id):
             auth_params['extended'] = 1
     else:
         auth_params = {'userID': acc.api_user_id, 'apiKey': acc.api_key, 'characterID': character_id }
-    char_doc = CachedDocument.objects.api_query('/corp/MemberTracking.xml.aspx',
-                                                   params=auth_params,
-                                                   no_cache=False,
-                                                   timeout=60)
+
+    try:
+        char_doc = CachedDocument.objects.api_query('/corp/MemberTracking.xml.aspx', params=auth_params, no_cache=False, timeout=60)
+    except DocumentRetrievalError:
+        log.error('Error retreiving MemberTracking', exc_info=sys.exc_info(), extra={'data': {'keyid': acc.api_user_id, 'character': character_id}})
+        return
 
     pdoc = basic_xml_parse_doc(char_doc)
     if not 'eveapi' in pdoc or not 'result' in pdoc['eveapi']:
