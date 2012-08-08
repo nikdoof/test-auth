@@ -340,7 +340,7 @@ class RedditTaggingUpdateView(LoginRequiredMixin, View):
         profile = request.user.get_profile()
 
         if profile.primary_character is None:
-            messages.error("Reddit account tagging requires a primary character before using. Please set one.")
+            messages.add_message(request, messages.ERROR, "Reddit account tagging requires a primary character before using. Please set one.")
             if EVEPlayerCharacter.objects.filter(eveaccount__user=self.request.user).count():
                 return HttpResponseRedirect(reverse('sso-primarycharacterupdate'))
             else:
