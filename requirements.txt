@@ -8,7 +8,7 @@ MySQL-python
 Celery>=3.0
 django-celery>=3.0
 
-django-jsonfield==0.8.7
+django-jsonfield>=0.8.8
 South>=0.7
 django-redis-cache
 IPy==0.75
