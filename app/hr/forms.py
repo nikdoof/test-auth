@@ -22,6 +22,11 @@ class RecommendationForm(forms.Form):
         super(RecommendationForm, self).__init__(*args, **kwargs)
         self.fields['character'].queryset = EVEPlayerCharacter.objects.filter(eveaccount__user=user, eveaccount__api_status=API_STATUS_OK).distinct()
 
+    def clean_character(self):
+        if not 'character' in self.cleaned_data or self.cleaned_data['character'] is None:
+            raise forms.ValidationError("Please select a character.")
+        return self.cleaned_data['character']
+
     def clean(self):
         char = self.cleaned_data.get('character')
         app = self.cleaned_data.get('application')

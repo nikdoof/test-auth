@@ -82,6 +82,12 @@ class HrAddApplication(FormView):
 
     form_class = ApplicationForm
 
+    def dispatch(self, request, *args, **kwargs):
+        if EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).count() == 0:
+            messages.add_message(request, messages.ERROR, "You need to add a EVE API key before you can create a application.")
+            return HttpResponseRedirect(reverse('sso-profile'))
+        return super(HrAddApplication, self).dispatch(request, *args, **kwargs)
+
     def get_form_kwargs(self, **kwargs):
         kwargs = super(HrAddApplication, self).get_form_kwargs(**kwargs)
         kwargs['user'] = self.request.user
@@ -120,6 +126,11 @@ class HrAddRecommendation(FormView):
     form_class = RecommendationForm
 
     def dispatch(self, request, *args, **kwargs):
+
+        if EVEPlayerCharacter.objects.filter(eveaccount__user=request.user).count() == 0:
+            messages.add_message(request, messages.ERROR, "You need to add a EVE API key before you can create a recommendation.")
+            return HttpResponseRedirect(reverse('sso-profile'))
+
         if len(blacklist_values(request.user, BLACKLIST_LEVEL_ADVISORY)):
             raise Http404
         return super(HrAddRecommendation, self).dispatch(request, *args, **kwargs)
