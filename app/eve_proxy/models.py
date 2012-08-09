@@ -103,7 +103,10 @@ class CachedDocumentManager(models.Manager):
                 stat_update_count('eve_proxy_api_exception')
                 raise DocumentRetrievalError(e.reason)
             else:
-                doc.body = unicode(conn.read(), 'utf-8')
+                try:
+                    doc.body = unicode(conn.read(), 'utf-8')
+                except Exception, e:
+                    raise DocumentRetrievalError(e)
                 doc.time_retrieved = now()
 
             error = 0
