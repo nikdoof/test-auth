@@ -117,6 +117,12 @@ class APIPasswordForm(forms.Form):
     def clean_password2(self):
         password1 = self.cleaned_data.get('password')
         password2 = self.cleaned_data.get('password2')
+
+        try:
+            password1.decode('ascii')
+        except UnicodeEncodeError:
+            raise forms.ValidationError("Please use ASCII only for your service password.")
+
         if password1 and password2:
             if password1 != password2:
                 raise forms.ValidationError("The two passwords do not match.")
