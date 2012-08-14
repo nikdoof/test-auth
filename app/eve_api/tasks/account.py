@@ -60,7 +60,7 @@ def import_apikey(api_userid, api_key, user=None, force_cache=False, retry=True,
     try:
         import_apikey_func(api_userid, api_key, user, force_cache, log)
     except (APIAccessException, DocumentRetrievalError), exc:
-        log.error('Error importing API Key - flagging for retry', exc_info=sys.exc_info(), extra={'data': {'api_userid': api_userid, 'api_key': api_key}})
+        log.debug('Error importing API Key - flagging for retry', exc_info=sys.exc_info(), extra={'data': {'api_userid': api_userid, 'api_key': api_key}})
         if retry:
             import_apikey.retry(args=[api_userid, api_key, user, force_cache], exc=exc, kwargs=kwargs)
         else:
@@ -77,7 +77,7 @@ def import_apikey_result(api_userid, api_key, user=None, force_cache=False, call
     try:
         results = import_apikey_func(api_userid, api_key, user, force_cache, log)
     except (APIAccessException, DocumentRetrievalError), exc:
-        log.error('Error importing API Key - flagging for retry', exc_info=sys.exc_info(), extra={'data': {'api_userid': api_userid, 'api_key': api_key}})
+        log.debug('Error importing API Key - flagging for retry', exc_info=sys.exc_info(), extra={'data': {'api_userid': api_userid, 'api_key': api_key}})
         if retry:
             import_apikey_result.retry(args=[api_userid, api_key, user, force_cache, callback], exc=exc, kwargs=kwargs)
         else:
@@ -90,7 +90,7 @@ def import_apikey_result(api_userid, api_key, user=None, force_cache=False, call
 
 
 def import_apikey_func(api_userid, api_key, user=None, force_cache=False, log=logging.getLogger(__name__)):
-    log.info('Importing %s/%s' % (api_userid, api_key))
+    log.debug('Importing %s/%s' % (api_userid, api_key))
 
     try:
         account = EVEAccount.objects.get(pk=api_userid)
