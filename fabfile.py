@@ -18,7 +18,7 @@ def production():
     env.path = '/home/dreddit/apps/dreddit-auth'
     env.config = 'conf.production'
     env.uwsgiconfig = os.path.join(env.path, '..', '..', 'etc', 'uwsgi', 'dreddit-auth.ini')
-    env.celeryconf = '--cmd="app/manage.py celery worker" -l INFO --settings=%(config)s --pidfile=logs/%%n.pid --logfile=logs/%%n.log -n auth.pleaseignore.com bulk default fastresponse -Q:bulk bulk -Q:fastresponse fastresponse -c 5 -c:bulk 3 -c:fastresponse 3 -B:default --scheduler=djcelery.schedulers.DatabaseScheduler' % env
+    env.celeryconf = '--loglevel=INFO --settings=%(config)s --pidfile=logs/%%n.pid --logfile=logs/%%n.log -n auth.pleaseignore.com bulk default fastresponse -Q:bulk bulk -Q:fastresponse fastresponse -c 5 -c:bulk 3 -c:fastresponse 3 -B:default --scheduler=djcelery.schedulers.DatabaseScheduler' % env
 
     
 @task
@@ -118,7 +118,7 @@ def start_celeryd():
     clear_logs()
     with cd('%(path)s' % env):
         with prefix('source %(path)s/.env/bin/activate' % env):
-            run('app/manage.py celery multi start %(celeryconf)s' % env)
+            run('app/manage.py celeryd_multi start %(celeryconf)s' % env)
 
 @task
 def stop_celeryd():
@@ -129,7 +129,7 @@ def stop_celeryd():
 
     with cd('%(path)s' % env):
         with prefix('source %(path)s/.env/bin/activate' % env):
-            run('app/manage.py celery multi stop %(celeryconf)s' % env)
+            run('app/manage.py celeryd_multi stop %(celeryconf)s' % env)
 
 
 @task
@@ -137,14 +137,14 @@ def restart_celeryd():
     """Restart the celery daemon"""
     with cd('%(path)s' % env):
         with prefix('source %(path)s/.env/bin/activate' % env):
-            run('app/manage.py celery multi restart %(celeryconf)s' % env)
+            run('app/manage.py celeryd_multi restart %(celeryconf)s' % env)
 
 
 @task
 def show_celeryd():
     with cd('%(path)s' % env):
         with prefix('source %(path)s/.env/bin/activate' % env):
-            run('app/manage.py celery multi show %(celeryconf)s' % env)
+            run('app/manage.py celeryd_multi show %(celeryconf)s' % env)
 
 
 @task
