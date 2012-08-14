@@ -93,13 +93,13 @@ class CachedDocumentManager(models.Manager):
             except urllib2.HTTPError, e:
                 if not created:
                     pass
-                logger.error('HTTP Error Code: %s' % e.code, exc_info=sys.exc_info(), extra={'data': {'api-url': url}})
+                logger.debug('HTTP Error Code: %s' % e.code, exc_info=sys.exc_info(), extra={'data': {'api-url': url}})
                 stat_update_count('eve_proxy_api_exception')
                 raise DocumentRetrievalError(e.code)
             except urllib2.URLError, e:
                 if not created:
                     pass
-                logger.error('URL Error: %s' % e, exc_info=sys.exc_info(), extra={'data': {'api-url': url}})
+                logger.debug('URL Error: %s' % e, exc_info=sys.exc_info(), extra={'data': {'api-url': url}})
                 stat_update_count('eve_proxy_api_exception')
                 raise DocumentRetrievalError(e.reason)
             else:
