@@ -4,11 +4,22 @@ from django.contrib.auth.models import Group, User
 
 from groups.app_defines import *
 
+
+class GroupCategory(models.Model):
+    """Category to put groups into"""
+
+    name = models.CharField('Category Name', max_length="250")
+
+    def __unicode__(self):
+        return self.name
+
+
 class GroupInformation(models.Model):
     """ Extended group information """
 
     group = models.OneToOneField(Group)
 
+    category = models.ForeignKey(GroupCategory, related_name='groups', null=True)
     type = models.IntegerField("Group Type", choices=GROUP_TYPE_CHOICES, default=GROUP_TYPE_PERMISSION)
     admins = models.ManyToManyField(User, blank=True)
     public = models.BooleanField("Public", default=False, help_text="Indicates if the group is visible to all")

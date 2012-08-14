@@ -53,12 +53,21 @@ def group_list(request):
             continue
 
         fixed = not group.groupinformation.type == GROUP_TYPE_PERMISSION
-	pending = group.requests.filter(status=REQUEST_PENDING,user=request.user).count()
+        pending = group.requests.filter(status=REQUEST_PENDING,user=request.user).count()
 
-        group_list.append((group.id, group.name, group.groupinformation.description, status, requestable, fixed, pending, group.groupinformation.moderated))
+        group_list.append({
+            'id': group.id,
+            'group': group.name,
+            'category': group.groupinformation.category or 'Other',
+            'description': group.groupinformation.description,
+            'status': status,
+            'requestable': requestable,
+            'fixed': fixed,
+            'pending': pending,
+            'moderated': group.groupinformation.moderated,
+            })
 
-    group_list = sorted(group_list, key=lambda name: name[1].lower())
-
+    group_list = sorted(group_list, key=lambda k: "%s-%s" % (k['category'], k['group']))
     return render_to_response('groups/group_list.html', locals(), context_instance=RequestContext(request))
 
 

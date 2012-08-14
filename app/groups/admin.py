@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import GroupAdmin
-from groups.models import GroupInformation, GroupRequest
+from groups.models import GroupInformation, GroupRequest, GroupCategory
 
 class GroupRequestAdmin(admin.ModelAdmin):
     list_display = ('group', 'user', 'status', 'created_date', 'changed_by', 'changed_date')
@@ -9,6 +9,7 @@ class GroupRequestAdmin(admin.ModelAdmin):
     list_filter = ('status',)
 
 admin.site.register(GroupRequest, GroupRequestAdmin)
+admin.site.register(GroupCategory, admin.ModelAdmin)
 
 class SSOGroupInformationInline(admin.StackedInline):
     model = GroupInformation
