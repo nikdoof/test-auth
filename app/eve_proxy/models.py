@@ -146,7 +146,7 @@ class CachedDocumentManager(models.Manager):
                         doc.save()
                 else:
                     if not int(error) in IGNORED_ERRORS:
-                        logger.error("API Error %s encountered - %s" % (error, url), extra={'data': {'api-url': url, 'error': error, 'document': doc.body}})
+                        logger.debug("API Error %s encountered - %s" % (error, url), extra={'data': {'api-url': url, 'error': error, 'document': doc.body}})
                     else:
                         doc.save()
             else:
