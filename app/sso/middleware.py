@@ -33,9 +33,9 @@ class IGBMiddleware(object):
             ('HTTP_EVE_REGIONNAME', 'eve_regionid'),
             ('HTTP_EVE_CONSTELLATIONNAME', 'eve_constellationname'),
             ('HTTP_EVE_SOLARSYSTEMNAME', 'eve_systemname'),
-            ('HTTP_EVE_STATIONNAME,' 'eve_stationname'),
-            ('HTTP_EVE_STATIONID,' 'eve_stationid'),
-            ('HTTP_EVE_CORPROLE,' 'eve_corprole'),
+            ('HTTP_EVE_STATIONNAME,', 'eve_stationname'),
+            ('HTTP_EVE_STATIONID,', 'eve_stationid'),
+            ('HTTP_EVE_CORPROLE,', 'eve_corprole'),
         ]
 
         if request.META.has_key('HTTP_EVE_TRUSTED'):
