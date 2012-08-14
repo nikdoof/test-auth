@@ -22,6 +22,7 @@ class APIAccessException(Exception):
 
     def __init__(self, msg):
         self.msg = msg
+        Exception.__init__(self, msg)
 
     def __str__(self):
         return "An error was encountered while accessing the EVE API: %s" % self.msg

@@ -4,6 +4,7 @@ class DocumentRetrievalError(Exception):
     """
     def __init__(self, value):
         self.value = value
+        Exception.__init__(self, value)
 
     def __str__(self):
         return self.__doc__ % self.value
