@@ -29,11 +29,11 @@ def import_eve_character(character_id, key_id=None, callback=None, **kwargs):
     try:
         pchar = import_eve_character_func(character_id, key_id, log)
     except APIAccessException, exc:
-        log.error('Error importing character - flagging for retry')
+        log.debug('Error importing character - flagging for retry')
         import_eve_character.retry(args=[character_id, key_id, callback], exc=exc, kwargs=kwargs)
 
     if not pchar:
-        log.error('Error importing character %s' % character_id)
+        log.debug('Error importing character %s' % character_id)
     else:
         if callback:
             subtask(callback).delay(character=pchar.id)
@@ -53,7 +53,7 @@ def import_eve_characters(character_list, key_id=None, callback=None, **kwargs):
     try:
         results = [import_eve_character_func(char, key_id, log) for char in character_list]
     except APIAccessException, exc:
-        log.error('Error importing characters - flagging for retry')
+        log.debug('Error importing characters - flagging for retry')
         import_eve_characters.retry(args=[character_list, key_id, callback], exc=exc, kwargs=kwargs)
     if callback:
         subtask(callback).delay(characters=results)
@@ -71,7 +71,7 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
     try:
         char_doc = CachedDocument.objects.api_query('/eve/CharacterInfo.xml.aspx', params={'characterID': character_id}, no_cache=False)
     except DocumentRetrievalError, exc:
-        logger.error('Error retrieving CharacterInfo.xml.aspx for Character ID %s - %s' % (character_id, exc))
+        logger.debug('Error retrieving CharacterInfo.xml.aspx for Character ID %s - %s' % (character_id, exc))
         raise APIAccessException('Error retrieving CharacterInfo.xml.aspx for Character ID %s - %s' % (character_id, exc))
 
     d = basic_xml_parse_doc(char_doc)['eveapi']
@@ -134,7 +134,7 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
         try:
             char_doc = CachedDocument.objects.api_query('/char/CharacterSheet.xml.aspx', params=auth_params, no_cache=False)
         except DocumentRetrievalError, exc:
-            logger.error('Error retrieving CharacterSheet.xml.aspx for User ID %s, Character ID %s - %s' % (acc.pk, character_id, exc))
+            logger.debug('Error retrieving CharacterSheet.xml.aspx for User ID %s, Character ID %s - %s' % (acc.pk, character_id, exc))
             raise APIAccessException('Error retrieving CharacterSheet.xml.aspx for User ID %s, Character ID %s - %s' % (acc.pk, character_id, exc.value))
 
         doc = basic_xml_parse_doc(char_doc)['eveapi']
@@ -164,7 +164,7 @@ def import_eve_character_func(character_id, key_id=None, logger=logging.getLogge
                 try:
                     skillqueue = CachedDocument.objects.api_query('/char/SkillInTraining.xml.aspx', params=auth_params, no_cache=False)
                 except DocumentRetrievalError, exc:
-                    logger.error('Error retrieving SkillInTraining.xml.aspx for User ID %s, Character ID %s - %s' % (key_id, character_id, exc))
+                    logger.debug('Error retrieving SkillInTraining.xml.aspx for User ID %s, Character ID %s - %s' % (key_id, character_id, exc))
                 else:
                     queuedoc = basic_xml_parse_doc(skillqueue)
                     if not 'error' in queuedoc['eveapi'] and 'result' in queuedoc['eveapi']:
