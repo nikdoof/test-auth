@@ -37,7 +37,7 @@ class OAuthOpTimerHandler(BaseHandler):
     def read(self, request, id=None):
 
         try:
-            obj = EVEAccount.object.get(pk=settings.FULL_API_USER_ID)
+            obj = EVEAccount.objects.get(pk=settings.FULL_API_USER_ID)
         except EVEAccount.DoesNotExist:
             return {'ops':[{
                 'startsIn': -1,
