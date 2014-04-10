@@ -11,9 +11,11 @@ Requirements
 
 The requirements.txt covers all dependencies for Auth, setup a virtual env and install the requirements:
 
+```bash
 virtualenv env
 . env/bin/activate
 pip install -r requirements.txt
+```
 
 As we're using system wide packages, its advisable to install python-mysql packages system wide, otherwise you'll need a basic build env on your machine (build-essentials, python-dev on Debian).
 
@@ -27,7 +29,14 @@ https://github.com/twitter/bootstrap/tarball/v1.4.0
 Running
 -------
 
-For dev, use ./manage.py runserver <ip>:<port>, after loading the virtualenv. In development Celery will operate in-process and doesn't require a seperate celeryd process to execute.
+For dev, use ```./manage.py runserver <ip>:<port>```, after loading the virtualenv. In development Celery will operate in-process and doesn't require a seperate celeryd process to execute.
 
-For Live instances its advisable to run within a WSGI container server such as uWSGI. 
+Production instances have successfully ran under uWSGI for several years, and is the suggested method of execution.
+
+Development Status
+------------------
+
+This project is no longer in active development by the original author, and this represents the last near pure copyright held version of the project. As such no issues should be reported to the original author.
+
+Auth is highly specialized towards the requirements of Test Alliance Please Ignore and other alliances/coprorations may find it difficult to implement without major modifications. The project was open sourced mostly as a helpful aid for any developers wishing to create their own system.
 
